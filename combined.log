@@ -1,0 +1,42 @@
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T06:08:50.156Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T06:08:50.159Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'constructor') - POST /api/auth/login","timestamp":"2025-04-23T06:13:05.290Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'length') - POST /api/auth/register","timestamp":"2025-04-23T06:13:22.214Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T06:14:18.011Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T06:14:18.020Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'length') - POST /api/auth/register","timestamp":"2025-04-23T06:14:28.122Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T06:15:25.089Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T06:15:25.092Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T06:15:38.676Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T06:15:38.679Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T06:15:49.201Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T06:15:49.204Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'length') - POST /api/auth/register","timestamp":"2025-04-23T06:15:52.583Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T06:16:32.522Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T06:16:32.525Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'length') - POST /api/auth/register","timestamp":"2025-04-23T06:16:40.294Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T06:18:11.219Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T06:18:11.221Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T06:18:26.798Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T06:18:26.800Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T06:18:37.653Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T06:18:37.655Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T06:18:49.380Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T06:18:49.382Z"}
+{"level":"error","message":"User.findOne is not a function - POST /api/auth/login","timestamp":"2025-04-23T06:18:58.920Z"}
+{"level":"error","message":"User.create is not a function - POST /api/auth/register","timestamp":"2025-04-23T06:19:03.799Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T06:21:01.139Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T06:21:01.142Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T06:21:16.662Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T06:21:16.666Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T06:21:29.033Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T06:21:29.036Z"}
+{"level":"error","message":"ENOENT: no such file or directory, open 'uploads/1745389363065.png' - POST /api/hero-banners","timestamp":"2025-04-23T06:22:43.066Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T06:34:04.142Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T06:34:04.152Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T06:36:02.000Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T06:36:02.003Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T06:36:06.423Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T06:36:06.426Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T06:36:28.316Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T06:36:28.396Z"}

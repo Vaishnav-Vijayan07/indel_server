@@ -1,0 +1,8 @@
+{"level":"error","message":"Cannot read properties of undefined (reading 'constructor') - POST /api/auth/login","timestamp":"2025-04-23T06:13:05.290Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'length') - POST /api/auth/register","timestamp":"2025-04-23T06:13:22.214Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'length') - POST /api/auth/register","timestamp":"2025-04-23T06:14:28.122Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'length') - POST /api/auth/register","timestamp":"2025-04-23T06:15:52.583Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'length') - POST /api/auth/register","timestamp":"2025-04-23T06:16:40.294Z"}
+{"level":"error","message":"User.findOne is not a function - POST /api/auth/login","timestamp":"2025-04-23T06:18:58.920Z"}
+{"level":"error","message":"User.create is not a function - POST /api/auth/register","timestamp":"2025-04-23T06:19:03.799Z"}
+{"level":"error","message":"ENOENT: no such file or directory, open 'uploads/1745389363065.png' - POST /api/hero-banners","timestamp":"2025-04-23T06:22:43.066Z"}
