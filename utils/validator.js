@@ -12,4 +12,12 @@ const validateHeroBanner = [
   check("location").notEmpty().withMessage("Location is required"),
 ];
 
-module.exports = { validateAuth, validateHeroBanner };
+const validateHomeStatistics = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("value").notEmpty().withMessage("Value is required"),
+  check("sort_order").isInt().withMessage("Sort order must be an integer"),
+  check("status").isBoolean().withMessage("Status must be a boolean"),
+  check("suffix").optional().isString().withMessage("Suffix must be a string"),
+];
+
+module.exports = { validateAuth, validateHeroBanner, validateHomeStatistics };

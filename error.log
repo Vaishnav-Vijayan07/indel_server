@@ -6,3 +6,6 @@
 {"level":"error","message":"User.findOne is not a function - POST /api/auth/login","timestamp":"2025-04-23T06:18:58.920Z"}
 {"level":"error","message":"User.create is not a function - POST /api/auth/register","timestamp":"2025-04-23T06:19:03.799Z"}
 {"level":"error","message":"ENOENT: no such file or directory, open 'uploads/1745389363065.png' - POST /api/hero-banners","timestamp":"2025-04-23T06:22:43.066Z"}
+{"level":"error","message":"Validation error - POST /api/auth/register","timestamp":"2025-04-23T07:22:05.571Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'findAll') - GET /api/home-statistics","timestamp":"2025-04-23T07:32:59.721Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'findAll') - GET /api/home-statistics","timestamp":"2025-04-23T07:35:33.792Z"}

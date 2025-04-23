@@ -46,3 +46,24 @@
 {"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T06:49:47.239Z"}
 {"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T06:51:26.555Z"}
 {"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T06:51:26.563Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T07:19:10.164Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T07:19:10.182Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T07:19:24.071Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T07:19:24.078Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T07:19:57.316Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T07:19:57.324Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T07:20:38.464Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T07:20:38.472Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T07:20:54.462Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T07:20:54.470Z"}
+{"level":"error","message":"Validation error - POST /api/auth/register","timestamp":"2025-04-23T07:22:05.571Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T07:25:55.505Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T07:25:55.512Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T07:26:07.714Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T07:26:07.722Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T07:29:24.586Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T07:29:24.594Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'findAll') - GET /api/home-statistics","timestamp":"2025-04-23T07:32:59.721Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'findAll') - GET /api/home-statistics","timestamp":"2025-04-23T07:35:33.792Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T07:36:41.464Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T07:36:41.474Z"}

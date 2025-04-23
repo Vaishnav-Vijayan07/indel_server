@@ -1,8 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const sequelize = require("./config/database");
-const authRoutes = require("./routes/auth");
-const heroBannerRoutes = require("./routes/heroBanner");
+const apiRoutes = require("./routes/index");
 const errorMiddleware = require("./middlewares/errorMiddleware");
 const Logger = require("./services/logger");
 const path = require("path");
@@ -12,10 +11,9 @@ dotenv.config();
 const app = express();
 
 app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "Uploads")));
 
-app.use("/api/auth", authRoutes);
-app.use("/api/hero-banners", heroBannerRoutes);
+app.use("/api", apiRoutes);
 
 app.use(errorMiddleware);
 
@@ -27,7 +25,7 @@ const startServer = async () => {
     await sequelize.sync({ alter: true });
     Logger.info("Database connected and synced");
 
-    await createDemoAdmin(); // Create demo admin user
+    await createDemoAdmin();
 
     app.listen(PORT, () => {
       Logger.info(`Server running on port ${PORT}`);
