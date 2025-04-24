@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const HeroBannerController = require("../controllers/heroBannerController");
-const authMiddleware = require("../middlewares/authMiddleware");
-const { validateHeroBanner } = require("../utils/validator");
-const validateMiddleware = require("../middlewares/validateMiddleware");
-const createUploadMiddleware = require("../middlewares/multerMiddleware");
+const HeroBannerController = require("../../controllers/homePage/heroBannerController");
+const authMiddleware = require("../../middlewares/authMiddleware");
+const { validateHeroBanner } = require("../../utils/validator");
+const validateMiddleware = require("../../middlewares/validateMiddleware");
+const createUploadMiddleware = require("../../middlewares/multerMiddleware");
 
 const upload = createUploadMiddleware("banner");
 
