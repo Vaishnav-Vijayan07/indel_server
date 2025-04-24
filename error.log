@@ -9,3 +9,29 @@
 {"level":"error","message":"Validation error - POST /api/auth/register","timestamp":"2025-04-23T07:22:05.571Z"}
 {"level":"error","message":"Cannot read properties of undefined (reading 'findAll') - GET /api/home-statistics","timestamp":"2025-04-23T07:32:59.721Z"}
 {"level":"error","message":"Cannot read properties of undefined (reading 'findAll') - GET /api/home-statistics","timestamp":"2025-04-23T07:35:33.792Z"}
+{"level":"error","message":"Failed to start server: database \"indel_money\" does not exist","timestamp":"2025-04-23T10:58:57.692Z"}
+{"level":"error","message":"Validation failed: Username is required - POST /api/auth/login","timestamp":"2025-04-24T04:22:02.869Z"}
+{"level":"error","message":"Validation failed: Username is required - POST /api/auth/login","timestamp":"2025-04-24T04:22:42.114Z"}
+{"level":"error","message":"Validation failed: Username is required - POST /api/auth/login","timestamp":"2025-04-24T04:25:05.950Z"}
+{"level":"error","message":"Validation failed: Username is required - POST /api/auth/login","timestamp":"2025-04-24T04:25:54.867Z"}
+{"level":"error","message":"Validation failed: Username is required - POST /api/auth/login","timestamp":"2025-04-24T04:28:38.985Z"}
+{"level":"error","message":"Validation failed: Username is required - POST /api/auth/login","timestamp":"2025-04-24T04:30:59.037Z"}
+{"level":"error","message":"Invalid credentials - POST /api/auth/login","timestamp":"2025-04-24T04:36:13.884Z"}
+{"level":"error","message":"Invalid credentials - POST /api/auth/login","timestamp":"2025-04-24T04:36:31.099Z"}
+{"level":"error","message":"Invalid credentials - POST /api/auth/login","timestamp":"2025-04-24T04:36:45.735Z"}
+{"level":"error","message":"Invalid credentials - POST /api/auth/login","timestamp":"2025-04-24T04:38:13.285Z"}
+{"level":"error","message":"Invalid credentials - POST /api/auth/login","timestamp":"2025-04-24T04:38:48.606Z"}
+{"level":"error","message":"Invalid credentials - POST /api/auth/login","timestamp":"2025-04-24T04:39:57.571Z"}
+{"level":"error","message":"Validation failed: Username is required - POST /api/auth/login","timestamp":"2025-04-24T04:41:36.184Z"}
+{"level":"error","message":"Validation failed: Username is required - POST /api/auth/login","timestamp":"2025-04-24T04:41:57.092Z"}
+{"level":"error","message":"notNull Violation: User.username cannot be null - POST /api/auth/register","timestamp":"2025-04-24T04:42:52.665Z"}
+{"level":"error","message":"Validation failed: Username is required - POST /api/auth/register","timestamp":"2025-04-24T04:43:00.590Z"}
+{"level":"error","message":"WHERE parameter \"username\" has invalid \"undefined\" value - POST /api/auth/login","timestamp":"2025-04-24T04:54:17.892Z"}
+{"level":"error","message":"Invalid credentials - POST /api/auth/login","timestamp":"2025-04-24T04:54:57.719Z"}
+{"level":"error","message":"Invalid credentials - POST /api/auth/login","timestamp":"2025-04-24T04:55:28.148Z"}
+{"level":"error","message":"data and hash arguments required - POST /api/auth/login","timestamp":"2025-04-24T05:05:00.667Z"}
+{"level":"error","message":"data and hash arguments required - POST /api/auth/login","timestamp":"2025-04-24T05:08:54.289Z"}
+{"level":"error","message":"Validation failed: Password must be at least 6 characters - POST /api/auth/login","timestamp":"2025-04-24T05:17:00.031Z"}
+{"level":"error","message":"Validation failed: Username is required - POST /api/auth/login","timestamp":"2025-04-24T05:17:32.866Z"}
+{"level":"error","message":"Invalid credentials - POST /api/auth/login","timestamp":"2025-04-24T05:45:13.577Z"}
+{"level":"error","message":"Validation failed: Password must be at least 6 characters - POST /api/auth/login","timestamp":"2025-04-24T06:57:52.522Z"}

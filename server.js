@@ -5,10 +5,13 @@ const apiRoutes = require("./routes/index");
 const errorMiddleware = require("./middlewares/errorMiddleware");
 const Logger = require("./services/logger");
 const path = require("path");
+const cors = require("cors");
 const { createDemoAdmin } = require("./utils/demoUser");
 
 dotenv.config();
 const app = express();
+
+app.use(cors());
 
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "Uploads")));
