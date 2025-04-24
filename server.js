@@ -6,6 +6,7 @@ const errorMiddleware = require("./middlewares/errorMiddleware");
 const Logger = require("./services/logger");
 const path = require("path");
 const { createDemoAdmin } = require("./utils/demoUser");
+const { initHomePageContent } = require("./utils/initHomePageContent");
 
 dotenv.config();
 const app = express();
@@ -26,6 +27,7 @@ const startServer = async () => {
     Logger.info("Database connected and synced");
 
     await createDemoAdmin();
+    await initHomePageContent();
 
     app.listen(PORT, () => {
       Logger.info(`Server running on port ${PORT}`);

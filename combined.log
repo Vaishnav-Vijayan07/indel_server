@@ -67,3 +67,80 @@
 {"level":"error","message":"Cannot read properties of undefined (reading 'findAll') - GET /api/home-statistics","timestamp":"2025-04-23T07:35:33.792Z"}
 {"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T07:36:41.464Z"}
 {"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T07:36:41.474Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-23T11:26:21.438Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-23T11:26:21.456Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T06:27:51.081Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T06:27:51.092Z"}
+{"level":"error","message":"jwt malformed - PUT /api/home-page-content","timestamp":"2025-04-24T06:28:09.974Z"}
+{"level":"error","message":"Validation failed: Username is required - POST /api/auth/login","timestamp":"2025-04-24T06:28:21.951Z"}
+{"level":"error","message":"jwt malformed - PUT /api/home-page-content","timestamp":"2025-04-24T06:28:39.125Z"}
+{"level":"error","message":"Home Page Content not found - PUT /api/home-page-content","timestamp":"2025-04-24T06:29:55.205Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T06:30:44.868Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T06:30:44.883Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T06:32:57.493Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T06:32:57.507Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T06:38:59.964Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T06:38:59.977Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T06:40:05.242Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T06:40:05.250Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T06:41:17.112Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T06:41:17.121Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T06:41:23.280Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T06:41:23.289Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T06:41:24.682Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T06:41:24.690Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T06:44:26.274Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T06:44:26.286Z"}
+{"level":"error","message":"Image is required - POST /api/home-page/hero-banner","timestamp":"2025-04-24T06:46:06.902Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T06:49:58.687Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T06:49:58.704Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T06:50:40.479Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T06:50:40.489Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T06:51:51.223Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T06:51:51.233Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T06:52:26.219Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T06:52:26.232Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T06:52:32.181Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T06:52:32.189Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T06:52:44.144Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T06:52:44.153Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T06:52:52.802Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T06:52:52.810Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T06:57:08.896Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T06:57:08.907Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T08:49:34.986Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T08:49:35.008Z"}
+{"level":"error","message":"Validation failed: Description is required, Order must be an integer - POST /api/home-page/home-loan-step","timestamp":"2025-04-24T08:57:12.029Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T09:02:05.573Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T09:02:05.596Z"}
+{"level":"info","message":"Uploaded icon for HomeLoanStep: /uploads/home-loan-steps/1745485485131.png","timestamp":"2025-04-24T09:04:45.134Z"}
+{"level":"info","message":"Uploaded icon for HomeLoanStep: /uploads/home-loan-steps/1745485510714.png","timestamp":"2025-04-24T09:05:10.716Z"}
+{"level":"info","message":"Updated icon for HomeLoanStep ID 1: /uploads/home-loan-steps/1745485612315.png","timestamp":"2025-04-24T09:06:52.338Z"}
+{"level":"error","message":"Home Loan Step not found - DELETE /api/home-page/home-loan-step/3","timestamp":"2025-04-24T09:14:04.849Z"}
+{"level":"info","message":"Uploaded icon for HomeLoanStep: /uploads/home-loan-steps/1745486074779.png","timestamp":"2025-04-24T09:14:34.783Z"}
+{"level":"info","message":"Uploaded icon for HomeLoanStep: /uploads/home-loan-steps/1745486092427.png","timestamp":"2025-04-24T09:14:52.431Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T09:23:27.083Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T09:23:27.109Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T09:23:41.130Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T09:23:41.141Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T09:24:03.824Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T09:24:03.841Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T09:24:13.196Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T09:24:13.205Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T09:28:16.500Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T09:28:16.518Z"}
+{"level":"error","message":"jwt malformed - POST /api/home-page/home-faq","timestamp":"2025-04-24T09:31:45.566Z"}
+{"level":"error","message":"Validation failed: Answer is required, Order must be an integer - PUT /api/home-page/home-faq/1","timestamp":"2025-04-24T09:36:26.595Z"}
+{"level":"error","message":"Home FAQ not found - DELETE /api/home-page/home-faq/4","timestamp":"2025-04-24T09:37:09.629Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T10:18:01.359Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T10:18:01.383Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T10:18:29.332Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T10:18:29.342Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T10:18:44.572Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T10:18:44.581Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T10:19:00.976Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T10:19:00.994Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T10:19:33.123Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T10:19:33.135Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T10:19:34.946Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T10:19:34.966Z"}

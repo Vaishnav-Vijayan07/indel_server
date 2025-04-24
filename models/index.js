@@ -1,16 +1,22 @@
-const sequelize = require("../config/database");
-const defineUser = require("./user");
-const defineHeroBanner = require("./heroBanner");
-const defineHomeStatistics = require("./homeStatistics");
+const sequelize = require('../config/database');
+const defineUser = require('./user');
+const defineHeroBanner = require('./homePage/heroBanner');
+const defineHomeStatistics = require('./homePage/homeStatistics');
+const defineHomePageContent = require('./homePage/HomePageContent');
+const defineHomeLoanStep = require('./homePage/homeLoanStep');
+const defineHomeFaq = require('./homePage/homeFaq');
 
 const models = {
   User: defineUser(sequelize),
   HeroBanner: defineHeroBanner(sequelize),
   HomeStatistics: defineHomeStatistics(sequelize),
+  HomePageContent: defineHomePageContent(sequelize),
+  HomeLoanStep: defineHomeLoanStep(sequelize),
+  HomeFaq: defineHomeFaq(sequelize),
 };
 
 // Debug: Log model initialization
-console.log("Models initialized:", Object.keys(models));
+console.log('Models initialized:', Object.keys(models));
 Object.keys(models).forEach((modelName) => {
   console.log(`${modelName} methods:`, Object.keys(models[modelName]));
 });
