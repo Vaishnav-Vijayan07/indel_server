@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const HomePageContentController = require("../../controllers/homePage/homePageContentController");
 const authMiddleware = require("../../middlewares/authMiddleware");
-const { validateHomePageContent, validateHomePageContentUpdate } = require("../../utils/validator");
+const { validateHomePageContentUpdate } = require("../../utils/validator");
 const validateMiddleware = require("../../middlewares/validateMiddleware");
 const createUploadMiddleware = require("../../middlewares/multerMiddleware");
 

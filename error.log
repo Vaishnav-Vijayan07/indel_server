@@ -19,3 +19,12 @@
 {"level":"error","message":"jwt malformed - POST /api/home-page/home-faq","timestamp":"2025-04-24T09:31:45.566Z"}
 {"level":"error","message":"Validation failed: Answer is required, Order must be an integer - PUT /api/home-page/home-faq/1","timestamp":"2025-04-24T09:36:26.595Z"}
 {"level":"error","message":"Home FAQ not found - DELETE /api/home-page/home-faq/4","timestamp":"2025-04-24T09:37:09.629Z"}
+{"level":"error","message":"Validation failed: Gold rate label cannot be empty - PUT /api/home-page/home-page-content","timestamp":"2025-04-24T10:34:49.931Z"}
+{"level":"error","message":"Validation failed: Gold rate label cannot be empty - PUT /api/home-page/home-page-content","timestamp":"2025-04-24T10:35:29.569Z"}
+{"level":"error","message":"Validation failed: Gold rate label cannot be empty - PUT /api/home-page/home-page-content","timestamp":"2025-04-24T10:35:30.998Z"}
+{"level":"error","message":"Validation failed: Gold rate label cannot be empty - PUT /api/home-page/home-page-content","timestamp":"2025-04-24T10:35:31.635Z"}
+{"level":"error","message":"Validation failed: Gold rate label cannot be empty - PUT /api/home-page/home-page-content","timestamp":"2025-04-24T10:35:32.245Z"}
+{"level":"error","message":"Validation failed: Gold rate label cannot be empty - PUT /api/home-page/home-page-content","timestamp":"2025-04-24T10:35:32.735Z"}
+{"level":"error","message":"Validation failed: Order must be an integer - PUT /api/home-page/home-faq/1","timestamp":"2025-04-24T10:43:23.716Z"}
+{"level":"error","message":"Validation failed: Answer cannot be empty - PUT /api/home-page/home-faq/1","timestamp":"2025-04-24T10:43:38.475Z"}
+{"level":"error","message":"Validation failed: Answer cannot be empty - PUT /api/home-page/home-faq/1","timestamp":"2025-04-24T10:43:45.736Z"}

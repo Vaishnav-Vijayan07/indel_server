@@ -144,3 +144,38 @@
 {"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T10:19:33.135Z"}
 {"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T10:19:34.946Z"}
 {"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T10:19:34.966Z"}
+{"level":"error","message":"Validation failed: Gold rate label cannot be empty - PUT /api/home-page/home-page-content","timestamp":"2025-04-24T10:34:49.931Z"}
+{"level":"error","message":"Validation failed: Gold rate label cannot be empty - PUT /api/home-page/home-page-content","timestamp":"2025-04-24T10:35:29.569Z"}
+{"level":"error","message":"Validation failed: Gold rate label cannot be empty - PUT /api/home-page/home-page-content","timestamp":"2025-04-24T10:35:30.998Z"}
+{"level":"error","message":"Validation failed: Gold rate label cannot be empty - PUT /api/home-page/home-page-content","timestamp":"2025-04-24T10:35:31.635Z"}
+{"level":"error","message":"Validation failed: Gold rate label cannot be empty - PUT /api/home-page/home-page-content","timestamp":"2025-04-24T10:35:32.245Z"}
+{"level":"error","message":"Validation failed: Gold rate label cannot be empty - PUT /api/home-page/home-page-content","timestamp":"2025-04-24T10:35:32.735Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T10:36:45.035Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T10:36:45.051Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T10:36:59.730Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T10:36:59.739Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T10:37:00.978Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T10:37:00.986Z"}
+{"level":"error","message":"Validation failed: Order must be an integer - PUT /api/home-page/home-faq/1","timestamp":"2025-04-24T10:43:23.716Z"}
+{"level":"error","message":"Validation failed: Answer cannot be empty - PUT /api/home-page/home-faq/1","timestamp":"2025-04-24T10:43:38.475Z"}
+{"level":"error","message":"Validation failed: Answer cannot be empty - PUT /api/home-page/home-faq/1","timestamp":"2025-04-24T10:43:45.736Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T10:45:58.073Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T10:45:58.110Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T10:46:09.326Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T10:46:09.334Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T10:46:52.100Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T10:46:52.122Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T10:47:03.832Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T10:47:03.841Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T10:56:53.383Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T10:56:53.401Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T10:56:59.844Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T10:56:59.856Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T10:58:45.367Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T10:58:45.380Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T10:58:50.117Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T10:58:50.125Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T10:59:08.946Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T10:59:08.955Z"}
+{"level":"info","message":"Database connected and synced","timestamp":"2025-04-24T10:59:40.588Z"}
+{"level":"info","message":"Server running on port 7700","timestamp":"2025-04-24T10:59:40.599Z"}

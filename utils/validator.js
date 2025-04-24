@@ -91,6 +91,7 @@ const validateHomeFaqUpdate = [
   check("order").optional().isInt().withMessage("Order must be an integer"),
 ];
 
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
