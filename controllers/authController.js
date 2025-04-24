@@ -29,7 +29,14 @@ class AuthController {
   static async login(req, res, next) {
     try {
       const { username, password } = req.body;
-      const user = await User.findOne({ where: { username } });
+
+      console.log("Login attempt with username:", username);
+      console.log("Login attempt with password:", password);
+
+      const user = await User.findOne({
+        attributes: ["id", "username", "role", "password"],
+        where: { username },
+      });
 
       if (!user || !(await bcrypt.compare(password, user.password))) {
         throw new CustomError("Invalid credentials", 401);
@@ -39,7 +46,10 @@ class AuthController {
         expiresIn: "1d",
       });
 
-      res.json({ success: true, data: { token } });
+      const userWithoutPassword = { ...user.toJSON() };
+      delete userWithoutPassword.password;
+
+      res.json({ success: true, data: { token, user: userWithoutPassword } });
     } catch (error) {
       next(error);
     }
