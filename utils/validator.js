@@ -65,6 +65,7 @@ const validateHomePageContentUpdate = [
   check("android_download_link").optional().notEmpty().withMessage("Android download link cannot be empty"),
   check("faq_section_title").optional().notEmpty().withMessage("FAQ section title cannot be empty"),
   check("faq_section_super_title").optional().notEmpty().withMessage("FAQ section super title cannot be empty"),
+  
 ];
 
 const validateHomeLoanStep = [

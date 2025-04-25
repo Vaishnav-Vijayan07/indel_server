@@ -141,6 +141,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      faq_section_image: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
     {
       tableName: "home_page_content",

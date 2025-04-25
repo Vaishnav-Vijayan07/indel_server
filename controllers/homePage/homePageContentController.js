@@ -47,6 +47,9 @@ class HomePageContentController {
         if (req.files.mobile_app_image) {
           updateData.mobile_app_image_url = `/uploads/home-page-content/${req.files.mobile_app_image[0].filename}`;
         }
+        if (req.files.faq_section_image) {
+          updateData.faq_section_image = `/uploads/home-page-content/${req.files.faq_section_image[0].filename}`;
+        }
       }
 
       await content.update(updateData);

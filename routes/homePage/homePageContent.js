@@ -12,6 +12,7 @@ const uploadFields = upload.fields([
   { name: "about_image", maxCount: 1 },
   { name: "investment_image", maxCount: 1 },
   { name: "mobile_app_image", maxCount: 1 },
+  { name: "faq_section_image", maxCount: 1 },
 ]);
 
 router.get("/", HomePageContentController.get);
