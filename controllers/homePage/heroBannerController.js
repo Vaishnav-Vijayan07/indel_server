@@ -8,7 +8,7 @@ const HeroBanner = models.HeroBanner;
 class HeroBannerController {
   static async create(req, res, next) {
     try {
-      const { title, button_text, button_link, location } = req.body;
+      const { title, title2, button_text, button_link, location } = req.body;
       const image = req.file ? `/uploads/banner/${req.file.filename}` : null;
 
       if (!image) {
@@ -17,6 +17,7 @@ class HeroBannerController {
 
       const heroBanner = await HeroBanner.create({
         title,
+        title2,
         button_text,
         button_link,
         location,
@@ -66,11 +67,12 @@ class HeroBannerController {
         throw new CustomError("HeroBanner not found", 404);
       }
 
-      const { title, button_text, button_link, location } = req.body;
+      const { title, title2, button_text, button_link, location } = req.body;
       const image = req.file ? `/uploads/banner/${req.file.filename}` : heroBanner.image;
 
       await heroBanner.update({
         title,
+        title2,
         button_text,
         button_link,
         location,

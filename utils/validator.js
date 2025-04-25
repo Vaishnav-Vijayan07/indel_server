@@ -7,6 +7,7 @@ const validateAuth = [
 
 const validateHeroBanner = [
   check("title").notEmpty().withMessage("Title is required"),
+  check("title2").notEmpty().withMessage("Title 2 is required"),
   check("button_text").notEmpty().withMessage("Button text is required"),
   check("button_link").notEmpty().withMessage("Button link is required"),
   check("location").notEmpty().withMessage("Location is required"),
@@ -14,6 +15,7 @@ const validateHeroBanner = [
 
 const validateHeroBannerUpdate = [
   check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("title2").notEmpty().withMessage("Title 2 is required"),
   check("button_text").optional().notEmpty().withMessage("Button text cannot be empty"),
   check("button_link").optional().notEmpty().withMessage("Button link cannot be empty"),
   check("location").optional().notEmpty().withMessage("Location cannot be empty"),
@@ -65,7 +67,6 @@ const validateHomePageContentUpdate = [
   check("android_download_link").optional().notEmpty().withMessage("Android download link cannot be empty"),
   check("faq_section_title").optional().notEmpty().withMessage("FAQ section title cannot be empty"),
   check("faq_section_super_title").optional().notEmpty().withMessage("FAQ section super title cannot be empty"),
-  
 ];
 
 const validateHomeLoanStep = [
@@ -91,7 +92,6 @@ const validateHomeFaqUpdate = [
   check("answer").optional().notEmpty().withMessage("Answer cannot be empty"),
   check("order").optional().isInt().withMessage("Order must be an integer"),
 ];
-
 
 module.exports = {
   validateAuth,
