@@ -11,6 +11,7 @@ const validateHeroBanner = [
   check("button_text").notEmpty().withMessage("Button text is required"),
   check("button_link").notEmpty().withMessage("Button link is required"),
   check("location").notEmpty().withMessage("Location is required"),
+  check("image_alt_text").notEmpty().withMessage("Alt text is required"),
 ];
 
 const validateHeroBannerUpdate = [
@@ -19,6 +20,7 @@ const validateHeroBannerUpdate = [
   check("button_text").optional().notEmpty().withMessage("Button text cannot be empty"),
   check("button_link").optional().notEmpty().withMessage("Button link cannot be empty"),
   check("location").optional().notEmpty().withMessage("Location cannot be empty"),
+  check("image_alt_text").notEmpty().withMessage("Alt text is required"),
 ];
 
 const validateHomeStatistics = [

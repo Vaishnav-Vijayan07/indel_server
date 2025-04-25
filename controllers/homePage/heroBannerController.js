@@ -8,7 +8,7 @@ const HeroBanner = models.HeroBanner;
 class HeroBannerController {
   static async create(req, res, next) {
     try {
-      const { title, title2, button_text, button_link, location } = req.body;
+      const { title, title2, button_text, button_link, location, image_alt_text } = req.body;
       const image = req.file ? `/uploads/banner/${req.file.filename}` : null;
 
       if (!image) {
@@ -22,6 +22,7 @@ class HeroBannerController {
         button_link,
         location,
         image,
+        image_alt_text,
       });
 
       await CacheService.invalidate("heroBanners");
@@ -67,7 +68,7 @@ class HeroBannerController {
         throw new CustomError("HeroBanner not found", 404);
       }
 
-      const { title, title2, button_text, button_link, location } = req.body;
+      const { title, title2, button_text, button_link, location, image_alt_text } = req.body;
       const image = req.file ? `/uploads/banner/${req.file.filename}` : heroBanner.image;
 
       await heroBanner.update({
@@ -77,6 +78,7 @@ class HeroBannerController {
         button_link,
         location,
         image,
+        image_alt_text,
       });
 
       await CacheService.invalidate("heroBanners");

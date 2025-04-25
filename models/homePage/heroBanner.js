@@ -33,6 +33,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      image_alt_text: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
     },
     {
       tableName: "hero_banners",
