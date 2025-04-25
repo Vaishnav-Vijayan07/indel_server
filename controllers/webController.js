@@ -37,7 +37,8 @@ class WebController {
         throw err;
       }
       try {
-        data.pageContent = await models.HomePageContent.findAll();
+        const homePageData = await models.HomePageContent.findAll();        
+        data.pageContent = homePageData[0]
         logger.debug("Fetched pageContent");
       } catch (err) {
         logger.error("Failed to fetch pageContent", { error: err.message, stack: err.stack });
