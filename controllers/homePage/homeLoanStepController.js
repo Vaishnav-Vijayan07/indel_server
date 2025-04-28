@@ -126,7 +126,7 @@ class HomeLoanStepController {
 
       await CacheService.invalidate("homeLoanSteps");
       await CacheService.invalidate(`homeLoanStep_${id}`);
-      res.json({ success: true, message: "Home Loan Step deleted" });
+      res.json({ success: true, message: "Home Loan Step deleted",data:id });
     } catch (error) {
       next(error);
     }

@@ -92,7 +92,7 @@ class HeroBannerController {
       }
       await heroBanner.destroy();
       await CacheService.invalidate("heroBanners");
-      res.json({ success: true, message: "HeroBanner deleted" });
+      res.json({ success: true, message: "HeroBanner deleted", data: req.params.id });
     } catch (error) {
       next(error);
     }
