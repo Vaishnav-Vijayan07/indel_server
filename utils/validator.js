@@ -4,6 +4,22 @@ const validateAboutLifeAtIndel = [check("order").isInt().withMessage("Order must
 
 const validateAboutLifeAtIndelUpdate = [check("order").optional().isInt().withMessage("Order must be an integer")];
 
+const validateAboutQuickLinks = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("description").notEmpty().withMessage("Description is required"),
+  check("button_name").notEmpty().withMessage("Button name is required"),
+  check("button_link").notEmpty().withMessage("Button link is required"),
+  check("order").isInt().withMessage("Order must be an integer"),
+];
+
+const validateAboutQuickLinksUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("button_name").optional().notEmpty().withMessage("Button name cannot be empty"),
+  check("button_link").optional().notEmpty().withMessage("Button link cannot be empty"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+
 const validateAboutBanner = [
   check("title").notEmpty().withMessage("Title is required"),
   check("super_title").notEmpty().withMessage("Super title is required"),
@@ -134,4 +150,6 @@ module.exports = {
   validateAboutBannerUpdate,
   validateAboutLifeAtIndel,
   validateAboutLifeAtIndelUpdate,
+  validateAboutQuickLinks,
+  validateAboutQuickLinksUpdate,
 };

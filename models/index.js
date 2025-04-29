@@ -8,6 +8,7 @@ const defineHomeFaq = require('./homePage/homeFaq');
 const defineSmartMoneyDeals = require('./homePage/smartMoneyDeals');
 const defineAboutBanner = require('./about/aboutBanner');
 const defineAboutLifeAtIndelGallery = require('./about/aboutLifeAtIndelGallery');
+const defineAboutQuickLinks = require('./about/aboutQuickLinks');
 
 const models = {
   User: defineUser(sequelize),
@@ -19,6 +20,7 @@ const models = {
   SmartMoneyDeals: defineSmartMoneyDeals(sequelize),
   AboutBanner: defineAboutBanner(sequelize),
   AboutLifeAtIndelGallery: defineAboutLifeAtIndelGallery(sequelize),
+  AboutQuickLinks: defineAboutQuickLinks(sequelize),
 };
 
 // Debug: Log model initialization
