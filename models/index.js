@@ -6,6 +6,7 @@ const defineHomePageContent = require('./homePage/HomePageContent');
 const defineHomeLoanStep = require('./homePage/homeLoanStep');
 const defineHomeFaq = require('./homePage/homeFaq');
 const defineSmartMoneyDeals = require('./homePage/smartMoneyDeals');
+const defineAboutBanner = require('./about/aboutBanner');
 
 const models = {
   User: defineUser(sequelize),
@@ -15,6 +16,7 @@ const models = {
   HomeLoanStep: defineHomeLoanStep(sequelize),
   HomeFaq: defineHomeFaq(sequelize),
   SmartMoneyDeals: defineSmartMoneyDeals(sequelize),
+  AboutBanner: defineAboutBanner(sequelize),
 };
 
 // Debug: Log model initialization

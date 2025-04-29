@@ -1,5 +1,17 @@
 const { check } = require("express-validator");
 
+const validateAboutBanner = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("super_title").notEmpty().withMessage("Super title is required"),
+  check("order").isInt().withMessage("Order must be an integer"),
+];
+
+const validateAboutBannerUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("super_title").optional().notEmpty().withMessage("Super title cannot be empty"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+
 const validateHomeSmartDeals = [
   check("title").notEmpty().withMessage("Title is required"),
   check("order").isInt().withMessage("Order must be an integer"),
@@ -114,4 +126,6 @@ module.exports = {
   validateHomeFaqUpdate,
   validateHomeSmartDeals,
   validateHomeSmartDealsUpdate,
+  validateAboutBanner,
+  validateAboutBannerUpdate,
 };
