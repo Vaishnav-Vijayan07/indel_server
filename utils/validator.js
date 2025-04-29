@@ -1,5 +1,15 @@
 const { check } = require("express-validator");
 
+const validateHomeSmartDeals = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("order").isInt().withMessage("Order must be an integer"),
+];
+
+const validateHomeSmartDealsUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+
 const validateAuth = [
   check("username").notEmpty().withMessage("Username is required"),
   check("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters"),
@@ -65,7 +75,6 @@ const validateHomePageContentUpdate = [
   check("android_download_link").optional().notEmpty().withMessage("Android download link cannot be empty"),
   check("faq_section_title").optional().notEmpty().withMessage("FAQ section title cannot be empty"),
   check("faq_section_super_title").optional().notEmpty().withMessage("FAQ section super title cannot be empty"),
-  
 ];
 
 const validateHomeLoanStep = [
@@ -92,7 +101,6 @@ const validateHomeFaqUpdate = [
   check("order").optional().isInt().withMessage("Order must be an integer"),
 ];
 
-
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -104,4 +112,6 @@ module.exports = {
   validateHomeLoanStepUpdate,
   validateHomeFaq,
   validateHomeFaqUpdate,
+  validateHomeSmartDeals,
+  validateHomeSmartDealsUpdate,
 };
