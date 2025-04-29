@@ -1,5 +1,9 @@
 const { check } = require("express-validator");
 
+const validateAboutLifeAtIndel = [check("order").isInt().withMessage("Order must be an integer")];
+
+const validateAboutLifeAtIndelUpdate = [check("order").optional().isInt().withMessage("Order must be an integer")];
+
 const validateAboutBanner = [
   check("title").notEmpty().withMessage("Title is required"),
   check("super_title").notEmpty().withMessage("Super title is required"),
@@ -128,4 +132,6 @@ module.exports = {
   validateHomeSmartDealsUpdate,
   validateAboutBanner,
   validateAboutBannerUpdate,
+  validateAboutLifeAtIndel,
+  validateAboutLifeAtIndelUpdate,
 };
