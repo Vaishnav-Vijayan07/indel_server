@@ -25,14 +25,14 @@ class SmartMoneyDealsController {
     try {
       const updateData = { ...req.body };
       if (req.file) {
-        updateData.icon = `/uploads/smart-money-deals/${req.file.filename}`;
+        updateData.icon = `/uploads/home-smart-deals/${req.file.filename}`;
         Logger.info(`Uploaded icon for SmartMoneyDeal: ${updateData.icon}`);
       }
 
       const deal = await SmartMoneyDeals.create(updateData);
 
       await CacheService.invalidate("smartMoneyDeals");
-      res.status(201).json({ success: true, data: deal });
+      res.status(201).json({ success: true, data: deal,message: "Smart Money Deal created" });
     } catch (error) {
       next(error);
     }
@@ -92,7 +92,7 @@ class SmartMoneyDealsController {
       let oldIcon = deal.icon;
 
       if (req.file) {
-        updateData.icon = `/uploads/smart-money-deals/${req.file.filename}`;
+        updateData.icon = `/uploads/home-smart-deals/${req.file.filename}`;
         Logger.info(`Updated icon for SmartMoneyDeal ID ${id}: ${updateData.icon}`);
         if (oldIcon) {
           await SmartMoneyDealsController.deleteFile(oldIcon);
@@ -103,7 +103,7 @@ class SmartMoneyDealsController {
 
       await CacheService.invalidate("smartMoneyDeals");
       await CacheService.invalidate(`smartMoneyDeal_${id}`);
-      res.json({ success: true, data: deal });
+      res.json({ success: true, data: deal, message: "Smart Money Deal updated" });
     } catch (error) {
       next(error);
     }
