@@ -1,6 +1,6 @@
-const { models } = require("../models/index");
-const CacheService = require("../services/cacheService");
-const CustomError = require("../utils/customError");
+const { models } = require("../../models/index");
+const CacheService = require("../../services/cacheService");
+const CustomError = require("../../utils/customError");
 
 const HomeStatistics = models.HomeStatistics;
 
@@ -18,6 +18,7 @@ class HomeStatisticsController {
       });
 
       await CacheService.invalidate("homeStatistics");
+      await CacheService.invalidate("webHomeData");
       res.status(201).json({ success: true, data: homeStatistics });
     } catch (error) {
       next(error);
@@ -73,6 +74,7 @@ class HomeStatisticsController {
       });
 
       await CacheService.invalidate("homeStatistics");
+      await CacheService.invalidate("webHomeData");
       res.json({ success: true, data: homeStatistics });
     } catch (error) {
       next(error);
@@ -87,6 +89,7 @@ class HomeStatisticsController {
       }
       await homeStatistics.destroy();
       await CacheService.invalidate("homeStatistics");
+      await CacheService.invalidate("webHomeData");
       res.json({ success: true, message: "Home Statistics deleted" });
     } catch (error) {
       next(error);

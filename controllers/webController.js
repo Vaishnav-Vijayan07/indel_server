@@ -6,6 +6,7 @@ const logger = require("../services/logger");
 class WebController {
   static async getHomeData(req, res, next) {
     try {
+      await CacheService.invalidate("webHomeData");
       const cacheKey = "webHomeData";
       const cachedData = await CacheService.get(cacheKey);
 
@@ -37,8 +38,17 @@ class WebController {
         throw err;
       }
       try {
-        const homePageData = await models.HomePageContent.findAll();        
-        data.pageContent = homePageData[0]
+        data.homeStatistics = await models.HomeStatistics.findAll({
+          order: [["sort_order", "ASC"]],
+        });
+        logger.debug("Fetched loanSteps");
+      } catch (err) {
+        logger.error("Failed to fetch loanSteps", { error: err.message, stack: err.stack });
+        throw err;
+      }
+      try {
+        const homePageData = await models.HomePageContent.findAll();
+        data.pageContent = homePageData[0];
         logger.debug("Fetched pageContent");
       } catch (err) {
         logger.error("Failed to fetch pageContent", { error: err.message, stack: err.stack });

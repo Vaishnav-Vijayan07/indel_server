@@ -33,6 +33,7 @@ class HomeLoanStepController {
 
       await CacheService.invalidate("homeLoanSteps");
       res.status(201).json({ success: true, data: step });
+      await CacheService.invalidate("webHomeData");
     } catch (error) {
       next(error);
     }
@@ -103,6 +104,8 @@ class HomeLoanStepController {
 
       await CacheService.invalidate("homeLoanSteps");
       await CacheService.invalidate(`homeLoanStep_${id}`);
+      await CacheService.invalidate("webHomeData");
+
       res.json({ success: true, data: step });
     } catch (error) {
       next(error);
@@ -127,6 +130,7 @@ class HomeLoanStepController {
       await CacheService.invalidate("homeLoanSteps");
       await CacheService.invalidate(`homeLoanStep_${id}`);
       res.json({ success: true, message: "Home Loan Step deleted" });
+      await CacheService.invalidate("webHomeData");
     } catch (error) {
       next(error);
     }

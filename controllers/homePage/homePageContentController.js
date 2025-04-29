@@ -55,6 +55,8 @@ class HomePageContentController {
       await content.update(updateData);
 
       await CacheService.invalidate("homePageContent");
+      await CacheService.invalidate("webHomeData");
+
       res.json({ success: true, data: content });
     } catch (error) {
       next(error);

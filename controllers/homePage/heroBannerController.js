@@ -26,6 +26,8 @@ class HeroBannerController {
       });
 
       await CacheService.invalidate("heroBanners");
+      await CacheService.invalidate("webHomeData");
+
       res.status(201).json({ success: true, data: heroBanner });
     } catch (error) {
       next(error);
@@ -82,6 +84,8 @@ class HeroBannerController {
       });
 
       await CacheService.invalidate("heroBanners");
+      await CacheService.invalidate("webHomeData");
+
       res.json({ success: true, data: heroBanner });
     } catch (error) {
       next(error);
@@ -96,6 +100,8 @@ class HeroBannerController {
       }
       await heroBanner.destroy();
       await CacheService.invalidate("heroBanners");
+      await CacheService.invalidate("webHomeData");
+
       res.json({ success: true, message: "HeroBanner deleted" });
     } catch (error) {
       next(error);
