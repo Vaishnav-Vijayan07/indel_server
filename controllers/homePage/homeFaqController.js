@@ -94,7 +94,7 @@ class HomeFaqController {
       await CacheService.invalidate(`homeFaq_${id}`);
       await CacheService.invalidate("webHomeData");
 
-      res.json({ success: true, message: "Home FAQ deleted" });
+      res.json({ success: true, message: "Home FAQ deleted", data: id });
     } catch (error) {
       next(error);
     }
