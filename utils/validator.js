@@ -4,6 +4,28 @@ const validateAboutLifeAtIndel = [check("order").isInt().withMessage("Order must
 
 const validateAboutLifeAtIndelUpdate = [check("order").optional().isInt().withMessage("Order must be an integer")];
 
+const validateAboutPageContentUpdate = [
+  check("super_title").optional().notEmpty().withMessage("Super title cannot be empty"),
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("sub_title").optional().notEmpty().withMessage("Sub title cannot be empty"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+
+  check("investors_title").optional().notEmpty().withMessage("Investors title cannot be empty"),
+  check("investors_sub_title").optional().notEmpty().withMessage("Investors sub title cannot be empty"),
+
+  check("journey_title").optional().notEmpty().withMessage("Journey title cannot be empty"),
+  check("journey_sub_title").optional().notEmpty().withMessage("Journey sub title cannot be empty"),
+  check("journey_description").optional().notEmpty().withMessage("Journey description cannot be empty"),
+
+  check("journey_year_title").optional().notEmpty().withMessage("Journey year title cannot be empty"),
+  check("journey_year_sub_title").optional().notEmpty().withMessage("Journey year sub title cannot be empty"),
+  check("journey_year_description").optional().notEmpty().withMessage("Journey year description cannot be empty"),
+
+  check("life_at_indel_title").optional().notEmpty().withMessage("Life at indel title cannot be empty"),
+  check("life_at_indel_sub_title").optional().notEmpty().withMessage("Life at indel sub title cannot be empty"),
+  check("life_at_indel_description").optional().notEmpty().withMessage("Life at indel description cannot be empty"),
+];
+
 const validateAboutQuickLinks = [
   check("title").notEmpty().withMessage("Title is required"),
   check("description").notEmpty().withMessage("Description is required"),
@@ -152,4 +174,5 @@ module.exports = {
   validateAboutLifeAtIndelUpdate,
   validateAboutQuickLinks,
   validateAboutQuickLinksUpdate,
+  validateAboutPageContentUpdate
 };

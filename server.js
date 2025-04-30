@@ -8,6 +8,7 @@ const path = require("path");
 const cors = require("cors");
 const { createDemoAdmin } = require("./utils/demoUser");
 const { initHomePageContent } = require("./utils/initHomePageContent");
+const { initAboutPageContent } = require("./utils/initAboutPageContent");
 
 dotenv.config();
 const app = express();
@@ -31,6 +32,7 @@ const startServer = async () => {
 
     await createDemoAdmin();
     await initHomePageContent();
+    await initAboutPageContent()
 
     app.listen(PORT, () => {
       Logger.info(`Server running on port ${PORT}`);
