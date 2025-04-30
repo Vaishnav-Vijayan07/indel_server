@@ -91,7 +91,7 @@ class AboutServiceGalleryController {
       const oldImage = item.image;
 
       if (req.file) {
-        data.image = `/uploads/about-life-at-indel-gallery/${req.file.filename}`;
+        data.image = `/uploads/about-service-gallery/${req.file.filename}`;
         Logger.info(`Updated image for AboutServiceGallery ID ${id}: ${data.image}`);
         if (oldImage) {
           await AboutServiceGalleryController.deleteFile(oldImage);
