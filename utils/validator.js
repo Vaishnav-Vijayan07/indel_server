@@ -1,8 +1,21 @@
 const { check } = require("express-validator");
 
-const validateAboutLifeAtIndel = [check("order").isInt().withMessage("Order must be an integer")];
+const validateAboutLifeAtIndel = [
+  check("order")
+    .isInt({
+      gt: 0,
+    })
+    .withMessage("Order must be a positive integer"),
+];
 
-const validateAboutLifeAtIndelUpdate = [check("order").optional().isInt().withMessage("Order must be an integer")];
+const validateAboutLifeAtIndelUpdate = [
+  check("order")
+    .optional()
+    .isInt({
+      gt: 0,
+    })
+    .withMessage("Order must be an integer"),
+];
 
 const validateAboutPageContentUpdate = [
   check("super_title").optional().notEmpty().withMessage("Super title cannot be empty"),
@@ -174,5 +187,5 @@ module.exports = {
   validateAboutLifeAtIndelUpdate,
   validateAboutQuickLinks,
   validateAboutQuickLinksUpdate,
-  validateAboutPageContentUpdate
+  validateAboutPageContentUpdate,
 };
