@@ -48,7 +48,7 @@ class AboutPageContentController {
       await content.update(updateData);
 
       await CacheService.invalidate("aboutPageContent");
-      res.json({ success: true, data: content });
+      res.json({ success: true, data: content,message: "About Page Content updated" });
     } catch (error) {
       next(error);
     }
