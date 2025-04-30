@@ -11,6 +11,7 @@ const defineAboutLifeAtIndelGallery = require('./about/aboutLifeAtIndelGallery')
 const defineAboutQuickLinks = require('./about/aboutQuickLinks');
 const defineAboutPageContent = require('./about/aboutPageContent');
 const defineAboutServiceGallery = require('./about/aboutServiceGallery');
+const defineAboutMessageTeam = require('./about/aboutMessageFromTeam');
 
 const models = {
   User: defineUser(sequelize),
@@ -25,6 +26,7 @@ const models = {
   AboutQuickLinks: defineAboutQuickLinks(sequelize),
   AboutPageContent: defineAboutPageContent(sequelize),
   AboutServiceGallery: defineAboutServiceGallery(sequelize),
+  AboutMessageFromTeam: defineAboutMessageTeam(sequelize),
 };
 
 // Debug: Log model initialization

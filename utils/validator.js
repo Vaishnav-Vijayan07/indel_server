@@ -17,6 +17,24 @@ const validateAboutLifeAtIndelUpdate = [
     .withMessage("Order must be an integer"),
 ];
 
+const validateAboutMessageFromTeam = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("short_title").notEmpty().withMessage("Short title is required"),
+  check("description").notEmpty().withMessage("Description is required"),
+  check("full_name").notEmpty().withMessage("Full name is required"),
+  check("designation").notEmpty().withMessage("Designation is required"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+];
+
+const validateAboutMessageFromTeamUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("short_title").optional().notEmpty().withMessage("Short title cannot be empty"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("full_name").optional().notEmpty().withMessage("Full name cannot be empty"),
+  check("designation").optional().notEmpty().withMessage("Designation cannot be empty"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+];
+
 const validateAboutPageContentUpdate = [
   check("super_title").optional().notEmpty().withMessage("Super title cannot be empty"),
   check("title").optional().notEmpty().withMessage("Title cannot be empty"),
@@ -188,4 +206,6 @@ module.exports = {
   validateAboutQuickLinks,
   validateAboutQuickLinksUpdate,
   validateAboutPageContentUpdate,
+  validateAboutMessageFromTeam,
+  validateAboutMessageFromTeamUpdate,
 };
