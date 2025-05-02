@@ -213,6 +213,11 @@ const validateHomeFaqUpdate = [
   check("order").optional().isInt().withMessage("Order must be an integer"),
 ];
 
+const validateMngmtTeamContentItemUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -239,4 +244,5 @@ module.exports = {
   validateAboutStatsItemUpdate,
   validateManagementTeam,
   validateManagementTeamUpdate,
+  validateMngmtTeamContentItemUpdate,
 };
