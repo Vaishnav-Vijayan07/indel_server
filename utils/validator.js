@@ -8,7 +8,22 @@ const validateAboutLifeAtIndel = [
     .withMessage("Order must be a positive integer"),
 ];
 
-const validateAboutLifeAtIndelUpdate = [
+const validateAboutLifeAtIndelUpdate = [];
+
+const validateManagementTeam = [
+  check("name").notEmpty().withMessage("Name is required"),
+  check("title").notEmpty().withMessage("Title is required"),
+  check("order")
+    .optional()
+    .isInt({
+      gt: 0,
+    })
+    .withMessage("Order must be an integer"),
+];
+
+const validateManagementTeamUpdate = [
+  check("name").optional().notEmpty().withMessage("Name cannot be empty"),
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
   check("order")
     .optional()
     .isInt({
@@ -222,4 +237,6 @@ module.exports = {
   validateAboutMessageFromTeamUpdate,
   validateAboutStatsItem,
   validateAboutStatsItemUpdate,
+  validateManagementTeam,
+  validateManagementTeamUpdate,
 };

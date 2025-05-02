@@ -13,6 +13,7 @@ const defineAboutPageContent = require('./about/aboutPageContent');
 const defineAboutServiceGallery = require('./about/aboutServiceGallery');
 const defineAboutMessageTeam = require('./about/aboutMessageFromTeam');
 const defineAboutStatistics = require('./about/aboutStats');
+const ManagementTeams = require('./management/managementTeams');
 
 const models = {
   User: defineUser(sequelize),
@@ -29,6 +30,7 @@ const models = {
   AboutServiceGallery: defineAboutServiceGallery(sequelize),
   AboutMessageFromTeam: defineAboutMessageTeam(sequelize),
   AboutStatistics: defineAboutStatistics(sequelize),
+  ManagementTeams: ManagementTeams(sequelize),
 };
 
 // Debug: Log model initialization
