@@ -17,6 +17,18 @@ const validateAboutLifeAtIndelUpdate = [
     .withMessage("Order must be an integer"),
 ];
 
+const validateAboutStatsItem = [
+  check("value").isInt({ min: 0 }).withMessage("Value must be a positive integer"),
+  check("suffix").notEmpty().withMessage("Suffix is required"),
+  check("description").notEmpty().withMessage("Description is required"),
+];
+
+const validateAboutStatsItemUpdate = [
+  check("value").optional().isInt({ min: 0 }).withMessage("Value must be a positive integer"),
+  check("suffix").optional().notEmpty().withMessage("Suffix is required"),
+  check("description").optional().notEmpty().withMessage("Description is required"),
+];
+
 const validateAboutMessageFromTeam = [
   check("title").notEmpty().withMessage("Title is required"),
   check("short_title").notEmpty().withMessage("Short title is required"),
@@ -208,4 +220,6 @@ module.exports = {
   validateAboutPageContentUpdate,
   validateAboutMessageFromTeam,
   validateAboutMessageFromTeamUpdate,
+  validateAboutStatsItem,
+  validateAboutStatsItemUpdate,
 };
