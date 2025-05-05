@@ -243,7 +243,6 @@ const validateMngmtTeamContentItemUpdate = [
 const validateDeptPartnersContent = [
   check("title").notEmpty().withMessage("Title is required"),
   check("super_title").notEmpty().withMessage("Super title is required"),
-
 ];
 
 const validateDeptPartnersContentUpdate = [
@@ -277,6 +276,23 @@ const validateContactContentUpdate = [
   check("faq_title").optional().notEmpty().withMessage("FAQ title cannot be empty"),
 ];
 
+const validateContactOffices = [
+  check("office_name").notEmpty().withMessage("Office name is required"),
+  check("address").notEmpty().withMessage("Address is required"),
+  check("phone").notEmpty().withMessage("Phone is required"),
+  check("alternative_phone").notEmpty().withMessage("Alternative phone is required"),
+  check("email").notEmpty().withMessage("Email is required"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+
+const validateContactOfficesUpdate = [
+  check("office_name").optional().notEmpty().withMessage("Office name cannot be empty"),
+  check("address").optional().notEmpty().withMessage("Address cannot be empty"),
+  check("phone").optional().notEmpty().withMessage("Phone cannot be empty"),
+  check("alternative_phone").optional().notEmpty().withMessage("Alternative phone cannot be empty"),
+  check("email").optional().notEmpty().withMessage("Email cannot be empty"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
 
 module.exports = {
   validateAuth,
@@ -310,5 +326,7 @@ module.exports = {
   validateDeptPartnersContent,
   validateDeptPartnersContentUpdate,
   validateContactContent,
-  validateContactContentUpdate
+  validateContactContentUpdate,
+  validateContactOffices,
+  validateContactOfficesUpdate,
 };
