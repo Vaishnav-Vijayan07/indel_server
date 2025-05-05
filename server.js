@@ -11,6 +11,7 @@ const { initHomePageContent } = require("./utils/initHomePageContent");
 const { initAboutPageContent } = require("./utils/initAboutPageContent");
 const { initMngmntTeamContent } = require("./utils/initMangementTeamContent");
 const { initDebtPartnersContent } = require("./utils/initDebtPartnersContent");
+const { initContactContent } = require("./utils/initContactContent");
 
 dotenv.config();
 const app = express();
@@ -37,6 +38,7 @@ const startServer = async () => {
     await initAboutPageContent()
     await initMngmntTeamContent()
     await initDebtPartnersContent()
+    await initContactContent()
 
     app.listen(PORT, () => {
       Logger.info(`Server running on port ${PORT}`);

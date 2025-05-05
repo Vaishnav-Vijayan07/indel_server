@@ -251,6 +251,33 @@ const validateDeptPartnersContentUpdate = [
   check("super_title").optional().notEmpty().withMessage("Super title cannot be empty"),
 ];
 
+const validateContactContent = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("help_title").optional().notEmpty().withMessage("Help title cannot be empty"),
+  check("toll_free_number").optional().notEmpty().withMessage("Toll free number cannot be empty"),
+  check("form_title").optional().notEmpty().withMessage("Form title cannot be empty"),
+  check("form_sub_title").optional().notEmpty().withMessage("Form sub-title cannot be empty"),
+  check("branch_locator_title").optional().notEmpty().withMessage("Branch locator title cannot be empty"),
+  check("branch_locator_description").optional().notEmpty().withMessage("Branch locator description cannot be empty"),
+  check("faq_super_title").optional().notEmpty().withMessage("FAQ super title cannot be empty"),
+  check("faq_title").optional().notEmpty().withMessage("FAQ title cannot be empty"),
+];
+
+const validateContactContentUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("help_title").optional().notEmpty().withMessage("Help title cannot be empty"),
+  check("toll_free_number").optional().notEmpty().withMessage("Toll free number cannot be empty"),
+  check("form_title").optional().notEmpty().withMessage("Form title cannot be empty"),
+  check("form_sub_title").optional().notEmpty().withMessage("Form sub-title cannot be empty"),
+  check("branch_locator_title").optional().notEmpty().withMessage("Branch locator title cannot be empty"),
+  check("branch_locator_description").optional().notEmpty().withMessage("Branch locator description cannot be empty"),
+  check("faq_super_title").optional().notEmpty().withMessage("FAQ super title cannot be empty"),
+  check("faq_title").optional().notEmpty().withMessage("FAQ title cannot be empty"),
+];
+
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -282,4 +309,6 @@ module.exports = {
   validateDeptPartnersUpdate,
   validateDeptPartnersContent,
   validateDeptPartnersContentUpdate,
+  validateContactContent,
+  validateContactContentUpdate
 };
