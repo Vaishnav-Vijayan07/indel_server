@@ -10,7 +10,7 @@ class ContactOfficeController {
       const faq = await ContactOffice.create(req.body);
 
       await CacheService.invalidate("ContactOffices");
-      res.status(201).json({ success: true, data: faq });
+      res.status(201).json({ success: true, data: faq, message: "Office contact created" });
     } catch (error) {
       next(error);
     }
