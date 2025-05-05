@@ -18,6 +18,7 @@ const ManagementTeamContent = require('./management/managementTeamContent');
 const DeptPartners = require('./debt/deptPartners');
 const DebtPartnersContent = require('./debt/debtPartnersContent');
 const ContactContent = require('./contact/contactContent');
+const ContactFaq = require('./contact/contactFaq');
 
 const models = {
   User: defineUser(sequelize),
@@ -39,6 +40,7 @@ const models = {
   DeptPartners: DeptPartners(sequelize),
   DebtPartnersContent: DebtPartnersContent(sequelize),
   ContactContent: ContactContent(sequelize),
+  ContactFaq: ContactFaq(sequelize),
 };
 
 // Debug: Log model initialization

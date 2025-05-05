@@ -223,13 +223,13 @@ const validateHomeLoanStepUpdate = [
   check("order").optional().isInt().withMessage("Order must be an integer"),
 ];
 
-const validateHomeFaq = [
+const validateFaq = [
   check("question").notEmpty().withMessage("Question is required"),
   check("answer").notEmpty().withMessage("Answer is required"),
   check("order").isInt().withMessage("Order must be an integer"),
 ];
 
-const validateHomeFaqUpdate = [
+const validateFaqUpdate = [
   check("question").optional().notEmpty().withMessage("Question cannot be empty"),
   check("answer").optional().notEmpty().withMessage("Answer cannot be empty"),
   check("order").optional().isInt().withMessage("Order must be an integer"),
@@ -287,8 +287,8 @@ module.exports = {
   validateHomePageContentUpdate,
   validateHomeLoanStep,
   validateHomeLoanStepUpdate,
-  validateHomeFaq,
-  validateHomeFaqUpdate,
+  validateFaq,
+  validateFaqUpdate,
   validateHomeSmartDeals,
   validateHomeSmartDealsUpdate,
   validateAboutBanner,
