@@ -240,6 +240,17 @@ const validateMngmtTeamContentItemUpdate = [
   check("description").optional().notEmpty().withMessage("Description cannot be empty"),
 ];
 
+const validateDeptPartnersContent = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("super_title").notEmpty().withMessage("Super title is required"),
+
+];
+
+const validateDeptPartnersContentUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("super_title").optional().notEmpty().withMessage("Super title cannot be empty"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -269,4 +280,6 @@ module.exports = {
   validateMngmtTeamContentItemUpdate,
   validateDeptPartners,
   validateDeptPartnersUpdate,
+  validateDeptPartnersContent,
+  validateDeptPartnersContentUpdate,
 };
