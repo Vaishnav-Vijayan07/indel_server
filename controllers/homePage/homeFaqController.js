@@ -10,6 +10,8 @@ class HomeFaqController {
       const faq = await HomeFaq.create(req.body);
 
       await CacheService.invalidate("homeFaqs");
+      await CacheService.invalidate("webHomeData");
+
       res.status(201).json({ success: true, data: faq });
     } catch (error) {
       next(error);
@@ -70,6 +72,8 @@ class HomeFaqController {
 
       await CacheService.invalidate("homeFaqs");
       await CacheService.invalidate(`homeFaq_${id}`);
+      await CacheService.invalidate("webHomeData");
+
       res.json({ success: true, data: faq });
     } catch (error) {
       next(error);
@@ -88,6 +92,8 @@ class HomeFaqController {
 
       await CacheService.invalidate("homeFaqs");
       await CacheService.invalidate(`homeFaq_${id}`);
+      await CacheService.invalidate("webHomeData");
+
       res.json({ success: true, message: "Home FAQ deleted", data: id });
     } catch (error) {
       next(error);

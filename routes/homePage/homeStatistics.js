@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const HomeStatisticsController = require("../controllers/homeStatisticsController");
-const authMiddleware = require("../middlewares/authMiddleware");
-const { validateHomeStatistics } = require("../utils/validator");
-const validateMiddleware = require("../middlewares/validateMiddleware");
+const HomeStatisticsController = require("../../controllers/homePage/homeStatisticsController");
+const authMiddleware = require("../../middlewares/authMiddleware");
+const { validateHomeStatistics } = require("../../utils/validator");
+const validateMiddleware = require("../../middlewares/validateMiddleware");
 
 router.get("/", HomeStatisticsController.getAll);
 router.get("/:id", HomeStatisticsController.getById);
