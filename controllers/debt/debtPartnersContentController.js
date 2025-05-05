@@ -38,7 +38,7 @@ class DebtPartnersContentController {
       await content.update(updateData);
 
       await CacheService.invalidate("DebtPartnersContent");
-      res.json({ success: true, data: content });
+      res.json({ success: true, data: content,message:"Content updated" });
     } catch (error) {
       next(error);
     }
