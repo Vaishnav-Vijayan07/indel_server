@@ -15,6 +15,7 @@ const defineAboutMessageTeam = require('./about/aboutMessageFromTeam');
 const defineAboutStatistics = require('./about/aboutStats');
 const ManagementTeams = require('./management/managementTeams');
 const ManagementTeamContent = require('./management/managementTeamContent');
+const DeptPartners = require('./debt/deptPartners');
 
 const models = {
   User: defineUser(sequelize),
@@ -33,6 +34,7 @@ const models = {
   AboutStatistics: defineAboutStatistics(sequelize),
   ManagementTeams: ManagementTeams(sequelize),
   ManagementTeamContent: ManagementTeamContent(sequelize),
+  DeptPartners: DeptPartners(sequelize),
 };
 
 // Debug: Log model initialization

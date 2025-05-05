@@ -32,6 +32,28 @@ const validateManagementTeamUpdate = [
     .withMessage("Order must be an integer"),
 ];
 
+const validateDeptPartners = [
+  check("name").notEmpty().withMessage("Name is required"),
+  check("description").notEmpty().withMessage("description is required"),
+  check("order")
+    .optional()
+    .isInt({
+      gt: 0,
+    })
+    .withMessage("Order must be an integer"),
+];
+
+const validateDeptPartnersUpdate = [
+  check("name").optional().notEmpty().withMessage("Name cannot be empty"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("order")
+    .optional()
+    .isInt({
+      gt: 0,
+    })
+    .withMessage("Order must be an integer"),
+];
+
 const validateAboutStatsItem = [
   check("value").isInt({ min: 0 }).withMessage("Value must be a positive integer"),
   check("suffix").notEmpty().withMessage("Suffix is required"),
@@ -245,4 +267,6 @@ module.exports = {
   validateManagementTeam,
   validateManagementTeamUpdate,
   validateMngmtTeamContentItemUpdate,
+  validateDeptPartners,
+  validateDeptPartnersUpdate,
 };
