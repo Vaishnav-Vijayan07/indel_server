@@ -74,14 +74,15 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks,teamMessages,serviceImages,statsData] = await Promise.all([
+      const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks,teamMessages,serviceImages,statsData,accolades] = await Promise.all([
         models.AboutBanner.findAll(),
         models.AboutPageContent.findAll(),
         models.AboutLifeAtIndelGallery.findAll(),
         models.AboutQuickLinks.findAll(),
         models.AboutMessageFromTeam.findAll(),
         models.AboutServiceGallery.findAll(),
-        models.AboutStatistics.findAll()
+        models.AboutStatistics.findAll(),
+        models.AboutAccolades.findAll()
       ]);
 
       const data = {
@@ -91,7 +92,8 @@ class WebController {
         quickLinks,
         teamMessages,
         serviceImages,
-        statsData
+        statsData,
+        accolades
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
