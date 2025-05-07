@@ -9,6 +9,9 @@ module.exports = (sequelize) => {
         primaryKey: true,
         autoIncrement: true,
       },
+      description: {
+        type: DataTypes.TEXT,
+      },
       overview_super_title: {
         type: DataTypes.STRING,
       },

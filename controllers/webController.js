@@ -63,6 +63,45 @@ class WebController {
       next(new CustomError("Failed to fetch home data", 500, error.message));
     }
   }
+
+  static async aboutData(req, res, next) {
+    const cacheKey = "webAboutData";
+
+    try {
+      // const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving home data from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks,teamMessages,serviceImages,statsData] = await Promise.all([
+        models.AboutBanner.findAll(),
+        models.AboutPageContent.findAll(),
+        models.AboutLifeAtIndelGallery.findAll(),
+        models.AboutQuickLinks.findAll(),
+        models.AboutMessageFromTeam.findAll(),
+        models.AboutServiceGallery.findAll(),
+        models.AboutStatistics.findAll()
+      ]);
+
+      const data = {
+        aboutBanner,
+        aboutContent: aboutContent[0] || null,
+        lifeAtIndelImages,
+        quickLinks,
+        teamMessages,
+        serviceImages,
+        statsData
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched about data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching about data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch about data", 500, error.message));
+    }
+  }
 }
 
 module.exports = WebController;

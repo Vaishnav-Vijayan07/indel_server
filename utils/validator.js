@@ -297,6 +297,20 @@ const validateContactOfficesUpdate = [
   check("order").optional().isInt().withMessage("Order must be an integer"),
 ];
 
+const validateAboutAccolades = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("bold_text").notEmpty().withMessage("Bold text is required"),
+  check("description").notEmpty().withMessage("Description is required"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+
+const validateAboutAccoladesUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("bold_text").optional().notEmpty().withMessage("Bold text cannot be empty"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -332,4 +346,6 @@ module.exports = {
   validateContactContentUpdate,
   validateContactOffices,
   validateContactOfficesUpdate,
+  validateAboutAccolades,
+  validateAboutAccoladesUpdate,
 };

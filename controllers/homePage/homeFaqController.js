@@ -19,6 +19,7 @@ class HomeFaqController {
   }
 
   static async getAll(req, res, next) {
+    console.log("api called for faq");
     try {
       const cacheKey = "homeFaqs";
       const cachedData = await CacheService.get(cacheKey);
