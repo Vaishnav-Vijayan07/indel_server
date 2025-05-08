@@ -335,6 +335,20 @@ const validateHistoryImagesUpdate = [
   check("order").optional().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
 ];
 
+const validateHistoryInceptionsYears = [
+  check("year").optional().isInt().withMessage("Year must be an integer"),
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+];
+
+const validateHistoryInceptionsYearsUpdate = [
+  check("year").optional().isInt().withMessage("Year must be an integer"),
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -376,4 +390,6 @@ module.exports = {
   validateHistoryPageContentUpdate,
   validateHistoryImages,
   validateHistoryImagesUpdate,
+  validateHistoryInceptionsYears,
+  validateHistoryInceptionsYearsUpdate,
 };

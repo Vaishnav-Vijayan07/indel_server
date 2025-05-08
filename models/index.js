@@ -23,6 +23,7 @@ const ContactFaq = require("./contact/contactFaq");
 const ContactOffice = require("./contact/contactOffice");
 const defineHistoryPageContent = require("./history/historyContent");
 const defineHistoryImages = require("./history/historyImages");
+const defineHistoryInceptionsYears = require("./history/historyInceptionsYears");
 
 const models = {
   User: defineUser(sequelize),
@@ -49,6 +50,7 @@ const models = {
   AboutAccolades: defineAboutAccolades(sequelize),
   HistoryPageContent: defineHistoryPageContent(sequelize),
   HistoryImages: defineHistoryImages(sequelize),
+  HistoryInceptionsYears: defineHistoryInceptionsYears(sequelize),
 };
 
 // Debug: Log model initialization
