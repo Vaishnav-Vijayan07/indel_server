@@ -32,7 +32,7 @@ class HistoryImagesController {
       const step = await HistoryImages.create(updateData);
 
       await CacheService.invalidate("HistoryImages");
-      res.status(201).json({ success: true, data: step });
+      res.status(201).json({ success: true, data: step,message:"History image created" });
       await CacheService.invalidate("webHistoryData");
     } catch (error) {
       next(error);
@@ -106,7 +106,7 @@ class HistoryImagesController {
       await CacheService.invalidate(`HistoryImages_${id}`);
       await CacheService.invalidate("webHistoryData");
 
-      res.json({ success: true, data: step });
+      res.json({ success: true, data: step,message:"History image updated" });
     } catch (error) {
       next(error);
     }

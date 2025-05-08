@@ -32,7 +32,7 @@ class HistoryInceptionYearsController {
       const step = await HistoryInceptionsYears.create(updateData);
 
       await CacheService.invalidate("HistoryInceptionsYears");
-      res.status(201).json({ success: true, data: step });
+      res.status(201).json({ success: true, data: step, message: "Year created" });
       await CacheService.invalidate("webHistoryData");
     } catch (error) {
       next(error);
@@ -75,7 +75,7 @@ class HistoryInceptionYearsController {
       }
 
       await CacheService.set(cacheKey, JSON.stringify(step), 3600);
-      res.json({ success: true, data: step });
+      res.json({ success: true, data: step});
     } catch (error) {
       next(error);
     }
@@ -106,7 +106,7 @@ class HistoryInceptionYearsController {
       await CacheService.invalidate(`HistoryIncYear_${id}`);
       await CacheService.invalidate("webHistoryData");
 
-      res.json({ success: true, data: step });
+      res.json({ success: true, data: step,message: "Year updated"});
     } catch (error) {
       next(error);
     }
