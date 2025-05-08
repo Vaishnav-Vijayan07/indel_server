@@ -336,14 +336,14 @@ const validateHistoryImagesUpdate = [
 ];
 
 const validateHistoryInceptionsYears = [
-  check("year").optional().isInt().withMessage("Year must be an integer"),
-  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
-  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
-  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  check("year").notEmpty().withMessage("Year cannot be empty"),
+  check("title").notEmpty().withMessage("Title cannot be empty"),
+  check("description").notEmpty().withMessage("Description cannot be empty"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
 ];
 
 const validateHistoryInceptionsYearsUpdate = [
-  check("year").optional().isInt().withMessage("Year must be an integer"),
+  check("year").optional().notEmpty().withMessage("Year cannot be empty"),
   check("title").optional().notEmpty().withMessage("Title cannot be empty"),
   check("description").optional().notEmpty().withMessage("Description cannot be empty"),
   check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),

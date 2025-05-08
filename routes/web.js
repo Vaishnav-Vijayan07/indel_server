@@ -7,5 +7,6 @@ router.get('/about', WebController.aboutData);
 router.get('/management', WebController.mangementData);
 router.get('/partners', WebController.partnersData);
 router.get('/contacts', WebController.contactData);
+router.get('/history', WebController.historyData);
 
 module.exports = router;

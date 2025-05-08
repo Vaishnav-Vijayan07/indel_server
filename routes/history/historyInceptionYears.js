@@ -4,8 +4,6 @@ const authMiddleware = require("../../middlewares/authMiddleware");
 const validateMiddleware = require("../../middlewares/validateMiddleware");
 const createUploadMiddleware = require("../../middlewares/multerMiddleware");
 const {
-  validateHistoryImages,
-  validateHistoryImagesUpdate,
   validateHistoryInceptionsYears,
   validateHistoryInceptionsYearsUpdate,
 } = require("../../utils/validator");

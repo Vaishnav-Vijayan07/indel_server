@@ -9,7 +9,7 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
       year: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: true,
       },
       title: {

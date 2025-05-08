@@ -177,7 +177,7 @@ class WebController {
       const [content, faqs, officeContacts] = await Promise.all([
         models.ContactContent.findAll({
           attributes: {
-            exclude: ["createdAt", "updatedAt","branch_locator_title", "branch_locator_description"], // exclude timestamps
+            exclude: ["createdAt", "updatedAt", "branch_locator_title", "branch_locator_description"], // exclude timestamps
             include: [
               [Sequelize.col("branch_locator_title"), "branch_section_title"],
               [Sequelize.col("branch_locator_description"), "branch_section_description"],
@@ -200,6 +200,38 @@ class WebController {
     } catch (error) {
       logger.error("Error fetching contact data", { error: error.message, stack: error.stack });
       next(new CustomError("Failed to fetch contact data", 500, error.message));
+    }
+  }
+
+  static async historyData(req, res, next) {
+    const cacheKey = "webHistoryData";
+
+    try {
+      await CacheService.invalidate("webHistoryData");
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        logger.info("Serving history data from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
+
+      const [content, images, inceptions] = await Promise.all([
+        models.HistoryPageContent.findAll(),
+        models.HistoryImages.findAll(),
+        models.HistoryInceptionsYears.findAll(),
+      ]);
+
+      const data = {
+        content: content[0] || null,
+        images,
+        inceptions,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched history data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching history data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch history data", 500, error.message));
     }
   }
 }
