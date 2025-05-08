@@ -311,6 +311,20 @@ const validateAboutAccoladesUpdate = [
   check("order").optional().isInt().withMessage("Order must be an integer"),
 ];
 
+const validateHistoryPageContent = [
+  check("page_title").notEmpty().withMessage("Page title is required"),
+  check("history_title").optional().notEmpty().withMessage("History title cannot be empty"),
+  check("history_description").optional().notEmpty().withMessage("History description cannot be empty"),
+  check("inception_title").optional().notEmpty().withMessage("Inception title cannot be empty"),
+];
+
+const validateHistoryPageContentUpdate = [
+  check("page_title").optional().notEmpty().withMessage("Page title cannot be empty"),
+  check("history_title").optional().notEmpty().withMessage("History title cannot be empty"),
+  check("history_description").optional().notEmpty().withMessage("History description cannot be empty"),
+  check("inception_title").optional().notEmpty().withMessage("Inception title cannot be empty"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -348,4 +362,6 @@ module.exports = {
   validateContactOfficesUpdate,
   validateAboutAccolades,
   validateAboutAccoladesUpdate,
+  validateHistoryPageContent,
+  validateHistoryPageContentUpdate,
 };

@@ -21,6 +21,7 @@ const DebtPartnersContent = require("./debt/debtPartnersContent");
 const ContactContent = require("./contact/contactContent");
 const ContactFaq = require("./contact/contactFaq");
 const ContactOffice = require("./contact/contactOffice");
+const defineHistoryPageContent = require("./history/historyContent");
 
 const models = {
   User: defineUser(sequelize),
@@ -45,6 +46,7 @@ const models = {
   ContactFaq: ContactFaq(sequelize),
   ContactOffice: ContactOffice(sequelize),
   AboutAccolades: defineAboutAccolades(sequelize),
+  HistoryPageContent: defineHistoryPageContent(sequelize),
 };
 
 // Debug: Log model initialization
