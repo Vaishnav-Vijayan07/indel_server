@@ -22,6 +22,7 @@ const ContactContent = require("./contact/contactContent");
 const ContactFaq = require("./contact/contactFaq");
 const ContactOffice = require("./contact/contactOffice");
 const defineHistoryPageContent = require("./history/historyContent");
+const defineHistoryImages = require("./history/historyImages");
 
 const models = {
   User: defineUser(sequelize),
@@ -47,6 +48,7 @@ const models = {
   ContactOffice: ContactOffice(sequelize),
   AboutAccolades: defineAboutAccolades(sequelize),
   HistoryPageContent: defineHistoryPageContent(sequelize),
+  HistoryImages: defineHistoryImages(sequelize),
 };
 
 // Debug: Log model initialization

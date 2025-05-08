@@ -325,6 +325,16 @@ const validateHistoryPageContentUpdate = [
   check("inception_title").optional().notEmpty().withMessage("Inception title cannot be empty"),
 ];
 
+const validateHistoryImages = [
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  check("order").isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+];
+
+const validateHistoryImagesUpdate = [
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  check("order").optional().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -364,4 +374,6 @@ module.exports = {
   validateAboutAccoladesUpdate,
   validateHistoryPageContent,
   validateHistoryPageContentUpdate,
+  validateHistoryImages,
+  validateHistoryImagesUpdate,
 };
