@@ -14,7 +14,7 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
       bold_text: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
       },
       description: {

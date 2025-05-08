@@ -4,5 +4,8 @@ const WebController = require('../controllers/webController');
 
 router.get('/home', WebController.getHomeData);
 router.get('/about', WebController.aboutData);
+router.get('/management', WebController.mangementData);
+router.get('/partners', WebController.partnersData);
+router.get('/contacts', WebController.contactData);
 
 module.exports = router;

@@ -2,6 +2,7 @@ const { models } = require("../models/index");
 const CacheService = require("../services/cacheService");
 const CustomError = require("../utils/customError");
 const logger = require("../services/logger");
+const { Sequelize } = require("sequelize");
 
 class WebController {
   static async getHomeData(req, res, next) {
@@ -68,13 +69,13 @@ class WebController {
     const cacheKey = "webAboutData";
 
     try {
-      // const cachedData = await CacheService.get(cacheKey);
-      // if (cachedData) {
-      //   logger.info("Serving home data from cache");
-      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
-      // }
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        logger.info("Serving home data from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
 
-      const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks,teamMessages,serviceImages,statsData,accolades] = await Promise.all([
+      const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks, teamMessages, serviceImages, statsData, accolades] = await Promise.all([
         models.AboutBanner.findAll(),
         models.AboutPageContent.findAll(),
         models.AboutLifeAtIndelGallery.findAll(),
@@ -82,7 +83,7 @@ class WebController {
         models.AboutMessageFromTeam.findAll(),
         models.AboutServiceGallery.findAll(),
         models.AboutStatistics.findAll(),
-        models.AboutAccolades.findAll()
+        models.AboutAccolades.findAll(),
       ]);
 
       const data = {
@@ -93,7 +94,7 @@ class WebController {
         teamMessages,
         serviceImages,
         statsData,
-        accolades
+        accolades,
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
@@ -102,6 +103,103 @@ class WebController {
     } catch (error) {
       logger.error("Error fetching about data", { error: error.message, stack: error.stack });
       next(new CustomError("Failed to fetch about data", 500, error.message));
+    }
+  }
+
+  static async mangementData(req, res, next) {
+    const cacheKey = "webManagementData";
+
+    try {
+      // await CacheService.invalidate("webManagementData");
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        logger.info("Serving management data from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
+
+      const [content, teams] = await Promise.all([models.ManagementTeamContent.findAll(), models.ManagementTeams.findAll()]);
+
+      const data = {
+        content: content[0] || null,
+        teams,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched management data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching management data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch management data", 500, error.message));
+    }
+  }
+
+  static async partnersData(req, res, next) {
+    const cacheKey = "webPartnersData";
+
+    try {
+      await CacheService.invalidate("webPartnersData");
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        logger.info("Serving partners data from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
+
+      const [content, debtPartners] = await Promise.all([models.DebtPartnersContent.findAll(), models.DeptPartners.findAll()]);
+
+      const data = {
+        content: content[0] || null,
+      };
+
+      const partnersData = {
+        debtPartners,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched partners data from DB");
+      res.json({ status: "success", data, partnersData });
+    } catch (error) {
+      logger.error("Error fetching partners data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch partners data", 500, error.message));
+    }
+  }
+
+  static async contactData(req, res, next) {
+    const cacheKey = "webContactData";
+
+    try {
+      await CacheService.invalidate("webContactData");
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        logger.info("Serving contact data from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
+
+      const [content, faqs, officeContacts] = await Promise.all([
+        models.ContactContent.findAll({
+          attributes: {
+            exclude: ["createdAt", "updatedAt","branch_locator_title", "branch_locator_description"], // exclude timestamps
+            include: [
+              [Sequelize.col("branch_locator_title"), "branch_section_title"],
+              [Sequelize.col("branch_locator_description"), "branch_section_description"],
+            ],
+          },
+        }),
+        models.ContactFaq.findAll(),
+        models.ContactOffice.findAll(),
+      ]);
+
+      const data = {
+        content: content[0] || null,
+        faqs,
+        officeContacts,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched contact data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching contact data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch contact data", 500, error.message));
     }
   }
 }
