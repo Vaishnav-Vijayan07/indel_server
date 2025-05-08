@@ -5,9 +5,9 @@ const Logger = require("../../services/logger");
 const fs = require("fs").promises;
 const path = require("path");
 
-const HomeLoanStep = models.HomeLoanStep;
+const IndelValues = models.IndelValues;
 
-class HomeLoanStepController {
+class IndelValuesController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
@@ -25,15 +25,14 @@ class HomeLoanStepController {
     try {
       const updateData = { ...req.body };
       if (req.file) {
-        updateData.icon_url = `/uploads/home-loan-steps/${req.file.filename}`;
-        Logger.info(`Uploaded icon for HomeLoanStep: ${updateData.icon_url}`);
+        updateData.icon = `/uploads/indel-values/${req.file.filename}`;
+        Logger.info(`Uploaded icon for IndelValue: ${updateData.icon}`);
       }
 
-      const step = await HomeLoanStep.create(updateData);
+      const step = await IndelValues.create(updateData);
 
-      await CacheService.invalidate("homeLoanSteps");
-      res.status(201).json({ success: true, data: step });
-      await CacheService.invalidate("webHomeData");
+      await CacheService.invalidate("indelValues");
+      res.status(201).json({ success: true, data: step,message:"Indel value created successfully" });
     } catch (error) {
       next(error);
     }
@@ -41,14 +40,14 @@ class HomeLoanStepController {
 
   static async getAll(req, res, next) {
     try {
-      const cacheKey = "homeLoanSteps";
+      const cacheKey = "indelValues";
       const cachedData = await CacheService.get(cacheKey);
 
       if (cachedData) {
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
 
-      const steps = await HomeLoanStep.findAll({
+      const steps = await IndelValues.findAll({
         order: [["order", "ASC"]],
       });
 
@@ -62,16 +61,16 @@ class HomeLoanStepController {
   static async getById(req, res, next) {
     try {
       const { id } = req.params;
-      const cacheKey = `homeLoanStep_${id}`;
+      const cacheKey = `indelValue_${id}`;
       const cachedData = await CacheService.get(cacheKey);
 
       if (cachedData) {
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
 
-      const step = await HomeLoanStep.findByPk(id);
+      const step = await IndelValues.findByPk(id);
       if (!step) {
-        throw new CustomError("Home Loan Step not found", 404);
+        throw new CustomError("Indel value not found", 404);
       }
 
       await CacheService.set(cacheKey, JSON.stringify(step), 3600);
@@ -84,29 +83,28 @@ class HomeLoanStepController {
   static async update(req, res, next) {
     try {
       const { id } = req.params;
-      const step = await HomeLoanStep.findByPk(id);
+      const step = await IndelValues.findByPk(id);
       if (!step) {
-        throw new CustomError("Home Loan Step not found", 404);
+        throw new CustomError("Indel value not found", 404);
       }
 
       const updateData = { ...req.body };
-      let oldIconUrl = step.icon_url;
+      let oldIconUrl = step.icon;
 
       if (req.file) {
-        updateData.icon_url = `/uploads/home-loan-steps/${req.file.filename}`;
-        Logger.info(`Updated icon for HomeLoanStep ID ${id}: ${updateData.icon_url}`);
+        updateData.icon = `/uploads/indel-values/${req.file.filename}`;
+        Logger.info(`Updated icon for IndelValue ID ${id}: ${updateData.icon}`);
         if (oldIconUrl) {
-          await HomeLoanStepController.deleteFile(oldIconUrl);
+          await IndelValuesController.deleteFile(oldIconUrl);
         }
       }
 
       await step.update(updateData);
 
-      await CacheService.invalidate("homeLoanSteps");
-      await CacheService.invalidate(`homeLoanStep_${id}`);
-      await CacheService.invalidate("webHomeData");
+      await CacheService.invalidate("indelValues");
+      await CacheService.invalidate(`indelValue_${id}`);
 
-      res.json({ success: true, data: step });
+      res.json({ success: true, data: step, message: "Indel value updated successfully" });
     } catch (error) {
       next(error);
     }
@@ -115,26 +113,25 @@ class HomeLoanStepController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
-      const step = await HomeLoanStep.findByPk(id);
+      const step = await IndelValues.findByPk(id);
       if (!step) {
-        throw new CustomError("Home Loan Step not found", 404);
+        throw new CustomError("Indel value not found", 404);
       }
 
-      const oldIconUrl = step.icon_url;
+      const oldIconUrl = step.icon;
       await step.destroy();
 
       if (oldIconUrl) {
-        await HomeLoanStepController.deleteFile(oldIconUrl);
+        await IndelValuesController.deleteFile(oldIconUrl);
       }
 
-      await CacheService.invalidate("homeLoanSteps");
-      await CacheService.invalidate(`homeLoanStep_${id}`);
-      res.json({ success: true, message: "Home Loan Step deleted",data:id });
-      await CacheService.invalidate("webHomeData");
+      await CacheService.invalidate("indelValues");
+      await CacheService.invalidate(`indelValue_${id}`);
+      res.json({ success: true, message: "Indel value deleted", data: id });
     } catch (error) {
       next(error);
     }
   }
 }
 
-module.exports = HomeLoanStepController;
+module.exports = IndelValuesController;

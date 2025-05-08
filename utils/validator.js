@@ -1,5 +1,20 @@
 const { check } = require("express-validator");
 
+const generateStringValidators = (fields, isOptional = false) => {
+  return fields.map((field) =>
+    isOptional
+      ? check(field)
+          .optional()
+          .notEmpty()
+          .withMessage(`${capitalize(field)} cannot be empty`)
+      : check(field)
+          .notEmpty()
+          .withMessage(`${capitalize(field)} cannot be empty`)
+  );
+};
+
+const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
 const validateAboutLifeAtIndel = [
   check("order")
     .isInt({
@@ -349,6 +364,20 @@ const validateHistoryInceptionsYearsUpdate = [
   check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
 ];
 
+const validateIndelValue = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("description").notEmpty().withMessage("Description is required"),
+  check("order").isInt().withMessage("Order must be an integer"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+];
+
+const validateIndelValueUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -392,4 +421,7 @@ module.exports = {
   validateHistoryImagesUpdate,
   validateHistoryInceptionsYears,
   validateHistoryInceptionsYearsUpdate,
+  validateIndelValue,
+  validateIndelValueUpdate,
+  generateStringValidators,
 };

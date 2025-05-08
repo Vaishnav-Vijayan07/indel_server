@@ -11,7 +11,7 @@ class AboutLifeAtIndelGalleryController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(__dirname, "..", "uploads", filePath.replace("/uploads/", ""));
+      const absolutePath = path.join(__dirname, "..","..", "uploads", filePath.replace("/uploads/", ""));
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {

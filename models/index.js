@@ -24,6 +24,9 @@ const ContactOffice = require("./contact/contactOffice");
 const defineHistoryPageContent = require("./history/historyContent");
 const defineHistoryImages = require("./history/historyImages");
 const defineHistoryInceptionsYears = require("./history/historyInceptionsYears");
+const defineIndelValuesContent = require("./indelValues/indelValueContent");
+const defineIndelValues = require("./indelValues/indelValues");
+const defineApproachPropositions = require("./indelValues/approachProposition");
 
 const models = {
   User: defineUser(sequelize),
@@ -51,6 +54,9 @@ const models = {
   HistoryPageContent: defineHistoryPageContent(sequelize),
   HistoryImages: defineHistoryImages(sequelize),
   HistoryInceptionsYears: defineHistoryInceptionsYears(sequelize),
+  IndelValueContent: defineIndelValuesContent(sequelize),
+  IndelValues: defineIndelValues(sequelize),
+  ApproachPropositions: defineApproachPropositions(sequelize),
 };
 
 // Debug: Log model initialization
