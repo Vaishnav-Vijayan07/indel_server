@@ -27,6 +27,8 @@ const defineHistoryInceptionsYears = require("./history/historyInceptionsYears")
 const defineIndelValuesContent = require("./indelValues/indelValueContent");
 const defineIndelValues = require("./indelValues/indelValues");
 const defineApproachPropositions = require("./indelValues/approachProposition");
+const defineShadesOfIndelContent = require("./shadesOfIndel/shadesOfIndelContent");
+const defineDifferentShades = require("./shadesOfIndel/differentShades");
 
 const models = {
   User: defineUser(sequelize),
@@ -57,6 +59,8 @@ const models = {
   IndelValueContent: defineIndelValuesContent(sequelize),
   IndelValues: defineIndelValues(sequelize),
   ApproachPropositions: defineApproachPropositions(sequelize),
+  ShadesOfIndelContent: defineShadesOfIndelContent(sequelize),
+  DifferentShades: defineDifferentShades(sequelize),
 };
 
 // Debug: Log model initialization

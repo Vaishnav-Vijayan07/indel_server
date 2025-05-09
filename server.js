@@ -14,6 +14,7 @@ const { initDebtPartnersContent } = require("./utils/initDebtPartnersContent");
 const { initContactContent } = require("./utils/initContactContent");
 const { initHistoryPageContent } = require("./utils/initHistoryPageContent");
 const { initIndelValueContent } = require("./utils/initIndelValueContent");
+const { initShadesOfIndelContent } = require("./utils/initShadesOfIndelContent");
 
 dotenv.config();
 const app = express();
@@ -43,6 +44,7 @@ const startServer = async () => {
     await initContactContent(),
     await initHistoryPageContent(),
     await initIndelValueContent(),
+    await initShadesOfIndelContent(),
 
     app.listen(PORT, () => {
       Logger.info(`Server running on port ${PORT}`);

@@ -378,6 +378,20 @@ const validateIndelValueUpdate = [
   check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
 ];
 
+const validateDifferentShadesValue = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("paragraph_1").notEmpty().withMessage("Paragraph 1 is required"),
+  check("paragraph_2").notEmpty().withMessage("Paragraph 2 is required"),
+  check("sort_order").isInt().withMessage("Sort order must be an integer"),
+];
+
+const validateDifferentShadesValueUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("paragraph_1").optional().notEmpty().withMessage("Paragraph 1 cannot be empty"),
+  check("paragraph_2").optional().notEmpty().withMessage("Paragraph 2 cannot be empty"),
+  check("sort_order").optional().isInt().withMessage("Sort order must be an integer"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -423,5 +437,7 @@ module.exports = {
   validateHistoryInceptionsYearsUpdate,
   validateIndelValue,
   validateIndelValueUpdate,
+  validateDifferentShadesValue,
+  validateDifferentShadesValueUpdate,
   generateStringValidators,
 };
