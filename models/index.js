@@ -35,6 +35,10 @@ const defineServiceBenefits = require("./services/serviceBenefits");
 const defineGoldloanContent = require("./goldloan/goldloanContent");
 const defineGoldloanBannerFeatures = require("./goldloan/bannerFeatures");
 const defineGoldLoanScheme = require("./goldloan/goldLoanScheme");
+const defineSchemeDetails = require("./goldloan/schemeDetails");
+const defineGoldLoanFaq = require("./goldloan/goldLoanFaq");
+const defineGoldLoanFeatures = require("./goldloan/goldLoanFeatures");
+
 const models = {
   User: defineUser(sequelize),
   HeroBanner: defineHeroBanner(sequelize),
@@ -72,6 +76,9 @@ const models = {
   GoldloanContent: defineGoldloanContent(sequelize),
   GoldloanBannerFeatures: defineGoldloanBannerFeatures(sequelize),
   GoldLoanScheme: defineGoldLoanScheme(sequelize),
+  SchemeDetails: defineSchemeDetails(sequelize),
+  GoldLoanFaq: defineGoldLoanFaq(sequelize),
+  GoldLoanFeatures: defineGoldLoanFeatures(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {
@@ -79,10 +86,6 @@ Object.keys(models).forEach((modelName) => {
     console.log("Associating", modelName);
     models[modelName].associate(models);
   }
-});
-
-Object.keys(models).forEach((modelName) => {
-  console.log(`${modelName} methods:`, Object.keys(models[modelName]));
 });
 
 module.exports = { sequelize, models };

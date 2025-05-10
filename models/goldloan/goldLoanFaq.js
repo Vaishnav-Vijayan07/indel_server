@@ -1,20 +1,20 @@
 const { DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
-  const GoldLoanScheme = sequelize.define(
-    "GoldLoanScheme",
+  const GoldLoanFaqs = sequelize.define(
+    "GoldLoanFaqs",
     {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
-      title: {
+      question: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      description: {
-        type: DataTypes.STRING,
+      answer: {
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       order: {
@@ -23,17 +23,10 @@ module.exports = (sequelize) => {
       },
     },
     {
-      tableName: "gold_loan_scheme",
+      tableName: "gold_loan_faqs",
       timestamps: true,
     }
   );
 
-  GoldLoanScheme.associate = function (models) {
-    GoldLoanScheme.hasMany(models.SchemeDetails, {
-      foreignKey: "scheme_id",
-      as: "scheme_details",
-    });
-  };
-
-  return GoldLoanScheme;
+  return GoldLoanFaqs;
 };

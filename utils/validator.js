@@ -446,6 +446,32 @@ const validateGoldLoanSchemeUpdate = [
   check("order").optional().isInt().withMessage("Order must be an integer"),
 ];
 
+const validateSchemeDetails = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("value").notEmpty().withMessage("Value is required"),
+  check("scheme_id").notEmpty().withMessage("Service is required"),
+  check("order").isInt().withMessage("Order must be an integer"),
+];
+
+const validateSchemeDetailsUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("value").optional().notEmpty().withMessage("Value cannot be empty"),
+  check("scheme_id").optional().notEmpty().withMessage("Service cannot be empty"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+
+const validateGoldLoanFeature = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("description").notEmpty().withMessage("Description is required"),
+  check("order").isInt().withMessage("Order must be an integer"),
+];
+
+const validateGoldLoanFeatureUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -499,5 +525,9 @@ module.exports = {
   validateGoldLoanContentUpdate,
   validateGoldLoanScheme,
   validateGoldLoanSchemeUpdate,
+  validateSchemeDetails,
+  validateSchemeDetailsUpdate,
+  validateGoldLoanFeature,
+  validateGoldLoanFeatureUpdate,
   generateStringValidators,
 };

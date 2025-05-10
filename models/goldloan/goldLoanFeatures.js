@@ -1,8 +1,8 @@
 const { DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
-  const GoldLoanScheme = sequelize.define(
-    "GoldLoanScheme",
+  const GoldLoanFeatures = sequelize.define(
+    "GoldLoanFeatures",
     {
       id: {
         type: DataTypes.INTEGER,
@@ -17,23 +17,20 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      icon: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       order: {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
     },
     {
-      tableName: "gold_loan_scheme",
+      tableName: "gold_loan_features",
       timestamps: true,
     }
   );
 
-  GoldLoanScheme.associate = function (models) {
-    GoldLoanScheme.hasMany(models.SchemeDetails, {
-      foreignKey: "scheme_id",
-      as: "scheme_details",
-    });
-  };
-
-  return GoldLoanScheme;
+  return GoldLoanFeatures;
 };
