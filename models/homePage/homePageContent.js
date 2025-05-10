@@ -9,6 +9,18 @@ module.exports = (sequelize) => {
         primaryKey: true,
         autoIncrement: true,
       },
+      meta_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      meta_description: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      meta_keywords: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       gold_rate_icon: {
         type: DataTypes.STRING,
         allowNull: true, // Allow null since icon is uploaded later

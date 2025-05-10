@@ -392,6 +392,17 @@ const validateDifferentShadesValueUpdate = [
   check("sort_order").optional().isInt().withMessage("Sort order must be an integer"),
 ];
 
+const validateServicesPageContentUpdate = [
+  check("page_super_title").optional().notEmpty().withMessage("Page Super Title cannot be empty"),
+  check("page_title").optional().notEmpty().withMessage("Page Title cannot be empty"),
+  check("deals_title").optional().notEmpty().withMessage("Deals Title cannot be empty"),
+  check("deals_description").optional().notEmpty().withMessage("Deals Description cannot be empty"),
+  check("remit_section_title").optional().notEmpty().withMessage("Remit Section Title cannot be empty"),
+  check("remit_section_description").optional().notEmpty().withMessage("Remit Section Description cannot be empty"),
+  check("remit_section_button_title").optional().notEmpty().withMessage("Remit Section Button Title cannot be empty"),
+  check("remit_section_button_link").optional().isURL().withMessage("Remit Section Button Link must be a valid URL"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -439,5 +450,6 @@ module.exports = {
   validateIndelValueUpdate,
   validateDifferentShadesValue,
   validateDifferentShadesValueUpdate,
+  validateServicesPageContentUpdate,
   generateStringValidators,
 };

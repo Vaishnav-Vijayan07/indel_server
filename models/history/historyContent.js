@@ -8,6 +8,18 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      meta_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      meta_description: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      meta_keywords: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       history_title: {
         type: DataTypes.STRING,
         allowNull: true,
