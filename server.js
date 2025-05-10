@@ -16,6 +16,7 @@ const { initHistoryPageContent } = require("./utils/initHistoryPageContent");
 const { initIndelValueContent } = require("./utils/initIndelValueContent");
 const { initShadesOfIndelContent } = require("./utils/initShadesOfIndelContent");
 const { initServicesPageContent } = require("./utils/initServicePageContent");
+const { initGoldLoanContent } = require("./utils/initGoldLoanContent");
 
 dotenv.config();
 const app = express();
@@ -39,14 +40,15 @@ const startServer = async () => {
 
     await createDemoAdmin();
     await initHomePageContent();
-    await initAboutPageContent()
-    await initMngmntTeamContent()
-    await initDebtPartnersContent()
+    await initAboutPageContent();
+    await initMngmntTeamContent();
+    await initDebtPartnersContent();
     await initContactContent(),
-    await initHistoryPageContent(),
-    await initIndelValueContent(),
-    await initShadesOfIndelContent(),
-    await initServicesPageContent(),
+      await initHistoryPageContent(),
+      await initIndelValueContent(),
+      await initShadesOfIndelContent(),
+      await initServicesPageContent(),
+      await initGoldLoanContent();
 
     app.listen(PORT, () => {
       Logger.info(`Server running on port ${PORT}`);

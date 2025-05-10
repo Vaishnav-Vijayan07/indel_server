@@ -415,6 +415,25 @@ const validateServiceBenefitsUpdate = [
   check("order").optional().isInt().withMessage("Order must be an integer"),
 ];
 
+const validateGoldLoanContentUpdate = [
+  check("meta_title").optional().notEmpty().withMessage("Meta Title cannot be empty"),
+  check("meta_description").optional().notEmpty().withMessage("Meta Description cannot be empty"),
+  check("meta_keywords").optional().notEmpty().withMessage("Meta Keywords cannot be empty"),
+  check("page_title").optional().notEmpty().withMessage("Page Title cannot be empty"),
+  check("gold_rate_text").optional().notEmpty().withMessage("Gold Rate Text cannot be empty"),
+  check("announcement_text").optional().notEmpty().withMessage("Announcement Text cannot be empty"),
+  check("gold_loan_step_title").optional().notEmpty().withMessage("Gold Loan Step Title cannot be empty"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("identity_proof_title").optional().notEmpty().withMessage("Identity Proof Title cannot be empty"),
+  check("identity_proof_description").optional().notEmpty().withMessage("Identity Proof Description cannot be empty"),
+  check("address_proof").optional().notEmpty().withMessage("Address Proof cannot be empty"),
+  check("address_proof_description").optional().notEmpty().withMessage("Address Proof Description cannot be empty"),
+  check("gold_loan_title").optional().notEmpty().withMessage("Gold Loan Title cannot be empty"),
+  check("gold_loan_description").optional().notEmpty().withMessage("Gold Loan Description cannot be empty"),
+  check("scheme_title").optional().notEmpty().withMessage("Scheme Title cannot be empty"),
+  check("faq_title").optional().notEmpty().withMessage("FAQ Title cannot be empty"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -465,5 +484,6 @@ module.exports = {
   validateServicesPageContentUpdate,
   validateServiceBenefits,
   validateServiceBenefitsUpdate,
+  validateGoldLoanContentUpdate,
   generateStringValidators,
 };

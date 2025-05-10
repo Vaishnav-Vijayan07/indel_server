@@ -32,6 +32,7 @@ const defineDifferentShades = require("./shadesOfIndel/differentShades");
 const defineServiceContent = require("./services/servicesContent");
 const defineServices = require("./services/services");
 const defineServiceBenefits = require("./services/serviceBenefits");
+const defineGoldloanContent = require("./goldloan/goldloanContent");
 
 const models = {
   User: defineUser(sequelize),
@@ -67,6 +68,7 @@ const models = {
   ServiceContent: defineServiceContent(sequelize),
   Services: defineServices(sequelize),
   ServiceBenefit: defineServiceBenefits(sequelize),
+  GoldloanContent: defineGoldloanContent(sequelize),
 };
 
 //Associations
