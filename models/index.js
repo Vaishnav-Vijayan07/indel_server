@@ -33,6 +33,7 @@ const defineServiceContent = require("./services/servicesContent");
 const defineServices = require("./services/services");
 const defineServiceBenefits = require("./services/serviceBenefits");
 const defineGoldloanContent = require("./goldloan/goldloanContent");
+const defineGoldloanBannerFeatures = require("./goldloan/bannerFeatures");
 
 const models = {
   User: defineUser(sequelize),
@@ -69,9 +70,8 @@ const models = {
   Services: defineServices(sequelize),
   ServiceBenefit: defineServiceBenefits(sequelize),
   GoldloanContent: defineGoldloanContent(sequelize),
+  GoldloanBannerFeatures: defineGoldloanBannerFeatures(sequelize),
 };
-
-//Associations
 
 Object.keys(models).forEach((modelName) => {
   if ("associate" in models[modelName]) {
