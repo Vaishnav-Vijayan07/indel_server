@@ -31,6 +31,7 @@ const defineShadesOfIndelContent = require("./shadesOfIndel/shadesOfIndelContent
 const defineDifferentShades = require("./shadesOfIndel/differentShades");
 const defineServiceContent = require("./services/servicesContent");
 const defineServices = require("./services/services");
+const defineServiceBenefits = require("./services/serviceBenefits");
 
 const models = {
   User: defineUser(sequelize),
@@ -65,10 +66,18 @@ const models = {
   DifferentShades: defineDifferentShades(sequelize),
   ServiceContent: defineServiceContent(sequelize),
   Services: defineServices(sequelize),
+  ServiceBenefit: defineServiceBenefits(sequelize),
 };
 
-// Debug: Log model initialization
-console.log("Models initialized:", Object.keys(models));
+//Associations
+
+Object.keys(models).forEach((modelName) => {
+  if ("associate" in models[modelName]) {
+    console.log("Associating", modelName);
+    models[modelName].associate(models);
+  }
+});
+
 Object.keys(models).forEach((modelName) => {
   console.log(`${modelName} methods:`, Object.keys(models[modelName]));
 });

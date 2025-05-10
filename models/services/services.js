@@ -37,5 +37,12 @@ module.exports = (sequelize) => {
     }
   );
 
+  Services.associate = (models) => {
+    Services.hasMany(models.ServiceBenefit, {
+      foreignKey: "service_id",
+      as: "service_benefits",
+    });
+  };
+
   return Services;
 };

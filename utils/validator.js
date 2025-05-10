@@ -403,6 +403,18 @@ const validateServicesPageContentUpdate = [
   check("remit_section_button_link").optional().isURL().withMessage("Remit Section Button Link must be a valid URL"),
 ];
 
+const validateServiceBenefits = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("service_id").notEmpty().withMessage("Service is required"),
+  check("order").isInt().withMessage("Order must be an integer"),
+];
+
+const validateServiceBenefitsUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("service_id").optional().notEmpty().withMessage("Service cannot be empty"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -451,5 +463,7 @@ module.exports = {
   validateDifferentShadesValue,
   validateDifferentShadesValueUpdate,
   validateServicesPageContentUpdate,
+  validateServiceBenefits,
+  validateServiceBenefitsUpdate,
   generateStringValidators,
 };
