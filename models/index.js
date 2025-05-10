@@ -34,7 +34,7 @@ const defineServices = require("./services/services");
 const defineServiceBenefits = require("./services/serviceBenefits");
 const defineGoldloanContent = require("./goldloan/goldloanContent");
 const defineGoldloanBannerFeatures = require("./goldloan/bannerFeatures");
-
+const defineGoldLoanScheme = require("./goldloan/goldLoanScheme");
 const models = {
   User: defineUser(sequelize),
   HeroBanner: defineHeroBanner(sequelize),
@@ -71,6 +71,7 @@ const models = {
   ServiceBenefit: defineServiceBenefits(sequelize),
   GoldloanContent: defineGoldloanContent(sequelize),
   GoldloanBannerFeatures: defineGoldloanBannerFeatures(sequelize),
+  GoldLoanScheme: defineGoldLoanScheme(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {
