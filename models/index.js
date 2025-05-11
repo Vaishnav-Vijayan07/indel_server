@@ -38,6 +38,11 @@ const defineGoldLoanScheme = require("./goldloan/goldLoanScheme");
 const defineSchemeDetails = require("./goldloan/schemeDetails");
 const defineGoldLoanFaq = require("./goldloan/goldLoanFaq");
 const defineGoldLoanFeatures = require("./goldloan/goldLoanFeatures");
+const defineMsmeLoanContent = require("./msme/loanContent");
+const defineMsmeFaq = require("./msme/faq");
+const defineMsmeOfferings = require("./msme/msmeOfferings");
+const defineMsmeTargetAudience = require("./msme/targetAudience");
+const defineMsmeSupportedIndustries = require("./msme/supportedIndustries");
 
 const models = {
   User: defineUser(sequelize),
@@ -79,6 +84,11 @@ const models = {
   SchemeDetails: defineSchemeDetails(sequelize),
   GoldLoanFaq: defineGoldLoanFaq(sequelize),
   GoldLoanFeatures: defineGoldLoanFeatures(sequelize),
+  MsmeLoanContent: defineMsmeLoanContent(sequelize),
+  MsmeLoanFaq: defineMsmeFaq(sequelize),
+  MsmeOfferings: defineMsmeOfferings(sequelize),
+  MsmeTargetedAudience: defineMsmeTargetAudience(sequelize),
+  MsmeLoanSupportedIndustries: defineMsmeSupportedIndustries(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {

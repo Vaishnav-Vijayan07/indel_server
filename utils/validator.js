@@ -472,6 +472,118 @@ const validateGoldLoanFeatureUpdate = [
   check("order").optional().isInt().withMessage("Order must be an integer"),
 ];
 
+const validateMsmeLoanContent = [
+  check("meta_title").notEmpty().withMessage("Meta title is required"),
+
+  check("meta_description").notEmpty().withMessage("Meta description is required"),
+
+  check("meta_keywords").notEmpty().withMessage("Meta keywords are required"),
+
+  check("title").notEmpty().withMessage("Title is required"),
+
+  check("sub_title").notEmpty().withMessage("Sub-title is required"),
+
+  check("description").notEmpty().withMessage("Description is required"),
+
+  check("button_text").notEmpty().withMessage("Button text is required"),
+
+  check("button_url").notEmpty().withMessage("Button URL is required"),
+
+  check("our_offering_title").notEmpty().withMessage("Our offering title is required"),
+
+  check("our_offering_description").notEmpty().withMessage("Our offering description is required"),
+
+  check("why_msme_loan_title").notEmpty().withMessage("Why MSME loan title is required"),
+
+  check("why_msme_loan_description").notEmpty().withMessage("Why MSME loan description is required"),
+
+  check("who_do_serve_title").notEmpty().withMessage("Who do serve title is required"),
+
+  check("about_msme_title").notEmpty().withMessage("About MSME title is required"),
+
+  check("about_msme_description").notEmpty().withMessage("About MSME description is required"),
+
+  check("msme_loan_overview_title").notEmpty().withMessage("MSME loan overview title is required"),
+
+  check("msme_loan_overview_description").notEmpty().withMessage("MSME loan overview description is required"),
+];
+
+const validateMsmeLoanContentUpdate = [
+  check("meta_title").optional().notEmpty().withMessage("Meta title cannot be empty"),
+
+  check("meta_description").optional().notEmpty().withMessage("Meta description cannot be empty"),
+
+  check("meta_keywords").optional().notEmpty().withMessage("Meta keywords cannot be empty"),
+
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+
+  check("sub_title").optional().notEmpty().withMessage("Sub-title cannot be empty"),
+
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+
+  check("button_text").optional().notEmpty().withMessage("Button text cannot be empty"),
+
+  check("button_url").optional().notEmpty().withMessage("Button URL cannot be empty"),
+
+  check("our_offering_title").optional().notEmpty().withMessage("Our offering title cannot be empty"),
+
+  check("our_offering_description").optional().notEmpty().withMessage("Our offering description cannot be empty"),
+
+  check("why_msme_loan_title").optional().notEmpty().withMessage("Why MSME loan title cannot be empty"),
+
+  check("why_msme_loan_description").optional().notEmpty().withMessage("Why MSME loan description cannot be empty"),
+
+  check("who_do_serve_title").optional().notEmpty().withMessage("Who do serve title cannot be empty"),
+
+  check("about_msme_title").optional().notEmpty().withMessage("About MSME title cannot be empty"),
+
+  check("about_msme_description").optional().notEmpty().withMessage("About MSME description cannot be empty"),
+
+  check("msme_loan_overview_title").optional().notEmpty().withMessage("MSME loan overview title cannot be empty"),
+
+  check("msme_loan_overview_description").optional().notEmpty().withMessage("MSME loan overview description cannot be empty"),
+];
+
+const validateMsmeOfferings = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("order").isInt().withMessage("Order must be an integer"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+];
+
+const validateMsmeOfferingsUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+];
+
+const validateMsmeTargetedAudienceUpdate = [
+  check("title").optional().notEmpty().withMessage("Title is required"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+];
+
+const validateMsmeTargetedAudience = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("description").notEmpty().withMessage("Description cannot be empty"),
+  check("order").isInt().withMessage("Order must be an integer"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+];
+
+const validateMsmeLoanSupportedIndustriesUpdate = [
+  check("title").optional().notEmpty().withMessage("Title is required"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+];
+
+const validateMsmeLoanSupportedIndustries = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("description").notEmpty().withMessage("Description cannot be empty"),
+  check("order").isInt().withMessage("Order must be an integer"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -529,5 +641,13 @@ module.exports = {
   validateSchemeDetailsUpdate,
   validateGoldLoanFeature,
   validateGoldLoanFeatureUpdate,
+  validateMsmeLoanContent,
+  validateMsmeLoanContentUpdate,
+  validateMsmeOfferings,
+  validateMsmeOfferingsUpdate,
+  validateMsmeTargetedAudience,
+  validateMsmeTargetedAudienceUpdate,
+  validateMsmeLoanSupportedIndustries,
+  validateMsmeLoanSupportedIndustriesUpdate,
   generateStringValidators,
 };
