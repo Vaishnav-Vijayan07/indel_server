@@ -18,6 +18,7 @@ const { initShadesOfIndelContent } = require("./utils/initShadesOfIndelContent")
 const { initServicesPageContent } = require("./utils/initServicePageContent");
 const { initGoldLoanContent } = require("./utils/initGoldLoanContent");
 const { initMsmeLoanContent } = require("./utils/initMsmeLoanContent");
+const { initCdLoanContent } = require("./utils/initCdLoanContent");
 
 dotenv.config();
 const app = express();
@@ -51,6 +52,7 @@ const startServer = async () => {
       await initServicesPageContent(),
       await initGoldLoanContent();
     await initMsmeLoanContent();
+    await initCdLoanContent();
 
     app.listen(PORT, () => {
       Logger.info(`Server running on port ${PORT}`);

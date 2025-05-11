@@ -1,0 +1,37 @@
+const { DataTypes } = require("sequelize");
+
+module.exports = (sequelize) => {
+  const CdLoanBenefits = sequelize.define(
+    "CdLoanBenefits",
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      title: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      icon: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      order: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      is_active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+      },
+    },
+    {
+      tableName: "cd_loan_benefits",
+      timestamps: true,
+    }
+  );
+
+  return CdLoanBenefits;
+};

@@ -43,6 +43,9 @@ const defineMsmeFaq = require("./msme/faq");
 const defineMsmeOfferings = require("./msme/msmeOfferings");
 const defineMsmeTargetAudience = require("./msme/targetAudience");
 const defineMsmeSupportedIndustries = require("./msme/supportedIndustries");
+const defineCdLoanContent = require("./CD/cdContent");
+const defineCdLoanProducts = require("./CD/loanProducts");
+const defineCdLoanBenefits = require("./CD/loanBenefits");
 
 const models = {
   User: defineUser(sequelize),
@@ -89,6 +92,9 @@ const models = {
   MsmeOfferings: defineMsmeOfferings(sequelize),
   MsmeTargetedAudience: defineMsmeTargetAudience(sequelize),
   MsmeLoanSupportedIndustries: defineMsmeSupportedIndustries(sequelize),
+  CdLoanContent: defineCdLoanContent(sequelize),
+  CdLoanProducts: defineCdLoanProducts(sequelize),
+  CdLoanBenefits: defineCdLoanBenefits(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {

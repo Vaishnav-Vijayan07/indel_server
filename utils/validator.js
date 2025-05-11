@@ -584,6 +584,37 @@ const validateMsmeLoanSupportedIndustries = [
   check("is_active").isBoolean().withMessage("Is active must be a boolean"),
 ];
 
+const validateCdLoanContentUpdate = [
+  check("meta_title").optional().notEmpty().withMessage("Meta Title cannot be empty"),
+  check("meta_description").optional().notEmpty().withMessage("Meta Description cannot be empty"),
+  check("meta_keywords").optional().notEmpty().withMessage("Meta Keywords cannot be empty"),
+  check("page_title").optional().notEmpty().withMessage("Page Title cannot be empty"),
+  check("loan_offer_title").optional().notEmpty().withMessage("Loan Offer Title cannot be empty"),
+  check("loan_offer_description").optional().notEmpty().withMessage("Loan Offer Description cannot be empty"),
+  check("loan_offer_button_text").optional().notEmpty().withMessage("Loan Offer Button Text cannot be empty"),
+  check("loan_offer_button_link").optional().isURL().withMessage("Loan Offer Button Link must be a valid URL"),
+  check("covered_products_section_title").optional().notEmpty().withMessage("Covered Products Section Title cannot be empty"),
+  check("covered_products_section_image").optional().isURL().withMessage("Covered Products Section Image must be a valid URL"),
+  check("eligibility_criteria_icon").optional().isURL().withMessage("Eligibility Criteria Icon must be a valid URL"),
+  check("eligibility_criteria_title").optional().notEmpty().withMessage("Eligibility Criteria Title cannot be empty"),
+  check("eligibility_criteria_description").optional().notEmpty().withMessage("Eligibility Criteria Description cannot be empty"),
+  check("eligibility_criteria_note").optional().notEmpty().withMessage("Eligibility Criteria Note cannot be empty"),
+  check("feature_title").optional().notEmpty().withMessage("Feature Title cannot be empty"),
+  check("feature_image").optional().isURL().withMessage("Feature Image must be a valid URL"),
+];
+
+const validateCdLoanProductsUpdate = [
+  check("title").optional().notEmpty().withMessage("Title is required"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+];
+
+const validateCdLoanProducts = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("order").isInt().withMessage("Order must be an integer"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -649,5 +680,8 @@ module.exports = {
   validateMsmeTargetedAudienceUpdate,
   validateMsmeLoanSupportedIndustries,
   validateMsmeLoanSupportedIndustriesUpdate,
+  validateCdLoanContentUpdate,
+  validateCdLoanProducts,
+  validateCdLoanProductsUpdate,
   generateStringValidators,
 };
