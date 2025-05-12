@@ -594,13 +594,10 @@ const validateCdLoanContentUpdate = [
   check("loan_offer_button_text").optional().notEmpty().withMessage("Loan Offer Button Text cannot be empty"),
   check("loan_offer_button_link").optional().isURL().withMessage("Loan Offer Button Link must be a valid URL"),
   check("covered_products_section_title").optional().notEmpty().withMessage("Covered Products Section Title cannot be empty"),
-  check("covered_products_section_image").optional().isURL().withMessage("Covered Products Section Image must be a valid URL"),
-  check("eligibility_criteria_icon").optional().isURL().withMessage("Eligibility Criteria Icon must be a valid URL"),
   check("eligibility_criteria_title").optional().notEmpty().withMessage("Eligibility Criteria Title cannot be empty"),
   check("eligibility_criteria_description").optional().notEmpty().withMessage("Eligibility Criteria Description cannot be empty"),
   check("eligibility_criteria_note").optional().notEmpty().withMessage("Eligibility Criteria Note cannot be empty"),
   check("feature_title").optional().notEmpty().withMessage("Feature Title cannot be empty"),
-  check("feature_image").optional().isURL().withMessage("Feature Image must be a valid URL"),
 ];
 
 const validateCdLoanProductsUpdate = [
@@ -612,6 +609,96 @@ const validateCdLoanProductsUpdate = [
 const validateCdLoanProducts = [
   check("title").notEmpty().withMessage("Title is required"),
   check("order").isInt().withMessage("Order must be an integer"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+];
+
+const validateCareerContentsUpdate = [
+  check("meta_title").optional().notEmpty().withMessage("Meta Title cannot be empty"),
+  check("meta_description").optional().notEmpty().withMessage("Meta Description cannot be empty"),
+  check("meta_keywords").optional().notEmpty().withMessage("Meta Keywords cannot be empty"),
+  check("page_title").optional().notEmpty().withMessage("Page Title cannot be empty"),
+  check("find_job_title").optional().notEmpty().withMessage("Find Job Title cannot be empty"),
+  check("find_job_button_name").optional().notEmpty().withMessage("Find Job Button Name cannot be empty"),
+  check("find_job_button_link").optional().isURL().withMessage("Find Job Button Link must be a valid URL"),
+  check("make_your_move_title").optional().notEmpty().withMessage("Make Your Move Title cannot be empty"),
+  check("make_your_move_description").optional().notEmpty().withMessage("Make Your Move Description cannot be empty"),
+  check("make_your_move_").optional().notEmpty().withMessage("Make Your Move cannot be empty"),
+  check("gallery_title").optional().notEmpty().withMessage("Gallery Title cannot be empty"),
+  check("gallery_sub_title").optional().notEmpty().withMessage("Gallery Sub Title cannot be empty"),
+  check("gallery_description").optional().notEmpty().withMessage("Gallery Description cannot be empty"),
+  check("gallery_button_text").optional().notEmpty().withMessage("Gallery Button Text cannot be empty"),
+  check("gallery_button_link").optional().isURL().withMessage("Gallery Button Link must be a valid URL"),
+  check("benefits_title").optional().notEmpty().withMessage("Benefits Title cannot be empty"),
+  check("awards_title").optional().notEmpty().withMessage("Awards Title cannot be empty"),
+  check("testimonial_title").optional().notEmpty().withMessage("Testimonial Title cannot be empty"),
+  check("testimonial_description").optional().notEmpty().withMessage("Testimonial Description cannot be empty"),
+  check("testimonial_button_name").optional().notEmpty().withMessage("Testimonial Button Name cannot be empty"),
+  check("testimonial_button_link").optional().isURL().withMessage("Testimonial Button Link must be a valid URL"),
+];
+
+const validateCareerBannersUpdate = [
+  check("title").optional().notEmpty().withMessage("Title is required"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+
+const validateCareerBanners = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("order").isInt().withMessage("Order must be an integer"),
+];
+
+const validateCareerStatesUpdate = [
+  check("state_name").optional().notEmpty().withMessage("State Name is required"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+];
+
+const validateCareerStates = [
+  check("state_name").notEmpty().withMessage("State Name is required"),
+  check("order").isInt().withMessage("Order must be an integer"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+];
+
+const validateCareerLocationsUpdate = [
+  check("location_name").optional().notEmpty().withMessage("Location Name is required"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+];
+
+const validateCareerLocations = [
+  check("location_name").notEmpty().withMessage("Location Name is required"),
+  check("order").isInt().withMessage("Order must be an integer"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+];
+
+const validateCareerRolesUpdate = [
+  check("role_name").optional().notEmpty().withMessage("Role Name is required"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+];
+
+const validateCareerRoles = [
+  check("role_name").notEmpty().withMessage("Role Name is required"),
+  check("order").isInt().withMessage("Order must be an integer"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+];
+
+const validateJobsUpdate = [
+  check("role_id").optional().isInt().withMessage("Role ID must be an integer"),
+  check("location_id").optional().isInt().withMessage("Location ID must be an integer"),
+  check("state_id").optional().isInt().withMessage("State ID must be an integer"),
+  check("short_description").optional().notEmpty().withMessage("Short description cannot be empty"),
+  check("detailed_description").optional().notEmpty().withMessage("Detailed description cannot be empty"),
+  check("experience").optional().isInt().withMessage("Experience must be an integer"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+];
+
+const validateJobs = [
+  check("role_id").isInt().withMessage("Role ID must be an integer"),
+  check("location_id").isInt().withMessage("Location ID must be an integer"),
+  check("state_id").isInt().withMessage("State ID must be an integer"),
+  check("short_description").notEmpty().withMessage("Short description cannot be empty"),
+  check("detailed_description").notEmpty().withMessage("Detailed description cannot be empty"),
+  check("experience").isInt().withMessage("Experience must be an integer"),
   check("is_active").isBoolean().withMessage("Is active must be a boolean"),
 ];
 
@@ -683,5 +770,16 @@ module.exports = {
   validateCdLoanContentUpdate,
   validateCdLoanProducts,
   validateCdLoanProductsUpdate,
+  validateCareerContentsUpdate,
+  validateCareerBanners,
+  validateCareerBannersUpdate,
+  validateCareerStates,
+  validateCareerStatesUpdate,
+  validateCareerLocations,
+  validateCareerLocationsUpdate,
+  validateCareerRoles,
+  validateCareerRolesUpdate,
+  validateJobs,
+  validateJobsUpdate,
   generateStringValidators,
 };

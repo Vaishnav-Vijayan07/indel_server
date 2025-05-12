@@ -46,6 +46,14 @@ const defineMsmeSupportedIndustries = require("./msme/supportedIndustries");
 const defineCdLoanContent = require("./CD/cdContent");
 const defineCdLoanProducts = require("./CD/loanProducts");
 const defineCdLoanBenefits = require("./CD/loanBenefits");
+const defineCareersContent = require("./career/contents");
+const defineCareerBanners = require("./career/banners");
+const defineCareerStates = require("./career/states");
+const defineCareerLocations = require("./career/locations");
+const defineCareerRoles = require("./career/roles");
+const defineCareerJobs = require("./career/jobs");
+const defineCareerGallery = require("./career/gallery");
+const defineCareerBenfs = require("./career/employeeBenfs");
 
 const models = {
   User: defineUser(sequelize),
@@ -95,6 +103,14 @@ const models = {
   CdLoanContent: defineCdLoanContent(sequelize),
   CdLoanProducts: defineCdLoanProducts(sequelize),
   CdLoanBenefits: defineCdLoanBenefits(sequelize),
+  CareersContent: defineCareersContent(sequelize),
+  CareerBanners: defineCareerBanners(sequelize),
+  CareerStates: defineCareerStates(sequelize),
+  CareerLocations: defineCareerLocations(sequelize),
+  CareerRoles: defineCareerRoles(sequelize),
+  CareerJobs: defineCareerJobs(sequelize),
+  CareerGallery: defineCareerGallery(sequelize),
+  EmployeeBenefits: defineCareerBenfs(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {
