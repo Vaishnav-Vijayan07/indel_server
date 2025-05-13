@@ -54,6 +54,8 @@ const defineCareerRoles = require("./career/roles");
 const defineCareerJobs = require("./career/jobs");
 const defineCareerGallery = require("./career/gallery");
 const defineCareerBenfs = require("./career/employeeBenfs");
+const defineBlogContent = require("./blog/content");
+const defineBlogs = require("./blog/blogs");
 
 const models = {
   User: defineUser(sequelize),
@@ -111,6 +113,8 @@ const models = {
   CareerJobs: defineCareerJobs(sequelize),
   CareerGallery: defineCareerGallery(sequelize),
   EmployeeBenefits: defineCareerBenfs(sequelize),
+  BlogPageContent: defineBlogContent(sequelize),
+  Blogs: defineBlogs(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {

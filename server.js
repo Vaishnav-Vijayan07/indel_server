@@ -8,9 +8,7 @@ const path = require("path");
 const cors = require("cors");
 const { createDemoAdmin } = require("./utils/demoUser");
 const { initHomePageContent } = require("./utils/initHomePageContent");
-const { initAboutPageContent } = require("./utils/initAboutPageContent");
 const { initMngmntTeamContent } = require("./utils/initMangementTeamContent");
-const { initDebtPartnersContent } = require("./utils/initDebtPartnersContent");
 const { initContactContent } = require("./utils/initContactContent");
 const { initHistoryPageContent } = require("./utils/initHistoryPageContent");
 const { initIndelValueContent } = require("./utils/initIndelValueContent");
@@ -20,6 +18,7 @@ const { initGoldLoanContent } = require("./utils/initGoldLoanContent");
 const { initMsmeLoanContent } = require("./utils/initMsmeLoanContent");
 const { initCdLoanContent } = require("./utils/initCdLoanContent");
 const { initCareerContents } = require("./utils/initCareerContent");
+const { initDebtPartnersContent, initAboutPageContent, initBlogPageContent } = require("./utils/initContents");
 
 dotenv.config();
 const app = express();
@@ -55,6 +54,7 @@ const startServer = async () => {
     await initMsmeLoanContent();
     await initCdLoanContent();
     await initCareerContents();
+    await initBlogPageContent();
 
     app.listen(PORT, () => {
       Logger.info(`Server running on port ${PORT}`);

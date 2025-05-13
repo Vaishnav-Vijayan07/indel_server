@@ -702,6 +702,31 @@ const validateJobs = [
   check("is_active").isBoolean().withMessage("Is active must be a boolean"),
 ];
 
+const validateBlogPageContentUpdate = [
+  check("meta_title").optional().notEmpty().withMessage("Meta Title cannot be empty"),
+  check("meta_description").optional().notEmpty().withMessage("Meta Description cannot be empty"),
+  check("meta_keywords").optional().notEmpty().withMessage("Meta Keywords cannot be empty"),
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("slider_title").optional().notEmpty().withMessage("Slider Title cannot be empty"),
+  check("slider_button_text").optional().notEmpty().withMessage("Slider Button Text cannot be empty"),
+  check("slider_button_link").optional().isURL().withMessage("Slider Button Link must be a valid URL"),
+  check("all_blogs_title").optional().notEmpty().withMessage("All Blogs Title cannot be empty"),
+];
+
+const validateBlogsUpdate = [
+  check("title").optional().notEmpty().withMessage("Title is required"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("is_active").notEmpty().withMessage("Is active is required"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+
+const validateBlogs = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("description").notEmpty().withMessage("Description cannot be empty"),
+  check("is_active").notEmpty().withMessage("Is active is required"),
+  check("order").isInt().withMessage("Order must be an integer"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -781,5 +806,8 @@ module.exports = {
   validateCareerRolesUpdate,
   validateJobs,
   validateJobsUpdate,
+  validateBlogPageContentUpdate,
+  validateBlogs,
+  validateBlogsUpdate,
   generateStringValidators,
 };

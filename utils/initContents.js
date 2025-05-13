@@ -1,6 +1,34 @@
 const { models } = require("../models/index");
 
+const BlogPageContent = models.BlogPageContent;
 const AboutPageContent = models.AboutPageContent;
+const DebtPartnersContent = models.DebtPartnersContent;
+
+const initBlogPageContent = async () => {
+  try {
+    const existingContent = await BlogPageContent.findOne();
+
+    if (existingContent) {
+      console.log("Blog Page content already exists");
+      return;
+    }
+
+    await BlogPageContent.create({
+      meta_title: "Our Blog - Insights and Updates",
+      meta_description: "Stay updated with our latest blog posts on finance, careers, and more.",
+      meta_keywords: "blog, finance, careers, updates, insights",
+      title: "Our Blog",
+      slider_title: "Explore Our Latest Insights",
+      slider_button_text: "Read More",
+      slider_button_link: "https://example.com/blogs",
+      all_blogs_title: "All Blogs",
+    });
+
+    console.log("Blog Page content initialized with default values");
+  } catch (error) {
+    console.error("Failed to initialize Blog Page content:", error.message);
+  }
+};
 
 const initAboutPageContent = async () => {
   try {
@@ -48,4 +76,24 @@ const initAboutPageContent = async () => {
   }
 };
 
-module.exports = { initAboutPageContent };
+const initDebtPartnersContent = async () => {
+  try {
+    const existingContent = await DebtPartnersContent.findOne();
+
+    if (existingContent) {
+      console.log("Debt partners Content already exists");
+      return;
+    }
+
+    await DebtPartnersContent.create({
+      title: "This is new title",
+      super_title: "This is new super title",
+    });
+
+    console.log("Debt partners content initialized with default values");
+  } catch (error) {
+    console.error("Failed to initialize debt partners Content:", error.message);
+  }
+};
+
+module.exports = { initBlogPageContent, initAboutPageContent, initDebtPartnersContent };
