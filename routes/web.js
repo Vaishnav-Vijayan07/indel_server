@@ -8,5 +8,7 @@ router.get('/management', WebController.mangementData);
 router.get('/partners', WebController.partnersData);
 router.get('/contacts', WebController.contactData);
 router.get('/history', WebController.historyData);
+router.get('/blogs', WebController.blogData);
+router.get('/blogs/:id', WebController.blogDetails);
 
 module.exports = router;

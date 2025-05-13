@@ -234,6 +234,62 @@ class WebController {
       next(new CustomError("Failed to fetch history data", 500, error.message));
     }
   }
+
+  static async blogData(req, res, next) {
+    const cacheKey = "webBlogData";
+
+    try {
+      await CacheService.invalidate("webBlogData");
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        logger.info("Serving blog data from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
+
+      const [content, blogs] = await Promise.all([models.BlogPageContent.findAll(), models.Blogs.findAll()]);
+
+      const sliderItems = blogs.filter((blog) => blog.is_slider);
+
+      const data = {
+        content: content[0] || null,
+        blogs,
+        sliderItems,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched blog data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching blog data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch blog data", 500, error.message));
+    }
+  }
+  static async blogDetails(req, res, next) {
+    const { id: blogId } = req.params;
+    const cacheKey = `webBlogData_${blogId}`;
+
+    try {
+      await CacheService.invalidate(`webBlogData_${blogId}`);
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        logger.info("Serving blog details from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
+
+      const blog = await models.Blogs.findOne({
+        where: {
+          id: blogId,
+        },
+      });
+
+      await CacheService.set(cacheKey, JSON.stringify(blog), 3600);
+      logger.info("Fetched blog details from DB");
+      res.json({ status: "success", data: blog });
+    } catch (error) {
+      logger.error("Error fetching blog details", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch blog details", 500, error.message));
+    }
+  }
 }
 
 module.exports = WebController;

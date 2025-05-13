@@ -13,22 +13,31 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      description: {
+      image: {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      image: {
-        type: DataTypes.STRING,
+      image_description: {
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       second_image: {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      second_image_description: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
       is_active: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: true,
+      },
+      is_slider: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: false,
       },
       order: {
         type: DataTypes.INTEGER,
