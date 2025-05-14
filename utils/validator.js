@@ -714,6 +714,10 @@ const validateBlogPageContentUpdate = [
 ];
 
 const validateBlogsUpdate = [
+  check("meta_title").optional().notEmpty().withMessage("Meta Title cannot be empty"),
+  check("meta_description").optional().notEmpty().withMessage("Meta Description cannot be empty"),
+  check("meta_keywords").optional().notEmpty().withMessage("Meta Keywords cannot be empty"),
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
   check("title").optional().notEmpty().withMessage("Title is required"),
   check("image_description").optional().notEmpty().withMessage("Image Description cannot be empty"),
   check("second_image_description").optional().notEmpty().withMessage("Second Image Description cannot be empty"),
@@ -722,6 +726,10 @@ const validateBlogsUpdate = [
 ];
 
 const validateBlogs = [
+  check("meta_title").notEmpty().withMessage("Meta Title cannot be empty"),
+  check("meta_description").notEmpty().withMessage("Meta Description cannot be empty"),
+  check("meta_keywords").notEmpty().withMessage("Meta Keywords cannot be empty"),
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
   check("title").notEmpty().withMessage("Title is required"),
   check("image_description").notEmpty().withMessage("Image Description cannot be empty"),
   check("second_image_description").notEmpty().withMessage("Second Image Description cannot be empty"),
