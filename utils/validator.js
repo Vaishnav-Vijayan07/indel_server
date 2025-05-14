@@ -720,7 +720,9 @@ const validateBlogsUpdate = [
   check("title").optional().notEmpty().withMessage("Title cannot be empty"),
   check("title").optional().notEmpty().withMessage("Title is required"),
   check("image_description").optional().notEmpty().withMessage("Image Description cannot be empty"),
+  check("image_alt").optional().notEmpty().withMessage("Image Alt cannot be empty"),
   check("second_image_description").optional().notEmpty().withMessage("Second Image Description cannot be empty"),
+  check("second_image_alt").optional().notEmpty().withMessage("Second Image Alt cannot be empty"),
   check("is_active").notEmpty().withMessage("Is active is required"),
   check("order").optional().isInt().withMessage("Order must be an integer"),
 ];
@@ -732,7 +734,9 @@ const validateBlogs = [
   check("title").optional().notEmpty().withMessage("Title cannot be empty"),
   check("title").notEmpty().withMessage("Title is required"),
   check("image_description").notEmpty().withMessage("Image Description cannot be empty"),
+  check("image_alt").optional().notEmpty().withMessage("Image Alt cannot be empty"),
   check("second_image_description").notEmpty().withMessage("Second Image Description cannot be empty"),
+  check("second_image_alt").optional().notEmpty().withMessage("Second Image Alt cannot be empty"),
   check("is_active").notEmpty().withMessage("Is active is required"),
   check("order").isInt().withMessage("Order must be an integer"),
 ];

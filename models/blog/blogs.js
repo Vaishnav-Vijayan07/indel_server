@@ -33,7 +33,15 @@ module.exports = (sequelize) => {
         type: DataTypes.TEXT,
         allowNull: true,
       },
+      image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       second_image: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      second_image_alt: {
         type: DataTypes.STRING,
         allowNull: true,
       },
