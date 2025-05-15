@@ -1,50 +1,37 @@
-const { models, Op } = require("../../models/index");
+const { models } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
 const fs = require("fs").promises;
 const path = require("path");
+const slugify = require("../../utils/slugify"); // Import the slugify utility
 
 const Blogs = models.Blogs;
 
-// Helper function to generate unique slugs
-async function generateUniqueSlug(title, excludeId = null) {
-  if (!title) {
-    throw new CustomError("Title is required for slug generation", 400);
-  }
-
-  let slug = title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-
-  if (!slug) {
-    slug = "blog-post"; // Fallback slug
-  }
-
-  let uniqueSlug = slug;
-  let suffix = 1;
-
-  while (
-    await Blogs.findOne({
-      where: {
-        slug: uniqueSlug,
-        id: excludeId ? { [Op.ne]: excludeId } : undefined,
-      },
-    })
-  ) {
-    uniqueSlug = `${slug}-${suffix}`;
-    suffix++;
-  }
-
-  if (process.env.NODE_ENV !== "production") {
-    console.log(`Generated unique slug: ${uniqueSlug} for title: ${title}`);
-  }
-
-  return uniqueSlug;
-}
-
 class BlogsController {
+  // Utility to generate unique slug
+  static async generateUniqueSlug(title, excludeId = null) {
+    let slug = slugify(title);
+    if (!slug) {
+      slug = "blog-post"; // Fallback slug if title is empty
+    }
+
+    let count = 0;
+    let uniqueSlug = slug;
+
+    // Check for existing slugs
+    while (
+      await Blogs.findOne({
+        where: { slug: uniqueSlug, id: { [models.Sequelize.Op.ne]: excludeId } },
+      })
+    ) {
+      count++;
+      uniqueSlug = `${slug}-${count}`;
+    }
+
+    return uniqueSlug;
+  }
+
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
@@ -61,99 +48,47 @@ class BlogsController {
   static async create(req, res, next) {
     try {
       const updateData = { ...req.body };
-      if (process.env.NODE_ENV !== "production") {
-        console.log("updateData", updateData);
+
+      // Generate slug from title if not provided
+      if (!updateData.slug && updateData.title) {
+        updateData.slug = await BlogsController.generateUniqueSlug(updateData.title);
+        Logger.info(`Generated slug for new blog: ${updateData.slug}`);
       }
 
-      // Validate required fields
-      if (!updateData.title) throw new CustomError("Title is required", 400);
-      if (!updateData.content) throw new CustomError("Content is required", 400);
-
-      // Generate slug explicitly
-      updateData.slug = await generateUniqueSlug(updateData.title);
-
-      // Handle file uploads
       if (req.files?.image) {
-        updateData.image = `/Uploads/blogs/${req.files.image[0].filename}`;
+        updateData.image = `/uploads/blogs/${req.files.image[0].filename}`;
         Logger.info(`Uploaded image for Blog: ${updateData.image}`);
       }
       if (req.files?.second_image) {
-        updateData.second_image = `/Uploads/blogs/${req.files.second_image[0].filename}`;
+        updateData.second_image = `/uploads/blogs/${req.files.second_image[0].filename}`;
         Logger.info(`Uploaded second image for Blog: ${updateData.second_image}`);
       }
 
-      // Set defaults
-      updateData.is_active = updateData.is_active ?? true;
-      updateData.is_slider = updateData.is_slider ?? false;
-      updateData.order = updateData.order ?? 0;
-
       const blog = await Blogs.create(updateData);
 
-      await CacheService.invalidate("blogs:*");
+      await CacheService.invalidate("blogs");
       res.status(201).json({ success: true, data: blog, message: "Blog created" });
     } catch (error) {
-      Logger.error(`Create blog failed: ${error.message}`);
       next(error);
     }
   }
 
   static async getAll(req, res, next) {
     try {
-      const { page = 1, limit = 10, includeRecent = false } = req.query;
-      const offset = (page - 1) * limit;
-      const cacheKey = `blogs:${page}:${limit}:${includeRecent}`;
-
+      const cacheKey = "blogs";
       const cachedData = await CacheService.get(cacheKey);
+
       if (cachedData) {
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
 
-      const where = { is_active: true };
-      const queryOptions = {
-        where,
-        order: [
-          ["order", "ASC"],
-          ["createdAt", "DESC"],
-        ],
-        limit: parseInt(limit),
-        offset: parseInt(offset),
-      };
+      const blogs = await Blogs.findAll({
+        order: [["order", "ASC"]],
+      });
 
-      let responseData = {};
-      if (includeRecent) {
-        const [blogs, recentBlogs] = await Promise.all([
-          Blogs.findAndCountAll(queryOptions),
-          Blogs.findAll({
-            where: { is_active: true },
-            order: [["createdAt", "DESC"]],
-            limit: 3,
-          }),
-        ]);
-        responseData = {
-          blogs: blogs.rows,
-          pagination: {
-            total: blogs.count,
-            page: parseInt(page),
-            limit: parseInt(limit),
-          },
-          recentBlogs,
-        };
-      } else {
-        const blogs = await Blogs.findAndCountAll(queryOptions);
-        responseData = {
-          blogs: blogs.rows,
-          pagination: {
-            total: blogs.count,
-            page: parseInt(page),
-            limit: parseInt(limit),
-          },
-        };
-      }
-
-      await CacheService.set(cacheKey, JSON.stringify(responseData), 3600);
-      res.json({ success: true, data: responseData });
+      await CacheService.set(cacheKey, JSON.stringify(blogs), 3600);
+      res.json({ success: true, data: blogs });
     } catch (error) {
-      Logger.error(`Get all blogs failed: ${error.message}`);
       next(error);
     }
   }
@@ -161,16 +96,14 @@ class BlogsController {
   static async getById(req, res, next) {
     try {
       const { id } = req.params;
-      const cacheKey = `blog:${id}`;
+      const cacheKey = `blog_${id}`;
       const cachedData = await CacheService.get(cacheKey);
 
       if (cachedData) {
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
 
-      const blog = await Blogs.findOne({
-        where: { id },
-      });
+      const blog = await Blogs.findByPk(id);
       if (!blog) {
         throw new CustomError("Blog not found", 404);
       }
@@ -178,43 +111,6 @@ class BlogsController {
       await CacheService.set(cacheKey, JSON.stringify(blog), 3600);
       res.json({ success: true, data: blog });
     } catch (error) {
-      Logger.error(`Get blog by ID failed: ${error.message}`);
-      next(error);
-    }
-  }
-
-  static async getBySlug(req, res, next) {
-    try {
-      const { slug } = req.params;
-      const { includeRecent = false } = req.query;
-      const cacheKey = `blog:slug:${slug}:${includeRecent}`;
-
-      const cachedData = await CacheService.get(cacheKey);
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
-
-      const blog = await Blogs.findOne({
-        where: { slug },
-      });
-      if (!blog) {
-        throw new CustomError("Blog not found", 404);
-      }
-
-      let responseData = { blog };
-      if (includeRecent) {
-        const recentBlogs = await Blogs.findAll({
-          where: { is_active: true, id: { [Op.ne]: blog.id } },
-          order: [["createdAt", "DESC"]],
-          limit: 3,
-        });
-        responseData.recentBlogs = recentBlogs;
-      }
-
-      await CacheService.set(cacheKey, JSON.stringify(responseData), 3600);
-      res.json({ success: true, data: responseData });
-    } catch (error) {
-      Logger.error(`Get blog by slug failed: ${error.message}`);
       next(error);
     }
   }
@@ -222,9 +118,7 @@ class BlogsController {
   static async update(req, res, next) {
     try {
       const { id } = req.params;
-      const blog = await Blogs.findOne({
-        where: { id },
-      });
+      const blog = await Blogs.findByPk(id);
       if (!blog) {
         throw new CustomError("Blog not found", 404);
       }
@@ -233,21 +127,21 @@ class BlogsController {
       let oldImage = blog.image;
       let oldSecondImage = blog.second_image;
 
-      // Generate new slug if title changes
-      if (updateData.title && updateData.title !== blog.title) {
-        updateData.slug = await generateUniqueSlug(updateData.title, id);
+      // Generate slug if title is updated and no slug is provided
+      if (updateData.title && !updateData.slug) {
+        updateData.slug = await BlogsController.generateUniqueSlug(updateData.title, id);
+        Logger.info(`Generated slug for updated blog ID ${id}: ${updateData.slug}`);
       }
 
-      // Handle file uploads
       if (req.files?.image) {
-        updateData.image = `/Uploads/blogs/${req.files.image[0].filename}`;
+        updateData.image = `/uploads/blogs/${req.files.image[0].filename}`;
         Logger.info(`Updated image for Blog ID ${id}: ${updateData.image}`);
         if (oldImage) {
           await BlogsController.deleteFile(oldImage);
         }
       }
       if (req.files?.second_image) {
-        updateData.second_image = `/Uploads/blogs/${req.files.second_image[0].filename}`;
+        updateData.second_image = `/uploads/blogs/${req.files.second_image[0].filename}`;
         Logger.info(`Updated second image for Blog ID ${id}: ${updateData.second_image}`);
         if (oldSecondImage) {
           await BlogsController.deleteFile(oldSecondImage);
@@ -256,12 +150,10 @@ class BlogsController {
 
       await blog.update(updateData);
 
-      await CacheService.invalidate("blogs:*");
-      await CacheService.invalidate(`blog:${id}`);
-      await CacheService.invalidate(`blog:slug:${blog.slug}`);
+      await CacheService.invalidate("blogs");
+      await CacheService.invalidate(`blog_${id}`);
       res.json({ success: true, data: blog, message: "Blog updated" });
     } catch (error) {
-      Logger.error(`Update blog failed: ${error.message}`);
       next(error);
     }
   }
@@ -269,44 +161,26 @@ class BlogsController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
-      const blog = await Blogs.findOne({
-        where: { id },
-      });
+      const blog = await Blogs.findByPk(id);
       if (!blog) {
         throw new CustomError("Blog not found", 404);
       }
 
-      await blog.destroy(); // Soft delete
+      const oldImage = blog.image;
+      const oldSecondImage = blog.second_image;
+      await blog.destroy();
 
-      await CacheService.invalidate("blogs:*");
-      await CacheService.invalidate(`blog:${id}`);
-      await CacheService.invalidate(`blog:slug:${blog.slug}`);
-      res.json({ success: true, message: "Blog soft deleted", data: id });
-    } catch (error) {
-      Logger.error(`Delete blog failed: ${error.message}`);
-      next(error);
-    }
-  }
-
-  static async restore(req, res, next) {
-    try {
-      const { id } = req.params;
-      const blog = await Blogs.findOne({
-        where: { id },
-        paranoid: false,
-      });
-      if (!blog || !blog.deletedAt) {
-        throw new CustomError("Blog not found or not deleted", 404);
+      if (oldImage) {
+        await BlogsController.deleteFile(oldImage);
+      }
+      if (oldSecondImage) {
+        await BlogsController.deleteFile(oldSecondImage);
       }
 
-      await blog.restore();
-
-      await CacheService.invalidate("blogs:*");
-      await CacheService.invalidate(`blog:${id}`);
-      await CacheService.invalidate(`blog:slug:${blog.slug}`);
-      res.json({ success: true, message: "Blog restored", data: blog });
+      await CacheService.invalidate("blogs");
+      await CacheService.invalidate(`blog_${id}`);
+      res.json({ success: true, message: "Blog deleted", data: id });
     } catch (error) {
-      Logger.error(`Restore blog failed: ${error.message}`);
       next(error);
     }
   }
@@ -324,6 +198,27 @@ module.exports = BlogsController;
 // const Blogs = models.Blogs;
 
 // class BlogsController {
+//   static async generateUniqueSlug(title, excludeId = null) {
+//     let slug = slugify(title);
+//     if (!slug) {
+//       slug = "blog-post"; // Fallback slug if title is empty
+//     }
+
+//     let count = 0;
+//     let uniqueSlug = slug;
+
+//     // Check for existing slugs
+//     while (
+//       await Blogs.findOne({
+//         where: { slug: uniqueSlug, id: { [models.Sequelize.Op.ne]: excludeId } },
+//       })
+//     ) {
+//       count++;
+//       uniqueSlug = `${slug}-${count}`;
+//     }
+
+//     return uniqueSlug;
+//   }
 //   static async deleteFile(filePath) {
 //     if (!filePath) return;
 //     try {
@@ -340,8 +235,6 @@ module.exports = BlogsController;
 //   static async create(req, res, next) {
 //     try {
 //       const updateData = { ...req.body };
-//       console.log("updateData", updateData);
-
 //       if (req.files?.image) {
 //         updateData.image = `/uploads/blogs/${req.files.image[0].filename}`;
 //         Logger.info(`Uploaded image for Blog: ${updateData.image}`);
@@ -397,41 +290,6 @@ module.exports = BlogsController;
 
 //       await CacheService.set(cacheKey, JSON.stringify(blog), 3600);
 //       res.json({ success: true, data: blog });
-//     } catch (error) {
-//       next(error);
-//     }
-//   }
-
-//   static async getBySlug(req, res, next) {
-//     try {
-//       const { slug } = req.params;
-//       const { includeRecent = false } = req.query;
-//       const cacheKey = `blog:slug:${slug}:${includeRecent}`;
-
-//       const cachedData = await CacheService.get(cacheKey);
-//       if (cachedData) {
-//         return res.json({ success: true, data: JSON.parse(cachedData) });
-//       }
-
-//       const blog = await Blogs.findOne({
-//         where: { slug, deletedAt: null },
-//       });
-//       if (!blog) {
-//         throw new CustomError("Blog not found", 404);
-//       }
-
-//       let responseData = { blog };
-//       if (includeRecent) {
-//         const recentBlogs = await Blogs.findAll({
-//           where: { is_active: true, deletedAt: null, id: { [Op.ne]: blog.id } },
-//           order: [["createdAt", "DESC"]],
-//           limit: 3,
-//         });
-//         responseData.recentBlogs = recentBlogs;
-//       }
-
-//       await CacheService.set(cacheKey, JSON.stringify(responseData), 3600);
-//       res.json({ success: true, data: responseData });
 //     } catch (error) {
 //       next(error);
 //     }
