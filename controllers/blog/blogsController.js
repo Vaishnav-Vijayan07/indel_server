@@ -24,6 +24,8 @@ class BlogsController {
   static async create(req, res, next) {
     try {
       const updateData = { ...req.body };
+      console.log("updateData", updateData);
+
       if (req.files?.image) {
         updateData.image = `/uploads/blogs/${req.files.image[0].filename}`;
         Logger.info(`Uploaded image for Blog: ${updateData.image}`);
@@ -79,6 +81,41 @@ class BlogsController {
 
       await CacheService.set(cacheKey, JSON.stringify(blog), 3600);
       res.json({ success: true, data: blog });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async getBySlug(req, res, next) {
+    try {
+      const { slug } = req.params;
+      const { includeRecent = false } = req.query;
+      const cacheKey = `blog:slug:${slug}:${includeRecent}`;
+
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        return res.json({ success: true, data: JSON.parse(cachedData) });
+      }
+
+      const blog = await Blogs.findOne({
+        where: { slug, deletedAt: null },
+      });
+      if (!blog) {
+        throw new CustomError("Blog not found", 404);
+      }
+
+      let responseData = { blog };
+      if (includeRecent) {
+        const recentBlogs = await Blogs.findAll({
+          where: { is_active: true, deletedAt: null, id: { [Op.ne]: blog.id } },
+          order: [["createdAt", "DESC"]],
+          limit: 3,
+        });
+        responseData.recentBlogs = recentBlogs;
+      }
+
+      await CacheService.set(cacheKey, JSON.stringify(responseData), 3600);
+      res.json({ success: true, data: responseData });
     } catch (error) {
       next(error);
     }

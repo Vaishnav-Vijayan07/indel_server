@@ -13,7 +13,7 @@ const uploadFields = upload.fields([
 ]);
 
 router.get("/", BlogsController.getAll);
-router.get("/:id", BlogsController.getById);
+router.get("/:slug", BlogsController.getById);
 
 router.use(authMiddleware(["admin"]));
 router.post("/", uploadFields, validateBlogs, validateMiddleware, BlogsController.create);

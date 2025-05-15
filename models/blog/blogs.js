@@ -13,6 +13,15 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      slug: {
+        type: DataTypes.STRING(255), // Max length for URL compatibility
+        allowNull: true,
+        validate: {
+          notEmpty: true,
+          is: /^[a-z0-9]+(?:-[a-z0-9]+)*$/, // Kebab-case (e.g., my-blog-post)
+        },
+        comment: "URL-friendly identifier for the blog post",
+      },
       meta_description: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -67,6 +76,17 @@ module.exports = (sequelize) => {
     {
       tableName: "blogs",
       timestamps: true,
+      hooks: {
+        beforeValidate: (blog, options) => {
+          if (blog.title && !blog.slug) {
+            // Auto-generate slug from title if not provided
+            blog.slug = blog.title
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/^-+|-+$/g, "");
+          }
+        },
+      },
     }
   );
 
