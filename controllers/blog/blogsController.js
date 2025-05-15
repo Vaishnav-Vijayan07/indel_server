@@ -5,6 +5,7 @@ const Logger = require("../../services/logger");
 const fs = require("fs").promises;
 const path = require("path");
 const slugify = require("../../utils/slugify"); // Import the slugify utility
+const { Sequelize } = require("sequelize");
 
 const Blogs = models.Blogs;
 
@@ -22,7 +23,7 @@ class BlogsController {
     // Check for existing slugs
     while (
       await Blogs.findOne({
-        where: { slug: uniqueSlug, id: { [models.Sequelize.Op.ne]: excludeId } },
+        where: { slug: uniqueSlug, id: { [Sequelize.Op.ne]: excludeId } },
       })
     ) {
       count++;
