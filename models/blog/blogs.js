@@ -9,6 +9,18 @@ module.exports = (sequelize) => {
         primaryKey: true,
         autoIncrement: true,
       },
+      meta_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      meta_description: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      meta_keywords: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       title: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -21,7 +33,15 @@ module.exports = (sequelize) => {
         type: DataTypes.TEXT,
         allowNull: true,
       },
+      image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       second_image: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      second_image_alt: {
         type: DataTypes.STRING,
         allowNull: true,
       },
