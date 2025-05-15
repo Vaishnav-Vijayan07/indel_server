@@ -5,7 +5,7 @@ const Logger = require("../../services/logger");
 const fs = require("fs").promises;
 const path = require("path");
 const slugify = require("../../utils/slugify"); // Import the slugify utility
-const { Sequelize } = require("sequelize");
+const { Sequelize, where } = require("sequelize");
 
 const Blogs = models.Blogs;
 
@@ -96,15 +96,15 @@ class BlogsController {
 
   static async getById(req, res, next) {
     try {
-      const { id } = req.params;
-      const cacheKey = `blog_${id}`;
+      const { slug } = req.params;
+      const cacheKey = `blog_${slug}`;
       const cachedData = await CacheService.get(cacheKey);
 
       if (cachedData) {
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
 
-      const blog = await Blogs.findByPk(id);
+      const blog = await Blogs.findOne({where: {slug}});
       if (!blog) {
         throw new CustomError("Blog not found", 404);
       }
