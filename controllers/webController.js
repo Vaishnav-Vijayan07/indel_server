@@ -75,16 +75,17 @@ class WebController {
         return res.json({ status: "success", data: JSON.parse(cachedData) });
       }
 
-      const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks, teamMessages, serviceImages, statsData, accolades] = await Promise.all([
-        models.AboutBanner.findAll(),
-        models.AboutPageContent.findAll(),
-        models.AboutLifeAtIndelGallery.findAll(),
-        models.AboutQuickLinks.findAll(),
-        models.AboutMessageFromTeam.findAll(),
-        models.AboutServiceGallery.findAll(),
-        models.AboutStatistics.findAll(),
-        models.AboutAccolades.findAll(),
-      ]);
+      const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks, teamMessages, serviceImages, statsData, accolades] =
+        await Promise.all([
+          models.AboutBanner.findAll(),
+          models.AboutPageContent.findAll(),
+          models.AboutLifeAtIndelGallery.findAll(),
+          models.AboutQuickLinks.findAll(),
+          models.AboutMessageFromTeam.findAll(),
+          models.AboutServiceGallery.findAll(),
+          models.AboutStatistics.findAll(),
+          models.AboutAccolades.findAll(),
+        ]);
 
       const data = {
         aboutBanner,
@@ -265,11 +266,11 @@ class WebController {
     }
   }
   static async blogDetails(req, res, next) {
-    const { id: blogId } = req.params;
-    const cacheKey = `webBlogData_${blogId}`;
+    const { slug } = req.params;
+    const cacheKey = `webBlogData_${slug}`;
 
     try {
-      await CacheService.invalidate(`webBlogData_${blogId}`);
+      await CacheService.invalidate(`webBlogData_${slug}`);
       const cachedData = await CacheService.get(cacheKey);
       if (cachedData) {
         logger.info("Serving blog details from cache");
@@ -277,9 +278,7 @@ class WebController {
       }
 
       const blog = await models.Blogs.findOne({
-        where: {
-          id: blogId,
-        },
+        where: { slug },
       });
 
       await CacheService.set(cacheKey, JSON.stringify(blog), 3600);

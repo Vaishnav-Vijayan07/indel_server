@@ -9,6 +9,6 @@ router.get('/partners', WebController.partnersData);
 router.get('/contacts', WebController.contactData);
 router.get('/history', WebController.historyData);
 router.get('/blogs', WebController.blogData);
-router.get('/blogs/:id', WebController.blogDetails);
+router.get('/blogs/:slug', WebController.blogDetails);
 
 module.exports = router;
