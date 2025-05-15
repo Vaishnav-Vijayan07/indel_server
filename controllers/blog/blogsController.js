@@ -7,6 +7,44 @@ const path = require("path");
 
 const Blogs = models.Blogs;
 
+// Helper function to generate unique slugs
+async function generateUniqueSlug(title, excludeId = null) {
+  if (!title) {
+    throw new CustomError("Title is required for slug generation", 400);
+  }
+
+  let slug = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  if (!slug) {
+    slug = "blog-post"; // Fallback slug
+  }
+
+  let uniqueSlug = slug;
+  let suffix = 1;
+
+  while (
+    await Blogs.findOne({
+      where: {
+        slug: uniqueSlug,
+        id: excludeId ? { [Op.ne]: excludeId } : undefined,
+        deletedAt: null,
+      },
+    })
+  ) {
+    uniqueSlug = `${slug}-${suffix}`;
+    suffix++;
+  }
+
+  if (process.env.NODE_ENV !== "production") {
+    console.log(`Generated unique slug: ${uniqueSlug} for title: ${title}`);
+  }
+
+  return uniqueSlug;
+}
+
 class BlogsController {
   static async deleteFile(filePath) {
     if (!filePath) return;
@@ -32,6 +70,9 @@ class BlogsController {
       if (!updateData.title) throw new CustomError("Title is required", 400);
       if (!updateData.content) throw new CustomError("Content is required", 400);
 
+      // Generate slug explicitly
+      updateData.slug = await generateUniqueSlug(updateData.title);
+
       // Handle file uploads
       if (req.files?.image) {
         updateData.image = `/Uploads/blogs/${req.files.image[0].filename}`;
@@ -47,7 +88,6 @@ class BlogsController {
       updateData.is_slider = updateData.is_slider ?? false;
       updateData.order = updateData.order ?? 0;
 
-      // Let schema's beforeValidate hook handle slug generation
       const blog = await Blogs.create(updateData);
 
       await CacheService.invalidate("blogs:*");
@@ -191,6 +231,11 @@ class BlogsController {
       let oldImage = blog.image;
       let oldSecondImage = blog.second_image;
 
+      // Generate new slug if title changes
+      if (updateData.title && updateData.title !== blog.title) {
+        updateData.slug = await generateUniqueSlug(updateData.title, id);
+      }
+
       // Handle file uploads
       if (req.files?.image) {
         updateData.image = `/Uploads/blogs/${req.files.image[0].filename}`;
@@ -207,7 +252,6 @@ class BlogsController {
         }
       }
 
-      // Let schema's beforeValidate hook handle slug generation if title changes
       await blog.update(updateData);
 
       await CacheService.invalidate("blogs:*");

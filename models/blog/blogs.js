@@ -76,17 +76,6 @@ module.exports = (sequelize) => {
     {
       tableName: "blogs",
       timestamps: true,
-      hooks: {
-        beforeValidate: (blog, options) => {
-          if (blog.title && !blog.slug) {
-            // Auto-generate slug from title if not provided
-            blog.slug = blog.title
-              .toLowerCase()
-              .replace(/[^a-z0-9]+/g, "-")
-              .replace(/^-+|-+$/g, "");
-          }
-        },
-      },
     }
   );
 
