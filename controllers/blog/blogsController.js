@@ -30,7 +30,6 @@ async function generateUniqueSlug(title, excludeId = null) {
       where: {
         slug: uniqueSlug,
         id: excludeId ? { [Op.ne]: excludeId } : undefined,
-        deletedAt: null,
       },
     })
   ) {
@@ -109,10 +108,13 @@ class BlogsController {
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
 
-      const where = { is_active: true, deletedAt: null };
+      const where = { is_active: true };
       const queryOptions = {
         where,
-        order: [["order", "ASC"], ["createdAt", "DESC"]],
+        order: [
+          ["order", "ASC"],
+          ["createdAt", "DESC"],
+        ],
         limit: parseInt(limit),
         offset: parseInt(offset),
       };
@@ -122,7 +124,7 @@ class BlogsController {
         const [blogs, recentBlogs] = await Promise.all([
           Blogs.findAndCountAll(queryOptions),
           Blogs.findAll({
-            where: { is_active: true, deletedAt: null },
+            where: { is_active: true },
             order: [["createdAt", "DESC"]],
             limit: 3,
           }),
@@ -167,7 +169,7 @@ class BlogsController {
       }
 
       const blog = await Blogs.findOne({
-        where: { id, deletedAt: null },
+        where: { id },
       });
       if (!blog) {
         throw new CustomError("Blog not found", 404);
@@ -193,7 +195,7 @@ class BlogsController {
       }
 
       const blog = await Blogs.findOne({
-        where: { slug, deletedAt: null },
+        where: { slug },
       });
       if (!blog) {
         throw new CustomError("Blog not found", 404);
@@ -202,7 +204,7 @@ class BlogsController {
       let responseData = { blog };
       if (includeRecent) {
         const recentBlogs = await Blogs.findAll({
-          where: { is_active: true, deletedAt: null, id: { [Op.ne]: blog.id } },
+          where: { is_active: true, id: { [Op.ne]: blog.id } },
           order: [["createdAt", "DESC"]],
           limit: 3,
         });
@@ -221,7 +223,7 @@ class BlogsController {
     try {
       const { id } = req.params;
       const blog = await Blogs.findOne({
-        where: { id, deletedAt: null },
+        where: { id },
       });
       if (!blog) {
         throw new CustomError("Blog not found", 404);
@@ -268,7 +270,7 @@ class BlogsController {
     try {
       const { id } = req.params;
       const blog = await Blogs.findOne({
-        where: { id, deletedAt: null },
+        where: { id },
       });
       if (!blog) {
         throw new CustomError("Blog not found", 404);
@@ -311,7 +313,6 @@ class BlogsController {
 }
 
 module.exports = BlogsController;
-
 
 // const { models } = require("../../models/index");
 // const CacheService = require("../../services/cacheService");
