@@ -72,6 +72,10 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
+      posted_on: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
     },
     {
       tableName: "blogs",
