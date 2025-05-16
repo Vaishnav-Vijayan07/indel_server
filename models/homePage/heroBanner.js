@@ -13,10 +13,6 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      title2: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
       button_text: {
         type: DataTypes.STRING,
         allowNull: false,
