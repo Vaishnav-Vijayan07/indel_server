@@ -26,6 +26,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      other_meta_tags: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
       meta_keywords: {
         type: DataTypes.STRING,
         allowNull: true,

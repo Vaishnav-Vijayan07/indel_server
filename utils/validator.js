@@ -715,6 +715,7 @@ const validateBlogsUpdate = [
   check("meta_title").optional().notEmpty().withMessage("Meta Title cannot be empty"),
   check("meta_description").optional().notEmpty().withMessage("Meta Description cannot be empty"),
   check("meta_keywords").optional().notEmpty().withMessage("Meta Keywords cannot be empty"),
+  check("other_meta_tags").optional().notEmpty().withMessage("Other Meta Tags cannot be empty"),
   check("title").optional().notEmpty().withMessage("Title cannot be empty"),
   check("title").optional().notEmpty().withMessage("Title is required"),
   check("image_description").optional().notEmpty().withMessage("Image Description cannot be empty"),
@@ -730,6 +731,7 @@ const validateBlogs = [
   check("meta_title").notEmpty().withMessage("Meta Title cannot be empty"),
   check("meta_description").notEmpty().withMessage("Meta Description cannot be empty"),
   check("meta_keywords").notEmpty().withMessage("Meta Keywords cannot be empty"),
+  check("other_meta_tags").optional().notEmpty().withMessage("Other Meta Tags cannot be empty"),
   check("title").optional().notEmpty().withMessage("Title cannot be empty"),
   check("title").notEmpty().withMessage("Title is required"),
   check("image_description").notEmpty().withMessage("Image Description cannot be empty"),
@@ -739,6 +741,7 @@ const validateBlogs = [
   check("is_active").notEmpty().withMessage("Is active is required"),
   check("order").isInt().withMessage("Order must be an integer"),
   check("posted_on").optional().notEmpty().withMessage("Posted On cannot be empty"),
+
 ];
 
 module.exports = {

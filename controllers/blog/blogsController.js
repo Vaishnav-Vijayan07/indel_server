@@ -104,7 +104,7 @@ class BlogsController {
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
 
-      const blog = await Blogs.findOne({where: {slug}});
+      const blog = await Blogs.findOne({ where: { slug } });
       if (!blog) {
         throw new CustomError("Blog not found", 404);
       }
@@ -116,6 +116,51 @@ class BlogsController {
     }
   }
 
+  // static async update(req, res, next) {
+  //   try {
+  //     const { id } = req.params;
+  //     const blog = await Blogs.findByPk(id);
+  //     if (!blog) {
+  //       throw new CustomError("Blog not found", 404);
+  //     }
+
+  //     console.log("Body ================>", req.body);
+
+  //     const updateData = { ...req.body };
+  //     let oldImage = blog.image;
+  //     let oldSecondImage = blog.second_image;
+
+  //     // Generate slug if title is updated and no slug is provided
+  //     if (updateData.title && !updateData.slug) {
+  //       updateData.slug = await BlogsController.generateUniqueSlug(updateData.title, id);
+  //       Logger.info(`Generated slug for updated blog ID ${id}: ${updateData.slug}`);
+  //     }
+
+  //     if (req.files?.image) {
+  //       updateData.image = `/uploads/blogs/${req.files.image[0].filename}`;
+  //       Logger.info(`Updated image for Blog ID ${id}: ${updateData.image}`);
+  //       if (oldImage) {
+  //         await BlogsController.deleteFile(oldImage);
+  //       }
+  //     }
+  //     if (req.files?.second_image) {
+  //       updateData.second_image = `/uploads/blogs/${req.files.second_image[0].filename}`;
+  //       Logger.info(`Updated second image for Blog ID ${id}: ${updateData.second_image}`);
+  //       if (oldSecondImage) {
+  //         await BlogsController.deleteFile(oldSecondImage);
+  //       }
+  //     }
+
+  //     await blog.update(updateData);
+
+  //     await CacheService.invalidate("blogs");
+  //     await CacheService.invalidate(`blog_${id}`);
+  //     res.json({ success: true, data: blog, message: "Blog updated" });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
+
   static async update(req, res, next) {
     try {
       const { id } = req.params;
@@ -124,9 +169,14 @@ class BlogsController {
         throw new CustomError("Blog not found", 404);
       }
 
-      const updateData = { ...req.body };
+      console.log("Body ================>", req.body);
+
+      let updateData = { ...req.body };
       let oldImage = blog.image;
       let oldSecondImage = blog.second_image;
+
+      // Remove any `null` values from the updateData object
+      updateData = Object.fromEntries(Object.entries(updateData).filter(([_, value]) => value !== null));
 
       // Generate slug if title is updated and no slug is provided
       if (updateData.title && !updateData.slug) {
@@ -134,6 +184,7 @@ class BlogsController {
         Logger.info(`Generated slug for updated blog ID ${id}: ${updateData.slug}`);
       }
 
+      // Handle image uploads
       if (req.files?.image) {
         updateData.image = `/uploads/blogs/${req.files.image[0].filename}`;
         Logger.info(`Updated image for Blog ID ${id}: ${updateData.image}`);
@@ -141,6 +192,7 @@ class BlogsController {
           await BlogsController.deleteFile(oldImage);
         }
       }
+
       if (req.files?.second_image) {
         updateData.second_image = `/uploads/blogs/${req.files.second_image[0].filename}`;
         Logger.info(`Updated second image for Blog ID ${id}: ${updateData.second_image}`);
@@ -153,6 +205,7 @@ class BlogsController {
 
       await CacheService.invalidate("blogs");
       await CacheService.invalidate(`blog_${id}`);
+
       res.json({ success: true, data: blog, message: "Blog updated" });
     } catch (error) {
       next(error);
