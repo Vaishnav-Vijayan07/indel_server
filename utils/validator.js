@@ -805,6 +805,34 @@ const validateEventGalleryUpdate = [
     }),
 ];
 
+const validateAwardPageContentItemUpdate = [
+  check("meta_title").optional().notEmpty().withMessage("Meta title cannot be empty"),
+  check("meta_description").optional().notEmpty().withMessage("Meta description cannot be empty"),
+  check("meta_keywords").optional().notEmpty().withMessage("Meta keywords cannot be empty"),
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("all_awards_title").optional().notEmpty().withMessage("All awards title cannot be empty"),
+];
+
+const validateAward = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("year")
+    .notEmpty()
+    .isInt({ min: 1900, max: new Date().getFullYear() })
+    .withMessage(`Year must be between 1900 and ${new Date().getFullYear()}`),
+  check("is_slide").optional().isBoolean().withMessage("is_slide must be a boolean"),
+];
+
+const validateAwardUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("year")
+    .optional()
+    .isInt({ min: 1900, max: new Date().getFullYear() })
+    .withMessage(`Year must be between 1900 and ${new Date().getFullYear()}`),
+  check("is_slide").optional().isBoolean().withMessage("is_slide must be a boolean"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -893,4 +921,7 @@ module.exports = {
   validateEventTypeUpdate,
   validateEventGallery,
   validateEventGalleryUpdate,
+  validateAwardPageContentItemUpdate,
+  validateAward,
+  validateAwardUpdate,
 };
