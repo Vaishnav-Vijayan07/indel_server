@@ -844,7 +844,6 @@ const validateNewsPageContentItemUpdate = [
   check("all_news_title").optional().notEmpty().withMessage("All news title cannot be empty"),
 ];
 
-
 const validateNews = [
   check("title").notEmpty().withMessage("Title is required"),
   check("description").optional().notEmpty().withMessage("Description cannot be empty"),
@@ -870,6 +869,21 @@ const validateEventPageContentItemUpdate = [
   check("all_events_title").optional().notEmpty().withMessage("All events title cannot be empty"),
 ];
 
+const validateEvent = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("image_alt").optional().notEmpty().withMessage("Image alt text cannot be empty"),
+  check("order").notEmpty().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
+const validateEventUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("image_alt").optional().notEmpty().withMessage("Image alt text cannot be empty"),
+  check("order").optional().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
 
 module.exports = { validateNews, validateNewsUpdate };
 
@@ -967,5 +981,7 @@ module.exports = {
   validateNewsPageContentItemUpdate,
   validateNews,
   validateNewsUpdate,
-  validateEventPageContentItemUpdate
+  validateEventPageContentItemUpdate,
+  validateEvent,
+  validateEventUpdate,
 };
