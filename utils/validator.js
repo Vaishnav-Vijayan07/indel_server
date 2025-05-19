@@ -859,6 +859,18 @@ const validateNewsUpdate = [
   check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
 ];
 
+const validateEventPageContentItemUpdate = [
+  check("meta_title").optional().notEmpty().withMessage("Meta title cannot be empty"),
+  check("meta_description").optional().notEmpty().withMessage("Meta description cannot be empty"),
+  check("meta_keywords").optional().notEmpty().withMessage("Meta keywords cannot be empty"),
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("slider_title").optional().notEmpty().withMessage("Slider title cannot be empty"),
+  check("slider_button_text").optional().notEmpty().withMessage("Slider button text cannot be empty"),
+  check("slider_button_link").optional().notEmpty().withMessage("Slider button link cannot be empty"),
+  check("all_events_title").optional().notEmpty().withMessage("All events title cannot be empty"),
+];
+
+
 module.exports = { validateNews, validateNewsUpdate };
 
 module.exports = {
@@ -955,4 +967,5 @@ module.exports = {
   validateNewsPageContentItemUpdate,
   validateNews,
   validateNewsUpdate,
+  validateEventPageContentItemUpdate
 };
