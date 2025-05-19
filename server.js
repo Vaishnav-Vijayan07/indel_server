@@ -21,6 +21,7 @@ const { initCareerContents } = require("./utils/initCareerContent");
 const { initDebtPartnersContent, initAboutPageContent, initBlogPageContent } = require("./utils/initContents");
 const { initGalleryPageContent } = require("./utils/initGalleryContents");
 const { initAwardPageContent } = require("./utils/initAwardPageContent");
+const { initNewsPageContent } = require("./utils/initNewsPageContent");
 
 dotenv.config();
 const app = express();
@@ -58,7 +59,8 @@ const startServer = async () => {
     await initCareerContents();
     await initBlogPageContent();
     await initGalleryPageContent();
-    await initAwardPageContent()
+    await initAwardPageContent();
+    await initNewsPageContent();
 
     app.listen(PORT, () => {
       Logger.info(`Server running on port ${PORT}`);

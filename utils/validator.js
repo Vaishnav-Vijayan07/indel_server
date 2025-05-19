@@ -833,6 +833,34 @@ const validateAwardUpdate = [
   check("is_slide").optional().isBoolean().withMessage("is_slide must be a boolean"),
 ];
 
+const validateNewsPageContentItemUpdate = [
+  check("meta_title").optional().notEmpty().withMessage("Meta title cannot be empty"),
+  check("meta_description").optional().notEmpty().withMessage("Meta description cannot be empty"),
+  check("meta_keywords").optional().notEmpty().withMessage("Meta keywords cannot be empty"),
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("slider_title").optional().notEmpty().withMessage("Slider title cannot be empty"),
+  check("slider_button_text").optional().notEmpty().withMessage("Slider button text cannot be empty"),
+  check("slider_button_link").optional().notEmpty().withMessage("Slider button link cannot be empty"),
+  check("all_news_title").optional().notEmpty().withMessage("All news title cannot be empty"),
+];
+
+
+const validateNews = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("order").notEmpty().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
+const validateNewsUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("order").optional().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
+module.exports = { validateNews, validateNewsUpdate };
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -924,4 +952,7 @@ module.exports = {
   validateAwardPageContentItemUpdate,
   validateAward,
   validateAwardUpdate,
+  validateNewsPageContentItemUpdate,
+  validateNews,
+  validateNewsUpdate,
 };
