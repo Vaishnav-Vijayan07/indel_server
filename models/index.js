@@ -56,6 +56,9 @@ const defineCareerGallery = require("./career/gallery");
 const defineCareerBenfs = require("./career/employeeBenfs");
 const defineBlogContent = require("./blog/content");
 const defineBlogs = require("./blog/blogs");
+const defineGalleryPageContent = require("./gallery/galleryPageContent");
+const defineEventTypes = require("./gallery/eventTypes");
+const defineEventGallery = require("./gallery/eventGallery");
 
 const models = {
   User: defineUser(sequelize),
@@ -115,6 +118,9 @@ const models = {
   EmployeeBenefits: defineCareerBenfs(sequelize),
   BlogPageContent: defineBlogContent(sequelize),
   Blogs: defineBlogs(sequelize),
+  GalleryPageContent: defineGalleryPageContent(sequelize),
+  EventTypes: defineEventTypes(sequelize),
+  EventGallery: defineEventGallery(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {

@@ -19,6 +19,7 @@ const { initMsmeLoanContent } = require("./utils/initMsmeLoanContent");
 const { initCdLoanContent } = require("./utils/initCdLoanContent");
 const { initCareerContents } = require("./utils/initCareerContent");
 const { initDebtPartnersContent, initAboutPageContent, initBlogPageContent } = require("./utils/initContents");
+const { initGalleryPageContent } = require("./utils/initGalleryContents");
 
 dotenv.config();
 const app = express();
@@ -55,6 +56,7 @@ const startServer = async () => {
     await initCdLoanContent();
     await initCareerContents();
     await initBlogPageContent();
+    await initGalleryPageContent();
 
     app.listen(PORT, () => {
       Logger.info(`Server running on port ${PORT}`);

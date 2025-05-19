@@ -1,4 +1,6 @@
 const { check } = require("express-validator");
+const { models } = require("../models");
+const EventTypes = models.EventTypes;
 
 const generateStringValidators = (fields, isOptional = false) => {
   return fields.map((field) =>
@@ -741,7 +743,66 @@ const validateBlogs = [
   check("is_active").notEmpty().withMessage("Is active is required"),
   check("order").isInt().withMessage("Order must be an integer"),
   check("posted_on").optional().notEmpty().withMessage("Posted On cannot be empty"),
+];
 
+const validateGalleryPageContentItemUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("meta_title").optional().notEmpty().withMessage("Meta title cannot be empty"),
+  check("meta_description").optional().notEmpty().withMessage("Meta description cannot be empty"),
+  check("meta_keywords").optional().notEmpty().withMessage("Meta keywords cannot be empty"),
+];
+
+const validateEventType = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("order").notEmpty().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_slider").optional().isBoolean().withMessage("is_slider must be a boolean"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
+const validateEventTypeUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("order").optional().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_slider").optional().isBoolean().withMessage("is_slider must be a boolean"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
+const validateEventGallery = [
+  check("order").notEmpty().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_video").optional().isBoolean().withMessage("is_video must be a boolean"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+  check("event_type_id")
+    .notEmpty()
+    .isInt({ gt: 0 })
+    .withMessage("Event Type ID must be a positive integer")
+    .custom(async (value) => {
+      const eventType = await EventTypes.findByPk(value);
+      if (!eventType) {
+        throw new Error("Event Type ID does not exist");
+      }
+      return true;
+    }),
+];
+
+const validateEventGalleryUpdate = [
+  check("order").optional().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_video").optional().isBoolean().withMessage("is_video must be a boolean"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+  check("event_type_id")
+    .optional()
+    .isInt({ gt: 0 })
+    .withMessage("Event Type ID must be a positive integer")
+    .custom(async (value) => {
+      if (value) {
+        const eventType = await EventTypes.findByPk(value);
+        if (!eventType) {
+          throw new Error("Event Type ID does not exist");
+        }
+      }
+      return true;
+    }),
 ];
 
 module.exports = {
@@ -827,4 +888,9 @@ module.exports = {
   validateBlogs,
   validateBlogsUpdate,
   generateStringValidators,
+  validateGalleryPageContentItemUpdate,
+  validateEventType,
+  validateEventTypeUpdate,
+  validateEventGallery,
+  validateEventGalleryUpdate,
 };
