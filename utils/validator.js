@@ -885,7 +885,21 @@ const validateEventUpdate = [
   check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
 ];
 
-module.exports = { validateNews, validateNewsUpdate };
+const validateInvestorsPageContentItemUpdate = [
+  check("meta_title").optional().notEmpty().withMessage("Meta title cannot be empty"),
+  check("meta_description").optional().notEmpty().withMessage("Meta description cannot be empty"),
+  check("meta_keywords").optional().notEmpty().withMessage("Meta keywords cannot be empty"),
+  check("page_title").optional().notEmpty().withMessage("Page title cannot be empty"),
+  check("annual_report_title").optional().notEmpty().withMessage("Annual report title cannot be empty"),
+  check("annual_report_button_title").optional().notEmpty().withMessage("Annual report button title cannot be empty"),
+  check("annual_returns_title").optional().notEmpty().withMessage("Annual returns title cannot be empty"),
+  check("investors_contact_title").optional().notEmpty().withMessage("Investors contact title cannot be empty"),
+  check("policies_title").optional().notEmpty().withMessage("Policies title cannot be empty"),
+  check("stock_exchange_title").optional().notEmpty().withMessage("Stock exchange title cannot be empty"),
+  check("corporate_governance_title").optional().notEmpty().withMessage("Corporate governance title cannot be empty"),
+  check("disclosure_title").optional().notEmpty().withMessage("Disclosure title cannot be empty"),
+  check("disclosure_file").optional().notEmpty().withMessage("Disclosure file path cannot be empty"),
+];
 
 module.exports = {
   validateAuth,
@@ -984,4 +998,7 @@ module.exports = {
   validateEventPageContentItemUpdate,
   validateEvent,
   validateEventUpdate,
+  validateNews,
+  validateNewsUpdate,
+  validateInvestorsPageContentItemUpdate,
 };
