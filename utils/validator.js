@@ -922,6 +922,39 @@ const validateFiscalYearUpdate = [
   check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
 ];
 
+const validateAnnualReport = [
+  check("year")
+    .notEmpty()
+    .withMessage("Year is required")
+    .isInt({ min: 1 })
+    .withMessage("Year must be a valid Fiscal Year ID")
+    .custom(async (value) => {
+      const fiscalYear = await models.FiscalYears.findByPk(value);
+      if (!fiscalYear) {
+        throw new Error("Year must be a valid Fiscal Year ID");
+      }
+      return true;
+    }),
+  check("order").notEmpty().withMessage("Order is required").isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
+const validateAnnualReportUpdate = [
+  check("year")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Year must be a valid Fiscal Year ID")
+    .custom(async (value) => {
+      const fiscalYear = await models.FiscalYears.findByPk(value);
+      if (!fiscalYear) {
+        throw new Error("Year must be a valid Fiscal Year ID");
+      }
+      return true;
+    }),
+  check("order").optional().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -1024,4 +1057,6 @@ module.exports = {
   validateInvestorsPageContentItemUpdate,
   validateFiscalYear,
   validateFiscalYearUpdate,
+  validateAnnualReport,
+  validateAnnualReportUpdate,
 };
