@@ -1014,6 +1014,18 @@ const validateInvestorsContactUpdate = [
   check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
 ];
 
+const validatePolicies = [
+  check("title").notEmpty().withMessage("Title is required").isString().withMessage("Title must be a string"),
+  check("order").notEmpty().withMessage("Order is required").isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
+const validatePoliciesUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty").isString().withMessage("Title must be a string"),
+  check("order").optional().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -1122,4 +1134,6 @@ module.exports = {
   validateAnnualReturnsUpdate,
   validateInvestorsContact,
   validateInvestorsContactUpdate,
+  validatePolicies,
+  validatePoliciesUpdate,
 };
