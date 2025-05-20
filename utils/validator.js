@@ -1026,6 +1026,43 @@ const validatePoliciesUpdate = [
   check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
 ];
 
+const validateBoardMeetings = [
+  check("fiscal_year")
+    .notEmpty()
+    .withMessage("Fiscal Year is required")
+    .isInt({ min: 1 })
+    .withMessage("Fiscal Year must be a valid Fiscal Year ID")
+    .custom(async (value) => {
+      const fiscalYear = await models.FiscalYears.findByPk(value);
+      if (!fiscalYear) {
+        throw new Error("Fiscal Year must be a valid Fiscal Year ID");
+      }
+      return true;
+    }),
+  check("meeting_date")
+    .notEmpty()
+    .withMessage("Meeting Date is required")
+    .isDate({ format: "YYYY-MM-DD" })
+    .withMessage("Meeting Date must be a valid date (YYYY-MM-DD)"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
+const validateBoardMeetingsUpdate = [
+  check("fiscal_year")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Fiscal Year must be a valid Fiscal Year ID")
+    .custom(async (value) => {
+      const fiscalYear = await models.FiscalYears.findByPk(value);
+      if (!fiscalYear) {
+        throw new Error("Fiscal Year must be a valid Fiscal Year ID");
+      }
+      return true;
+    }),
+  check("meeting_date").optional().isDate({ format: "YYYY-MM-DD" }).withMessage("Meeting Date must be a valid date (YYYY-MM-DD)"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -1136,4 +1173,6 @@ module.exports = {
   validateInvestorsContactUpdate,
   validatePolicies,
   validatePoliciesUpdate,
+  validateBoardMeetings,
+  validateBoardMeetingsUpdate,
 };

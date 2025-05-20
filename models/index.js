@@ -71,6 +71,7 @@ const defineAnnualReport = require("./investors/annualReport");
 const defineAnnualReturns = require("./investors/annualReturns");
 const defineInvestorsContact = require("./investors/investorsContact");
 const definePolicies = require("./investors/policies");
+const defineBoardMeetings = require("./investors/boardMeetings");
 
 const models = {
   User: defineUser(sequelize),
@@ -146,6 +147,7 @@ const models = {
   AnnualReturns: defineAnnualReturns(sequelize),
   InvestorsContact: defineInvestorsContact(sequelize),
   Policies: definePolicies(sequelize),
+  BoardMeetings: defineBoardMeetings(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {
