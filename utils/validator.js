@@ -901,6 +901,27 @@ const validateInvestorsPageContentItemUpdate = [
   check("disclosure_file").optional().notEmpty().withMessage("Disclosure file path cannot be empty"),
 ];
 
+const validateFiscalYear = [
+  check("fiscal_year")
+    .notEmpty()
+    .withMessage("Fiscal year is required")
+    .matches(/^\d{4}-\d{2}$/)
+    .withMessage("Fiscal year must be in YYYY-YY format (e.g., 2024-25)"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
+const validateFiscalYearUpdate = [
+  check("fiscal_year")
+    .optional()
+    .notEmpty()
+    .withMessage("Fiscal year cannot be empty")
+    .matches(/^\d{4}-\d{2}$/)
+    .withMessage("Fiscal year must be in YYYY-YY format (e.g., 2024-25)"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -1001,4 +1022,6 @@ module.exports = {
   validateNews,
   validateNewsUpdate,
   validateInvestorsPageContentItemUpdate,
+  validateFiscalYear,
+  validateFiscalYearUpdate,
 };

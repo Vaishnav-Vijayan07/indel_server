@@ -66,6 +66,7 @@ const defineNews = require("./news/news");
 const defineEventPageContent = require("./event/eventPageContent");
 const defineEvents = require("./event/event");
 const defineInvestorsPageContent = require("./investors/investorsPageContent");
+const defineFiscalYears = require("./investors/fiscalYears");
 
 const models = {
   User: defineUser(sequelize),
@@ -133,8 +134,10 @@ const models = {
   NewsPageContent: defineNewsPageContent(sequelize),
   News: defineNews(sequelize),
   EventPageContent: defineEventPageContent(sequelize),
+  Events: defineEvents(sequelize),
   InvestorsPageContent: defineInvestorsPageContent(sequelize),
-
+  InvestorsPageContent: defineInvestorsPageContent(sequelize),
+  FiscalYears: defineFiscalYears(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {
