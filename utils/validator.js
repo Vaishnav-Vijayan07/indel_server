@@ -988,6 +988,32 @@ const validateAnnualReturnsUpdate = [
   check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
 ];
 
+const validateInvestorsContact = [
+  check("title").notEmpty().withMessage("Title is required").isString().withMessage("Title must be a string"),
+  check("name").notEmpty().withMessage("Name is required").isString().withMessage("Name must be a string"),
+  check("address").optional().isString().withMessage("Address must be a string"),
+  check("phone")
+    .optional()
+    .matches(/^\+?[\d\s-]{7,}$/)
+    .withMessage("Phone must be a valid phone number (e.g., +1-123-456-7890)"),
+  check("email").optional().isEmail().withMessage("Email must be a valid email address"),
+  check("order").notEmpty().withMessage("Order is required").isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
+const validateInvestorsContactUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty").isString().withMessage("Title must be a string"),
+  check("name").optional().notEmpty().withMessage("Name cannot be empty").isString().withMessage("Name must be a string"),
+  check("address").optional().isString().withMessage("Address must be a string"),
+  check("phone")
+    .optional()
+    .matches(/^\+?[\d\s-]{7,}$/)
+    .withMessage("Phone must be a valid phone number (e.g., +1-123-456-7890)"),
+  check("email").optional().isEmail().withMessage("Email must be a valid email address"),
+  check("order").optional().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -1094,4 +1120,6 @@ module.exports = {
   validateAnnualReportUpdate,
   validateAnnualReturns,
   validateAnnualReturnsUpdate,
+  validateInvestorsContact,
+  validateInvestorsContactUpdate,
 };

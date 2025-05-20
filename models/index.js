@@ -69,6 +69,7 @@ const defineInvestorsPageContent = require("./investors/investorsPageContent");
 const defineFiscalYears = require("./investors/fiscalYears");
 const defineAnnualReport = require("./investors/annualReport");
 const defineAnnualReturns = require("./investors/annualReturns");
+const defineInvestorsContact = require("./investors/investorsContact");
 
 const models = {
   User: defineUser(sequelize),
@@ -142,6 +143,7 @@ const models = {
   FiscalYears: defineFiscalYears(sequelize),
   AnnualReport: defineAnnualReport(sequelize),
   AnnualReturns: defineAnnualReturns(sequelize),
+  InvestorsContact: defineInvestorsContact(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {
