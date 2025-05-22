@@ -1167,6 +1167,81 @@ const validateCsrActionPlanUpdate = [
   check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
 ];
 
+const validateTestimonialPageContents = [
+  check("meta_title").notEmpty().withMessage("Meta Title is required").isString().withMessage("Meta Title must be a string"),
+  check("meta_description")
+    .notEmpty()
+    .withMessage("Meta Description is required")
+    .isString()
+    .withMessage("Meta Description must be a string"),
+  check("meta_keywords")
+    .notEmpty()
+    .withMessage("Meta Keywords is required")
+    .isString()
+    .withMessage("Meta Keywords must be a string"),
+  check("title").notEmpty().withMessage("Title is required").isString().withMessage("Title must be a string"),
+];
+
+const validateTestimonial = [
+  check("name").notEmpty().withMessage("Name is required").isString().withMessage("Name must be a string"),
+  check("designation").notEmpty().withMessage("Designation is required").isString().withMessage("Designation must be a string"),
+  check("order")
+    .notEmpty()
+    .withMessage("Order is required")
+    .isString()
+    .matches(/^\d+$/)
+    .withMessage("Order must be a numeric string"),
+  check("type").notEmpty().withMessage("Type is required").isIn(["video", "text"]).withMessage("Type must be 'video' or 'text'"),
+  check("testimonial")
+    .if(check("type").equals("text"))
+    .notEmpty()
+    .withMessage("Testimonial text is required for type 'text'")
+    .isString()
+    .withMessage("Testimonial must be a string"),
+  check("video")
+    .if(check("type").equals("video"))
+    .custom((value, { req }) => {
+      if (!req.files || !req.files.video) {
+        throw new Error("Video file is required for type 'video'");
+      }
+      return true;
+    }),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+  check("is_about").optional().isBoolean().withMessage("is_about must be a boolean"),
+];
+
+const validateTestimonialUpdate = [
+  check("name").optional().notEmpty().withMessage("Name cannot be empty").isString().withMessage("Name must be a string"),
+  check("designation")
+    .optional()
+    .notEmpty()
+    .withMessage("Designation cannot be empty")
+    .isString()
+    .withMessage("Designation must be a string"),
+  check("order")
+    .optional()
+    .notEmpty()
+    .withMessage("Order cannot be empty")
+    .isString()
+    .matches(/^\d+$/)
+    .withMessage("Order must be a numeric string"),
+  check("type")
+    .optional()
+    .notEmpty()
+    .withMessage("Type cannot be empty")
+    .isIn(["video", "text"])
+    .withMessage("Type must be 'video' or 'text'"),
+  check("testimonial")
+    .optional()
+    .if(check("type").equals("text"))
+    .notEmpty()
+    .withMessage("Testimonial text is required for type 'text'")
+    .isString()
+    .withMessage("Testimonial must be a string"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+  check("is_about").optional().isBoolean().withMessage("is_about must be a boolean"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -1287,4 +1362,7 @@ module.exports = {
   validateCsrReportUpdate,
   validateCsrActionPlan,
   validateCsrActionPlanUpdate,
+  validateTestimonialPageContents,
+  validateTestimonial,
+  validateTestimonialUpdate,
 };
