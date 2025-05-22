@@ -1144,6 +1144,29 @@ const validateCsrReportUpdate = [
   check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
 ];
 
+const validateCsrActionPlan = [
+  check("fiscal_year")
+    .notEmpty()
+    .withMessage("Fiscal Year is required")
+    .isString()
+    .matches(/^\d{4}-\d{2}$/)
+    .withMessage("Fiscal Year must be in YYYY-YY format (e.g., 2024-25)"),
+  check("order").notEmpty().withMessage("Order is required").isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
+const validateCsrActionPlanUpdate = [
+  check("fiscal_year")
+    .optional()
+    .notEmpty()
+    .withMessage("Fiscal Year cannot be empty")
+    .isString()
+    .matches(/^\d{4}-\d{2}$/)
+    .withMessage("Fiscal Year must be in YYYY-YY format (e.g., 2024-25)"),
+  check("order").optional().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -1262,4 +1285,6 @@ module.exports = {
   validateCsrCommitteeUpdate,
   validateCsrReport,
   validateCsrReportUpdate,
+  validateCsrActionPlan,
+  validateCsrActionPlanUpdate,
 };
