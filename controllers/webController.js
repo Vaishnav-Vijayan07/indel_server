@@ -320,6 +320,35 @@ class WebController {
       next(new CustomError("Failed to fetch Indel values data", 500, error.message));
     }
   }
+
+  static async ShadesOfIndel(req, res, next) {
+    const cacheKey = "webShadesOfIndel";
+
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        logger.info("Serving Diffrent Shades of Indel from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
+
+      const [differentShades, shadesOfIndelContent] = await Promise.all([
+        models.DifferentShades.findAll(),
+        models.ShadesOfIndelContent.findAll(),
+      ]);
+
+      const data = {
+        shadesOfIndelContent: shadesOfIndelContent[0] || null,
+        differentShades,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched Diffrent Shades of Indel data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching Diffrent Shades of Indel data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch Diffrent Shades of Indel data", 500, error.message));
+    }
+  }
 }
 
 module.exports = WebController;
