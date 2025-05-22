@@ -536,6 +536,43 @@ class WebController {
       next(new CustomError("Failed to fetch Career Page data", 500, error.message));
     }
   }
+  static async eventGallery(req, res, next) {
+    const cacheKey = "webEventGallery";
+
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        logger.info("Serving event gallery from cache");
+        return res.json({ success: true, data: JSON.parse(cachedData) });
+      }
+
+      const eventTypes = await models.EventTypes.findAll({
+        where: { is_active: true },
+        order: [["order", "ASC"]],
+        include: [
+          {
+            model: models.EventGallery,
+            as: "galleryItems",
+            where: { is_active: true },
+            attributes: ["image"],
+            required: false,
+          },
+        ],
+      });
+
+      const data = eventTypes.map((eventType) => ({
+        event: eventType.title,
+        gallery: (eventType.galleryItems || []).map((gallery) => gallery.image),
+      }));
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched event gallery data from DB");
+      res.json({ success: true, data });
+    } catch (error) {
+      logger.error("Error fetching event gallery data", { error: error.message, stack: error.stack });
+      res.json({ success: false, error: { message: error.message, stack: error.stack } });
+    }
+  }
 }
 
 module.exports = WebController;
