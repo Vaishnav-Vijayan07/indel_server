@@ -373,7 +373,7 @@ class WebController {
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
-      logger.info("Fetched Diffrent Our Services data from DB");
+      logger.info("Fetched Our Services data from DB");
       res.json({ status: "success", data });
     } catch (error) {
       logger.error("Error fetching Our Services data", { error: error.message, stack: error.stack });
