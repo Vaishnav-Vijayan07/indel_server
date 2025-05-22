@@ -11,7 +11,7 @@ class IndelValuesController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(__dirname, "..","..", "uploads", filePath.replace("/uploads/", ""));
+      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {
@@ -32,7 +32,9 @@ class IndelValuesController {
       const step = await IndelValues.create(updateData);
 
       await CacheService.invalidate("indelValues");
-      res.status(201).json({ success: true, data: step,message:"Indel value created successfully" });
+      await CacheService.invalidate("webIndelValueData");
+
+      res.status(201).json({ success: true, data: step, message: "Indel value created successfully" });
     } catch (error) {
       next(error);
     }
@@ -103,6 +105,7 @@ class IndelValuesController {
 
       await CacheService.invalidate("indelValues");
       await CacheService.invalidate(`indelValue_${id}`);
+      await CacheService.invalidate("webIndelValueData");
 
       res.json({ success: true, data: step, message: "Indel value updated successfully" });
     } catch (error) {
@@ -127,6 +130,8 @@ class IndelValuesController {
 
       await CacheService.invalidate("indelValues");
       await CacheService.invalidate(`indelValue_${id}`);
+      await CacheService.invalidate("webIndelValueData");
+
       res.json({ success: true, message: "Indel value deleted", data: id });
     } catch (error) {
       next(error);

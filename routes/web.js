@@ -10,5 +10,6 @@ router.get('/contacts', WebController.contactData);
 router.get('/history', WebController.historyData);
 router.get('/blogs', WebController.blogData);
 router.get('/blogs/:slug', WebController.blogDetails);
+router.get('/indel-values', WebController.IndelValuesData);
 
 module.exports = router;

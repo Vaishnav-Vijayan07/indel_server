@@ -289,6 +289,37 @@ class WebController {
       next(new CustomError("Failed to fetch blog details", 500, error.message));
     }
   }
+
+  static async IndelValuesData(req, res, next) {
+    const cacheKey = "webIndelValueData";
+
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        logger.info("Serving Indel values data from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
+
+      const [indelValueContent, indelValues, approachPropositions] = await Promise.all([
+        models.IndelValueContent.findAll(),
+        models.IndelValues.findAll(),
+        models.ApproachPropositions.findAll(),
+      ]);
+
+      const data = {
+        indelValueContent: indelValueContent[0] || null,
+        indelValues,
+        approachPropositions,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched Indel values data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching Indel values data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch Indel values data", 500, error.message));
+    }
+  }
 }
 
 module.exports = WebController;

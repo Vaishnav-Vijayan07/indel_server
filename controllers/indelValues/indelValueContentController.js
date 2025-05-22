@@ -38,6 +38,8 @@ class IndelValueContentController {
       await content.update(updateData);
 
       await CacheService.invalidate("IndelValueContent");
+      await CacheService.invalidate("webIndelValueData");
+
       res.json({ success: true, data: content, message: "Content updated" });
     } catch (error) {
       next(error);
