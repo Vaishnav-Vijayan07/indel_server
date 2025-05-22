@@ -38,6 +38,8 @@ class ShadesOfIndelContentController {
       await content.update(updateData);
 
       await CacheService.invalidate("ShadesOfIndelContent");
+      await CacheService.invalidate("webShadesOfIndel");
+
       res.json({ success: true, data: content, message: "Content updated" });
     } catch (error) {
       next(error);

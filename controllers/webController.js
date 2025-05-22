@@ -349,6 +349,37 @@ class WebController {
       next(new CustomError("Failed to fetch Diffrent Shades of Indel data", 500, error.message));
     }
   }
+
+  static async OurServices(req, res, next) {
+    const cacheKey = "webOurServices";
+
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        logger.info("Serving Our Services from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
+
+      const [serviceContent, serviceBenefit, services] = await Promise.all([
+        models.ServiceContent.findAll(),
+        models.ServiceBenefit.findAll(),
+        models.Services.findAll(),
+      ]);
+
+      const data = {
+        serviceContent: serviceContent[0] || null,
+        serviceBenefit,
+        services,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched Diffrent Our Services data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching Our Services data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch Our Services data", 500, error.message));
+    }
+  }
 }
 
 module.exports = WebController;

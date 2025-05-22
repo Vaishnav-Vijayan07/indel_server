@@ -43,6 +43,7 @@ class DifferentShadesController {
 
       const item = await DifferentShades.create(data);
       await CacheService.invalidate("differentShades");
+      await CacheService.invalidate("webShadesOfIndel");
       res.status(201).json({ success: true, data: item, message: "Item created" });
     } catch (error) {
       next(error);
@@ -120,6 +121,8 @@ class DifferentShadesController {
       await item.update(updateData);
       await CacheService.invalidate("differentShades");
       await CacheService.invalidate(`differentShades_${id}`);
+      await CacheService.invalidate("webShadesOfIndel");
+
       res.json({ success: true, data: item, message: "Item updated" });
     } catch (error) {
       next(error);
@@ -144,6 +147,7 @@ class DifferentShadesController {
       await CacheService.invalidate("differentShades");
       await CacheService.invalidate(`differentShades_${id}`);
       res.json({ success: true, message: "Item deleted", data: id });
+      await CacheService.invalidate("webShadesOfIndel");
     } catch (error) {
       next(error);
     }

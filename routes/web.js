@@ -12,5 +12,6 @@ router.get('/blogs', WebController.blogData);
 router.get('/blogs/:slug', WebController.blogDetails);
 router.get('/indel-values', WebController.IndelValuesData);
 router.get('/shades-of-indel', WebController.ShadesOfIndel);
+router.get('/our-services', WebController.OurServices);
 
 module.exports = router;
