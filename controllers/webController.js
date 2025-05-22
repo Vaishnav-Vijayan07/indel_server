@@ -573,6 +573,32 @@ class WebController {
       res.json({ success: false, error: { message: error.message, stack: error.stack } });
     }
   }
+
+  static async Awards(req, res, next) {
+    const cacheKey = "webAwards";
+
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        logger.info("Serving Awards from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
+
+      const [awardPageContent, awards] = await Promise.all([models.AwardPageContent.findAll(), models.Awards.findAll()]);
+
+      const data = {
+        awardPageContent: awardPageContent[0] || null,
+        awards,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched Awards data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching Awards data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch Awards data", 500, error.message));
+    }
+  }
 }
 
 module.exports = WebController;

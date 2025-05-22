@@ -18,6 +18,7 @@ router.get('/msme', WebController.MSMELoan);
 router.get('/cd-loan', WebController.CDLoan);
 router.get('/career', WebController.CareerPage);
 router.get('/event-gallery', WebController.eventGallery);
+router.get('/awards', WebController.Awards);
 
 
 module.exports = router;
