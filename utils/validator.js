@@ -1258,6 +1258,61 @@ const validateBranchLocatorPageContents = [
   check("description").notEmpty().withMessage("Description is required").isString().withMessage("Description must be a string"),
 ];
 
+const validateBranch = [
+  check("name").notEmpty().withMessage("Name is required").isString().withMessage("Name must be a string"),
+  check("state").notEmpty().withMessage("State is required").isString().withMessage("State must be a string"),
+  check("district").notEmpty().withMessage("District is required").isString().withMessage("District must be a string"),
+  check("location").notEmpty().withMessage("Location is required").isString().withMessage("Location must be a string"),
+  check("address").notEmpty().withMessage("Address is required").isString().withMessage("Address must be a string"),
+  check("latitude").optional().isFloat({ min: -90, max: 90 }).withMessage("Latitude must be between -90 and 90"),
+  check("longitude").optional().isFloat({ min: -180, max: 180 }).withMessage("Longitude must be between -180 and 180"),
+  check("phone_no")
+    .optional()
+    .matches(/^\d{2,4}-\d{6,8}$/)
+    .withMessage("Phone number must be in format 'XXX-XXXXXX' or similar"),
+  check("mobile_no")
+    .optional()
+    .matches(/^\+?\d{10,12}$/)
+    .withMessage("Mobile number must be 10-12 digits, optionally starting with '+'"),
+  check("email").optional().isEmail().withMessage("Email must be valid"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
+const validateBranchUpdate = [
+  check("name").optional().notEmpty().withMessage("Name cannot be empty").isString().withMessage("Name must be a string"),
+  check("state").optional().notEmpty().withMessage("State cannot be empty").isString().withMessage("State must be a string"),
+  check("district")
+    .optional()
+    .notEmpty()
+    .withMessage("District cannot be empty")
+    .isString()
+    .withMessage("District must be a string"),
+  check("location")
+    .optional()
+    .notEmpty()
+    .withMessage("Location cannot be empty")
+    .isString()
+    .withMessage("Location must be a string"),
+  check("address")
+    .optional()
+    .notEmpty()
+    .withMessage("Address cannot be empty")
+    .isString()
+    .withMessage("Address must be a string"),
+  check("latitude").optional().isFloat({ min: -90, max: 90 }).withMessage("Latitude must be between -90 and 90"),
+  check("longitude").optional().isFloat({ min: -180, max: 180 }).withMessage("Longitude must be between -180 and 180"),
+  check("phone_no")
+    .optional()
+    .matches(/^\d{2,4}-\d{6,8}$/)
+    .withMessage("Phone number must be in format 'XXX-XXXXXX' or similar"),
+  check("mobile_no")
+    .optional()
+    .matches(/^\+?\d{10,12}$/)
+    .withMessage("Mobile number must be 10-12 digits, optionally starting with '+'"),
+  check("email").optional().isEmail().withMessage("Email must be valid"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -1382,4 +1437,6 @@ module.exports = {
   validateTestimonial,
   validateTestimonialUpdate,
   validateBranchLocatorPageContents,
+  validateBranch,
+  validateBranchUpdate,
 };

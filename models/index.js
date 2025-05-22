@@ -79,6 +79,7 @@ const defineCsrActionPlan = require("./investors/csrActionPlan");
 const defineTestimonialPageContent = require("./testimonials/testimonialPageContent");
 const defineTestimonials = require("./testimonials/testimonials");
 const defineBranchLocatorPageContents = require("./branch/branchLocatorPageContentsModel");
+const defineBranches = require("./branch/branches");
 
 const models = {
   User: defineUser(sequelize),
@@ -162,6 +163,7 @@ const models = {
   TestimonialPageContent: defineTestimonialPageContent(sequelize),
   Testimonials: defineTestimonials(sequelize),
   BranchLocatorPageContents: defineBranchLocatorPageContents(sequelize),
+  Branches: defineBranches(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {
