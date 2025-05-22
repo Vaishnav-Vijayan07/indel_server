@@ -380,6 +380,66 @@ class WebController {
       next(new CustomError("Failed to fetch Our Services data", 500, error.message));
     }
   }
+
+  static async goldLoan(req, res, next) {
+    const cacheKey = "webGoldLoan";
+
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        logger.info("Serving gold loan from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
+
+      const [goldloanContent, goldLoanFeatures, goldloanBannerFeatures, goldLoanFaq, goldLoanSchemes, schemeDetails] =
+        await Promise.all([
+          models.GoldloanContent.findAll(),
+          models.GoldLoanFeatures.findAll(),
+          models.GoldloanBannerFeatures.findAll(),
+          models.GoldLoanFaq.findAll(),
+          models.GoldLoanScheme.findAll(),
+          models.SchemeDetails.findAll({
+            where: { is_active: true },
+            order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
+          }),
+        ]);
+
+      // Group scheme details under their respective schemes
+      const schemes = goldLoanSchemes.map((scheme) => ({
+        id: scheme.id,
+        name: scheme.name,
+        is_active: scheme.is_active,
+        details: schemeDetails
+          .filter((detail) => detail.gold_loan_scheme_id === scheme.id)
+          .map((detail) => ({
+            id: detail.id,
+            title: detail.title,
+            description: detail.description,
+            order: detail.order,
+            is_active: detail.is_active,
+          })),
+      }));
+
+      // Find the active scheme (first one with is_active: true, or null if none)
+      const activeScheme = schemes.find((scheme) => scheme.is_active) || null;
+
+      const data = {
+        GoldloanContent: goldloanContent[0] || null,
+        GoldLoanFeatures: goldLoanFeatures,
+        GoldloanBannerFeatures: goldloanBannerFeatures,
+        GoldLoanFaq: goldLoanFaq,
+        schemes,
+        activeScheme,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched gold loan data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching gold loan data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch gold loan data", 500, error.message));
+    }
+  }
 }
 
 module.exports = WebController;
