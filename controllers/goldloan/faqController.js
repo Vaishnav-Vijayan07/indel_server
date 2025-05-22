@@ -13,6 +13,8 @@ class GoldLoanFaqsController {
       const faq = await GoldLoanFaqs.create(updateData);
 
       await CacheService.invalidate("goldLoanFaqs");
+      await CacheService.invalidate("webGoldLoan");
+
       res.status(201).json({ success: true, data: faq, message: "Gold Loan FAQ created" });
     } catch (error) {
       next(error);
@@ -75,6 +77,7 @@ class GoldLoanFaqsController {
 
       await CacheService.invalidate("goldLoanFaqs");
       await CacheService.invalidate(`goldLoanFaq_${id}`);
+      await CacheService.invalidate("webGoldLoan");
       res.json({ success: true, data: faq, message: "Gold Loan FAQ updated" });
     } catch (error) {
       next(error);
@@ -93,6 +96,7 @@ class GoldLoanFaqsController {
 
       await CacheService.invalidate("goldLoanFaqs");
       await CacheService.invalidate(`goldLoanFaq_${id}`);
+      await CacheService.invalidate("webGoldLoan");
       res.json({ success: true, message: "Gold Loan FAQ deleted", data: id });
     } catch (error) {
       next(error);

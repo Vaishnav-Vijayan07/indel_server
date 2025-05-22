@@ -32,6 +32,7 @@ class GoldLoanBannerFeaturesController {
       const feature = await GoldLoanBannerFeatures.create(updateData);
 
       await CacheService.invalidate("goldLoanBannerFeatures");
+      await CacheService.invalidate("webGoldLoan");
       res.status(201).json({ success: true, data: feature, message: "Gold Loan Banner Feature created" });
     } catch (error) {
       next(error);
@@ -103,6 +104,8 @@ class GoldLoanBannerFeaturesController {
 
       await CacheService.invalidate("goldLoanBannerFeatures");
       await CacheService.invalidate(`goldLoanBannerFeature_${id}`);
+      await CacheService.invalidate("webGoldLoan");
+
       res.json({ success: true, data: feature, message: "Gold Loan Banner Feature updated" });
     } catch (error) {
       next(error);
@@ -126,6 +129,8 @@ class GoldLoanBannerFeaturesController {
 
       await CacheService.invalidate("goldLoanBannerFeatures");
       await CacheService.invalidate(`goldLoanBannerFeature_${id}`);
+      await CacheService.invalidate("webGoldLoan");
+
       res.json({ success: true, message: "Gold Loan Banner Feature deleted", data: id });
     } catch (error) {
       next(error);

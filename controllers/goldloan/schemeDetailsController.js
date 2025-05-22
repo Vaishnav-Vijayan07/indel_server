@@ -19,6 +19,8 @@ class GoldLoanSchemeDetailsController {
       const schemeDetail = await GoldLoanSchemeDetails.create(updateData);
 
       await CacheService.invalidate("goldLoanSchemeDetails");
+      await CacheService.invalidate("webGoldLoan");
+
       res.status(201).json({ success: true, data: schemeDetail, message: "Gold Loan Scheme Detail created" });
     } catch (error) {
       next(error);
@@ -84,6 +86,8 @@ class GoldLoanSchemeDetailsController {
 
       await CacheService.invalidate("goldLoanSchemeDetails");
       await CacheService.invalidate(`goldLoanSchemeDetail_${id}`);
+      await CacheService.invalidate("webGoldLoan");
+
       res.json({ success: true, data: schemeDetail, message: "Gold Loan Scheme Detail updated" });
     } catch (error) {
       next(error);
@@ -102,6 +106,8 @@ class GoldLoanSchemeDetailsController {
 
       await CacheService.invalidate("goldLoanSchemeDetails");
       await CacheService.invalidate(`goldLoanSchemeDetail_${id}`);
+      await CacheService.invalidate("webGoldLoan");
+
       res.json({ success: true, message: "Gold Loan Scheme Detail deleted", data: id });
     } catch (error) {
       next(error);

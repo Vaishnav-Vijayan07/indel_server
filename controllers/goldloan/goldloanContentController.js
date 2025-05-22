@@ -59,6 +59,8 @@ class GoldLoanContentController {
       await content.update(updateData);
 
       await CacheService.invalidate("GoldLoanContent");
+      await CacheService.invalidate("webGoldLoan");
+
       res.json({ success: true, data: content, message: "Content updated" });
     } catch (error) {
       next(error);

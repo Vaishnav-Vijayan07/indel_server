@@ -32,6 +32,8 @@ class GoldLoanFeaturesController {
       const feature = await GoldLoanFeatures.create(updateData);
 
       await CacheService.invalidate("goldLoanFeatures");
+      await CacheService.invalidate("webGoldLoan");
+
       res.status(201).json({ success: true, data: feature, message: "Gold Loan Feature created" });
     } catch (error) {
       next(error);
@@ -103,6 +105,8 @@ class GoldLoanFeaturesController {
 
       await CacheService.invalidate("goldLoanFeatures");
       await CacheService.invalidate(`goldLoanFeature_${id}`);
+      await CacheService.invalidate("webGoldLoan");
+
       res.json({ success: true, data: feature, message: "Gold Loan Feature updated" });
     } catch (error) {
       next(error);
@@ -126,6 +130,8 @@ class GoldLoanFeaturesController {
 
       await CacheService.invalidate("goldLoanFeatures");
       await CacheService.invalidate(`goldLoanFeature_${id}`);
+      await CacheService.invalidate("webGoldLoan");
+
       res.json({ success: true, message: "Gold Loan Feature deleted", data: id });
     } catch (error) {
       next(error);

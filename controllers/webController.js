@@ -399,7 +399,6 @@ class WebController {
           models.GoldLoanFaq.findAll(),
           models.GoldLoanScheme.findAll(),
           models.SchemeDetails.findAll({
-            where: { is_active: true },
             order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
           }),
         ]);
@@ -408,7 +407,7 @@ class WebController {
       const schemes = goldLoanSchemes.map((scheme) => ({
         id: scheme.id,
         name: scheme.name,
-        is_active: scheme.is_active,
+        // is_active: scheme.is_active,
         details: schemeDetails
           .filter((detail) => detail.gold_loan_scheme_id === scheme.id)
           .map((detail) => ({
@@ -416,12 +415,9 @@ class WebController {
             title: detail.title,
             description: detail.description,
             order: detail.order,
-            is_active: detail.is_active,
+            // is_active: detail.is_active,
           })),
       }));
-
-      // Find the active scheme (first one with is_active: true, or null if none)
-      const activeScheme = schemes.find((scheme) => scheme.is_active) || null;
 
       const data = {
         GoldloanContent: goldloanContent[0] || null,
@@ -429,7 +425,6 @@ class WebController {
         GoldloanBannerFeatures: goldloanBannerFeatures,
         GoldLoanFaq: goldLoanFaq,
         schemes,
-        activeScheme,
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
@@ -438,6 +433,107 @@ class WebController {
     } catch (error) {
       logger.error("Error fetching gold loan data", { error: error.message, stack: error.stack });
       next(new CustomError("Failed to fetch gold loan data", 500, error.message));
+    }
+  }
+
+  static async MSMELoan(req, res, next) {
+    const cacheKey = "webMSMELoan";
+
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        logger.info("Serving MSME Loan from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
+
+      const [msmeLoanContent, msmeLoanSupportedIndustries, msmeOfferings, msmeTargetedAudience, msmeLoanFaq] = await Promise.all([
+        models.MsmeLoanContent.findAll(),
+        models.MsmeLoanSupportedIndustries.findAll(),
+        models.MsmeOfferings.findAll(),
+        models.MsmeTargetedAudience.findAll(),
+        models.MsmeLoanFaq.findAll(),
+      ]);
+
+      const data = {
+        msmeLoanContent: msmeLoanContent[0] || null,
+        msmeLoanSupportedIndustries,
+        msmeOfferings,
+        msmeTargetedAudience,
+        msmeLoanFaq,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched MSME Loan data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching MSME Loan data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch MSME Loan data", 500, error.message));
+    }
+  }
+
+  static async CDLoan(req, res, next) {
+    const cacheKey = "webCDLoan";
+
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        logger.info("Serving CD Loan from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
+
+      const [cdLoanContent, cdLoanBenefits, cdLoanProducts] = await Promise.all([
+        models.CdLoanContent.findAll(),
+        models.CdLoanBenefits.findAll(),
+        models.CdLoanProducts.findAll(),
+      ]);
+
+      const data = {
+        cdLoanContent: cdLoanContent[0] || null,
+        cdLoanBenefits,
+        cdLoanProducts,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched CD Loan data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching CD Loan data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch CD Loan data", 500, error.message));
+    }
+  }
+
+  static async CareerPage(req, res, next) {
+    const cacheKey = "webCareerPage";
+
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        logger.info("Serving Career Page from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
+
+      const [careersContent, careerBanners, careerGallery, careerStates, careerJobs] = await Promise.all([
+        models.CareersContent.findAll(),
+        models.CareerBanners.findAll(),
+        models.CareerGallery.findAll(),
+        models.CareerStates.findAll(),
+        models.CareerJobs.findAll(),
+      ]);
+
+      const data = {
+        careersContent: careersContent[0] || null,
+        careerBanners,
+        careerGallery,
+        careerStates,
+        careerJobs,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched Career Page data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching Career Page data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch Career Page data", 500, error.message));
     }
   }
 }

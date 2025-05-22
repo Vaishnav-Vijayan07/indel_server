@@ -14,6 +14,9 @@ router.get('/indel-values', WebController.IndelValuesData);
 router.get('/shades-of-indel', WebController.ShadesOfIndel);
 router.get('/our-services', WebController.OurServices);
 router.get('/gold-loan', WebController.goldLoan);
+router.get('/msme', WebController.MSMELoan);
+router.get('/cd-loan', WebController.CDLoan);
+router.get('/career', WebController.CareerPage);
 
 
 module.exports = router;
