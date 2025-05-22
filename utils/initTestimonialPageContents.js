@@ -1,6 +1,6 @@
 const { models } = require("../models/index");
 
-const TestimonialPageContents = models.TestimonialPageContents;
+const TestimonialPageContents = models.TestimonialPageContent;
 
 const initTestimonialPageContents = async () => {
   try {

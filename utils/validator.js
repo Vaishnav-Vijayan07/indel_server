@@ -1242,6 +1242,22 @@ const validateTestimonialUpdate = [
   check("is_about").optional().isBoolean().withMessage("is_about must be a boolean"),
 ];
 
+const validateBranchLocatorPageContents = [
+  check("meta_title").notEmpty().withMessage("Meta Title is required").isString().withMessage("Meta Title must be a string"),
+  check("meta_description")
+    .notEmpty()
+    .withMessage("Meta Description is required")
+    .isString()
+    .withMessage("Meta Description must be a string"),
+  check("meta_keywords")
+    .notEmpty()
+    .withMessage("Meta Keywords is required")
+    .isString()
+    .withMessage("Meta Keywords must be a string"),
+  check("title").notEmpty().withMessage("Title is required").isString().withMessage("Title must be a string"),
+  check("description").notEmpty().withMessage("Description is required").isString().withMessage("Description must be a string"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -1365,4 +1381,5 @@ module.exports = {
   validateTestimonialPageContents,
   validateTestimonial,
   validateTestimonialUpdate,
+  validateBranchLocatorPageContents,
 };
