@@ -73,6 +73,8 @@ const defineInvestorsContact = require("./investors/investorsContact");
 const definePolicies = require("./investors/policies");
 const defineBoardMeetings = require("./investors/boardMeetings");
 const defineOtherIntimations = require("./investors/otherIntimations");
+const defineCsrCommittee = require("./investors/csrCommittee");
+const defineCsrReport = require("./investors/csrReport");
 
 const models = {
   User: defineUser(sequelize),
@@ -150,6 +152,8 @@ const models = {
   Policies: definePolicies(sequelize),
   BoardMeetings: defineBoardMeetings(sequelize),
   OtherIntimations: defineOtherIntimations(sequelize),
+  CsrCommittee: defineCsrCommittee(sequelize),
+  CsrReport: defineCsrReport(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {

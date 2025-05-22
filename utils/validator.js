@@ -1100,6 +1100,50 @@ const validateOtherIntimationsUpdate = [
   check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
 ];
 
+const validateCsrCommittee = [
+  check("name").notEmpty().withMessage("Name is required").isString().withMessage("Name must be a string"),
+  check("nature").notEmpty().withMessage("Nature is required").isString().withMessage("Nature must be a string"),
+  check("designation").notEmpty().withMessage("Designation is required").isString().withMessage("Designation must be a string"),
+  check("order").notEmpty().withMessage("Order is required").isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
+const validateCsrCommitteeUpdate = [
+  check("name").optional().notEmpty().withMessage("Name cannot be empty").isString().withMessage("Name must be a string"),
+  check("nature").optional().notEmpty().withMessage("Nature cannot be empty").isString().withMessage("Nature must be a string"),
+  check("designation")
+    .optional()
+    .notEmpty()
+    .withMessage("Designation cannot be empty")
+    .isString()
+    .withMessage("Designation must be a string"),
+  check("order").optional().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
+const validateCsrReport = [
+  check("fiscal_year")
+    .notEmpty()
+    .withMessage("Fiscal Year is required")
+    .isString()
+    .matches(/^\d{4}-\d{2}$/)
+    .withMessage("Fiscal Year must be in YYYY-YY format (e.g., 2024-25)"),
+  check("order").notEmpty().withMessage("Order is required").isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
+const validateCsrReportUpdate = [
+  check("fiscal_year")
+    .optional()
+    .notEmpty()
+    .withMessage("Fiscal Year cannot be empty")
+    .isString()
+    .matches(/^\d{4}-\d{2}$/)
+    .withMessage("Fiscal Year must be in YYYY-YY format (e.g., 2024-25)"),
+  check("order").optional().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -1214,4 +1258,8 @@ module.exports = {
   validateBoardMeetingsUpdate,
   validateOtherIntimations,
   validateOtherIntimationsUpdate,
+  validateCsrCommittee,
+  validateCsrCommitteeUpdate,
+  validateCsrReport,
+  validateCsrReportUpdate,
 };
