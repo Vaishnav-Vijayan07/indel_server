@@ -25,6 +25,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       is_slide: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
