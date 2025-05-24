@@ -61,6 +61,26 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      csr_committee_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      csr_reports_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      csr_action_plan_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      csr_policy_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      csr_policy_doc: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
     {
       tableName: "investors_page_content",

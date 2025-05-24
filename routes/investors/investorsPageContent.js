@@ -7,7 +7,11 @@ const InvestorsPageContentController = require("../../controllers/investors/inve
 const { validateInvestorsPageContentItemUpdate } = require("../../utils/validator");
 
 const upload = createUploadMiddleware("investors");
-const uploadField = upload.single("disclosure_file");
+const uploadField = upload.fields([
+  {  name: "disclosure_file", maxCount: 1 },
+  {  name: "csr_policy_doc", maxCount: 1 },
+
+]);
 
 router.get("/", InvestorsPageContentController.get);
 router.put(

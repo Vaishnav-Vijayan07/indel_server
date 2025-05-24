@@ -51,9 +51,18 @@ class InvestorsPageContentController {
 
       const updateData = { ...req.body };
       const oldDisclosureFile = content.disclosure_file;
+      const oldCsrPolicyDoc = content.csr_policy_doc;
 
-      if (req.file) {
-        updateData.disclosure_file = `/Uploads/investors/${req.file.filename}`;
+      if (req.files.csr_policy_doc) {
+        updateData.csr_policy_doc = `/Uploads/investors/${req.files.csr_policy_doc[0].filename}`;
+        Logger.info(`Updated CSR policy document: ${updateData.csr_policy_doc}`);
+        if (oldCsrPolicyDoc) {
+          await InvestorsPageContentController.deleteFile(oldCsrPolicyDoc);
+        }
+      }
+
+      if (req.files.disclosure_file) {
+        updateData.disclosure_file = `/Uploads/investors/${req.files.disclosure_file[0].filename}`;
         Logger.info(`Updated disclosure file: ${updateData.disclosure_file}`);
         if (oldDisclosureFile) {
           await InvestorsPageContentController.deleteFile(oldDisclosureFile);
