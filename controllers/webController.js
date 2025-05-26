@@ -403,28 +403,66 @@ class WebController {
           }),
         ]);
 
+
       // Group scheme details under their respective schemes
-      const schemes = goldLoanSchemes.map((scheme) => ({
-        id: scheme.id,
-        name: scheme.name,
-        // is_active: scheme.is_active,
-        details: schemeDetails
-          .filter((detail) => detail.gold_loan_scheme_id === scheme.id)
-          .map((detail) => ({
+      // const schemes = goldLoanSchemes.map((scheme) => ({
+      //   id: scheme.id,
+      //   name: scheme.title,
+      //   // is_active: scheme.is_active,
+      //   details: schemeDetails
+      //     .filter((detail) => detail.scheme_id === scheme.id)
+      //     .map((detail) => ({
+      //       id: detail.id,
+      //       title: detail.title,
+      //       description: detail.description,
+      //       order: detail.order,
+      //       // is_active: detail.is_active,
+      //     })),
+      // }));
+
+      const schemes = goldLoanSchemes.map((scheme) => (
+        scheme.title
+      ))
+
+      const schemesDetails = goldLoanSchemes.map((scheme) =>
+        schemeDetails
+          .filter((detail) => detail.scheme_id === scheme.id)
+          .flatMap((detail) => ({
             id: detail.id,
             title: detail.title,
-            description: detail.description,
-            order: detail.order,
-            // is_active: detail.is_active,
-          })),
-      }));
+            value: detail.value,
+          }))
+      );
+
+      const centerItem = goldLoanFeatures?.find((item) => item.is_center);
+      const nonCenterItems = goldLoanFeatures?.filter((item) => !item.is_center);
+
+      // Step 1: Group non-center items into pairs
+      const grouped = [];
+      for (let i = 0; i < nonCenterItems.length; i += 2) {
+        grouped.push(nonCenterItems.slice(i, i + 2));
+      }
+
+      // Step 2: Insert centerItem in the middle group (e.g., group at index 1)
+      if (centerItem) {
+        if (grouped.length >= 2) {
+          grouped[1].splice(1, 0, centerItem); // insert at index 1 in 2nd group
+        } else if (grouped.length === 1) {
+          grouped[0].push(centerItem);
+        } else {
+          grouped.push([centerItem]);
+        }
+      }
 
       const data = {
         GoldloanContent: goldloanContent[0] || null,
-        GoldLoanFeatures: goldLoanFeatures,
+        GoldLoanFeatures: grouped,
         GoldloanBannerFeatures: goldloanBannerFeatures,
         GoldLoanFaq: goldLoanFaq,
-        schemes,
+        schemes: {
+          goldLoanSchemes: schemes,
+          goldLoanSchemeDetails: schemesDetails,
+        }
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);

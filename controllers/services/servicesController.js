@@ -32,6 +32,7 @@ class ServicesController {
       const service = await Service.create(updateData);
 
       await CacheService.invalidate("Services");
+      await CacheService.invalidate("webOurServices");
       res.status(201).json({ success: true, data: service, message: "Service created successfully" });
     } catch (error) {
       next(error);
@@ -102,6 +103,7 @@ class ServicesController {
       await service.update(updateData);
 
       await CacheService.invalidate("Services");
+      await CacheService.invalidate("webOurServices");
       await CacheService.invalidate(`Service_${id}`);
 
       res.json({ success: true, data: service, message: "Service updated successfully" });
@@ -126,6 +128,7 @@ class ServicesController {
       }
 
       await CacheService.invalidate("Services");
+      await CacheService.invalidate("webOurServices");
       await CacheService.invalidate(`Service_${id}`);
       res.json({ success: true, message: "Service deleted", data: id });
     } catch (error) {

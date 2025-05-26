@@ -59,6 +59,7 @@ class ServicesPageContentController {
       await content.update(updateData);
 
       await CacheService.invalidate("ServicesPageContent");
+      await CacheService.invalidate("webOurServices");
       res.json({ success: true, data: content, message: "Content updated" });
     } catch (error) {
       next(error);

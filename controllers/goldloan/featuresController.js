@@ -4,6 +4,7 @@ const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
 const fs = require("fs").promises;
 const path = require("path");
+const { Op } = require("sequelize");
 
 const GoldLoanFeatures = models.GoldLoanFeatures;
 
@@ -46,6 +47,7 @@ class GoldLoanFeaturesController {
       const cachedData = await CacheService.get(cacheKey);
 
       if (cachedData) {
+        Logger.info("Returning cached data for goldLoanFeatures");
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
 
@@ -54,6 +56,7 @@ class GoldLoanFeaturesController {
       });
 
       await CacheService.set(cacheKey, JSON.stringify(features), 3600);
+      Logger.info("Fetched goldLoanFeatures from database and cached the result");
       res.json({ success: true, data: features });
     } catch (error) {
       next(error);
@@ -91,6 +94,10 @@ class GoldLoanFeaturesController {
       }
 
       const updateData = { ...req.body };
+      const { is_center } = updateData;
+
+      console.log("Update Data:", updateData);
+
       let oldIcon = feature.icon;
 
       if (req.file) {
@@ -99,6 +106,14 @@ class GoldLoanFeaturesController {
         if (oldIcon) {
           await GoldLoanFeaturesController.deleteFile(oldIcon);
         }
+      }
+
+      if (is_center === 'true') {
+        await GoldLoanFeatures.update(
+          { is_center: false },
+          { where: { is_center: true, id: { [Op.ne]: id } } }
+        );
+        Logger.info(`Set isActive to false for all items except ID ${id}`);
       }
 
       await feature.update(updateData);
@@ -137,6 +152,41 @@ class GoldLoanFeaturesController {
       next(error);
     }
   }
+  static async updateItemCenterStatus(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { is_center } = req.body;
+
+
+
+      const item = await GoldLoanFeatures.findByPk(id);
+      if (!item) {
+        throw new CustomError("Item not found", 404);
+      }
+
+      // If setting to true, make all other items' isActive false
+      if (is_center === true) {
+        await GoldLoanFeatures.update(
+          { is_center: false },
+          { where: { is_center: true, id: { [Op.ne]: id } } }
+        );
+        Logger.info(`Set isActive to false for all items except ID ${id}`);
+      }
+
+      // Update the current item
+      await item.update({ is_center });
+
+      // Invalidate relevant caches
+      await CacheService.invalidate("goldLoanFeatures");
+      await CacheService.invalidate(`goldLoanFeature_${id}`);
+      await CacheService.invalidate("webGoldLoan");
+
+      res.json({ success: true, data: item, message: "Item active status updated" });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
+
 
 module.exports = GoldLoanFeaturesController;

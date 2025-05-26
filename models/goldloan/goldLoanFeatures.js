@@ -21,6 +21,11 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      is_center: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: false,
+      },
       order: {
         type: DataTypes.INTEGER,
         allowNull: true,
