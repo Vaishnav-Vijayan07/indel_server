@@ -32,6 +32,7 @@ class CdLoanBenefitsController {
       const product = await CdLoanBenefits.create(updateData);
 
       await CacheService.invalidate("CdLoanBenefits");
+      await CacheService.invalidate("webCDLoan");
       res.status(201).json({ success: true, data: product, message: "CD Loan Benefit created" });
     } catch (error) {
       next(error);
@@ -102,6 +103,7 @@ class CdLoanBenefitsController {
       await product.update(updateData);
 
       await CacheService.invalidate("CdLoanBenefits");
+      await CacheService.invalidate("webCDLoan");
       await CacheService.invalidate(`cdLoanBenfit_${id}`);
       res.json({ success: true, data: product, message: "CD Loan Benefit updated" });
     } catch (error) {
@@ -125,6 +127,7 @@ class CdLoanBenefitsController {
       }
 
       await CacheService.invalidate("CdLoanBenefits");
+      await CacheService.invalidate("webCDLoan");
       await CacheService.invalidate(`cdLoanBenfit_${id}`);
       res.json({ success: true, message: "CD Loan Benefit deleted", data: id });
     } catch (error) {

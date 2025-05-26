@@ -32,6 +32,7 @@ class MsmeLoanContentController {
       await entry.update(updateData);
 
       await CacheService.invalidate("msmeLoanContent");
+      await CacheService.invalidate("webMSMELoan");
       res.json({ success: true, data: entry, message: "MSME Loan Content updated" });
     } catch (error) {
       next(error);

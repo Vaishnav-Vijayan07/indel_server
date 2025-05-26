@@ -13,6 +13,7 @@ class MsmeLoanFaqsController {
       const faq = await MsmeLoanFaqs.create(updateData);
 
       await CacheService.invalidate("msmeLoanFaqs");
+      await CacheService.invalidate("webMSMELoan");
       res.status(201).json({ success: true, data: faq, message: "MSME Loan FAQ created" });
     } catch (error) {
       next(error);
@@ -74,6 +75,7 @@ class MsmeLoanFaqsController {
       await faq.update(updateData);
 
       await CacheService.invalidate("msmeLoanFaqs");
+      await CacheService.invalidate("webMSMELoan");
       await CacheService.invalidate(`msmeLoanFaq_${id}`);
       res.json({ success: true, data: faq, message: "MSME Loan FAQ updated" });
     } catch (error) {
@@ -92,6 +94,7 @@ class MsmeLoanFaqsController {
       await faq.destroy();
 
       await CacheService.invalidate("msmeLoanFaqs");
+      await CacheService.invalidate("webMSMELoan");
       await CacheService.invalidate(`msmeLoanFaq_${id}`);
       res.json({ success: true, message: "MSME Loan FAQ deleted", data: id });
     } catch (error) {

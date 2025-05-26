@@ -30,7 +30,7 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       description: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       button_text: {
@@ -46,7 +46,7 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       our_offering_description: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       why_msme_loan_title: {
@@ -54,7 +54,7 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       why_msme_loan_description: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       who_do_serve_title: {
@@ -74,7 +74,7 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       msme_loan_overview_description: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: true,
       },
     },
