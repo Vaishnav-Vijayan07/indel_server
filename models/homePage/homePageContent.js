@@ -53,6 +53,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      about_image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       about_button_name: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -113,6 +117,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      investment_image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       investment_button_name: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -137,6 +145,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      mobile_app_image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       ios_download_link: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -154,6 +166,10 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       faq_section_image: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      faq_section_image_alt: {
         type: DataTypes.STRING,
         allowNull: true,
       },
