@@ -6,12 +6,12 @@ const generateStringValidators = (fields, isOptional = false) => {
   return fields.map((field) =>
     isOptional
       ? check(field)
-          .optional()
-          .notEmpty()
-          .withMessage(`${capitalize(field)} cannot be empty`)
+        .optional()
+        .notEmpty()
+        .withMessage(`${capitalize(field)} cannot be empty`)
       : check(field)
-          .notEmpty()
-          .withMessage(`${capitalize(field)} cannot be empty`)
+        .notEmpty()
+        .withMessage(`${capitalize(field)} cannot be empty`)
   );
 };
 
@@ -1123,11 +1123,8 @@ const validateCsrCommitteeUpdate = [
 
 const validateCsrReport = [
   check("fiscal_year")
-    .notEmpty()
-    .withMessage("Fiscal Year is required")
-    .isString()
-    .matches(/^\d{4}-\d{2}$/)
-    .withMessage("Fiscal Year must be in YYYY-YY format (e.g., 2024-25)"),
+    .isInt({ min: 1 })
+    .withMessage("Fiscal Year must be a valid Fiscal Year ID"),
   check("order").notEmpty().withMessage("Order is required").isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
   check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
 ];
@@ -1135,22 +1132,16 @@ const validateCsrReport = [
 const validateCsrReportUpdate = [
   check("fiscal_year")
     .optional()
-    .notEmpty()
-    .withMessage("Fiscal Year cannot be empty")
-    .isString()
-    .matches(/^\d{4}-\d{2}$/)
-    .withMessage("Fiscal Year must be in YYYY-YY format (e.g., 2024-25)"),
+    .isInt({ min: 1 })
+    .withMessage("Fiscal Year must be a valid Fiscal Year ID"),
   check("order").optional().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
   check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
 ];
 
 const validateCsrActionPlan = [
   check("fiscal_year")
-    .notEmpty()
-    .withMessage("Fiscal Year is required")
-    .isString()
-    .matches(/^\d{4}-\d{2}$/)
-    .withMessage("Fiscal Year must be in YYYY-YY format (e.g., 2024-25)"),
+    .isInt({ min: 1 })
+    .withMessage("Fiscal Year must be a valid Fiscal Year ID"),
   check("order").notEmpty().withMessage("Order is required").isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
   check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
 ];
@@ -1158,11 +1149,8 @@ const validateCsrActionPlan = [
 const validateCsrActionPlanUpdate = [
   check("fiscal_year")
     .optional()
-    .notEmpty()
-    .withMessage("Fiscal Year cannot be empty")
-    .isString()
-    .matches(/^\d{4}-\d{2}$/)
-    .withMessage("Fiscal Year must be in YYYY-YY format (e.g., 2024-25)"),
+    .isInt({ min: 1 })
+    .withMessage("Fiscal Year must be a valid Fiscal Year ID"),
   check("order").optional().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
   check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
 ];

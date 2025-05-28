@@ -50,7 +50,10 @@ class CsrActionPlanController {
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
 
-      const csrActionPlans = await CsrActionPlan.findAll({ order: [["order", "ASC"]] });
+      const csrActionPlans = await CsrActionPlan.findAll({
+        include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
+        order: [[{ model: models.FiscalYears, as: "fiscalYear" }, "fiscal_year", "DESC"]],
+      });
       await CacheService.set(cacheKey, JSON.stringify(csrActionPlans), 3600);
       res.json({ success: true, data: csrActionPlans });
     } catch (error) {

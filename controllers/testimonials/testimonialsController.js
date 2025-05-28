@@ -52,16 +52,19 @@ class TestimonialsController {
   static async getAll(req, res, next) {
     try {
       const cacheKey = "Testimonials";
-      const cachedData = await CacheService.get(cacheKey);
+      // const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
 
       const testimonials = await Testimonials.findAll({
-        where: { is_active: true },
+        // where: { is_active: true },
         order: [[Testimonials.sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
       });
+
+      console.log(testimonials);
+
       await CacheService.set(cacheKey, JSON.stringify(testimonials), 3600);
       res.json({ success: true, data: testimonials });
     } catch (error) {

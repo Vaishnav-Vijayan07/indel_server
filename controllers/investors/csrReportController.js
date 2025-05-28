@@ -50,7 +50,10 @@ class CsrReportController {
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
 
-      const csrReports = await CsrReport.findAll({ order: [["order", "ASC"]] });
+      const csrReports = await CsrReport.findAll({
+        include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
+        order: [[{ model: models.FiscalYears, as: "fiscalYear" }, "fiscal_year", "DESC"]],
+      });
       await CacheService.set(cacheKey, JSON.stringify(csrReports), 3600);
       res.json({ success: true, data: csrReports });
     } catch (error) {
