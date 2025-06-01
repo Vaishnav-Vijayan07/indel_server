@@ -36,5 +36,14 @@ module.exports = (sequelize) => {
     });
   };
 
+   Roles.associate = (models) => {
+    Roles.hasMany(models.JobApplications, {
+      foreignKey: "preferred_role",
+      as: "preferredRole",
+    });
+  };
+
+
+
   return Roles;
 };

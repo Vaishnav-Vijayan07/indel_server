@@ -1,6 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const WebController = require("../controllers/webController");
+const JobApplicationsController = require("../controllers/resumeController");
+const createUploadMiddleware = require("../middlewares/multerMiddleware");
+
+const upload = createUploadMiddleware("job-applications");
+const uploadField = upload.single("resume");
 
 router.get("/home", WebController.getHomeData);
 router.get("/about", WebController.aboutData);
@@ -20,5 +25,8 @@ router.get("/career", WebController.CareerPage);
 router.get("/career-active-jobs", WebController.ActiveJobs);
 router.get("/event-gallery", WebController.eventGallery); //Completed
 router.get("/awards", WebController.Awards);  //Completed
+
+router.post("/career/resume", uploadField, JobApplicationsController.create);
+router.get("/career/resume", uploadField, JobApplicationsController.getAll);
 
 module.exports = router;

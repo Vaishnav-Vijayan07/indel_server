@@ -550,46 +550,11 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [careersContent, careerBanners, careerGallery, careerStates, careerJobs, empBenefits, awards] = await Promise.all([
+      const [careersContent, careerBanners, careerGallery, careerStates, careerJobs, empBenefits, awards, testimoinials] = await Promise.all([
         models.CareersContent.findAll(),
         models.CareerBanners.findAll(),
         models.CareerGallery.findAll(),
         models.CareerStates.findAll(),
-        models.CareerJobs.findAll(),
-        models.EmployeeBenefits.findAll(),
-        models.Awards.findAll()
-      ]);
-
-      const data = {
-        careersContent: careersContent[0] || null,
-        careerBanners,
-        careerGallery,
-        careerStates,
-        careerJobs,
-        empBenefits,
-        awards
-      };
-
-      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
-      logger.info("Fetched Career Page data from DB");
-      res.json({ status: "success", data });
-    } catch (error) {
-      logger.error("Error fetching Career Page data", { error: error.message, stack: error.stack });
-      next(new CustomError("Failed to fetch Career Page data", 500, error.message));
-    }
-  }
-
-  static async ActiveJobs(req, res, next) {
-    const cacheKey = "webCareerPage";
-
-    try {
-      const cachedData = await CacheService.get(cacheKey);
-      // if (cachedData) {
-      //   logger.info("Serving Career Page from cache");
-      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
-      // }
-
-      const [jobs] = await Promise.all([
         models.CareerJobs.findAll({
           attributes: [
             "id",
@@ -604,11 +569,74 @@ class WebController {
           include: [
             { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
             { model: models.CareerLocations, as: "location", attributes: ["location_name"] },
-            { model: models.CareerStates, as: "state", attributes: ["state_name"] },
+            { model: models.CareerStates, as: "state", attributes: ["state_name"] }
           ],
           order: [["id", "ASC"]],
-        })
+        }),
+        models.EmployeeBenefits.findAll(),
+        models.Awards.findAll(),
+        models.Testimonials.findAll()
       ]);
+
+      const data = {
+        careersContent: careersContent[0] || null,
+        careerBanners,
+        careerGallery,
+        careerStates,
+        careerJobs,
+        empBenefits,
+        awards,
+        testimoinials
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched Career Page data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching Career Page data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch Career Page data", 500, error.message));
+    }
+  }
+
+  static async ActiveJobs(req, res, next) {
+    const cacheKey = "webCareerPage";
+    const { state, location, role } = req.query
+
+    const whereClause = {
+      is_active: true
+    };
+
+    if (state) whereClause.state_id = state;
+    if (role) whereClause.role_id = role;
+    if (location) whereClause.location_id = location;
+
+    try {
+      // const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving Career Page from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const jobs = await models.CareerJobs.findAll({
+        where: whereClause,
+        attributes: [
+          "id",
+          "role_id",
+          "location_id",
+          "state_id",
+          "short_description",
+          "detailed_description",
+          "experience",
+          "is_active"
+        ],
+        include: [
+          { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
+          { model: models.CareerLocations, as: "location", attributes: ["location_name"] },
+          { model: models.CareerStates, as: "state", attributes: ["state_name"] }
+        ],
+        order: [["id", "ASC"]],
+        logging: console.log
+      });
 
       const data = {
         jobs
@@ -618,6 +646,7 @@ class WebController {
       logger.info("Fetched Career Page data from DB");
       res.json({ status: "success", data });
     } catch (error) {
+      console.log(error)
       logger.error("Error fetching Career Page data", { error: error.message, stack: error.stack });
       next(new CustomError("Failed to fetch Career Page data", 500, error.message));
     }

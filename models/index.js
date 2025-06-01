@@ -80,6 +80,7 @@ const defineTestimonialPageContent = require("./testimonials/testimonialPageCont
 const defineTestimonials = require("./testimonials/testimonials");
 const defineBranchLocatorPageContents = require("./branch/branchLocatorPageContentsModel");
 const defineBranches = require("./branch/branches");
+const defineJobApplications = require("./career/job_applications");
 
 const models = {
   User: defineUser(sequelize),
@@ -164,6 +165,7 @@ const models = {
   Testimonials: defineTestimonials(sequelize),
   BranchLocatorPageContents: defineBranchLocatorPageContents(sequelize),
   Branches: defineBranches(sequelize),
+  JobApplications: defineJobApplications(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {

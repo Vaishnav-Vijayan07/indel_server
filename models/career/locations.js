@@ -36,5 +36,12 @@ module.exports = (sequelize) => {
     });
   };
 
+  Locations.associate = (models) => {
+    Locations.hasMany(models.JobApplications, {
+      foreignKey: "location",
+      as: "job_applications",
+    });
+  };
+
   return Locations;
 };
