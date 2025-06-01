@@ -32,6 +32,8 @@ class StatesController {
       const state = await States.create(updateData);
 
       await CacheService.invalidate("states");
+      await CacheService.invalidate("webCareerPage");
+
       res.status(201).json({ success: true, data: state, message: "State created" });
     } catch (error) {
       next(error);
@@ -102,6 +104,7 @@ class StatesController {
       await state.update(updateData);
 
       await CacheService.invalidate("states");
+      await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`state_${id}`);
       res.json({ success: true, data: state, message: "State updated" });
     } catch (error) {
@@ -125,6 +128,7 @@ class StatesController {
       }
 
       await CacheService.invalidate("states");
+      await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`state_${id}`);
       res.json({ success: true, message: "State deleted", data: id });
     } catch (error) {

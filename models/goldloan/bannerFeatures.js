@@ -15,7 +15,11 @@ module.exports = (sequelize) => {
       },
       icon: {
         type: DataTypes.STRING,
-        allowNull: true, 
+        allowNull: true,
+      },
+      image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true
       },
       order: {
         type: DataTypes.INTEGER,

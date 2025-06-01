@@ -12,6 +12,7 @@ class LocationsController {
       const location = await Locations.create(updateData);
 
       await CacheService.invalidate("locations");
+       await CacheService.invalidate("webCareerPage");
       res.status(201).json({ success: true, data: location, message: "Location created" });
     } catch (error) {
       next(error);
@@ -73,6 +74,7 @@ class LocationsController {
       await location.update(updateData);
 
       await CacheService.invalidate("locations");
+       await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`location_${id}`);
       res.json({ success: true, data: location, message: "Location updated" });
     } catch (error) {
@@ -91,6 +93,7 @@ class LocationsController {
       await location.destroy();
 
       await CacheService.invalidate("locations");
+       await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`location_${id}`);
       res.json({ success: true, message: "Location deleted", data: id });
     } catch (error) {

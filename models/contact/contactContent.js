@@ -41,6 +41,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       form_title: {
         type: DataTypes.STRING,
         allowNull: true,

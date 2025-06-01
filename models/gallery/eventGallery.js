@@ -11,9 +11,13 @@ module.exports = (sequelize) => {
       },
       image: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      video: {
         type: DataTypes.STRING,
         allowNull: true,
       },

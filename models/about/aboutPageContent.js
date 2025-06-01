@@ -60,8 +60,16 @@ module.exports = (sequelize) => {
       investors_image_1: {
         type: DataTypes.STRING,
       },
+      image_1_alt: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
       investors_image_2: {
         type: DataTypes.STRING,
+      },
+      image_2_alt: {
+        type: DataTypes.STRING,
+        allowNull: true
       },
       investors_card1_title: {
         type: DataTypes.STRING,

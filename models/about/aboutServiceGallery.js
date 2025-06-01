@@ -13,6 +13,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
       order: {
         type: DataTypes.INTEGER,
         allowNull: false,

@@ -61,6 +61,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       gold_loan_title: {
         type: DataTypes.STRING,
         allowNull: true,

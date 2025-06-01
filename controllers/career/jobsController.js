@@ -29,6 +29,7 @@ class JobsController {
       const job = await Jobs.create(updateData);
 
       await CacheService.invalidate("jobs");
+       await CacheService.invalidate("webCareerPage");
       res.status(201).json({ success: true, data: job, message: "Job created" });
     } catch (error) {
       next(error);
@@ -146,6 +147,7 @@ class JobsController {
       await job.update(updateData);
 
       await CacheService.invalidate("jobs");
+       await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`job_${id}`);
       res.json({ success: true, data: job, message: "Job updated" });
     } catch (error) {
@@ -164,6 +166,7 @@ class JobsController {
       await job.destroy();
 
       await CacheService.invalidate("jobs");
+       await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`job_${id}`);
       res.json({ success: true, message: "Job deleted", data: id });
     } catch (error) {

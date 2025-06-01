@@ -21,7 +21,11 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      order:{
+      alt_text: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      order: {
         type: DataTypes.INTEGER,
         allowNull: false,
       }

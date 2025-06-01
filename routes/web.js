@@ -17,7 +17,8 @@ router.get("/gold-loan", WebController.goldLoan);
 router.get("/msme", WebController.MSMELoan);
 router.get("/cd-loan", WebController.CDLoan);
 router.get("/career", WebController.CareerPage);
-router.get("/event-gallery", WebController.eventGallery);
-router.get("/awards", WebController.Awards);
+router.get("/career-active-jobs", WebController.ActiveJobs);
+router.get("/event-gallery", WebController.eventGallery); //Completed
+router.get("/awards", WebController.Awards);  //Completed
 
 module.exports = router;

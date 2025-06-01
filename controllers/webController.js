@@ -545,17 +545,19 @@ class WebController {
 
     try {
       const cachedData = await CacheService.get(cacheKey);
-      if (cachedData) {
-        logger.info("Serving Career Page from cache");
-        return res.json({ status: "success", data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   logger.info("Serving Career Page from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
 
-      const [careersContent, careerBanners, careerGallery, careerStates, careerJobs] = await Promise.all([
+      const [careersContent, careerBanners, careerGallery, careerStates, careerJobs, empBenefits, awards] = await Promise.all([
         models.CareersContent.findAll(),
         models.CareerBanners.findAll(),
         models.CareerGallery.findAll(),
         models.CareerStates.findAll(),
         models.CareerJobs.findAll(),
+        models.EmployeeBenefits.findAll(),
+        models.Awards.findAll()
       ]);
 
       const data = {
@@ -564,6 +566,52 @@ class WebController {
         careerGallery,
         careerStates,
         careerJobs,
+        empBenefits,
+        awards
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched Career Page data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching Career Page data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch Career Page data", 500, error.message));
+    }
+  }
+
+  static async ActiveJobs(req, res, next) {
+    const cacheKey = "webCareerPage";
+
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving Career Page from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const [jobs] = await Promise.all([
+        models.CareerJobs.findAll({
+          attributes: [
+            "id",
+            "role_id",
+            "location_id",
+            "state_id",
+            "short_description",
+            "detailed_description",
+            "experience",
+            "is_active"
+          ],
+          include: [
+            { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
+            { model: models.CareerLocations, as: "location", attributes: ["location_name"] },
+            { model: models.CareerStates, as: "state", attributes: ["state_name"] },
+          ],
+          order: [["id", "ASC"]],
+        })
+      ]);
+
+      const data = {
+        jobs
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
@@ -579,33 +627,54 @@ class WebController {
 
     try {
       const cachedData = await CacheService.get(cacheKey);
-      if (cachedData) {
-        logger.info("Serving event gallery from cache");
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   logger.info("Serving event gallery from cache");
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
 
-      const eventTypes = await models.EventTypes.findAll({
-        where: { is_active: true },
-        order: [["order", "ASC"]],
-        include: [
-          {
-            model: models.EventGallery,
-            as: "galleryItems",
-            where: { is_active: true },
-            attributes: ["image"],
-            required: false,
-          },
-        ],
-      });
+      const [contents, eventMedias, eventTypes] = await Promise.all([
+        models.GalleryPageContent.findAll(),
+        models.EventTypes.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+          include: [
+            {
+              model: models.EventGallery,
+              as: "galleryItems",
+              where: { is_active: true },
+              attributes: ["image", "video"],
+              required: false,
+            },
+          ],
+        }),
+        models.EventTypes.findAll()
+      ]);
 
-      const data = eventTypes.map((eventType) => ({
-        event: eventType.title,
-        gallery: (eventType.galleryItems || []).map((gallery) => gallery.image),
+
+
+      const galleryItems = eventMedias.map((eventType) => ({
+        title: eventType.title,
+        description: eventType.description,
+        images: (eventType.galleryItems || []).map((gallery) => gallery.image || gallery?.video),
       }));
+
+      const mainSliderItems = eventMedias
+        .filter((eventType) => eventType.is_slider)
+        .map((eventType) => ({
+          title: eventType.title,
+          description: eventType.description,
+          gallery: eventType?.galleryItems[0]?.image || eventType?.galleryItems[0]?.video,
+        }));
+
+      const data = {
+        galleryPageContent: contents[0] || null,
+        galleryItems,
+        mainSliderItems
+      }
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
       logger.info("Fetched event gallery data from DB");
-      res.json({ success: true, data });
+      res.status(200).json({ status: "success", data });
     } catch (error) {
       logger.error("Error fetching event gallery data", { error: error.message, stack: error.stack });
       res.json({ success: false, error: { message: error.message, stack: error.stack } });
@@ -622,12 +691,22 @@ class WebController {
         return res.json({ status: "success", data: JSON.parse(cachedData) });
       }
 
-      const [awardPageContent, awards] = await Promise.all([models.AwardPageContent.findAll(), models.Awards.findAll()]);
+      const [awardPageContent, awards] = await Promise.all([models.AwardPageContent.findAll(), models.Awards.findAll({
+        attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
+      })]);
 
+      const slideItems = awards?.filter(award => award.is_slide);
+      const nonSlideItems = awards?.filter(award => !award.is_slide);
       const data = {
         awardPageContent: awardPageContent[0] || null,
-        awards,
+        slideItems,
+        nonSlideItems,
       };
+
+      // const data = {
+      //   awardPageContent: awardPageContent[0] || null,
+      //   awards,
+      // };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
       logger.info("Fetched Awards data from DB");

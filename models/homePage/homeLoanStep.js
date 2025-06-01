@@ -21,6 +21,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true, // Allow null since icon is uploaded later
       },
+      alt_text: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       order: {
         type: DataTypes.INTEGER,
         allowNull: false,

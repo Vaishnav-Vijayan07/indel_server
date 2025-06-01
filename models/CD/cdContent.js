@@ -49,9 +49,17 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      covered_products_section_image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
       eligibility_criteria_icon: {
         type: DataTypes.STRING,
         allowNull: true,
+      },
+      eligibility_criteria_image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true
       },
       eligibility_criteria_title: {
         type: DataTypes.STRING,
@@ -73,6 +81,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      feature_image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true
+      }
     },
     {
       tableName: "cd_loan_content",

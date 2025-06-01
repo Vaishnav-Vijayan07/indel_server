@@ -24,14 +24,21 @@ class EventGalleryController {
   static async create(req, res, next) {
     try {
       const data = { ...req.body };
-      if (!req.file) {
-        throw new CustomError("Image is required", 400);
+
+      if (req.files) {
+        if (req.files.image) {
+          data.image = `/uploads/event-gallery/${req.files.image[0].filename}`;
+          Logger.info(`Uploaded image: ${data.image}`);
+        }
+        if (req.files.video) {
+          data.video = `/uploads/event-gallery/${req.files.video[0].filename}`;
+          Logger.info(`Uploaded video: ${data.video}`);
+        }
       }
-      data.image = `/uploads/event-gallery/${req.file.filename}`;
-      Logger.info(`Uploaded image for EventGallery: ${data.image}`);
 
       const eventGallery = await EventGallery.create(data);
       await CacheService.invalidate("EventGallery");
+      await CacheService.invalidate("webEventGallery");
       res.status(201).json({ success: true, data: eventGallery, message: "Event Gallery item created" });
     } catch (error) {
       if (req.file) {
@@ -95,17 +102,25 @@ class EventGalleryController {
 
       const updateData = { ...req.body };
       const oldImage = eventGallery.image;
+      const oldVideo = eventGallery.video;
 
-      if (req.file) {
-        updateData.image = `/uploads/event-gallery/${req.file.filename}`;
-        Logger.info(`Updated image for EventGallery ID ${id}: ${updateData.image}`);
-        if (oldImage) {
-          await EventGalleryController.deleteFile(oldImage);
+
+      if (req.files) {
+        if (req.files.image) {
+          updateData.image = `/uploads/event-gallery/${req.files.image[0].filename}`;
+          Logger.info(`Updated image for testimonial ID ${id}: ${updateData.image}`);
+          if (oldImage) await TestimonialsController.deleteFile(oldImage);
+        }
+        if (req.files.video) {
+          updateData.video = `/uploads/event-gallery/${req.files.video[0].filename}`;
+          Logger.info(`Updated video for testimonial ID ${id}: ${updateData.video}`);
+          if (oldVideo) await TestimonialsController.deleteFile(oldVideo);
         }
       }
 
       await eventGallery.update(updateData);
       await CacheService.invalidate("EventGallery");
+      await CacheService.invalidate("webEventGallery");
       await CacheService.invalidate(`eventGallery_${id}`);
       res.json({ success: true, data: eventGallery, message: "Event Gallery item updated" });
     } catch (error) {
@@ -132,6 +147,7 @@ class EventGalleryController {
       }
 
       await CacheService.invalidate("EventGallery");
+      await CacheService.invalidate("webEventGallery");
       await CacheService.invalidate(`eventGallery_${id}`);
       res.json({ success: true, message: "Event Gallery item deleted", data: id });
     } catch (error) {

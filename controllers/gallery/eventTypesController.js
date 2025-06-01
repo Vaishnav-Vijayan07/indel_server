@@ -11,6 +11,7 @@ class EventTypesController {
       const data = { ...req.body };
       const eventType = await EventTypes.create(data);
       await CacheService.invalidate("EventTypes");
+      await CacheService.invalidate("webEventGallery");
       res.status(201).json({ success: true, data: eventType, message: "Event Type created" });
     } catch (error) {
       next(error);
@@ -67,6 +68,7 @@ class EventTypesController {
       const updateData = { ...req.body };
       await eventType.update(updateData);
       await CacheService.invalidate("EventTypes");
+      await CacheService.invalidate("webEventGallery");
       await CacheService.invalidate(`eventType_${id}`);
       res.json({ success: true, data: eventType, message: "Event Type updated" });
     } catch (error) {
@@ -84,6 +86,7 @@ class EventTypesController {
 
       await eventType.destroy();
       await CacheService.invalidate("EventTypes");
+      await CacheService.invalidate("webEventGallery");
       await CacheService.invalidate(`eventType_${id}`);
       res.json({ success: true, message: "Event Type deleted", data: id });
     } catch (error) {

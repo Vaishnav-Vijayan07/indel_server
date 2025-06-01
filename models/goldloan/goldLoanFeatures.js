@@ -21,6 +21,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
       is_center: {
         type: DataTypes.BOOLEAN,
         allowNull: true,

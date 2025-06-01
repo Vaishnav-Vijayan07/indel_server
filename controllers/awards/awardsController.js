@@ -32,6 +32,7 @@ class AwardsController {
 
       const award = await Awards.create(data);
       await CacheService.invalidate("Awards");
+      await CacheService.invalidate("webAwards");
       res.status(201).json({ success: true, data: award, message: "Award created" });
     } catch (error) {
       if (req.file) {
@@ -101,6 +102,7 @@ class AwardsController {
 
       await award.update(updateData);
       await CacheService.invalidate("Awards");
+      await CacheService.invalidate("webAwards");
       await CacheService.invalidate(`award_${id}`);
       res.json({ success: true, data: award, message: "Award updated" });
     } catch (error) {
@@ -127,6 +129,7 @@ class AwardsController {
       }
 
       await CacheService.invalidate("Awards");
+      await CacheService.invalidate("webAwards");
       await CacheService.invalidate(`award_${id}`);
       res.json({ success: true, message: "Award deleted", data: id });
     } catch (error) {
