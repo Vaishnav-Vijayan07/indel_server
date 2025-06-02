@@ -3,6 +3,7 @@ const router = express.Router();
 const WebController = require("../controllers/webController");
 const JobApplicationsController = require("../controllers/resumeController");
 const createUploadMiddleware = require("../middlewares/multerMiddleware");
+const InvestorsController = require("../controllers/investorsController");
 
 const upload = createUploadMiddleware("job-applications");
 const uploadField = upload.single("resume");
@@ -23,8 +24,11 @@ router.get("/msme", WebController.MSMELoan);
 router.get("/cd-loan", WebController.CDLoan);
 router.get("/career", WebController.CareerPage);
 router.get("/career-active-jobs", WebController.ActiveJobs);
-router.get("/event-gallery", WebController.eventGallery); //Completed
-router.get("/awards", WebController.Awards);  //Completed
+router.get("/event-gallery", WebController.eventGallery); 
+router.get("/awards", WebController.Awards);  
+router.get("/investors/report", InvestorsController.csrReports);  
+router.get("/investors/contact", InvestorsController.contact);  
+router.get("/investors/policies", InvestorsController.policies);  
 
 router.post("/career/resume", uploadField, JobApplicationsController.create);
 router.get("/career/resume", uploadField, JobApplicationsController.getAll);
