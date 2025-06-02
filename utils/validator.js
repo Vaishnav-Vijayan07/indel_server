@@ -1301,6 +1301,18 @@ const validateBranchUpdate = [
   check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
 ];
 
+const validateCorporateGovernance = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+  check("order").isInt().withMessage("Order must be an integer"),
+];
+
+const validateCorporateGovernanceUpdate = [
+  check("title").optional().notEmpty().withMessage("Title is required"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+
 module.exports = {
   validateAuth,
   validateHeroBanner,
@@ -1427,4 +1439,6 @@ module.exports = {
   validateBranchLocatorPageContents,
   validateBranch,
   validateBranchUpdate,
+  validateCorporateGovernance,
+  validateCorporateGovernanceUpdate,
 };

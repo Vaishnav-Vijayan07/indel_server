@@ -44,6 +44,41 @@ class InvestorsController {
             next(new CustomError("Failed to fetch csr report", 500, error.message));
         }
     }
+
+    static async CorporateGovernence(req, res, next) {
+        const cacheKey = "webCorporateGovernence";
+
+        try {
+            const cachedData = await cacheService.get(cacheKey);
+            if (cachedData) {
+                logger.info("Serving corporate governance from cache");
+                return res.json({ status: "success", data: JSON.parse(cachedData) });
+            }
+
+            const [content, files] =
+                await Promise.all([
+                    models.InvestorsPageContent.findAll({
+                        attributes: ["disclosure_title", "disclosure_file"],
+                    }),
+                    models.CorporateGovernance.findAll({
+                        attributes: ["id", "file", "order", "title"],
+                        order: [["order", "ASC"]],
+                    })
+                ]);
+
+            const data = {
+                content: content[0] || null,
+                files
+            };
+
+            await cacheService.set(cacheKey, JSON.stringify(data), 3600);
+            logger.info("Fetched corporate governance from DB");
+            res.json({ status: "success", data });
+        } catch (error) {
+            logger.error("Error fetching corporate governance", { error: error.message, stack: error.stack });
+            next(new CustomError("Failed to fetch corporate governance", 500, error.message));
+        }
+    }
     static async contact(req, res, next) {
         const cacheKey = "webInvestorsContact";
 
@@ -127,9 +162,6 @@ class InvestorsController {
                     totalPages: totalPages,
                     currentPage: page,
                     limit: limit,
-                    hasNextPage: page < totalPages,
-                    hasPrevPage: page > 1,
-                    offset: offset
                 }
             };
 
@@ -148,6 +180,107 @@ class InvestorsController {
             next(new CustomError("Failed to fetch investors policies", 500, error.message));
         }
     }
+
+    static async fiscalyears(req, res, next) {
+        const cacheKey = "webInvestorsYears";
+
+        try {
+            const cachedData = await cacheService.get(cacheKey);
+            if (cachedData) {
+                logger.info("Serving fiscal years for stock exchange from cache");
+                return res.json({ status: "success", data: JSON.parse(cachedData) });
+            }
+
+            const fiscal_years = await models.FiscalYears.findAll({ attributes: ["id", "fiscal_year"], order: [["fiscal_year", "DESC"]], limit: 5 });
+
+            await cacheService.set(cacheKey, JSON.stringify(fiscal_years), 3600);
+            logger.info("Fetched fiscal years for stock exchange from DB");
+            res.json({ status: "success", fiscal_years });
+        } catch (error) {
+            logger.error("Error fetching fiscal years for stock exchange", { error: error.message, stack: error.stack });
+            next(new CustomError("Failed to fetch fiscal years for stock exchange", 500, error.message));
+        }
+    }
+
+    static async stockExchangeData(req, res, next) {
+        const { year } = req.query;
+
+        if (!year) {
+            return res.status(400).json({
+                status: "error",
+                message: "Year is required",
+            });
+        }
+
+        const cacheKey = `stockExchangeData:${year}`;
+
+        try {
+            // Try to get data from cache
+            const cachedData = await cacheService.get(cacheKey);
+            if (cachedData) {
+                logger.info("Serving stock exchange data from cache");
+                return res.json({
+                    status: "success",
+                    data: JSON.parse(cachedData),
+                });
+            }
+
+            // If not in cache, fetch from DB
+            const [intimations, meetings] = await Promise.all([
+                models.OtherIntimations.findAll({
+                    attributes: [
+                        "id",
+                        "fiscal_year",
+                        "record_date_document",
+                        "interest_payment_document",
+                        "month_date"
+                    ],
+                    where: { fiscal_year: year },
+                    include: [{
+                        model: models.FiscalYears,
+                        as: "fiscalYear",
+                        attributes: ["id", "fiscal_year"]
+                    }],
+                }),
+                models.BoardMeetings.findAll({
+                    attributes: [
+                        "id",
+                        "fiscal_year",
+                        "outcome_document",
+                        "intimation_document",
+                        "meeting_date"
+                    ],
+                    where: { fiscal_year: year },
+                    include: [{
+                        model: models.FiscalYears,
+                        as: "fiscalYear",
+                        attributes: ["id", "fiscal_year"]
+                    }],
+                }),
+            ]);
+
+            const data = { intimations, meetings };
+
+            // Save data in cache for 1 hour (3600 seconds)
+            await cacheService.set(cacheKey, JSON.stringify(data), 3600);
+
+            logger.info("Fetched stock exchange data from DB and cached it");
+
+            return res.json({
+                status: "success",
+                data,
+            });
+        } catch (error) {
+            logger.error("Error fetching stock exchange data", {
+                error: error.message,
+                stack: error.stack,
+            });
+
+            return next(new CustomError("Failed to fetch stock exchange data", 500, error.message));
+        }
+    }
+
+
 }
 
 module.exports = InvestorsController;
