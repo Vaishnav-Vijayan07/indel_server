@@ -81,6 +81,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      ncd_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
     {
       tableName: "investors_page_content",

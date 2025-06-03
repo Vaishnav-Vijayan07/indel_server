@@ -79,6 +79,89 @@ class InvestorsController {
             next(new CustomError("Failed to fetch corporate governance", 500, error.message));
         }
     }
+
+    static async ncdReports(req, res, next) {
+        const cacheKey = "webNcdReports";
+
+        try {
+            const cachedData = await cacheService.get(cacheKey);
+            if (cachedData) {
+                logger.info("Serving ncd report from cache");
+                return res.json({ status: "success", data: JSON.parse(cachedData) });
+            }
+
+            const [content, reports] =
+                await Promise.all([
+                    models.InvestorsPageContent.findAll({
+                        attributes: ["ncd_title"],
+                    }),
+                    models.NcdReports.findAll({
+                        attributes: ["id", "file", "order", "title"],
+                        order: [["order", "ASC"]],
+                    })
+                ]);
+
+            const data = {
+                content: content[0] || null,
+                reports
+            };
+
+            await cacheService.set(cacheKey, JSON.stringify(data), 3600);
+            logger.info("Fetched ncd report from DB");
+            res.json({ status: "success", data });
+        } catch (error) {
+            logger.error("Error fetching ncd report", { error: error.message, stack: error.stack });
+            next(new CustomError("Failed to fetch ncd report", 500, error.message));
+        }
+    }
+
+    static async quarterlyReports(req, res, next) {
+
+        const { year } = req.query;
+
+        if (!year) {
+            return res.status(400).json({
+                status: "error",
+                message: "Year is required",
+            });
+        }
+        const cacheKey = `quarterlyReports:${year}`;
+
+        try {
+
+            const cachedData = await cacheService.get(cacheKey);
+            if (cachedData) {
+                logger.info("Serving quarterly reports from cache");
+                return res.json({ status: "success", data: JSON.parse(cachedData) });
+            }
+
+            const reports = await models.QuarterlyReports.findAll({
+                where: { year },
+                attributes: ["id", "title", "year", "file", "is_active", "order"],
+                order: [["order", "ASC"]],
+                include: [
+                    {
+                        model: models.FiscalYears,
+                        as: "fiscalYear",
+                        attributes: ["id", "fiscal_year"]
+                    }
+                ]
+            });
+
+
+            const data = {
+                reports
+            };
+
+            await cacheService.set(cacheKey, JSON.stringify(data), 3600);
+            logger.info("Fetched quarterly reports from DB");
+            res.json({ status: "success", data });
+        } catch (error) {
+            logger.error("Error fetching quarterly reports", { error: error.message, stack: error.stack });
+            next(new CustomError("Failed to fetch quarterly reports", 500, error.message));
+        }
+    }
+
     static async contact(req, res, next) {
         const cacheKey = "webInvestorsContact";
 
@@ -186,15 +269,18 @@ class InvestorsController {
 
         try {
             const cachedData = await cacheService.get(cacheKey);
-            if (cachedData) {
-                logger.info("Serving fiscal years for stock exchange from cache");
-                return res.json({ status: "success", data: JSON.parse(cachedData) });
-            }
+            // if (cachedData) {
+            //     logger.info("Serving fiscal years for stock exchange from cache");
+            //     return res.json({ status: "success", data: JSON.parse(cachedData) });
+            // }
 
-            const fiscal_years = await models.FiscalYears.findAll({ attributes: ["id", "fiscal_year"], order: [["fiscal_year", "DESC"]], limit: 5 });
+            const fiscal_years = await models.FiscalYears.findAll({ attributes: ["id", "fiscal_year"], order: [["fiscal_year", "DESC"]], });
 
             await cacheService.set(cacheKey, JSON.stringify(fiscal_years), 3600);
             logger.info("Fetched fiscal years for stock exchange from DB");
+
+            console.log(fiscal_years);
+
             res.json({ status: "success", fiscal_years });
         } catch (error) {
             logger.error("Error fetching fiscal years for stock exchange", { error: error.message, stack: error.stack });

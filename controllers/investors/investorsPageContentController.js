@@ -70,7 +70,13 @@ class InvestorsPageContentController {
       }
 
       await content.update(updateData);
-      await CacheService.invalidate("investorsPageContent");
+      await CacheService.invalidate([
+        "investorsPageContent",
+        "webCsrReports",
+        "webCorporateGovernence",
+        "webInvestorsContact",
+        "webNcdReports",
+      ]);
       res.json({ success: true, data: content, message: "Investors Page Content updated" });
     } catch (error) {
       if (req.file) {

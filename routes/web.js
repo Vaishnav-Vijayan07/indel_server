@@ -32,6 +32,8 @@ router.get("/investors/policies", InvestorsController.policies);
 router.get("/investors/stock-exchange", InvestorsController.stockExchangeData);
 router.get("/investors/fiscal_years", InvestorsController.fiscalyears);
 router.get("/investors/corporate-governance", InvestorsController.CorporateGovernence);
+router.get("/investors/ncd-reports", InvestorsController.ncdReports);
+router.get("/investors/quarterly-reports", InvestorsController.quarterlyReports);
 
 router.post("/career/resume", uploadField, JobApplicationsController.create);
 router.get("/career/resume", uploadField, JobApplicationsController.getAll);
