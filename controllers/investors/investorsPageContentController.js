@@ -76,6 +76,7 @@ class InvestorsPageContentController {
         "webCorporateGovernence",
         "webInvestorsContact",
         "webNcdReports",
+        "webCsrDetails"
       ]);
       res.json({ success: true, data: content, message: "Investors Page Content updated" });
     } catch (error) {

@@ -80,15 +80,96 @@ class InvestorsController {
         }
     }
 
+    static async creditRatings(req, res, next) {
+        const cacheKey = "webCreditRatings";
+
+        try {
+            const cachedData = await cacheService.get(cacheKey);
+            if (cachedData) {
+                logger.info("Serving credit ratings from cache");
+                return res.json({ status: "success", data: JSON.parse(cachedData) });
+            }
+
+            const files = await models.CreditRatings.findAll({
+                attributes: ["id", "file", "order", "title"],
+                order: [["order", "ASC"]],
+            })
+
+            const data = {
+                files
+            };
+
+            await cacheService.set(cacheKey, JSON.stringify(data), 3600);
+            logger.info("Fetched credit ratings from DB");
+            res.json({ status: "success", data });
+        } catch (error) {
+            logger.error("Error fetching credit ratings", { error: error.message, stack: error.stack });
+            next(new CustomError("Failed to fetch credit ratings", 500, error.message));
+        }
+    }
+
+    static async csrDetails(req, res, next) {
+        const cacheKey = "webCsrDetails";
+
+        try {
+            const cachedData = await cacheService.get(cacheKey);
+            if (cachedData) {
+                logger.info("Serving csr details from cache");
+                return res.json({ status: "success", data: JSON.parse(cachedData) });
+            }
+
+            const [content, actionPlans, committees, reports] = await Promise.all([
+                models.InvestorsPageContent.findAll({
+                    attributes: [
+                        "csr_policy_doc",
+                        "csr_committee_title",
+                        "csr_reports_title",
+                        "csr_action_plan_title",
+                        "csr_policy_title",
+                    ],
+                }),
+                models.CsrActionPlan.findAll({
+                    attributes: ["id", "report", "order", "fiscal_year"],
+                    include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
+                    order: [["order", "ASC"]],
+                }),
+                models.CsrCommittee.findAll({
+                    attributes: ["id", "nature", "name", "designation", "order"],
+                    order: [["order", "ASC"]],
+                }),
+                models.CsrReport.findAll({
+                    attributes: ["id", "report", "order", "fiscal_year"],
+                    include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
+                    order: [["order", "ASC"]],
+                }),
+            ])
+
+            const data = {
+                content: content[0] || null,
+                actionPlans,
+                committees,
+                reports,
+
+            };
+
+            await cacheService.set(cacheKey, JSON.stringify(data), 3600);
+            logger.info("Fetched csr details from DB");
+            res.json({ status: "success", data });
+        } catch (error) {
+            logger.error("Error fetching csr details", { error: error.message, stack: error.stack });
+            next(new CustomError("Failed to fetch csr details", 500, error.message));
+        }
+    }
+
     static async ncdReports(req, res, next) {
         const cacheKey = "webNcdReports";
 
         try {
             const cachedData = await cacheService.get(cacheKey);
-            if (cachedData) {
-                logger.info("Serving ncd report from cache");
-                return res.json({ status: "success", data: JSON.parse(cachedData) });
-            }
+            // if (cachedData) {
+            //     logger.info("Serving ncd report from cache");
+            //     return res.json({ status: "success", data: JSON.parse(cachedData) });
+            // }
 
             const [content, reports] =
                 await Promise.all([
@@ -167,10 +248,10 @@ class InvestorsController {
 
         try {
             const cachedData = await cacheService.get(cacheKey);
-            if (cachedData) {
-                logger.info("Serving investors contact from cache");
-                return res.json({ status: "success", data: JSON.parse(cachedData) });
-            }
+            // if (cachedData) {
+            //     logger.info("Serving investors contact from cache");
+            //     return res.json({ status: "success", data: JSON.parse(cachedData) });
+            // }
 
             const [content, contact] =
                 await Promise.all([
@@ -217,10 +298,10 @@ class InvestorsController {
 
             // Check cache first
             const cachedData = await cacheService.get(cacheKey);
-            if (cachedData) {
-                logger.info(`Serving investors policies from cache - Page: ${page}, Limit: ${limit}`);
-                return res.json({ status: "success", data: JSON.parse(cachedData) });
-            }
+            // if (cachedData) {
+            //     logger.info(`Serving investors policies from cache - Page: ${page}, Limit: ${limit}`);
+            //     return res.json({ status: "success", data: JSON.parse(cachedData) });
+            // }
 
             const [content, policiesResult] = await Promise.all([
                 // Content doesn't need pagination, fetch once
@@ -279,7 +360,7 @@ class InvestorsController {
             await cacheService.set(cacheKey, JSON.stringify(fiscal_years), 3600);
             logger.info("Fetched fiscal years for stock exchange from DB");
 
-            console.log(fiscal_years);
+
 
             res.json({ status: "success", fiscal_years });
         } catch (error) {

@@ -84,6 +84,7 @@ const defineJobApplications = require("./career/job_applications");
 const defineCorporateGovernance = require("./investors/corporateGovernance");
 const defineNcdReports = require("./investors/ncdReports");
 const defineQuarterlyReports = require("./investors/quarterlyReports");
+const defineCreditRatings = require("./investors/creditRatings");
 
 const models = {
   User: defineUser(sequelize),
@@ -172,6 +173,7 @@ const models = {
   CorporateGovernance: defineCorporateGovernance(sequelize),
   NcdReports: defineNcdReports(sequelize),
   QuarterlyReports: defineQuarterlyReports(sequelize),
+  CreditRatings: defineCreditRatings(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {

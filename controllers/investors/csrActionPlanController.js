@@ -32,6 +32,7 @@ class CsrActionPlanController {
 
       const csrActionPlan = await CsrActionPlan.create(data);
       await CacheService.invalidate("CsrActionPlan");
+      await CacheService.invalidate("webCsrDetails");
       res.status(201).json({ success: true, data: csrActionPlan, message: "CSR Action Plan created" });
     } catch (error) {
       if (req.file) {
@@ -104,6 +105,7 @@ class CsrActionPlanController {
 
       await csrActionPlan.update(updateData);
       await CacheService.invalidate("CsrActionPlan");
+      await CacheService.invalidate("webCsrDetails");
       await CacheService.invalidate(`csrActionPlan_${id}`);
       res.json({ success: true, data: csrActionPlan, message: "CSR Action Plan updated" });
     } catch (error) {
@@ -130,6 +132,7 @@ class CsrActionPlanController {
       }
 
       await CacheService.invalidate("CsrActionPlan");
+      await CacheService.invalidate("webCsrDetails");
       await CacheService.invalidate(`csrActionPlan_${id}`);
       res.json({ success: true, message: "CSR Action Plan deleted", data: id });
     } catch (error) {

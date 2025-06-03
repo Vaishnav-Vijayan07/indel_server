@@ -1327,7 +1327,21 @@ const validateQuarterlyReports = [
   check("order").isInt().withMessage("Order must be an integer"),
 ];
 
+const validateCreditRatingsUpdate = [
+  check("title").optional().notEmpty().withMessage("Title is required"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+
+const validateCreditRatings = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+  check("order").isInt().withMessage("Order must be an integer"),
+];
+
 module.exports = {
+  validateCreditRatings,
+  validateCreditRatingsUpdate,
   validateQuarterlyReports,
   validateQuarterlyReportsUpdate,
   validateAuth,
