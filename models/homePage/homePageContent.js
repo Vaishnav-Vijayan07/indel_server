@@ -101,6 +101,18 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      life_section_image1: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      life_section_image2: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      life_section_image3: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       updates_section_title: {
         type: DataTypes.STRING,
         allowNull: true,

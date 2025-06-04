@@ -211,10 +211,10 @@ class InvestorsController {
         try {
 
             const cachedData = await cacheService.get(cacheKey);
-            if (cachedData) {
-                logger.info("Serving quarterly reports from cache");
-                return res.json({ status: "success", data: JSON.parse(cachedData) });
-            }
+            // if (cachedData) {
+            //     logger.info("Serving quarterly reports from cache");
+            //     return res.json({ status: "success", data: JSON.parse(cachedData) });
+            // }
 
             const reports = await models.QuarterlyReports.findAll({
                 where: { year },

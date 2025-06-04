@@ -6,56 +6,61 @@ const { Sequelize } = require("sequelize");
 
 class WebController {
   static async getHomeData(req, res, next) {
+    const cacheKey = "webHomeData";
     try {
-      await CacheService.invalidate("webHomeData");
-      const cacheKey = "webHomeData";
+      // Invalidate cache and check for cached data
+      await CacheService.invalidate(cacheKey);
       const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving home data from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
 
-      if (cachedData) {
-        logger.info("Serving home data from cache");
-        return res.json({ status: "success", data: JSON.parse(cachedData) });
-      }
+      // Fetch all data concurrently
+      const [heroBanner, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs] = await Promise.all([
+        models.HeroBanner.findAll().catch(err => {
+          logger.error("Failed to fetch heroBanner", { error: err.message, stack: err.stack });
+          throw err;
+        }),
+        models.HomeFaq.findAll({ order: [["order", "ASC"]] }).catch(err => {
+          logger.error("Failed to fetch faqs", { error: err.message, stack: err.stack });
+          throw err;
+        }),
+        models.HomeLoanStep.findAll({ order: [["order", "ASC"]] }).catch(err => {
+          logger.error("Failed to fetch loanSteps", { error: err.message, stack: err.stack });
+          throw err;
+        }),
+        models.AboutStatistics.findAll().catch(err => {
+          logger.error("Failed to fetch homeStatistics", { error: err.message, stack: err.stack });
+          throw err;
+        }),
+        models.HomePageContent.findAll().catch(err => {
+          logger.error("Failed to fetch pageContent", { error: err.message, stack: err.stack });
+          throw err;
+        }),
+        models.AboutLifeAtIndelGallery.findAll().catch(err => {
+          logger.error("Failed to fetch lifeAtIndel", { error: err.message, stack: err.stack });
+          throw err;
+        }),
+        models.Blogs.findAll({ attributes: ["id", "title", "is_slider", "image_description", "image","image_alt","posted_on"] }).catch(err => {
+          logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
+          throw err;
+        })
 
-      const data = {};
-      try {
-        data.heroBanner = await models.HeroBanner.findAll();
-        logger.debug("Fetched heroBanner");
-      } catch (err) {
-        logger.error("Failed to fetch heroBanner", { error: err.message, stack: err.stack });
-        throw err;
-      }
-      try {
-        data.faqs = await models.HomeFaq.findAll({ order: [["order", "ASC"]] });
-        logger.debug("Fetched faqs");
-      } catch (err) {
-        logger.error("Failed to fetch faqs", { error: err.message, stack: err.stack });
-        throw err;
-      }
-      try {
-        data.loanSteps = await models.HomeLoanStep.findAll({ order: [["order", "ASC"]] });
-        logger.debug("Fetched loanSteps");
-      } catch (err) {
-        logger.error("Failed to fetch loanSteps", { error: err.message, stack: err.stack });
-        throw err;
-      }
-      try {
-        data.homeStatistics = await models.HomeStatistics.findAll({
-          order: [["sort_order", "ASC"]],
-        });
-        logger.debug("Fetched loanSteps");
-      } catch (err) {
-        logger.error("Failed to fetch loanSteps", { error: err.message, stack: err.stack });
-        throw err;
-      }
-      try {
-        const homePageData = await models.HomePageContent.findAll();
-        data.pageContent = homePageData[0];
-        logger.debug("Fetched pageContent");
-      } catch (err) {
-        logger.error("Failed to fetch pageContent", { error: err.message, stack: err.stack });
-        throw err;
-      }
+      ]);
 
+      // Structure the response data
+      const data = {
+        lifeAtIndel,
+        blogs,
+        heroBanner,
+        faqs,
+        loanSteps,
+        homeStatistics,
+        pageContent: homePageData[0]
+      };
+
+      // Cache the data for 1 hour
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
       logger.info("Fetched home data");
       res.json({ status: "success", data });
