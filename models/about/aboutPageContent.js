@@ -93,7 +93,7 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
       },
       life_at_indel_description: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
       },
       life_at_indel_button_text: {
         type: DataTypes.STRING,

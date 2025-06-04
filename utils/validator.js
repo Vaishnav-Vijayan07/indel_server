@@ -1339,7 +1339,33 @@ const validateCreditRatings = [
   check("order").isInt().withMessage("Order must be an integer"),
 ];
 
+const validateIndelCaresUpdate = [
+  check("title").optional().notEmpty().withMessage("Title is required"),
+  // check("event_date").optional().isISO8601().withMessage("Event date must be a valid date (YYYY-MM-DD)"),
+  check("is_slider").optional().isBoolean().withMessage("Is slider must be a boolean"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+
+const validateIndelCares = [
+  check("title").notEmpty().withMessage("Title is required"),
+  // check("event_date").isISO8601().withMessage("Event date must be a valid date (YYYY-MM-DD)"),
+  check("is_slider").isBoolean().withMessage("Is slider must be a boolean"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+  check("description").notEmpty().withMessage("Description cannot be empty"),
+  check("order").isInt().withMessage("Order must be an integer"),
+];
+
+const validateIndelCaresContentUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("care_title").optional().notEmpty().withMessage("Care Title cannot be empty"),
+];
+
 module.exports = {
+  validateIndelCaresUpdate,
+  validateIndelCaresContentUpdate,
+  validateIndelCares,
   validateCreditRatings,
   validateCreditRatingsUpdate,
   validateQuarterlyReports,

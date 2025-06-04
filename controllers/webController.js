@@ -42,7 +42,7 @@ class WebController {
           logger.error("Failed to fetch lifeAtIndel", { error: err.message, stack: err.stack });
           throw err;
         }),
-        models.Blogs.findAll({ attributes: ["id", "title", "is_slider", "image_description", "image","image_alt","posted_on"] }).catch(err => {
+        models.Blogs.findAll({ attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on"] }).catch(err => {
           logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
           throw err;
         })
@@ -75,10 +75,10 @@ class WebController {
 
     try {
       const cachedData = await CacheService.get(cacheKey);
-      if (cachedData) {
-        logger.info("Serving home data from cache");
-        return res.json({ status: "success", data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   logger.info("Serving home data from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
 
       const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks, teamMessages, serviceImages, statsData, accolades] =
         await Promise.all([
@@ -145,10 +145,10 @@ class WebController {
     try {
       await CacheService.invalidate("webPartnersData");
       const cachedData = await CacheService.get(cacheKey);
-      if (cachedData) {
-        logger.info("Serving partners data from cache");
-        return res.json({ status: "success", data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   logger.info("Serving partners data from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
 
       const [content, debtPartners] = await Promise.all([models.DebtPartnersContent.findAll(), models.DeptPartners.findAll()]);
 
@@ -391,12 +391,12 @@ class WebController {
 
     try {
       const cachedData = await CacheService.get(cacheKey);
-      if (cachedData) {
-        logger.info("Serving gold loan from cache");
-        return res.json({ status: "success", data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   logger.info("Serving gold loan from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
 
-      const [goldloanContent, goldLoanFeatures, goldloanBannerFeatures, goldLoanFaq, goldLoanSchemes, schemeDetails] =
+      const [goldloanContent, goldLoanFeatures, goldloanBannerFeatures, goldLoanFaq, goldLoanSchemes, schemeDetails, steps] =
         await Promise.all([
           models.GoldloanContent.findAll(),
           models.GoldLoanFeatures.findAll(),
@@ -406,6 +406,7 @@ class WebController {
           models.SchemeDetails.findAll({
             order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
           }),
+          models.HomeLoanStep.findAll()
         ]);
 
 
@@ -464,6 +465,7 @@ class WebController {
         GoldLoanFeatures: grouped,
         GoldloanBannerFeatures: goldloanBannerFeatures,
         GoldLoanFaq: goldLoanFaq,
+        Steps: steps,
         schemes: {
           goldLoanSchemes: schemes,
           goldLoanSchemeDetails: schemesDetails,
@@ -720,10 +722,10 @@ class WebController {
 
     try {
       const cachedData = await CacheService.get(cacheKey);
-      if (cachedData) {
-        logger.info("Serving Awards from cache");
-        return res.json({ status: "success", data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   logger.info("Serving Awards from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
 
       const [awardPageContent, awards] = await Promise.all([models.AwardPageContent.findAll(), models.Awards.findAll({
         attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
