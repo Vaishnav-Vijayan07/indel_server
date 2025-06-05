@@ -752,6 +752,69 @@ class WebController {
       next(new CustomError("Failed to fetch Awards data", 500, error.message));
     }
   }
+
+  static async indelCares(req, res, next) {
+    const cacheKey = "webIndelCares";
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 3;
+    const offset = (page - 1) * limit;
+
+    // Validate pagination parameters
+    if (page < 1 || limit < 1 || limit > 100) {
+      return res.status(400).json({
+        status: "error",
+        message: "Invalid pagination parameters"
+      });
+    }
+
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving Awards from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const [content, slideItems, nonSlideItems] = await Promise.all([
+        models.IndelCaresContent.findAll(),
+        models.IndelCares.findAll({
+          attributes: ["id", "title", "description", "image", "event_date", "image_alt", "is_slider", "is_active", "order"],
+          where: { is_active: true, is_slider: true },
+          order: [["order", "ASC"]],
+        }),
+        models.IndelCares.findAndCountAll({
+          attributes: ["id", "title", "description", "image", "event_date", "image_alt", "is_slider", "is_active", "order"],
+          where: { is_active: true, is_slider: false },
+          order: [["order", "ASC"]],
+          limit,
+          offset
+        })
+      ]);
+
+      const totalPages = Math.ceil(nonSlideItems.count / limit);
+
+      const data = {
+        content: content[0] || null,
+        slideItems,
+        nonSlideItems: nonSlideItems.rows,
+        pagination: {
+          totalCount: nonSlideItems.count,
+          totalPages: totalPages,
+          currentPage: page,
+          limit: limit,
+        }
+      };
+
+
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched Awards data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching Awards data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch Awards data", 500, error.message));
+    }
+  }
 }
 
 module.exports = WebController;
