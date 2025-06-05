@@ -74,8 +74,8 @@ const definePolicies = require("./investors/policies");
 const defineBoardMeetings = require("./investors/boardMeetings");
 const defineOtherIntimations = require("./investors/otherIntimations");
 const defineCsrCommittee = require("./investors/csrCommittee");
-const defineCsrReport = require("./investors/csrReport");
-const defineCsrActionPlan = require("./investors/csrActionPlan");
+// const defineCsrReport = require("./investors/csrReport");
+// const defineCsrActionPlan = require("./investors/csrActionPlan");
 const defineTestimonialPageContent = require("./testimonials/testimonialPageContent");
 const defineTestimonials = require("./testimonials/testimonials");
 const defineBranchLocatorPageContents = require("./branch/branchLocatorPageContentsModel");
@@ -165,8 +165,8 @@ const models = {
   BoardMeetings: defineBoardMeetings(sequelize),
   OtherIntimations: defineOtherIntimations(sequelize),
   CsrCommittee: defineCsrCommittee(sequelize),
-  CsrReport: defineCsrReport(sequelize),
-  CsrActionPlan: defineCsrActionPlan(sequelize),
+  // CsrReport: defineCsrReport(sequelize),
+  // CsrActionPlan: defineCsrActionPlan(sequelize),
   TestimonialPageContent: defineTestimonialPageContent(sequelize),
   Testimonials: defineTestimonials(sequelize),
   BranchLocatorPageContents: defineBranchLocatorPageContents(sequelize),
