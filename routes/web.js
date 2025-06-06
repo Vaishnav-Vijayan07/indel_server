@@ -37,6 +37,7 @@ router.get("/investors/quarterly-reports", InvestorsController.quarterlyReports)
 router.get("/investors/credit-ratings", InvestorsController.creditRatings);
 router.get("/investors/csr-details", InvestorsController.csrDetails);
 router.get("/indel-cares", WebController.indelCares);
+router.get("/ombudsman", WebController.ombudsmanFiles);
 
 router.post("/career/resume", uploadField, JobApplicationsController.create);
 router.get("/career/resume", uploadField, JobApplicationsController.getAll);
