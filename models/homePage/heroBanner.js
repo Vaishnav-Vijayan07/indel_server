@@ -23,7 +23,7 @@ module.exports = (sequelize) => {
       },
       location: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       image: {
         type: DataTypes.STRING,
@@ -32,6 +32,14 @@ module.exports = (sequelize) => {
       image_alt_text: {
         type: DataTypes.STRING,
         allowNull: false,
+      },
+      is_active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+      },
+      order: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
     },
     {

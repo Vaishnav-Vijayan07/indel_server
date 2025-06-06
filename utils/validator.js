@@ -6,12 +6,12 @@ const generateStringValidators = (fields, isOptional = false) => {
   return fields.map((field) =>
     isOptional
       ? check(field)
-        .optional()
-        .notEmpty()
-        .withMessage(`${capitalize(field)} cannot be empty`)
+          .optional()
+          .notEmpty()
+          .withMessage(`${capitalize(field)} cannot be empty`)
       : check(field)
-        .notEmpty()
-        .withMessage(`${capitalize(field)} cannot be empty`)
+          .notEmpty()
+          .withMessage(`${capitalize(field)} cannot be empty`)
   );
 };
 
@@ -170,16 +170,20 @@ const validateHeroBanner = [
   check("title").notEmpty().withMessage("Title is required"),
   check("button_text").notEmpty().withMessage("Button text is required"),
   check("button_link").notEmpty().withMessage("Button link is required"),
-  check("location").notEmpty().withMessage("Location is required"),
+  // check("location").notEmpty().withMessage("Location is required"),
   check("image_alt_text").optional().notEmpty().withMessage("Alt text is required"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+  check("order").isInt().withMessage("Order must be an integer"),
 ];
 
 const validateHeroBannerUpdate = [
   check("title").optional().notEmpty().withMessage("Title cannot be empty"),
   check("button_text").optional().notEmpty().withMessage("Button text cannot be empty"),
   check("button_link").optional().notEmpty().withMessage("Button link cannot be empty"),
-  check("location").optional().notEmpty().withMessage("Location cannot be empty"),
+  // check("location").optional().notEmpty().withMessage("Location cannot be empty"),
   check("image_alt_text").optional().notEmpty().withMessage("Alt text is required"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
 ];
 
 const validateHomeStatistics = [
@@ -1111,74 +1115,46 @@ const validateCsrCommittee = [
 const validateCsrCommitteeUpdate = [
   check("name").optional().notEmpty().withMessage("Name cannot be empty").isString().withMessage("Name must be a string"),
   check("nature").optional().notEmpty().withMessage("Nature cannot be empty").isString().withMessage("Nature must be a string"),
-  check("designation")
-    .optional()
-    .notEmpty()
-    .withMessage("Designation cannot be empty")
-    .isString()
-    .withMessage("Designation must be a string"),
+  check("designation").optional().notEmpty().withMessage("Designation cannot be empty").isString().withMessage("Designation must be a string"),
   check("order").optional().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
   check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
 ];
 
 const validateCsrReport = [
-  check("fiscal_year")
-    .isInt({ min: 1 })
-    .withMessage("Fiscal Year must be a valid Fiscal Year ID"),
+  check("fiscal_year").isInt({ min: 1 }).withMessage("Fiscal Year must be a valid Fiscal Year ID"),
   check("order").notEmpty().withMessage("Order is required").isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
   check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
 ];
 
 const validateCsrReportUpdate = [
-  check("fiscal_year")
-    .optional()
-    .isInt({ min: 1 })
-    .withMessage("Fiscal Year must be a valid Fiscal Year ID"),
+  check("fiscal_year").optional().isInt({ min: 1 }).withMessage("Fiscal Year must be a valid Fiscal Year ID"),
   check("order").optional().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
   check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
 ];
 
 const validateCsrActionPlan = [
-  check("fiscal_year")
-    .isInt({ min: 1 })
-    .withMessage("Fiscal Year must be a valid Fiscal Year ID"),
+  check("fiscal_year").isInt({ min: 1 }).withMessage("Fiscal Year must be a valid Fiscal Year ID"),
   check("order").notEmpty().withMessage("Order is required").isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
   check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
 ];
 
 const validateCsrActionPlanUpdate = [
-  check("fiscal_year")
-    .optional()
-    .isInt({ min: 1 })
-    .withMessage("Fiscal Year must be a valid Fiscal Year ID"),
+  check("fiscal_year").optional().isInt({ min: 1 }).withMessage("Fiscal Year must be a valid Fiscal Year ID"),
   check("order").optional().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
   check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
 ];
 
 const validateTestimonialPageContents = [
   check("meta_title").notEmpty().withMessage("Meta Title is required").isString().withMessage("Meta Title must be a string"),
-  check("meta_description")
-    .notEmpty()
-    .withMessage("Meta Description is required")
-    .isString()
-    .withMessage("Meta Description must be a string"),
-  check("meta_keywords")
-    .notEmpty()
-    .withMessage("Meta Keywords is required")
-    .isString()
-    .withMessage("Meta Keywords must be a string"),
+  check("meta_description").notEmpty().withMessage("Meta Description is required").isString().withMessage("Meta Description must be a string"),
+  check("meta_keywords").notEmpty().withMessage("Meta Keywords is required").isString().withMessage("Meta Keywords must be a string"),
   check("title").notEmpty().withMessage("Title is required").isString().withMessage("Title must be a string"),
 ];
 
 const validateTestimonial = [
   check("name").notEmpty().withMessage("Name is required").isString().withMessage("Name must be a string"),
   check("designation").notEmpty().withMessage("Designation is required").isString().withMessage("Designation must be a string"),
-  check("order")
-    .notEmpty()
-    .withMessage("Order is required")
-    .isString()
-    .matches(/^\d+$/)
-    .withMessage("Order must be a numeric string"),
+  check("order").notEmpty().withMessage("Order is required").isString().matches(/^\d+$/).withMessage("Order must be a numeric string"),
   check("type").notEmpty().withMessage("Type is required").isIn(["video", "text"]).withMessage("Type must be 'video' or 'text'"),
   check("testimonial")
     .if(check("type").equals("text"))
@@ -1200,25 +1176,9 @@ const validateTestimonial = [
 
 const validateTestimonialUpdate = [
   check("name").optional().notEmpty().withMessage("Name cannot be empty").isString().withMessage("Name must be a string"),
-  check("designation")
-    .optional()
-    .notEmpty()
-    .withMessage("Designation cannot be empty")
-    .isString()
-    .withMessage("Designation must be a string"),
-  check("order")
-    .optional()
-    .notEmpty()
-    .withMessage("Order cannot be empty")
-    .isString()
-    .matches(/^\d+$/)
-    .withMessage("Order must be a numeric string"),
-  check("type")
-    .optional()
-    .notEmpty()
-    .withMessage("Type cannot be empty")
-    .isIn(["video", "text"])
-    .withMessage("Type must be 'video' or 'text'"),
+  check("designation").optional().notEmpty().withMessage("Designation cannot be empty").isString().withMessage("Designation must be a string"),
+  check("order").optional().notEmpty().withMessage("Order cannot be empty").isString().matches(/^\d+$/).withMessage("Order must be a numeric string"),
+  check("type").optional().notEmpty().withMessage("Type cannot be empty").isIn(["video", "text"]).withMessage("Type must be 'video' or 'text'"),
   check("testimonial")
     .optional()
     .if(check("type").equals("text"))
@@ -1232,16 +1192,8 @@ const validateTestimonialUpdate = [
 
 const validateBranchLocatorPageContents = [
   check("meta_title").notEmpty().withMessage("Meta Title is required").isString().withMessage("Meta Title must be a string"),
-  check("meta_description")
-    .notEmpty()
-    .withMessage("Meta Description is required")
-    .isString()
-    .withMessage("Meta Description must be a string"),
-  check("meta_keywords")
-    .notEmpty()
-    .withMessage("Meta Keywords is required")
-    .isString()
-    .withMessage("Meta Keywords must be a string"),
+  check("meta_description").notEmpty().withMessage("Meta Description is required").isString().withMessage("Meta Description must be a string"),
+  check("meta_keywords").notEmpty().withMessage("Meta Keywords is required").isString().withMessage("Meta Keywords must be a string"),
   check("title").notEmpty().withMessage("Title is required").isString().withMessage("Title must be a string"),
   check("description").notEmpty().withMessage("Description is required").isString().withMessage("Description must be a string"),
 ];
@@ -1269,24 +1221,9 @@ const validateBranch = [
 const validateBranchUpdate = [
   check("name").optional().notEmpty().withMessage("Name cannot be empty").isString().withMessage("Name must be a string"),
   check("state").optional().notEmpty().withMessage("State cannot be empty").isString().withMessage("State must be a string"),
-  check("district")
-    .optional()
-    .notEmpty()
-    .withMessage("District cannot be empty")
-    .isString()
-    .withMessage("District must be a string"),
-  check("location")
-    .optional()
-    .notEmpty()
-    .withMessage("Location cannot be empty")
-    .isString()
-    .withMessage("Location must be a string"),
-  check("address")
-    .optional()
-    .notEmpty()
-    .withMessage("Address cannot be empty")
-    .isString()
-    .withMessage("Address must be a string"),
+  check("district").optional().notEmpty().withMessage("District cannot be empty").isString().withMessage("District must be a string"),
+  check("location").optional().notEmpty().withMessage("Location cannot be empty").isString().withMessage("Location must be a string"),
+  check("address").optional().notEmpty().withMessage("Address cannot be empty").isString().withMessage("Address must be a string"),
   check("latitude").optional().isFloat({ min: -90, max: 90 }).withMessage("Latitude must be between -90 and 90"),
   check("longitude").optional().isFloat({ min: -180, max: 180 }).withMessage("Longitude must be between -180 and 180"),
   check("phone_no")

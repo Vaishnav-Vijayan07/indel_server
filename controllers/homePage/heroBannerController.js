@@ -8,7 +8,7 @@ const HeroBanner = models.HeroBanner;
 class HeroBannerController {
   static async create(req, res, next) {
     try {
-      const { title, title2, button_text, button_link, location, image_alt_text } = req.body;
+      const { title, title2, button_text, button_link, location, image_alt_text, is_active, order } = req.body;
       const image = req.file ? `/uploads/banner/${req.file.filename}` : null;
 
       if (!image) {
@@ -23,12 +23,14 @@ class HeroBannerController {
         location,
         image,
         image_alt_text,
+        is_active,
+        order,
       });
 
       await CacheService.invalidate("heroBanners");
       await CacheService.invalidate("webHomeData");
 
-      res.status(201).json({ success: true, data: heroBanner });
+      res.status(201).json({ success: true, data: heroBanner, message: "Hero Banner created successfully" });
     } catch (error) {
       next(error);
     }
@@ -39,11 +41,13 @@ class HeroBannerController {
       const cacheKey = "heroBanners";
       const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
 
-      const heroBanners = await HeroBanner.findAll();
+      const heroBanners = await HeroBanner.findAll({
+        order: [["order", "ASC"]],
+      });
       await CacheService.set(cacheKey, JSON.stringify(heroBanners), 3600);
       res.json({ success: true, data: heroBanners });
     } catch (error) {
@@ -70,7 +74,7 @@ class HeroBannerController {
         throw new CustomError("HeroBanner not found", 404);
       }
 
-      const { title, title2, button_text, button_link, location, image_alt_text } = req.body;
+      const { title, title2, button_text, button_link, location, image_alt_text, is_active, order } = req.body;
       const image = req.file ? `/uploads/banner/${req.file.filename}` : heroBanner.image;
 
       await heroBanner.update({
@@ -81,12 +85,14 @@ class HeroBannerController {
         location,
         image,
         image_alt_text,
+        is_active,
+        order,
       });
 
       await CacheService.invalidate("heroBanners");
       await CacheService.invalidate("webHomeData");
 
-      res.json({ success: true, data: heroBanner });
+      res.json({ success: true, data: heroBanner, message: "Hero Banner updated successfully" });
     } catch (error) {
       next(error);
     }
@@ -102,7 +108,7 @@ class HeroBannerController {
       await CacheService.invalidate("heroBanners");
       await CacheService.invalidate("webHomeData");
 
-      res.json({ success: true, message: "HeroBanner deleted", data: req.params.id });
+      res.json({ success: true, message: "Hero banner deleted", data: req.params.id });
     } catch (error) {
       next(error);
     }
