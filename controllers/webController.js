@@ -386,16 +386,16 @@ class WebController {
 
     try {
       const cachedData = await CacheService.get(cacheKey);
-      // if (cachedData) {
-      //   logger.info("Serving gold loan from cache");
-      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
-      // }
+      if (cachedData) {
+        logger.info("Serving gold loan from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
 
       const [goldloanContent, goldLoanFeatures, goldloanBannerFeatures, goldLoanFaq, goldLoanSchemes, schemeDetails, steps] = await Promise.all([
         models.GoldloanContent.findAll(),
         models.GoldLoanFeatures.findAll(),
         models.GoldloanBannerFeatures.findAll(),
-        models.GoldLoanFaq.findAll(),
+        models.GoldLoanFaq.findAll({ where: { is_active: true }, order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]] }),
         models.GoldLoanScheme.findAll(),
         models.SchemeDetails.findAll({
           order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
@@ -824,7 +824,10 @@ class WebController {
 
       const [content, icons] = await Promise.all([
         models.FooterContent.findAll(),
-        models.SocialMediaIcons.findAll(),
+        models.SocialMediaIcons.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
       ]);
       const data = {
         content: content[0] || null,
