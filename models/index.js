@@ -85,9 +85,11 @@ const defineCorporateGovernance = require("./investors/corporateGovernance");
 const defineNcdReports = require("./investors/ncdReports");
 const defineQuarterlyReports = require("./investors/quarterlyReports");
 const defineCreditRatings = require("./investors/creditRatings");
-const defineIndelCares = require("./indelCare/indelCares")
-const defineIndelCaresContent = require("./indelCare/indelCaresContents")
-const defineOmbudsmanFiles = require("./ombudsman/ombudsmanFiles")
+const defineIndelCares = require("./indelCare/indelCares");
+const defineIndelCaresContent = require("./indelCare/indelCaresContents");
+const defineOmbudsmanFiles = require("./ombudsman/ombudsmanFiles");
+const defineFooterContent = require("./footer/content");
+const defineFooterIcons = require("./footer/icons");
 
 const models = {
   User: defineUser(sequelize),
@@ -179,7 +181,9 @@ const models = {
   CreditRatings: defineCreditRatings(sequelize),
   IndelCares: defineIndelCares(sequelize),
   IndelCaresContent: defineIndelCaresContent(sequelize),
-  OmbudsmanFiles: defineOmbudsmanFiles(sequelize)
+  OmbudsmanFiles: defineOmbudsmanFiles(sequelize),
+  FooterContent: defineFooterContent(sequelize),
+  SocialMediaIcons: defineFooterIcons(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {

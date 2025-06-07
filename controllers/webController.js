@@ -811,6 +811,34 @@ class WebController {
       next(new CustomError("Failed to fetch ombudsman files data", 500, error.message));
     }
   }
+
+  static async footerContent(req, res, next) {
+    const cacheKey = "webFooterContent";
+
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving ombudsman files from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const [content, icons] = await Promise.all([
+        models.FooterContent.findAll(),
+        models.SocialMediaIcons.findAll(),
+      ]);
+      const data = {
+        content: content[0] || null,
+        icons,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched content data data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching content data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch content data", 500, error.message));
+    }
+  }
 }
 
 module.exports = WebController;

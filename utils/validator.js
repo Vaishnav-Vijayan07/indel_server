@@ -1299,7 +1299,45 @@ const validateIndelCaresContentUpdate = [
   check("care_title").optional().notEmpty().withMessage("Care Title cannot be empty"),
 ];
 
+const validateFooterContentUpdate = [
+  check("meta_title").optional().notEmpty().withMessage("Meta Title cannot be empty"),
+  check("meta_description").optional().notEmpty().withMessage("Meta Description cannot be empty"),
+  check("meta_keywords").optional().notEmpty().withMessage("Meta Keywords cannot be empty"),
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("sub_title").optional().notEmpty().withMessage("Sub Title cannot be empty"),
+  check("address").optional().notEmpty().withMessage("Address cannot be empty"),
+  check("toll_free_num")
+    .optional()
+    .matches(/^\+?\d{10,15}$/)
+    .withMessage("Toll Free Number must be a valid number with 10-15 digits"),
+  check("email").optional().isEmail().withMessage("Email must be valid"),
+  check("button_1_text").optional().notEmpty().withMessage("Button 1 Text cannot be empty"),
+  check("button_1_link").optional().isURL().withMessage("Button 1 Link must be a valid URL"),
+  check("button_2_text").optional().notEmpty().withMessage("Button 2 Text cannot be empty"),
+  check("button_2_link").optional().isURL().withMessage("Button 2 Link must be a valid URL"),
+  check("icon_section_link").optional().isURL().withMessage("Icon Section Link must be a valid URL"),
+  check("icon_section_text").optional().notEmpty().withMessage("Icon Section Text cannot be empty"),
+  check("social_media_text").optional().notEmpty().withMessage("Social Media Text cannot be empty"),
+];
+
+const validateSocialMediaIconsUpdate = [
+  check("title").optional().notEmpty().withMessage("Title is required"),
+  check("link").optional().notEmpty().isURL().withMessage("Link must be a valid URL"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+
+const validateSocialMediaIcons = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("link").notEmpty().isURL().withMessage("Link must be a valid URL"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+  check("order").isInt().withMessage("Order must be an integer"),
+];
+
 module.exports = {
+  validateSocialMediaIcons,
+  validateSocialMediaIconsUpdate,
+  validateFooterContentUpdate,
   validateIndelCaresUpdate,
   validateIndelCaresContentUpdate,
   validateIndelCares,
