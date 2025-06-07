@@ -22,8 +22,12 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
       service_types: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+          model: "service_types",
+          key: "id",
+        },
       },
       enquiry_type: {
         type: DataTypes.ENUM("gold_loan_calculator", "emi_calculator", "general"),
@@ -40,6 +44,13 @@ module.exports = (sequelize) => {
       timestamps: true,
     }
   );
+
+  ServiceEnquiries.associate = (models) => {
+    ServiceEnquiries.belongsTo(models.ServiceTypes, {
+      foreignKey: "service_types",
+      as: "service_type",
+    });
+  };
 
   return ServiceEnquiries;
 };

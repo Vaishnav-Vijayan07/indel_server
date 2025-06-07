@@ -8,7 +8,6 @@ const { validateServiceEnquiry, validateServiceEnquiryUpdate } = require("../../
 router.get("/", ServiceEnquiriesController.getAll);
 router.get("/:id", ServiceEnquiriesController.getById);
 
-router.use(authMiddleware(["admin"]));
 router.post("/", validateServiceEnquiry, validateMiddleware, ServiceEnquiriesController.create);
 router.put("/:id", validateServiceEnquiryUpdate, validateMiddleware, ServiceEnquiriesController.update);
 router.delete("/:id", ServiceEnquiriesController.delete);
