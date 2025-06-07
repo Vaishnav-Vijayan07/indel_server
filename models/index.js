@@ -90,6 +90,10 @@ const defineIndelCaresContent = require("./indelCare/indelCaresContents");
 const defineOmbudsmanFiles = require("./ombudsman/ombudsmanFiles");
 const defineFooterContent = require("./footer/content");
 const defineFooterIcons = require("./footer/icons");
+const defineServiceEnquiries = require("./serviceEnquiries/serviceEnquiries");
+const defineServiceTypes = require("./serviceEnquiries/serviceTypes");
+const defindGoldCaratTypes = require("./serviceEnquiries/goldCaratTypes");
+const defindGoldTypes = require("./serviceEnquiries/goldTypes");
 
 const models = {
   User: defineUser(sequelize),
@@ -183,7 +187,11 @@ const models = {
   IndelCaresContent: defineIndelCaresContent(sequelize),
   OmbudsmanFiles: defineOmbudsmanFiles(sequelize),
   FooterContent: defineFooterContent(sequelize),
-  SocialMediaIcons: defineFooterIcons(sequelize),
+  SocialMediaIcons: defineFooterIcons(sequelize),,
+  ServiceEnquiries: defineServiceEnquiries(sequelize),
+  ServiceTypes: defineServiceTypes(sequelize),
+  GoldCaratTypes: defindGoldCaratTypes(sequelize),
+  GoldTypes: defindGoldTypes(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {
