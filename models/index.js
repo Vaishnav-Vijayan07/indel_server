@@ -90,6 +90,8 @@ const defineIndelCaresContent = require("./indelCare/indelCaresContents")
 const defineOmbudsmanFiles = require("./ombudsman/ombudsmanFiles")
 const defineServiceEnquiries = require("./serviceEnquiries/serviceEnquiries");
 const defineServiceTypes = require("./serviceEnquiries/serviceTypes");
+const defindGoldCaratTypes = require("./serviceEnquiries/goldCaratTypes");
+const defindGoldTypes = require("./serviceEnquiries/goldTypes");
 
 const models = {
   User: defineUser(sequelize),
@@ -184,6 +186,8 @@ const models = {
   OmbudsmanFiles: defineOmbudsmanFiles(sequelize),
   ServiceEnquiries: defineServiceEnquiries(sequelize),
   ServiceTypes: defineServiceTypes(sequelize),
+  GoldCaratTypes: defindGoldCaratTypes(sequelize),
+  GoldTypes: defindGoldTypes(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {

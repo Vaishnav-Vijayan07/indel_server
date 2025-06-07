@@ -1333,6 +1333,26 @@ const validateServiceTypeUpdate = [
   check("description").optional().isString().withMessage("Description must be a string"),
 ];
 
+const validateGoldCaratType = [
+  check("name").notEmpty().withMessage("Name is required"),
+  check("description").optional().isString().withMessage("Description must be a string"),
+];
+
+const validateGoldCaratTypeUpdate = [
+  check("name").optional().notEmpty().withMessage("Name cannot be empty"),
+  check("description").optional().isString().withMessage("Description must be a string"),
+];
+
+const validateGoldType = [
+  check("gold_type_name").notEmpty().withMessage("Gold type name is required"),
+  check("description").optional().isString().withMessage("Description must be a string"),
+];
+
+const validateGoldTypeUpdate = [
+  check("gold_type_name").optional().notEmpty().withMessage("Gold type name cannot be empty"),
+  check("description").optional().isString().withMessage("Description must be a string"),
+];
+
 module.exports = {
   validateIndelCaresUpdate,
   validateIndelCaresContentUpdate,
@@ -1472,4 +1492,8 @@ module.exports = {
   validateServiceEnquiryUpdate,
   validateServiceType,
   validateServiceTypeUpdate,
+  validateGoldCaratType,
+  validateGoldCaratTypeUpdate,
+  validateGoldType,
+  validateGoldTypeUpdate,
 };
