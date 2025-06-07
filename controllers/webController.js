@@ -2,7 +2,7 @@ const { models } = require("../models/index");
 const CacheService = require("../services/cacheService");
 const CustomError = require("../utils/customError");
 const logger = require("../services/logger");
-const { Sequelize } = require("sequelize");
+const { Sequelize, where } = require("sequelize");
 
 class WebController {
   static async getHomeData(req, res, next) {
@@ -18,15 +18,15 @@ class WebController {
 
       // Fetch all data concurrently
       const [heroBanner, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs] = await Promise.all([
-        models.HeroBanner.findAll().catch((err) => {
+        models.HeroBanner.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
           logger.error("Failed to fetch heroBanner", { error: err.message, stack: err.stack });
           throw err;
         }),
-        models.HomeFaq.findAll({ order: [["order", "ASC"]] }).catch((err) => {
+        models.HomeFaq.findAll({where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
           logger.error("Failed to fetch faqs", { error: err.message, stack: err.stack });
           throw err;
         }),
-        models.HomeLoanStep.findAll({ order: [["order", "ASC"]] }).catch((err) => {
+        models.HomeLoanStep.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
           logger.error("Failed to fetch loanSteps", { error: err.message, stack: err.stack });
           throw err;
         }),

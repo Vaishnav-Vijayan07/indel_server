@@ -30,6 +30,14 @@ module.exports = (sequelize) => {
         allowNull: false,
         defaultValue: true,
       },
+      order: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      is_active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+      },
     },
     {
       tableName: "home_statistics",

@@ -1,40 +1,37 @@
 const { DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
-  const SmartMoneyDeals = sequelize.define(
-    "SmartMoneyDeals",
+  const NewsLetterSubs = sequelize.define(
+    "NewsLetterSubs",
     {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
-      title: {
+      email: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      icon: {
-        type: DataTypes.STRING,
+      browser_info: {
+        type: DataTypes.JSONB,
         allowNull: true,
       },
-      alt_text: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      order: {
-        type: DataTypes.INTEGER,
+      timestamp: {
+        type: DataTypes.DATE,
         allowNull: false,
+        defaultValue: DataTypes.NOW,
       },
-      is_active: {
-        type: DataTypes.BOOLEAN,
+      ip_address: {
+        type: DataTypes.STRING,
         allowNull: true,
       },
     },
     {
-      tableName: "smart_money_deals",
+      tableName: "news_letter_subs",
       timestamps: true,
     }
   );
 
-  return SmartMoneyDeals;
+  return NewsLetterSubs;
 };
