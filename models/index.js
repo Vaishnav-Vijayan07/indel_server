@@ -88,6 +88,8 @@ const defineCreditRatings = require("./investors/creditRatings");
 const defineIndelCares = require("./indelCare/indelCares")
 const defineIndelCaresContent = require("./indelCare/indelCaresContents")
 const defineOmbudsmanFiles = require("./ombudsman/ombudsmanFiles")
+const defineServiceEnquiries = require("./serviceEnquiries/serviceEnquiries");
+const defineServiceTypes = require("./serviceEnquiries/serviceTypes");
 
 const models = {
   User: defineUser(sequelize),
@@ -179,7 +181,9 @@ const models = {
   CreditRatings: defineCreditRatings(sequelize),
   IndelCares: defineIndelCares(sequelize),
   IndelCaresContent: defineIndelCaresContent(sequelize),
-  OmbudsmanFiles: defineOmbudsmanFiles(sequelize)
+  OmbudsmanFiles: defineOmbudsmanFiles(sequelize),
+  ServiceEnquiries: defineServiceEnquiries(sequelize),
+  ServiceTypes: defineServiceTypes(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {

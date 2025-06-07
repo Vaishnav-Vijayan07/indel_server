@@ -6,12 +6,12 @@ const generateStringValidators = (fields, isOptional = false) => {
   return fields.map((field) =>
     isOptional
       ? check(field)
-          .optional()
-          .notEmpty()
-          .withMessage(`${capitalize(field)} cannot be empty`)
+        .optional()
+        .notEmpty()
+        .withMessage(`${capitalize(field)} cannot be empty`)
       : check(field)
-          .notEmpty()
-          .withMessage(`${capitalize(field)} cannot be empty`)
+        .notEmpty()
+        .withMessage(`${capitalize(field)} cannot be empty`)
   );
 };
 
@@ -1299,6 +1299,39 @@ const validateIndelCaresContentUpdate = [
   check("care_title").optional().notEmpty().withMessage("Care Title cannot be empty"),
 ];
 
+const validateServiceEnquiry = [
+  check("name").notEmpty().withMessage("Name is required"),
+  check("phone").notEmpty().withMessage("Phone is required"),
+  check("service_types").notEmpty().withMessage("Service types is required"),
+  check("enquiry_type")
+    .isIn(["gold_loan_calculator", "emi_calculator", "general"])
+    .withMessage("Invalid enquiry type"),
+  check("email").optional().isEmail().withMessage("Email must be valid"),
+  check("enquiry_type_details").optional().isObject().withMessage("Enquiry type details must be an object"),
+];
+
+const validateServiceEnquiryUpdate = [
+  check("name").optional().notEmpty().withMessage("Name cannot be empty"),
+  check("phone").optional().notEmpty().withMessage("Phone cannot be empty"),
+  check("service_types").optional().notEmpty().withMessage("Service types cannot be empty"),
+  check("enquiry_type")
+    .optional()
+    .isIn(["gold_loan_calculator", "emi_calculator", "general"])
+    .withMessage("Invalid enquiry type"),
+  check("email").optional().isEmail().withMessage("Email must be valid"),
+  check("enquiry_type_details").optional().isObject().withMessage("Enquiry type details must be an object"),
+];
+
+const validateServiceType = [
+  check("type_name").notEmpty().withMessage("Type name is required"),
+  check("description").optional().isString().withMessage("Description must be a string"),
+];
+
+const validateServiceTypeUpdate = [
+  check("type_name").optional().notEmpty().withMessage("Type name cannot be empty"),
+  check("description").optional().isString().withMessage("Description must be a string"),
+];
+
 module.exports = {
   validateIndelCaresUpdate,
   validateIndelCaresContentUpdate,
@@ -1434,4 +1467,8 @@ module.exports = {
   validateBranchUpdate,
   validateCorporateGovernance,
   validateCorporateGovernanceUpdate,
+  validateServiceEnquiry,
+  validateServiceEnquiryUpdate,
+  validateServiceType,
+  validateServiceTypeUpdate,
 };
