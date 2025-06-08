@@ -29,6 +29,7 @@ const { initBranchLocatorPageContents } = require("./utils/initBranchLocatorPage
 const { initIndelCaresContent } = require("./utils/initIndelCareContent");
 const { initFooterContent } = require("./utils/initFooterContent");
 const { initHeaderContents } = require("./utils/initHeaderContent");
+const { initPopupSettings } = require("./utils/initPopupSettings");
 
 dotenv.config();
 const app = express();
@@ -75,6 +76,7 @@ const startServer = async () => {
     await initIndelCaresContent();
     await initFooterContent();
     await initHeaderContents();
+    await initPopupSettings()
 
     app.listen(PORT, () => {
       Logger.info(`Server running on port ${PORT}`);

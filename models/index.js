@@ -97,6 +97,8 @@ const defindGoldTypes = require("./serviceEnquiries/goldTypes");
 const defineNewsLetterSubs = require("./footer/newsLetterSubs");
 const defineHeaderContent = require("./header/content");
 const definePaymentModes = require("./header/payment_modes");
+const definePopUpSettings = require("./popup/settings");
+const definePopUpServices = require("./popup/services");
 
 const models = {
   User: defineUser(sequelize),
@@ -198,6 +200,8 @@ const models = {
   NewsLetterSubs: defineNewsLetterSubs(sequelize),
   HeaderContents: defineHeaderContent(sequelize),
   PaymentModes: definePaymentModes(sequelize),
+  PopupSettings: definePopUpSettings(sequelize),
+  PopupServices: definePopUpServices(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {

@@ -40,6 +40,8 @@ router.get("/indel-cares", WebController.indelCares);
 router.get("/ombudsman", WebController.ombudsmanFiles);
 router.get("/footer", WebController.footerContent);
 router.get("/header", WebController.headerContent);
+router.get("/popups", WebController.popUps);
+
 
 router.post("/career/resume", uploadField, JobApplicationsController.create);
 router.get("/career/resume", uploadField, JobApplicationsController.getAll);
