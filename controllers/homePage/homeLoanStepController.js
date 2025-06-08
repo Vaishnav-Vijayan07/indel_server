@@ -32,6 +32,8 @@ class HomeLoanStepController {
       const step = await HomeLoanStep.create(updateData);
 
       await CacheService.invalidate("homeLoanSteps");
+      await CacheService.invalidate("webHomeData");
+
       res.status(201).json({ success: true, data: step });
       await CacheService.invalidate("webHomeData");
     } catch (error) {
@@ -53,7 +55,7 @@ class HomeLoanStepController {
       });
 
       await CacheService.set(cacheKey, JSON.stringify(steps), 3600);
-      res.json({ success: true, data: steps });
+      res.json({ success: true, data: steps, message: "Home Loan Steps fetched" });
     } catch (error) {
       next(error);
     }
@@ -106,7 +108,7 @@ class HomeLoanStepController {
       await CacheService.invalidate(`homeLoanStep_${id}`);
       await CacheService.invalidate("webHomeData");
 
-      res.json({ success: true, data: step });
+      res.json({ success: true, data: step, message: "Home Loan Step updated" });
     } catch (error) {
       next(error);
     }

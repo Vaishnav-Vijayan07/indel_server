@@ -2,6 +2,7 @@ const { models } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
+const logger = require("../../services/logger");
 
 const GoldLoanFaqs = models.GoldLoanFaq;
 
@@ -27,14 +28,17 @@ class GoldLoanFaqsController {
       const cachedData = await CacheService.get(cacheKey);
 
       if (cachedData) {
+        logger.info("Retrieved gold loan data from cache");
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
-
+      
       const faqs = await GoldLoanFaqs.findAll({
         order: [["order", "ASC"]],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(faqs), 3600);
+      
+      logger.info("Retrieved gold loan data");
       res.json({ success: true, data: faqs });
     } catch (error) {
       next(error);

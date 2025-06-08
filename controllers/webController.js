@@ -2,7 +2,7 @@ const { models } = require("../models/index");
 const CacheService = require("../services/cacheService");
 const CustomError = require("../utils/customError");
 const logger = require("../services/logger");
-const { Sequelize } = require("sequelize");
+const { Sequelize, where } = require("sequelize");
 
 class WebController {
   static async getHomeData(req, res, next) {
@@ -18,15 +18,15 @@ class WebController {
 
       // Fetch all data concurrently
       const [heroBanner, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs] = await Promise.all([
-        models.HeroBanner.findAll().catch((err) => {
+        models.HeroBanner.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
           logger.error("Failed to fetch heroBanner", { error: err.message, stack: err.stack });
           throw err;
         }),
-        models.HomeFaq.findAll({ order: [["order", "ASC"]] }).catch((err) => {
+        models.HomeFaq.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
           logger.error("Failed to fetch faqs", { error: err.message, stack: err.stack });
           throw err;
         }),
-        models.HomeLoanStep.findAll({ order: [["order", "ASC"]] }).catch((err) => {
+        models.HomeLoanStep.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
           logger.error("Failed to fetch loanSteps", { error: err.message, stack: err.stack });
           throw err;
         }),
@@ -386,16 +386,16 @@ class WebController {
 
     try {
       const cachedData = await CacheService.get(cacheKey);
-      // if (cachedData) {
-      //   logger.info("Serving gold loan from cache");
-      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
-      // }
+      if (cachedData) {
+        logger.info("Serving gold loan from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
 
       const [goldloanContent, goldLoanFeatures, goldloanBannerFeatures, goldLoanFaq, goldLoanSchemes, schemeDetails, steps] = await Promise.all([
         models.GoldloanContent.findAll(),
         models.GoldLoanFeatures.findAll(),
         models.GoldloanBannerFeatures.findAll(),
-        models.GoldLoanFaq.findAll(),
+        models.GoldLoanFaq.findAll({ where: { is_active: true }, order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]] }),
         models.GoldLoanScheme.findAll(),
         models.SchemeDetails.findAll({
           order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
@@ -809,6 +809,86 @@ class WebController {
     } catch (error) {
       logger.error("Error fetching ombudsman files data", { error: error.message, stack: error.stack });
       next(new CustomError("Failed to fetch ombudsman files data", 500, error.message));
+    }
+  }
+
+  static async footerContent(req, res, next) {
+    const cacheKey = "webFooterContent";
+
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving ombudsman files from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const [content, icons] = await Promise.all([
+        models.FooterContent.findAll(),
+        models.SocialMediaIcons.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+      ]);
+      const data = {
+        content: content[0] || null,
+        icons,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched footer content data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching content data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch content data", 500, error.message));
+    }
+  }
+
+  static async headerContent(req, res, next) {
+    const cacheKey = "webHeaderContent";
+
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving ombudsman files from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const [content, footerContent, modes] = await Promise.all([
+        models.HeaderContents.findAll({
+          attributes: [
+            "id",
+            "logo",
+            "button_1_text",
+            "button_1_inner_title",
+            "button_2_link",
+            "button_2_text",
+            "apple_dowload_icon",
+            "andrioid_download_icon",
+            "apple_dowload_link",
+            "andrioid_download_link",
+          ],
+        }),
+        models.FooterContent.findAll({
+          attributes: ["id", "icon_section_link", "icon_section_text", "toll_free_num"],
+        }),
+        models.PaymentModes.findAll({
+          attributes: ["id", "is_active", "title", "link"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+      ]);
+      const data = {
+        content: content[0] || null,
+        footerContent: footerContent[0] || null,
+        modes,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched header data data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching content data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch content data", 500, error.message));
     }
   }
 }

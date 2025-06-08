@@ -6,12 +6,12 @@ const generateStringValidators = (fields, isOptional = false) => {
   return fields.map((field) =>
     isOptional
       ? check(field)
-        .optional()
-        .notEmpty()
-        .withMessage(`${capitalize(field)} cannot be empty`)
+          .optional()
+          .notEmpty()
+          .withMessage(`${capitalize(field)} cannot be empty`)
       : check(field)
-        .notEmpty()
-        .withMessage(`${capitalize(field)} cannot be empty`)
+          .notEmpty()
+          .withMessage(`${capitalize(field)} cannot be empty`)
   );
 };
 
@@ -1299,13 +1299,46 @@ const validateIndelCaresContentUpdate = [
   check("care_title").optional().notEmpty().withMessage("Care Title cannot be empty"),
 ];
 
+const validateFooterContentUpdate = [
+  check("meta_title").optional().notEmpty().withMessage("Meta Title cannot be empty"),
+  check("meta_description").optional().notEmpty().withMessage("Meta Description cannot be empty"),
+  check("meta_keywords").optional().notEmpty().withMessage("Meta Keywords cannot be empty"),
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("sub_title").optional().notEmpty().withMessage("Sub Title cannot be empty"),
+  check("address").optional().notEmpty().withMessage("Address cannot be empty"),
+  check("toll_free_num")
+    .optional()
+    .matches(/^\+?\d{10,15}$/)
+    .withMessage("Toll Free Number must be a valid number with 10-15 digits"),
+  check("email").optional().isEmail().withMessage("Email must be valid"),
+  check("button_1_text").optional().notEmpty().withMessage("Button 1 Text cannot be empty"),
+  check("button_1_link").optional().isURL().withMessage("Button 1 Link must be a valid URL"),
+  check("button_2_text").optional().notEmpty().withMessage("Button 2 Text cannot be empty"),
+  check("button_2_link").optional().isURL().withMessage("Button 2 Link must be a valid URL"),
+  check("icon_section_link").optional().isURL().withMessage("Icon Section Link must be a valid URL"),
+  check("icon_section_text").optional().notEmpty().withMessage("Icon Section Text cannot be empty"),
+  check("social_media_text").optional().notEmpty().withMessage("Social Media Text cannot be empty"),
+];
+
+const validateSocialMediaIconsUpdate = [
+  check("title").optional().notEmpty().withMessage("Title is required"),
+  check("link").optional().notEmpty().isURL().withMessage("Link must be a valid URL"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+
+const validateSocialMediaIcons = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("link").notEmpty().isURL().withMessage("Link must be a valid URL"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+  check("order").isInt().withMessage("Order must be an integer"),
+];
+
 const validateServiceEnquiry = [
   check("name").notEmpty().withMessage("Name is required"),
   check("phone").notEmpty().withMessage("Phone is required"),
   check("service_types").notEmpty().withMessage("Service types is required"),
-  check("enquiry_type")
-    .isIn(["gold_loan_calculator", "emi_calculator", "general"])
-    .withMessage("Invalid enquiry type"),
+  check("enquiry_type").isIn(["gold_loan_calculator", "emi_calculator", "general"]).withMessage("Invalid enquiry type"),
   check("email").optional().isEmail().withMessage("Email must be valid"),
   check("enquiry_type_details").optional().isObject().withMessage("Enquiry type details must be an object"),
 ];
@@ -1314,10 +1347,7 @@ const validateServiceEnquiryUpdate = [
   check("name").optional().notEmpty().withMessage("Name cannot be empty"),
   check("phone").optional().notEmpty().withMessage("Phone cannot be empty"),
   check("service_types").optional().notEmpty().withMessage("Service types cannot be empty"),
-  check("enquiry_type")
-    .optional()
-    .isIn(["gold_loan_calculator", "emi_calculator", "general"])
-    .withMessage("Invalid enquiry type"),
+  check("enquiry_type").optional().isIn(["gold_loan_calculator", "emi_calculator", "general"]).withMessage("Invalid enquiry type"),
   check("email").optional().isEmail().withMessage("Email must be valid"),
   check("enquiry_type_details").optional().isObject().withMessage("Enquiry type details must be an object"),
 ];
@@ -1352,7 +1382,42 @@ const validateGoldTypeUpdate = [
   check("description").optional().isString().withMessage("Description must be a string"),
 ];
 
+const validateNewsLetterSubs = [check("email").notEmpty().isEmail().withMessage("Valid email is required")];
+
+const validateHeaderContentsUpdate = [
+  check("quick_pay_title").optional().notEmpty().withMessage("Quick Pay Title cannot be empty"),
+  check("button_1_text").optional().notEmpty().withMessage("Button 1 Text cannot be empty"),
+  check("button_1_inner_title").optional().notEmpty().withMessage("Button 1 Inner Title cannot be empty"),
+  check("button_2_link").optional().isURL().withMessage("Button 2 Link must be a valid URL"),
+  check("button_2_text").optional().notEmpty().withMessage("Button 2 Text cannot be empty"),
+  // check("apple_dowload_icon").optional().isURL().withMessage("Apple Download Icon must be a valid URL"),
+  // check("andrioid_download_icon").optional().isURL().withMessage("Android Download Icon must be a valid URL"),
+  check("apple_dowload_link").optional().isURL().withMessage("Apple Download Link must be a valid URL"),
+  check("andrioid_download_link").optional().isURL().withMessage("Android Download Link must be a valid URL"),
+];
+
+const validatePaymentModesUpdate = [
+  check("title").optional().notEmpty().withMessage("Title is required"),
+  check("link").optional().notEmpty().isURL().withMessage("Link must be a valid URL"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+
+const validatePaymentModes = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("link").notEmpty().isURL().withMessage("Link must be a valid URL"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+  check("order").isInt().withMessage("Order must be an integer"),
+];
+
 module.exports = {
+  validatePaymentModes,
+  validatePaymentModesUpdate,
+  validateHeaderContentsUpdate,
+  validateNewsLetterSubs,
+  validateSocialMediaIcons,
+  validateSocialMediaIconsUpdate,
+  validateFooterContentUpdate,
   validateIndelCaresUpdate,
   validateIndelCaresContentUpdate,
   validateIndelCares,
