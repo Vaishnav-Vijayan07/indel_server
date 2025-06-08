@@ -835,7 +835,7 @@ class WebController {
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
-      logger.info("Fetched content data data from DB");
+      logger.info("Fetched footer content data from DB");
       res.json({ status: "success", data });
     } catch (error) {
       logger.error("Error fetching content data", { error: error.message, stack: error.stack });
@@ -884,7 +884,7 @@ class WebController {
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
-      logger.info("Fetched content data data from DB");
+      logger.info("Fetched header data data from DB");
       res.json({ status: "success", data });
     } catch (error) {
       logger.error("Error fetching content data", { error: error.message, stack: error.stack });
