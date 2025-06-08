@@ -29,6 +29,13 @@ class ServiceEnquiriesController {
       }
 
       const enquiries = await ServiceEnquiries.findAll({
+        include: [
+          {
+            model: models.ServiceTypes,
+            as: "service_type",
+            attributes: ["id", "type_name"],
+          },
+        ],
         order: [["createdAt", "DESC"]],
       });
 

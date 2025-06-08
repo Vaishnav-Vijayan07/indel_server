@@ -1354,7 +1354,6 @@ const validateServiceEnquiryUpdate = [
 
 const validateServiceType = [
   check("type_name").notEmpty().withMessage("Type name is required"),
-  check("type_value").notEmpty().withMessage("Type Value is required"),
   check("description").optional().isString().withMessage("Description must be a string"),
 ];
 
