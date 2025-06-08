@@ -95,6 +95,8 @@ const defineServiceTypes = require("./serviceEnquiries/serviceTypes");
 const defindGoldCaratTypes = require("./serviceEnquiries/goldCaratTypes");
 const defindGoldTypes = require("./serviceEnquiries/goldTypes");
 const defineNewsLetterSubs = require("./footer/newsLetterSubs");
+const defineHeaderContent = require("./header/content");
+const definePaymentModes = require("./header/payment_modes");
 
 const models = {
   User: defineUser(sequelize),
@@ -194,6 +196,8 @@ const models = {
   GoldCaratTypes: defindGoldCaratTypes(sequelize),
   GoldTypes: defindGoldTypes(sequelize),
   NewsLetterSubs: defineNewsLetterSubs(sequelize),
+  HeaderContents: defineHeaderContent(sequelize),
+  PaymentModes: definePaymentModes(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {

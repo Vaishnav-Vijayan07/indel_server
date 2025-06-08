@@ -1383,11 +1383,38 @@ const validateGoldTypeUpdate = [
   check("description").optional().isString().withMessage("Description must be a string"),
 ];
 
-const validateNewsLetterSubs = [
-  check("email").notEmpty().isEmail().withMessage("Valid email is required"),
+const validateNewsLetterSubs = [check("email").notEmpty().isEmail().withMessage("Valid email is required")];
+
+const validateHeaderContentsUpdate = [
+  check("quick_pay_title").optional().notEmpty().withMessage("Quick Pay Title cannot be empty"),
+  check("button_1_text").optional().notEmpty().withMessage("Button 1 Text cannot be empty"),
+  check("button_1_inner_title").optional().notEmpty().withMessage("Button 1 Inner Title cannot be empty"),
+  check("button_2_link").optional().isURL().withMessage("Button 2 Link must be a valid URL"),
+  check("button_2_text").optional().notEmpty().withMessage("Button 2 Text cannot be empty"),
+  // check("apple_dowload_icon").optional().isURL().withMessage("Apple Download Icon must be a valid URL"),
+  // check("andrioid_download_icon").optional().isURL().withMessage("Android Download Icon must be a valid URL"),
+  check("apple_dowload_link").optional().isURL().withMessage("Apple Download Link must be a valid URL"),
+  check("andrioid_download_link").optional().isURL().withMessage("Android Download Link must be a valid URL"),
+];
+
+const validatePaymentModesUpdate = [
+  check("title").optional().notEmpty().withMessage("Title is required"),
+  check("link").optional().notEmpty().isURL().withMessage("Link must be a valid URL"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+
+const validatePaymentModes = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("link").notEmpty().isURL().withMessage("Link must be a valid URL"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+  check("order").isInt().withMessage("Order must be an integer"),
 ];
 
 module.exports = {
+  validatePaymentModes,
+  validatePaymentModesUpdate,
+  validateHeaderContentsUpdate,
   validateNewsLetterSubs,
   validateSocialMediaIcons,
   validateSocialMediaIconsUpdate,

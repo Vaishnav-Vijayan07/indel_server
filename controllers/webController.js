@@ -22,7 +22,7 @@ class WebController {
           logger.error("Failed to fetch heroBanner", { error: err.message, stack: err.stack });
           throw err;
         }),
-        models.HomeFaq.findAll({where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
+        models.HomeFaq.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
           logger.error("Failed to fetch faqs", { error: err.message, stack: err.stack });
           throw err;
         }),
@@ -832,6 +832,55 @@ class WebController {
       const data = {
         content: content[0] || null,
         icons,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched content data data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching content data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch content data", 500, error.message));
+    }
+  }
+
+  static async headerContent(req, res, next) {
+    const cacheKey = "webHeaderContent";
+
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving ombudsman files from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const [content, footerContent, modes] = await Promise.all([
+        models.HeaderContents.findAll({
+          attributes: [
+            "id",
+            "logo",
+            "button_1_text",
+            "button_1_inner_title",
+            "button_2_link",
+            "button_2_text",
+            "apple_dowload_icon",
+            "andrioid_download_icon",
+            "apple_dowload_link",
+            "andrioid_download_link",
+          ],
+        }),
+        models.FooterContent.findAll({
+          attributes: ["id", "icon_section_link", "icon_section_text", "toll_free_num"],
+        }),
+        models.PaymentModes.findAll({
+          attributes: ["id", "is_active", "title", "link"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+      ]);
+      const data = {
+        content: content[0] || null,
+        footerContent: footerContent[0] || null,
+        modes,
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
