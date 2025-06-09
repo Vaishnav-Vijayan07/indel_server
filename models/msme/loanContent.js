@@ -14,7 +14,7 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       meta_description: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       meta_keywords: {
@@ -55,6 +55,14 @@ module.exports = (sequelize) => {
       },
       why_msme_loan_description: {
         type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      why_msme_loan_image: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      image_alt: {
+        type: DataTypes.STRING,
         allowNull: true,
       },
       who_do_serve_title: {

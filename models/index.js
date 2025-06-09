@@ -43,6 +43,7 @@ const defineMsmeFaq = require("./msme/faq");
 const defineMsmeOfferings = require("./msme/msmeOfferings");
 const defineMsmeTargetAudience = require("./msme/targetAudience");
 const defineMsmeSupportedIndustries = require("./msme/supportedIndustries");
+const defineMsmeLoanTypes = require("./msme/loanTypes");
 const defineCdLoanContent = require("./CD/cdContent");
 const defineCdLoanProducts = require("./CD/loanProducts");
 const defineCdLoanBenefits = require("./CD/loanBenefits");
@@ -145,6 +146,7 @@ const models = {
   MsmeOfferings: defineMsmeOfferings(sequelize),
   MsmeTargetedAudience: defineMsmeTargetAudience(sequelize),
   MsmeLoanSupportedIndustries: defineMsmeSupportedIndustries(sequelize),
+  MsmeloanTypes: defineMsmeLoanTypes(sequelize),
   CdLoanContent: defineCdLoanContent(sequelize),
   CdLoanProducts: defineCdLoanProducts(sequelize),
   CdLoanBenefits: defineCdLoanBenefits(sequelize),

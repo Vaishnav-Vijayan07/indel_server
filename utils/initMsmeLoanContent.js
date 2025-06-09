@@ -28,6 +28,8 @@ const initMsmeLoanContent = async () => {
 
       why_msme_loan_title: "Why Choose Our MSME Loans?",
       why_msme_loan_description: "We understand the unique challenges MSMEs face and offer personalized support to fuel your journey.",
+      why_msme_loan_image: null,
+      image_alt: "Why Choose Our MSME Loans",
 
       who_do_serve_title: "Who Do We Serve?",
       about_msme_title: "About MSMEs",

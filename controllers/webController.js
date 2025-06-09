@@ -519,12 +519,25 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [msmeLoanContent, msmeLoanSupportedIndustries, msmeOfferings, msmeTargetedAudience, msmeLoanFaq] = await Promise.all([
+      const [msmeLoanContent, msmeLoanSupportedIndustries, msmeOfferings, msmeTargetedAudience, msmeLoanFaq, msmeLoanTypes] = await Promise.all([
         models.MsmeLoanContent.findAll(),
-        models.MsmeLoanSupportedIndustries.findAll(),
+        models.MsmeLoanSupportedIndustries.findAll({
+          // attributes: ["id", "image", "title", "description", "is_active", "order"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
         models.MsmeOfferings.findAll(),
-        models.MsmeTargetedAudience.findAll(),
+        models.MsmeTargetedAudience.findAll({
+          // attributes: ["id", "icon", "title", "description", "is_active", "order"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
         models.MsmeLoanFaq.findAll(),
+        models.MsmeloanTypes.findAll({
+          attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
       ]);
 
       const data = {
@@ -533,6 +546,7 @@ class WebController {
         msmeOfferings,
         msmeTargetedAudience,
         msmeLoanFaq,
+        msmeLoanTypes,
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
