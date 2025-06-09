@@ -1496,6 +1496,120 @@ const validatePaymentModes = [
   check("order").isInt().withMessage("Order must be an integer"),
 ];
 
+const validateApplicants = [
+  check("name").exists().trim().isLength({ max: 100 }).withMessage("Name is required and must not exceed 100 characters"),
+  check("email")
+    .exists()
+    .isEmail()
+    .withMessage("A valid email is required")
+    .isLength({ max: 255 })
+    .withMessage("Email must not exceed 255 characters"),
+  check("phone").optional().trim().isLength({ max: 20 }).withMessage("Phone number must not exceed 20 characters"),
+  check("preffered_location")
+    .exists()
+    .isInt({ min: 1 })
+    .withMessage("Preferred location ID is required and must be a positive integer"),
+  check("referred_employee_name")
+    .optional()
+    .trim()
+    .isLength({ max: 200 })
+    .withMessage("Referred employee name must not exceed 200 characters"),
+  check("employee_referral_code")
+    .optional()
+    .trim()
+    .isLength({ max: 50 })
+    .withMessage("Employee referral code must not exceed 50 characters"),
+  check("age").exists().isInt({ min: 18 }).withMessage("Age is required and must be an integer of 18 or above"),
+  check("current_salary").optional().isFloat({ min: 0 }).withMessage("Current salary must be a positive number"),
+  check("expected_salary").optional().isFloat({ min: 0 }).withMessage("Expected salary must be a positive number"),
+  check("file").exists().trim().isLength({ max: 255 }).withMessage("File path is required and must not exceed 255 characters"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+];
+
+const validateApplicantsUpdate = [
+  check("name").optional().trim().isLength({ max: 100 }).withMessage("Name must not exceed 100 characters"),
+  check("email")
+    .optional()
+    .isEmail()
+    .withMessage("A valid email is required")
+    .isLength({ max: 255 })
+    .withMessage("Email must not exceed 255 characters"),
+  check("phone").optional().trim().isLength({ max: 20 }).withMessage("Phone number must not exceed 20 characters"),
+  check("preffered_location").optional().isInt({ min: 1 }).withMessage("Preferred location ID must be a positive integer"),
+  check("referred_employee_name")
+    .optional()
+    .trim()
+    .isLength({ max: 200 })
+    .withMessage("Referred employee name must not exceed 200 characters"),
+  check("employee_referral_code")
+    .optional()
+    .trim()
+    .isLength({ max: 50 })
+    .withMessage("Employee referral code must not exceed 50 characters"),
+  check("age").optional().isInt({ min: 18 }).withMessage("Age must be an integer of 18 or above"),
+  check("file").optional().trim().isLength({ max: 255 }).withMessage("File path must not exceed 255 characters"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+];
+
+const validateApplicationStatuses = [
+  check("status_name")
+    .exists()
+    .trim()
+    .isLength({ max: 50 })
+    .withMessage("Status name is required and must not exceed 50 characters"),
+  check("file").optional().trim().isLength({ max: 255 }).withMessage("File path must not exceed 255 characters"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  check("order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
+];
+
+const validateApplicationStatusesUpdate = [
+  check("status_name").optional().trim().isLength({ max: 50 }).withMessage("Status name must not exceed 50 characters"),
+  check("file").optional().trim().isLength({ max: 255 }).withMessage("File path must not exceed 255 characters"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  check("order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
+];
+
+const validateGeneralApplications = [
+  check("applicant_id").exists().isInt({ min: 1 }).withMessage("Applicant ID is required and must be a positive integer"),
+  check("status_id").exists().isInt({ min: 1 }).withMessage("Status ID is required and must be a positive integer"),
+  check("application_date")
+    .optional()
+    .isISO8601()
+    .withMessage("Application date must be a valid ISO 8601 date (e.g., YYYY-MM-DD)"),
+  check("role_id").optional().isInt({ min: 1 }).withMessage("Role ID must be a positive integer"),
+  check("preferred_role").optional().trim().isLength({ max: 200 }).withMessage("Preferred role must not exceed 200 characters"),
+  check("current_salary")
+    .optional()
+    .isDecimal({ decimal_digits: "0,2" })
+    .withMessage("Current salary must be a valid decimal with up to 2 places"),
+  check("expected_salary")
+    .optional()
+    .isDecimal({ decimal_digits: "0,2" })
+    .withMessage("Expected salary must be a valid decimal with up to 2 places"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  check("order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
+];
+
+const validateGeneralApplicationsUpdate = [
+  check("applicant_id").optional().isInt({ min: 1 }).withMessage("Applicant ID must be a positive integer"),
+  check("status_id").optional().isInt({ min: 1 }).withMessage("Status ID must be a positive integer"),
+  check("application_date")
+    .optional()
+    .isISO8601()
+    .withMessage("Application date must be a valid ISO 8601 date (e.g., YYYY-MM-DD)"),
+  check("role_id").optional().isInt({ min: 1 }).withMessage("Role ID must be a positive integer"),
+  check("current_salary")
+    .optional()
+    .isDecimal({ decimal_digits: "0,2" })
+    .withMessage("Current salary must be a valid decimal with up to 2 places"),
+  check("expected_salary")
+    .optional()
+    .isDecimal({ decimal_digits: "0,2" })
+    .withMessage("Expected salary must be a valid decimal with up to 2 places"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  check("order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
+];
+
 module.exports = {
   validatePaymentModes,
   validatePaymentModesUpdate,
@@ -1646,4 +1760,10 @@ module.exports = {
   validateGoldCaratTypeUpdate,
   validateGoldType,
   validateGoldTypeUpdate,
+  validateApplicants,
+  validateApplicantsUpdate,
+  validateApplicationStatuses,
+  validateApplicationStatusesUpdate,
+  validateGeneralApplications,
+  validateGeneralApplicationsUpdate,
 };

@@ -1,55 +1,62 @@
 const { DataTypes } = require("sequelize");
-
 module.exports = (sequelize) => {
-  const JobApplications = sequelize.define(
-    "JobApplications",
+  const Applicants = sequelize.define(
+    "Applicants",
     {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
-      job_id: {
+      name: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+      },
+      email: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        unique: true,
+      },
+      phone: {
+        type: DataTypes.STRING(20),
+        allowNull: true,
+      },
+      preffered_location: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: "jobs",
+          model: "locations",
           key: "id",
         },
       },
-      applicant_id: {
+      referred_employee_name: {
+        type: DataTypes.STRING(200),
+        allowNull: true,
+      },
+      employee_referral_code: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+      },
+      age: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-          model: "applicants",
-          key: "id",
-        },
       },
-      status_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: "application_statuses",
-          key: "id",
-        },
+      current_salary: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
       },
-      application_date: {
-        type: DataTypes.DATE,
+      expected_salary: {
+        type: DataTypes.FLOAT,
         allowNull: false,
-        defaultValue: DataTypes.NOW,
       },
       file: {
         type: DataTypes.STRING(255),
-        allowNull: true,
+        allowNull: false,
       },
       is_active: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: true,
-      },
-      order: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
       },
       created_at: {
         type: DataTypes.DATE,
@@ -63,27 +70,19 @@ module.exports = (sequelize) => {
       },
     },
     {
-      tableName: "job_applications",
+      tableName: "applicants",
       timestamps: true,
       createdAt: "created_at",
       updatedAt: "updated_at",
     }
   );
 
-  JobApplications.associate = (models) => {
-    JobApplications.belongsTo(models.CareerJobs, {
-      foreignKey: "job_id",
-      as: "job",
-    });
-    JobApplications.belongsTo(models.Applicants, {
-      foreignKey: "applicant_id",
-      as: "applicant",
-    });
-    JobApplications.belongsTo(models.ApplicationStatus, {
-      foreignKey: "status_id",
-      as: "status",
+  Applicants.associate = (models) => {
+    Applicants.belongsTo(models.CareerLocations, {
+      foreignKey: "preffered_location",
+      as: "location",
     });
   };
 
-  return JobApplications;
+  return Applicants;
 };
