@@ -100,6 +100,7 @@ const defineHeaderContent = require("./header/content");
 const definePaymentModes = require("./header/payment_modes");
 const definePopUpSettings = require("./popup/settings");
 const definePopUpServices = require("./popup/services");
+const defineDistricts = require("./career/districts");
 
 const models = {
   User: defineUser(sequelize),
@@ -204,6 +205,7 @@ const models = {
   PaymentModes: definePaymentModes(sequelize),
   PopupSettings: definePopUpSettings(sequelize),
   PopupServices: definePopUpServices(sequelize),
+  Districts: defineDistricts(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {

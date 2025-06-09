@@ -13,25 +13,11 @@ class GoldLiveRateController {
         }
       );
 
-      if (!response.data || !response.data.success) {
-        // If API responds with success = false
-        const randomNumber = Math.floor(Math.random() * (8000 - 6000 + 1)) + 6000;
-        return res.json({ success: true, data: randomNumber });
-      }
-
-      // If successful response
-      return res.json({ success: true, data: response.data });
-
+      res.json({ success: true, data: response.data });
     } catch (error) {
       // NETWORK / CORS / SERVER ERROR handling
       console.error("Error fetching latest LTV:", error.message);
-
-      // Return fallback random value
-      const randomNumber = Math.floor(Math.random() * (8000 - 6000 + 1)) + 6000;
-      return res.json({ success: true, data: randomNumber });
-
-      // Optional: You can still call next(error) if you want to propagate the error to a logger/middleware
-      // next(error);
+      next(error);
     }
   }
 
