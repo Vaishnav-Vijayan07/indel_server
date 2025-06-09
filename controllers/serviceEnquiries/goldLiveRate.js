@@ -13,20 +13,10 @@ class GoldLiveRateController {
         }
       );
 
-      if (!response.data || !response.data.success) {
-      
-        const randomNumber = Math.floor(Math.random() * (8000 - 6000 + 1)) + 6000;
-        return res.json({ success: true, data: randomNumber });
-      
-      } else {
-
-        return res.json({ success: true, data: response.data }); 
-      }
-
+      res.json({ success: true, data: response.data });
     } catch (error) {
       console.error("Error fetching latest LTV:", error.message);
       next(error);
-
     }
   }
 }
