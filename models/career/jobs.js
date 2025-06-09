@@ -17,6 +17,10 @@ module.exports = (sequelize) => {
           key: "id",
         },
       },
+      job_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       location_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -33,11 +37,11 @@ module.exports = (sequelize) => {
           key: "id",
         },
       },
-      short_description: {
+      job_description: {
         type: DataTypes.TEXT,
         allowNull: true,
       },
-      detailed_description: {
+      key_responsibility: {
         type: DataTypes.TEXT,
         allowNull: true,
       },
@@ -49,6 +53,14 @@ module.exports = (sequelize) => {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: true,
+      },
+      end_date: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      order: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
     },
     {
