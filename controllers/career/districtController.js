@@ -51,7 +51,7 @@ class DistrictsController {
 
             const districts = await Districts.findAll({
                 order: [["order", "ASC"]],
-                include: [{ model: models.CareerStates, as: "state" }] // Assuming association
+                include: [{ model: models.CareerStates, as: "state", attributes: ["state_name"] }] // Assuming association
             });
 
             await CacheService.set(cacheKey, JSON.stringify(districts), 3600);
