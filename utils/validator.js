@@ -1443,6 +1443,25 @@ const validatePopupServices = [
   check("order").isInt().withMessage("Order must be an integer"),
 ];
 
+const validateCareerDistricts = [
+  check("district_name").notEmpty().withMessage("District Name is required"),
+  check("state_id").isInt().withMessage("State ID must be an integer"),
+  check("image_alt").optional().notEmpty().withMessage("Image Alt cannot be empty"),
+  // If you want to validate image URL when provided, uncomment below:
+  // check("image").optional().isURL().withMessage("Image must be a valid URL"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+  check("order").isInt().withMessage("Order must be an integer"),
+];
+
+const validateCareerDistrictsUpdate = [
+  check("district_name").optional().notEmpty().withMessage("District Name cannot be empty"),
+  check("state_id").optional().isInt().withMessage("State ID must be an integer"),
+  check("image_alt").optional().notEmpty().withMessage("Image Alt cannot be empty"),
+  // check("image").optional().isURL().withMessage("Image must be a valid URL"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+
 module.exports = {
   validatePopupServicesUpdate,
   validatePopupServices,
@@ -1596,4 +1615,6 @@ module.exports = {
   validateGoldCaratTypeUpdate,
   validateGoldType,
   validateGoldTypeUpdate,
+  validateCareerDistricts,
+  validateCareerDistrictsUpdate
 };
