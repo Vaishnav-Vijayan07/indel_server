@@ -17,6 +17,8 @@ const initPopupSettings = async () => {
       logo: null,
       is_banner: true,
       banner_popup_image: null,
+      image_alt:"Alt",
+      image_link:"/",
       banner_popup_appearence_time: 5,
       service_popup_appearence_time: 5,
     });

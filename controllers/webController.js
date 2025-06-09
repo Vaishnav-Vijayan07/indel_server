@@ -58,6 +58,8 @@ class WebController {
 
       const bannerPopupData = {
         appearence_time: settings?.banner_popup_appearence_time || null,
+        image_alt: settings?.image_alt || null,
+        image_link: settings?.image_link || null,
         banner_popup_image: settings?.banner_popup_image || null,
         sub_title: settings?.sub_title || null,
         title: settings?.title || null,

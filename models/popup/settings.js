@@ -30,6 +30,14 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      image_link: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       banner_popup_appearence_time: {
         type: DataTypes.INTEGER,
         allowNull: true,
