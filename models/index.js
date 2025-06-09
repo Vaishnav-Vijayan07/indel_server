@@ -85,13 +85,20 @@ const defineCorporateGovernance = require("./investors/corporateGovernance");
 const defineNcdReports = require("./investors/ncdReports");
 const defineQuarterlyReports = require("./investors/quarterlyReports");
 const defineCreditRatings = require("./investors/creditRatings");
-const defineIndelCares = require("./indelCare/indelCares")
-const defineIndelCaresContent = require("./indelCare/indelCaresContents")
-const defineOmbudsmanFiles = require("./ombudsman/ombudsmanFiles")
+const defineIndelCares = require("./indelCare/indelCares");
+const defineIndelCaresContent = require("./indelCare/indelCaresContents");
+const defineOmbudsmanFiles = require("./ombudsman/ombudsmanFiles");
+const defineFooterContent = require("./footer/content");
+const defineFooterIcons = require("./footer/icons");
 const defineServiceEnquiries = require("./serviceEnquiries/serviceEnquiries");
 const defineServiceTypes = require("./serviceEnquiries/serviceTypes");
 const defindGoldCaratTypes = require("./serviceEnquiries/goldCaratTypes");
 const defindGoldTypes = require("./serviceEnquiries/goldTypes");
+const defineNewsLetterSubs = require("./footer/newsLetterSubs");
+const defineHeaderContent = require("./header/content");
+const definePaymentModes = require("./header/payment_modes");
+const definePopUpSettings = require("./popup/settings");
+const definePopUpServices = require("./popup/services");
 
 const models = {
   User: defineUser(sequelize),
@@ -184,10 +191,17 @@ const models = {
   IndelCares: defineIndelCares(sequelize),
   IndelCaresContent: defineIndelCaresContent(sequelize),
   OmbudsmanFiles: defineOmbudsmanFiles(sequelize),
+  FooterContent: defineFooterContent(sequelize),
+  SocialMediaIcons: defineFooterIcons(sequelize),
   ServiceEnquiries: defineServiceEnquiries(sequelize),
   ServiceTypes: defineServiceTypes(sequelize),
   GoldCaratTypes: defindGoldCaratTypes(sequelize),
   GoldTypes: defindGoldTypes(sequelize),
+  NewsLetterSubs: defineNewsLetterSubs(sequelize),
+  HeaderContents: defineHeaderContent(sequelize),
+  PaymentModes: definePaymentModes(sequelize),
+  PopupSettings: definePopUpSettings(sequelize),
+  PopupServices: definePopUpServices(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {

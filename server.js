@@ -27,15 +27,17 @@ const { initInvestorsPageContent } = require("./utils/initInvestorsPageContent")
 const { initTestimonialPageContents } = require("./utils/initTestimonialPageContents");
 const { initBranchLocatorPageContents } = require("./utils/initBranchLocatorPageContents");
 const { initIndelCaresContent } = require("./utils/initIndelCareContent");
+const { initFooterContent } = require("./utils/initFooterContent");
+const { initHeaderContents } = require("./utils/initHeaderContent");
+const { initPopupSettings } = require("./utils/initPopupSettings");
 
 dotenv.config();
 const app = express();
 
 app.use(cors({ origin: "*" }));
 
-
 app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "Uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api", apiRoutes);
 
@@ -71,7 +73,10 @@ const startServer = async () => {
     await initInvestorsPageContent();
     await initTestimonialPageContents();
     await initBranchLocatorPageContents();
-    await initIndelCaresContent()
+    await initIndelCaresContent();
+    await initFooterContent();
+    await initHeaderContents();
+    await initPopupSettings()
 
     app.listen(PORT, () => {
       Logger.info(`Server running on port ${PORT}`);

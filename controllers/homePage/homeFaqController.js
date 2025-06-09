@@ -11,6 +11,7 @@ class HomeFaqController {
 
       await CacheService.invalidate("homeFaqs");
       await CacheService.invalidate("webHomeData");
+      await CacheService.invalidate("webHomeData");
 
       res.status(201).json({ success: true, data: faq });
     } catch (error) {
