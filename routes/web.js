@@ -41,6 +41,7 @@ router.get("/ombudsman", WebController.ombudsmanFiles);
 router.get("/footer", WebController.footerContent);
 router.get("/header", WebController.headerContent);
 router.get("/popups", WebController.popUps);
+router.get("/testimonials", WebController.testimonials);
 
 
 router.post("/career/resume", uploadField, JobApplicationsController.create);

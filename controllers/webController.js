@@ -987,6 +987,65 @@ class WebController {
       next(new CustomError("Failed to fetch content data", 500, error.message));
     }
   }
+
+  static async testimonials(req, res, next) {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const offset = (page - 1) * limit;
+    const type = req.query.type || "all";
+
+    const whereClause = {
+      is_active: true,
+    };
+
+    if (type && type !== "all") {
+      whereClause.type = type;
+    }
+
+    try {
+      const content = await models.TestimonialPageContent.findAll();
+      const testimonials = await models.Testimonials.findAndCountAll({
+        where: whereClause,
+        limit,
+        offset,
+        order: [["order", "DESC"]],
+        attributes: [
+          "id",
+          "name",
+          "designation",
+          "avatar",
+          "testimonial",
+          "thumbnail",
+          "thumbnail_alt",
+          "video",
+          "order",
+          "type",
+          "is_active",
+          "is_about",
+          "image_alt",
+        ],
+      });
+
+      const totalPages = Math.ceil(testimonials.count / limit);
+
+      const data = {
+        content: content[0] || null,
+        testimonials: testimonials.rows,
+        pagination: {
+          totalCount: testimonials.count,
+          totalPages: totalPages,
+          currentPage: page,
+          limit: limit,
+        },
+      };
+
+      logger.info("Fetched testimonials from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error getting testimoinials data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to get testimoinials data", 500, error.message));
+    }
+  }
 }
 
 module.exports = WebController;
