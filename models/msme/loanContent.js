@@ -34,7 +34,7 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       button_text: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING,
         allowNull: true,
       },
       button_url: {
@@ -42,7 +42,7 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       our_offering_title: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING,
         allowNull: true,
       },
       our_offering_description: {
