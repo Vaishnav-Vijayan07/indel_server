@@ -11,6 +11,7 @@ const uploadFields = upload.fields([
   { name: "covered_products_section_image", maxCount: 1 },
   { name: "eligibility_criteria_icon", maxCount: 1 },
   { name: "feature_image", maxCount: 1 },
+  { name: "image", maxCount: 1 },
 ]);
 
 router.get("/", CdLoanContentController.get);

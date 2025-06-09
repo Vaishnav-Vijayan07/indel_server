@@ -26,9 +26,9 @@ class MsmeLoanContentController {
       const cacheKey = "msmeLoanContent";
       const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
 
       const data = await MsmeLoanContent.findOne();
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);

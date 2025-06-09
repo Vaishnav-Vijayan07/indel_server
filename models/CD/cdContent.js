@@ -25,6 +25,14 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      image: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      title_image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       loan_offer_title: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -51,7 +59,7 @@ module.exports = (sequelize) => {
       },
       covered_products_section_image_alt: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: true,
       },
       eligibility_criteria_icon: {
         type: DataTypes.STRING,
@@ -59,7 +67,7 @@ module.exports = (sequelize) => {
       },
       eligibility_criteria_image_alt: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: true,
       },
       eligibility_criteria_title: {
         type: DataTypes.STRING,
@@ -83,8 +91,8 @@ module.exports = (sequelize) => {
       },
       feature_image_alt: {
         type: DataTypes.STRING,
-        allowNull: true
-      }
+        allowNull: true,
+      },
     },
     {
       tableName: "cd_loan_content",
