@@ -20,7 +20,7 @@ class GoldLiveRateController {
       
       } else {
 
-        return res.json({ success: true, data: response.data });
+        return res.json({ success: true, data: response.data }); 
       }
 
     } catch (error) {
