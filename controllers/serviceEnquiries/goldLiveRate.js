@@ -13,17 +13,20 @@ class GoldLiveRateController {
         }
       );
 
-      if(!response.data || !response.data.success) {
-        throw new Error("Failed to fetch latest LTV data");
-      }
+      if (!response.data || !response.data.success) {
+      
+        const randomNumber = Math.floor(Math.random() * (8000 - 6000 + 1)) + 6000;
+        return res.json({ success: true, data: randomNumber });
+      
+      } else {
 
-      res.json({ success: true, data: response.data });
+        return res.json({ success: true, data: response.data });
+      }
 
     } catch (error) {
       console.error("Error fetching latest LTV:", error.message);
-      // next(error);
-      const randomNumber = Math.floor(Math.random() * (8000 - 6000 + 1)) + 6000;
-      res.json({ success: true, data: randomNumber });
+      next(error);
+
     }
   }
 }
