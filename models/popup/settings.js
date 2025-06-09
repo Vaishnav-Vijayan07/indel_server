@@ -21,15 +21,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      banner_popup_status: {
+      is_banner: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        defaultValue: false,
-      },
-      service_popup_status: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
+        defaultValue: true,
       },
       banner_popup_image: {
         type: DataTypes.STRING,
@@ -39,15 +34,7 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
-      banner_popup_disappear_time: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-      },
       service_popup_appearence_time: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-      },
-      service_popup_disappear_time: {
         type: DataTypes.INTEGER,
         allowNull: true,
       },

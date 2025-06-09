@@ -54,28 +54,37 @@ class WebController {
 
       const settings = popUp[0] || null;
 
-      const bannerPopupStatus = settings?.banner_popup_status;
-      const servicePopupStatus = settings?.service_popup_status;
+      const isBanner = settings?.is_banner || false;
 
       const bannerPopupData = {
-        banner_popup_disappear_time: settings?.banner_popup_disappear_time || null,
-        banner_popup_appearence_time: settings?.banner_popup_appearence_time || null,
+        appearence_time: settings?.banner_popup_appearence_time || null,
         banner_popup_image: settings?.banner_popup_image || null,
         sub_title: settings?.sub_title || null,
         title: settings?.title || null,
         logo: settings?.logo || null,
       };
 
+      let popupServices = null;
+      if (!isBanner) {
+        popupServices = await models.PopupServices.findAll({
+          attributes: ["id", "image", "image_alt", "title", "description", "button_link", "button_text", "order", "is_active"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        });
+      }
+
       const servicePopupData = {
+        appearence_time: settings?.service_popup_appearence_time || null,
         sub_title: settings?.sub_title || null,
         title: settings?.title || null,
         logo: settings?.logo || null,
+        services: popupServices,
       };
 
       // Structure the response data
       const data = {
-         banner: bannerPopupStatus ? bannerPopupData : null,
-        service: servicePopupStatus ? servicePopupData : null,
+        banner: isBanner ? bannerPopupData : null,
+        service: !isBanner ? servicePopupData : null,
         lifeAtIndel,
         blogs,
         heroBanner,
@@ -931,8 +940,8 @@ class WebController {
       const popUp = await models.PopupSettings.findAll();
       const settings = popUp[0] || null;
 
-      const bannerPopupStatus = settings?.banner_popup_status;
-      const servicePopupStatus = settings?.service_popup_status;
+      const isBanner = settings?.is_banner || false;
+      console.log(isBanner);
 
       const bannerPopupData = {
         banner_popup_disappear_time: settings?.banner_popup_disappear_time || null,
@@ -950,8 +959,8 @@ class WebController {
       };
 
       const data = {
-        banner: bannerPopupStatus ? bannerPopupData : null,
-        service: servicePopupStatus ? servicePopupData : null,
+        banner: isBanner ? bannerPopupData : null,
+        service: !isBanner ? servicePopupData : null,
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);

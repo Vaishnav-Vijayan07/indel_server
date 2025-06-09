@@ -12,16 +12,13 @@ const initPopupSettings = async () => {
     }
 
     await PopupSettings.create({
-      title: "Welcome to Indel Money",
+      title: "Welcome",
       sub_title: "Welcome to Indel Money",
       logo: null,
-      banner_popup_status: false,
-      service_popup_status: false,
+      is_banner: true,
       banner_popup_image: null,
       banner_popup_appearence_time: 5,
-      banner_popup_disappear_time: 10,
       service_popup_appearence_time: 5,
-      service_popup_disappear_time: 8,
     });
 
     console.log("Popup settings initialized with default values");
