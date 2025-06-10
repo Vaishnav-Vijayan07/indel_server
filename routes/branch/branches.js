@@ -5,6 +5,7 @@ const validateMiddleware = require("../../middlewares/validateMiddleware");
 const BranchesController = require("../../controllers/branch/branchesController");
 const { validateBranch, validateBranchUpdate } = require("../../utils/validator");
 
+router.get("/filtered_branches", BranchesController.getAllBranchesFilter);
 router.get("/", BranchesController.getAll);
 router.get("/:id", BranchesController.getById);
 

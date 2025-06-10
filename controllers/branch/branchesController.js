@@ -21,15 +21,50 @@ class BranchesController {
       const cacheKey = "Branches";
       const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
 
       const branches = await Branches.findAll({
         where: { is_active: true },
         order: [["name", "ASC"]],
       });
       await CacheService.set(cacheKey, JSON.stringify(branches), 3600);
+      res.json({ success: true, data: branches });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async getAllBranchesFilter(req, res, next) {
+    try {
+      console.log('Query Params',req.query);
+      const { state =  null, district = null, location = null } = req.query;
+
+      const filters = {
+        is_active: true,
+      };
+
+      if (state) {
+        filters.state = state;
+      }
+
+      if (district) {
+        filters.district = district;
+      }
+
+
+      if (location) {
+        filters.location = location;
+      }
+
+      console.log('filters', filters);
+
+      const branches = await Branches.findAll({
+        where: filters,
+        order: [["name", "ASC"]],
+      });
+
       res.json({ success: true, data: branches });
     } catch (error) {
       next(error);

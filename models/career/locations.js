@@ -13,6 +13,22 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      state_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: "states",
+          key: "id",
+        },
+      },
+      district_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: "districts",
+          key: "id",
+        },
+      },
       is_active: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
