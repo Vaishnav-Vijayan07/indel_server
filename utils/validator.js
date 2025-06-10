@@ -1671,6 +1671,60 @@ const validateGeneralApplicationsUpdate = [
   check("order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
 ];
 
+const validateJobApplicationSubmission = [
+  // Applicant Fields
+  check("applicant.name")
+    .exists()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage("Name is required and must not exceed 100 characters"),
+  check("applicant.email")
+    .exists()
+    .isEmail()
+    .withMessage("A valid email is required")
+    .isLength({ max: 255 })
+    .withMessage("Email must not exceed 255 characters"),
+  check("applicant.phone").optional().trim().isLength({ max: 20 }).withMessage("Phone number must not exceed 20 characters"),
+  check("applicant.preffered_location")
+    .exists()
+    .isInt({ min: 1 })
+    .withMessage("Preferred location ID is required and must be a positive integer"),
+  check("applicant.referred_employee_name")
+    .optional()
+    .trim()
+    .isLength({ max: 200 })
+    .withMessage("Referred employee name must not exceed 200 characters"),
+  check("applicant.employee_referral_code")
+    .optional()
+    .trim()
+    .isLength({ max: 50 })
+    .withMessage("Employee referral code must not exceed 50 characters"),
+  check("applicant.age").exists().isInt({ min: 18 }).withMessage("Age is required and must be an integer of 18 or above"),
+  check("applicant.current_salary").optional().isFloat({ min: 0 }).withMessage("Current salary must be a non-negative number"),
+  check("applicant.expected_salary")
+    .exists()
+    .isFloat({ min: 0 })
+    .withMessage("Expected salary is required and must be a non-negative number"),
+  check("applicant.file")
+    .exists()
+    .trim()
+    .isLength({ max: 255 })
+    .withMessage("File path is required and must not exceed 255 characters"),
+  check("applicant.is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  // Job Application Fields
+  check("job_application.job_id").exists().isInt({ min: 1 }).withMessage("Job ID is required and must be a positive integer"),
+  check("job_application.status_id")
+    .exists()
+    .isInt({ min: 1 })
+    .withMessage("Status ID is required and must be a positive integer"),
+  check("job_application.application_date")
+    .optional()
+    .isISO8601()
+    .withMessage("Application date must be a valid ISO 8601 date (e.g., YYYY-MM-DD)"),
+  check("job_application.is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  check("job_application.order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
+];
+
 module.exports = {
   validatePopupServicesUpdate,
   validatePopupServices,
@@ -1832,4 +1886,5 @@ module.exports = {
   validateApplicationStatusesUpdate,
   validateGeneralApplications,
   validateGeneralApplicationsUpdate,
+  validateJobApplicationSubmission,
 };

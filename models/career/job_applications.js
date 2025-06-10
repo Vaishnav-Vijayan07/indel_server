@@ -38,10 +38,6 @@ module.exports = (sequelize) => {
         allowNull: false,
         defaultValue: DataTypes.NOW,
       },
-      file: {
-        type: DataTypes.STRING(255),
-        allowNull: true,
-      },
       is_active: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
