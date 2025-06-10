@@ -6,7 +6,7 @@ class JobApplicationSubmissionController {
   static async submitApplication(req, res, next) {
     try {
       const { applicant, job_application } = req.body;
-      const file = req.file; // File uploaded via multipart/form-data
+      const file = req.file;
 
       // Validate foreign key reference for preferred location
       const location = await models.CareerLocations.findByPk(applicant.preferred_location);
@@ -34,18 +34,7 @@ class JobApplicationSubmissionController {
       });
 
       if (newApplicant) {
-        // Applicant exists; check for existing application for this job
-        const existingApplication = await models.JobApplications.findOne({
-          where: {
-            applicant_id: newApplicant.id,
-            job_id: job_application.job_id,
-          },
-        });
-        if (existingApplication) {
-          throw new CustomError("You have already applied for this job", 409);
-        }
-
-        // Optionally update applicant data
+        // Applicant exists; optionally update fields if needed
         const applicantData = {
           ...applicant,
           file: file.path, // Update file path if a new file is uploaded
@@ -78,6 +67,109 @@ class JobApplicationSubmissionController {
           job_application: newApplication,
         },
         message: "Job application submitted successfully",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async listApplications(req, res, next) {
+    try {
+      const { role_id, location_id, state_id, status_id, applicant_location_id } = req.query;
+
+      // Build cache key based on query parameters
+      const cacheKey = `job_applications_all_${role_id || "all"}_${location_id || "all"}_${state_id || "all"}_${
+        status_id || "all"
+      }_${applicant_location_id || "all"}`;
+      const cachedData = await CacheService.get(cacheKey);
+
+      if (cachedData) {
+        return res.json({
+          success: true,
+          data: JSON.parse(cachedData),
+        });
+      }
+
+      // Build filter conditions
+      const whereConditions = { is_active: true }; // Only active applications
+      const jobWhere = {};
+      const applicantWhere = {};
+
+      if (status_id) {
+        whereConditions.status_id = parseInt(status_id);
+      }
+
+      if (role_id) {
+        jobWhere.role_id = parseInt(role_id);
+      }
+
+      if (location_id) {
+        jobWhere.location_id = parseInt(location_id);
+      }
+
+      if (state_id) {
+        jobWhere.state_id = parseInt(state_id);
+      }
+
+      if (applicant_location_id) {
+        applicantWhere.preferred_location = parseInt(applicant_location_id);
+      }
+
+      const applications = await models.JobApplications.findAll({
+        where: whereConditions,
+        include: [
+          {
+            model: models.Applicants,
+            as: "applicant",
+            attributes: ["id", "name", "email", "phone"],
+            where: applicantWhere,
+            include: [
+              {
+                model: models.CareerLocations,
+                as: "location",
+                attributes: ["id", "location_name"],
+              },
+            ],
+          },
+          {
+            model: models.CareerJobs,
+            as: "job",
+            attributes: ["id", "job_title"],
+            where: jobWhere,
+            include: [
+              {
+                model: models.CareerRoles,
+                as: "role",
+                attributes: ["id", "role_name"],
+              },
+              {
+                model: models.CareerLocations,
+                as: "location",
+                attributes: ["id", "location_name"],
+              },
+              {
+                model: models.CareerStates,
+                as: "state",
+                attributes: ["id", "state_name"],
+              },
+            ],
+          },
+          {
+            model: models.ApplicationStatus,
+            as: "status",
+            attributes: ["id", "status_name"],
+          },
+        ],
+        order: [["created_at", "DESC"]],
+        // attributes: ["id", "application_date", "order", "is_active"],
+      });
+
+      // Store in cache
+      await CacheService.set(cacheKey, JSON.stringify(applications), 3600); // Cache for 1 hour
+
+      res.status(200).json({
+        status: "success",
+        data: applications,
       });
     } catch (error) {
       next(error);
