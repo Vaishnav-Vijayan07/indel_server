@@ -27,7 +27,7 @@ class ApplicationStatusesController {
       }
 
       const statuses = await models.ApplicationStatus.findAll({
-        where: { is_active: true },
+        // where: { is_active: true },
         order: [
           ["order", "ASC"],
           ["created_at", "DESC"],
@@ -66,7 +66,7 @@ class ApplicationStatusesController {
   static async update(req, res, next) {
     try {
       const { id } = req.params;
-      const status = await models.ApplicationStatuses.findByPk(id);
+      const status = await models.ApplicationStatus.findByPk(id);
       if (!status) {
         throw new CustomError("Application status not found", 404);
       }
@@ -86,7 +86,7 @@ class ApplicationStatusesController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
-      const status = await models.ApplicationStatuses.findByPk(id);
+      const status = await models.ApplicationStatus.findByPk(id);
       if (!status) {
         throw new CustomError("Application status not found", 404);
       }
