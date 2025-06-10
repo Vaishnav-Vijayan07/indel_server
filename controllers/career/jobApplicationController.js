@@ -15,13 +15,15 @@ class JobApplicationSubmissionController {
         throw new CustomError("Preferred location not found", 404);
       }
 
-      // Validate foreign key references for job application
-      const [job, status] = await Promise.all([
-        models.CareerJobs.findByPk(job_application.job_id),
-        models.ApplicationStatus.findByPk(job_application.status_id),
-      ]);
+      // Validate foreign key reference for job
+      const job = await models.CareerJobs.findByPk(job_application.job_id);
       if (!job) throw new CustomError("Job not found", 404);
-      if (!status) throw new CustomError("Application status not found", 404);
+
+      // Fetch "Pending" status
+      const pendingStatus = await models.ApplicationStatus.findOne({
+        where: { status_name: "Pending" },
+      });
+      if (!pendingStatus) throw new CustomError("Pending status not found", 500);
 
       // Check if file was uploaded
       if (!file) {
@@ -34,7 +36,18 @@ class JobApplicationSubmissionController {
       });
 
       if (newApplicant) {
-        // Applicant exists; optionally update fields if needed
+        // Check for existing application for this job
+        const existingApplication = await models.JobApplications.findOne({
+          where: {
+            applicant_id: newApplicant.id,
+            job_id: job_application.job_id,
+          },
+        });
+        if (existingApplication) {
+          throw new CustomError("You have already applied for this job", 409);
+        }
+
+        // Update applicant data
         const applicantData = {
           ...applicant,
           file: file.path, // Update file path if a new file is uploaded
@@ -49,11 +62,14 @@ class JobApplicationSubmissionController {
         newApplicant = await models.Applicants.create(applicantData);
       }
 
-      // Create job application record with the applicant_id
+      // Create job application record with applicant_id, pending status, and auto application date
       const applicationData = {
-        ...job_application,
+        job_id: job_application.job_id,
         applicant_id: newApplicant.id,
+        status_id: pendingStatus.id,
         file: file.path, // Optionally store the same file path in job_applications
+        is_active: job_application.is_active ?? true, // Default to true if not provided
+        order: job_application.order ?? 1, // Default to 1 if not provided
       };
       const newApplication = await models.JobApplications.create(applicationData);
 
