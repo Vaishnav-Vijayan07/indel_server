@@ -103,6 +103,7 @@ const definePopUpServices = require("./popup/services");
 const defineDistricts = require("./career/districts");
 const definePartners = require("./partners/partners");
 const definePartnersData = require("./partners/partnersData");
+const defineMasterPolicies = require("./policies/policies");
 
 const models = {
   User: defineUser(sequelize),
@@ -210,6 +211,7 @@ const models = {
   Districts: defineDistricts(sequelize),
   PartnersTypes: definePartners(sequelize),
   Partners: definePartnersData(sequelize),
+  MasterPolicies: defineMasterPolicies(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {
