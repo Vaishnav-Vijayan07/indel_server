@@ -1,3 +1,4 @@
+const { Sequelize, Op } = require("sequelize");
 const { models } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
@@ -38,8 +39,7 @@ class BranchesController {
 
   static async getAllBranchesFilter(req, res, next) {
     try {
-      console.log('Query Params',req.query);
-      const { state =  null, district = null, location = null } = req.query;
+      const { state = null, district = null, location = null, distance = null, lat = null, long = null } = req.query;
 
       const filters = {
         is_active: true,
@@ -53,17 +53,40 @@ class BranchesController {
         filters.district = district;
       }
 
-
       if (location) {
         filters.location = location;
       }
 
-      console.log('filters', filters);
+      let branches;
 
-      const branches = await Branches.findAll({
-        where: filters,
-        order: [["name", "ASC"]],
-      });
+      if (distance && lat && long && parseFloat(distance)) {
+        const latFloat = parseFloat(lat);
+        const longFloat = parseFloat(long);
+        const earthRadiusKm = 6371;
+
+        branches = await Branches.findAll({
+          where: {
+            ...filters,
+            [Op.and]: [
+              Sequelize.literal(`
+                ${earthRadiusKm} * acos(
+                  cos(radians(${latFloat}))
+                  * cos(radians("latitude"))
+                  * cos(radians("longitude") - radians(${longFloat}))
+                  + sin(radians(${latFloat}))
+                  * sin(radians("latitude"))
+                ) <= ${parseFloat(distance)}
+              `)
+            ]
+          },
+          order: [["name", "ASC"]],
+        });
+      } else {
+        branches = await Branches.findAll({
+          where: filters,
+          order: [["name", "ASC"]],
+        });
+      }
 
       res.json({ success: true, data: branches });
     } catch (error) {
