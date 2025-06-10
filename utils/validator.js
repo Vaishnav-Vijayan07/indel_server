@@ -1502,10 +1502,22 @@ const validatePopupSettingsUpdate = [
   check("banner_popup_status").optional().isBoolean().withMessage("Banner Popup Status must be a boolean"),
   check("service_popup_status").optional().isBoolean().withMessage("Service Popup Status must be a boolean"),
   // check("banner_popup_image").optional().isURL().withMessage("Banner Popup Image must be a valid URL"),
-  check("banner_popup_appearence_time").optional().isInt({ min: 0 }).withMessage("Banner Popup Appearance Time must be a non-negative integer"),
-  check("banner_popup_disappear_time").optional().isInt({ min: 0 }).withMessage("Banner Popup Disappear Time must be a non-negative integer"),
-  check("service_popup_appearence_time").optional().isInt({ min: 0 }).withMessage("Service Popup Appearance Time must be a non-negative integer"),
-  check("service_popup_disappear_time").optional().isInt({ min: 0 }).withMessage("Service Popup Disappear Time must be a non-negative integer"),
+  check("banner_popup_appearence_time")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("Banner Popup Appearance Time must be a non-negative integer"),
+  check("banner_popup_disappear_time")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("Banner Popup Disappear Time must be a non-negative integer"),
+  check("service_popup_appearence_time")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("Service Popup Appearance Time must be a non-negative integer"),
+  check("service_popup_disappear_time")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("Service Popup Disappear Time must be a non-negative integer"),
 ];
 
 const validatePopupServicesUpdate = [
@@ -1813,7 +1825,7 @@ module.exports = {
   validateGoldType,
   validateGoldTypeUpdate,
   validateCareerDistricts,
-  validateCareerDistrictsUpdate
+  validateCareerDistrictsUpdate,
   validateApplicants,
   validateApplicantsUpdate,
   validateApplicationStatuses,
