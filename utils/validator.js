@@ -1618,14 +1618,12 @@ const validateApplicationStatuses = [
     .trim()
     .isLength({ max: 50 })
     .withMessage("Status name is required and must not exceed 50 characters"),
-  check("file").optional().trim().isLength({ max: 255 }).withMessage("File path must not exceed 255 characters"),
   check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
   check("order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
 ];
 
 const validateApplicationStatusesUpdate = [
   check("status_name").optional().trim().isLength({ max: 50 }).withMessage("Status name must not exceed 50 characters"),
-  check("file").optional().trim().isLength({ max: 255 }).withMessage("File path must not exceed 255 characters"),
   check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
   check("order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
 ];

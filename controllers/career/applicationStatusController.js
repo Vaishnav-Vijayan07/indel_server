@@ -7,7 +7,7 @@ class ApplicationStatusesController {
     try {
       const updateData = { ...req.body };
 
-      const applicationStatus = await models.ApplicationStatuses.create(updateData);
+      const applicationStatus = await models.ApplicationStatus.create(updateData);
 
       // Invalidate cache
       await CacheService.invalidate("application_statuses");
@@ -26,7 +26,7 @@ class ApplicationStatusesController {
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
 
-      const statuses = await models.ApplicationStatuses.findAll({
+      const statuses = await models.ApplicationStatus.findAll({
         where: { is_active: true },
         order: [
           ["order", "ASC"],
@@ -51,7 +51,7 @@ class ApplicationStatusesController {
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
 
-      const status = await models.ApplicationStatuses.findByPk(id);
+      const status = await models.ApplicationStatus.findByPk(id);
       if (!status) {
         throw new CustomError("Application status not found", 404);
       }
