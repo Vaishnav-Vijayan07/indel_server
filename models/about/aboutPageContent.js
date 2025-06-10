@@ -31,10 +31,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
       },
       overview_sub_title: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING,
       },
       overview_description: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
       },
       service_title: {
         type: DataTypes.STRING,

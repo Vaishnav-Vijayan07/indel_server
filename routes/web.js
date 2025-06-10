@@ -11,7 +11,6 @@ const uploadField = upload.single("resume");
 router.get("/home", WebController.getHomeData);
 router.get("/about", WebController.aboutData);
 router.get("/management", WebController.mangementData);
-router.get("/partners", WebController.partnersData);
 router.get("/contacts", WebController.contactData);
 router.get("/history", WebController.historyData);
 router.get("/blogs", WebController.blogData);
@@ -42,6 +41,8 @@ router.get("/footer", WebController.footerContent);
 router.get("/header", WebController.headerContent);
 router.get("/popups", WebController.popUps);
 router.get("/testimonials", WebController.testimonials);
+router.get("/partners", WebController.partners);
+router.get("/partner-data", WebController.partnersData);
 
 
 router.post("/career/resume", uploadField, JobApplicationsController.create);

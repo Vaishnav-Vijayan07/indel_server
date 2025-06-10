@@ -1052,6 +1052,56 @@ class WebController {
       next(new CustomError("Failed to get testimoinials data", 500, error.message));
     }
   }
+
+  static async partners(req, res, next) {
+    try {
+      const partners = await models.PartnersTypes.findAll({
+        where: {
+          is_active: true,
+        },
+        order: [["order", "ASC"]],
+        attributes: ["id", "title", "order", "is_active"],
+      });
+      const content = await models.DebtPartnersContent.findAll({
+        attributes: ["id", "title"],
+      });
+      const data = {
+        content: content[0] || null,
+        partners,
+      };
+
+      logger.info("Fetched partners for web from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error getting partners data for web", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to get partners data for web", 500, error.message));
+    }
+  }
+
+  static async partnersData(req, res, next) {
+    const { type } = req.query || null;
+
+    try {
+      if (!type) {
+        throw new CustomError("No type provided", 400);
+      }
+
+      const partnerData = await models.Partners.findAll({
+        where: {
+          partner_type_id: type,
+          is_active: true,
+        },
+        order: [["order", "ASC"]],
+        attributes: ["id", "partner_type_id", "logo", "logo_alt", "is_active", "order"],
+      });
+
+      logger.info("Fetched partner for web from DB");
+      res.json({ status: "success", partnerData });
+    } catch (error) {
+      logger.error("Error getting partner data for web", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to get partner data for web", 500, error.message));
+    }
+  }
 }
 
 module.exports = WebController;

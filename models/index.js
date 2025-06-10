@@ -101,6 +101,8 @@ const definePaymentModes = require("./header/payment_modes");
 const definePopUpSettings = require("./popup/settings");
 const definePopUpServices = require("./popup/services");
 const defineDistricts = require("./career/districts");
+const definePartners = require("./partners/partners");
+const definePartnersData = require("./partners/partnersData");
 
 const models = {
   User: defineUser(sequelize),
@@ -206,6 +208,8 @@ const models = {
   PopupSettings: definePopUpSettings(sequelize),
   PopupServices: definePopUpServices(sequelize),
   Districts: defineDistricts(sequelize),
+  PartnersTypes: definePartners(sequelize),
+  Partners: definePartnersData(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {
