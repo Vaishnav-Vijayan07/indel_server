@@ -1566,7 +1566,7 @@ const validateApplicants = [
     .isLength({ max: 255 })
     .withMessage("Email must not exceed 255 characters"),
   check("phone").optional().trim().isLength({ max: 20 }).withMessage("Phone number must not exceed 20 characters"),
-  check("preffered_location")
+  check("preferred_location")
     .exists()
     .isInt({ min: 1 })
     .withMessage("Preferred location ID is required and must be a positive integer"),
@@ -1596,7 +1596,7 @@ const validateApplicantsUpdate = [
     .isLength({ max: 255 })
     .withMessage("Email must not exceed 255 characters"),
   check("phone").optional().trim().isLength({ max: 20 }).withMessage("Phone number must not exceed 20 characters"),
-  check("preffered_location").optional().isInt({ min: 1 }).withMessage("Preferred location ID must be a positive integer"),
+  check("preferred_location").optional().isInt({ min: 1 }).withMessage("Preferred location ID must be a positive integer"),
   check("referred_employee_name")
     .optional()
     .trim()
@@ -1685,7 +1685,7 @@ const validateJobApplicationSubmission = [
     .isLength({ max: 255 })
     .withMessage("Email must not exceed 255 characters"),
   check("applicant.phone").optional().trim().isLength({ max: 20 }).withMessage("Phone number must not exceed 20 characters"),
-  check("applicant.preffered_location")
+  check("applicant.preferred_location")
     .exists()
     .isInt({ min: 1 })
     .withMessage("Preferred location ID is required and must be a positive integer"),

@@ -21,7 +21,7 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING(20),
         allowNull: true,
       },
-      preffered_location: {
+      preferred_location: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
@@ -51,7 +51,7 @@ module.exports = (sequelize) => {
       },
       file: {
         type: DataTypes.STRING(255),
-        allowNull: false,
+        allowNull: true,
       },
       is_active: {
         type: DataTypes.BOOLEAN,
@@ -79,7 +79,7 @@ module.exports = (sequelize) => {
 
   Applicants.associate = (models) => {
     Applicants.belongsTo(models.CareerLocations, {
-      foreignKey: "preffered_location",
+      foreignKey: "preferred_location",
       as: "location",
     });
   };
