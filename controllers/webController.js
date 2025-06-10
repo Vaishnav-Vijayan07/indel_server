@@ -17,7 +17,7 @@ class WebController {
       // }
 
       // Fetch all data concurrently
-      const [heroBanner, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs] = await Promise.all([
+      const [heroBanner, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs, popUp] = await Promise.all([
         models.HeroBanner.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
           logger.error("Failed to fetch heroBanner", { error: err.message, stack: err.stack });
           throw err;
@@ -46,10 +46,36 @@ class WebController {
           logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
           throw err;
         }),
+        models.PopupSettings.findAll().catch((err) => {
+          logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
+          throw err;
+        }),
       ]);
+
+      const settings = popUp[0] || null;
+
+      const bannerPopupStatus = settings?.banner_popup_status;
+      const servicePopupStatus = settings?.service_popup_status;
+
+      const bannerPopupData = {
+        banner_popup_disappear_time: settings?.banner_popup_disappear_time || null,
+        banner_popup_appearence_time: settings?.banner_popup_appearence_time || null,
+        banner_popup_image: settings?.banner_popup_image || null,
+        sub_title: settings?.sub_title || null,
+        title: settings?.title || null,
+        logo: settings?.logo || null,
+      };
+
+      const servicePopupData = {
+        sub_title: settings?.sub_title || null,
+        title: settings?.title || null,
+        logo: settings?.logo || null,
+      };
 
       // Structure the response data
       const data = {
+         banner: bannerPopupStatus ? bannerPopupData : null,
+        service: servicePopupStatus ? servicePopupData : null,
         lifeAtIndel,
         blogs,
         heroBanner,
@@ -885,6 +911,51 @@ class WebController {
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
       logger.info("Fetched header data data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching content data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch content data", 500, error.message));
+    }
+  }
+
+  static async popUps(req, res, next) {
+    const cacheKey = "webPopUps";
+
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving ombudsman files from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const popUp = await models.PopupSettings.findAll();
+      const settings = popUp[0] || null;
+
+      const bannerPopupStatus = settings?.banner_popup_status;
+      const servicePopupStatus = settings?.service_popup_status;
+
+      const bannerPopupData = {
+        banner_popup_disappear_time: settings?.banner_popup_disappear_time || null,
+        banner_popup_appearence_time: settings?.banner_popup_appearence_time || null,
+        banner_popup_image: settings?.banner_popup_image || null,
+        sub_title: settings?.sub_title || null,
+        title: settings?.title || null,
+        logo: settings?.logo || null,
+      };
+
+      const servicePopupData = {
+        sub_title: settings?.sub_title || null,
+        title: settings?.title || null,
+        logo: settings?.logo || null,
+      };
+
+      const data = {
+        banner: bannerPopupStatus ? bannerPopupData : null,
+        service: servicePopupStatus ? servicePopupData : null,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched popUp data from DB");
       res.json({ status: "success", data });
     } catch (error) {
       logger.error("Error fetching content data", { error: error.message, stack: error.stack });

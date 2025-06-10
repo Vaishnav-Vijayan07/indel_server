@@ -98,6 +98,9 @@ const defindGoldTypes = require("./serviceEnquiries/goldTypes");
 const defineNewsLetterSubs = require("./footer/newsLetterSubs");
 const defineHeaderContent = require("./header/content");
 const definePaymentModes = require("./header/payment_modes");
+const definePopUpSettings = require("./popup/settings");
+const definePopUpServices = require("./popup/services");
+const defineDistricts = require("./career/districts");
 const defineApplicationStatus = require("./career/application_status");
 const defineGeneralApplications = require("./career/general_application");
 
@@ -202,6 +205,9 @@ const models = {
   NewsLetterSubs: defineNewsLetterSubs(sequelize),
   HeaderContents: defineHeaderContent(sequelize),
   PaymentModes: definePaymentModes(sequelize),
+  PopupSettings: definePopUpSettings(sequelize),
+  PopupServices: definePopUpServices(sequelize),
+  Districts: defineDistricts(sequelize),
   ApplicationStatus: defineApplicationStatus(sequelize),
   GeneralApplications: defineGeneralApplications(sequelize),
 };

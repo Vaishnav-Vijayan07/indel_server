@@ -1496,6 +1496,55 @@ const validatePaymentModes = [
   check("order").isInt().withMessage("Order must be an integer"),
 ];
 
+const validatePopupSettingsUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  // check("logo").optional().isURL().withMessage("Logo must be a valid URL"),
+  check("banner_popup_status").optional().isBoolean().withMessage("Banner Popup Status must be a boolean"),
+  check("service_popup_status").optional().isBoolean().withMessage("Service Popup Status must be a boolean"),
+  // check("banner_popup_image").optional().isURL().withMessage("Banner Popup Image must be a valid URL"),
+  check("banner_popup_appearence_time").optional().isInt({ min: 0 }).withMessage("Banner Popup Appearance Time must be a non-negative integer"),
+  check("banner_popup_disappear_time").optional().isInt({ min: 0 }).withMessage("Banner Popup Disappear Time must be a non-negative integer"),
+  check("service_popup_appearence_time").optional().isInt({ min: 0 }).withMessage("Service Popup Appearance Time must be a non-negative integer"),
+  check("service_popup_disappear_time").optional().isInt({ min: 0 }).withMessage("Service Popup Disappear Time must be a non-negative integer"),
+];
+
+const validatePopupServicesUpdate = [
+  check("image_alt").optional().notEmpty().withMessage("Image Alt cannot be empty"),
+  check("title").optional().notEmpty().withMessage("Title is required"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("button_link").optional().isURL().withMessage("Button Link must be a valid URL"),
+  check("button_text").optional().notEmpty().withMessage("Button Text cannot be empty"),
+  // check("image").optional().isURL().withMessage("Image must be a valid URL"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+const validatePopupServices = [
+  check("image_alt").notEmpty().withMessage("Image Alt cannot be empty"),
+  check("title").notEmpty().withMessage("Title is required"),
+  check("description").notEmpty().withMessage("Description cannot be empty"),
+  check("button_link").isURL().withMessage("Button Link must be a valid URL"),
+  check("button_text").notEmpty().withMessage("Button Text cannot be empty"),
+  // check("image").isURL().withMessage("Image must be a valid URL"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+  check("order").isInt().withMessage("Order must be an integer"),
+];
+
+const validateCareerDistricts = [
+  check("district_name").notEmpty().withMessage("District Name is required"),
+  check("state_id").isInt().withMessage("State ID must be an integer"),
+  check("image_alt").optional().notEmpty().withMessage("Image Alt cannot be empty"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+  check("order").isInt().withMessage("Order must be an integer"),
+];
+
+const validateCareerDistrictsUpdate = [
+  check("district_name").optional().notEmpty().withMessage("District Name cannot be empty"),
+  check("state_id").optional().isInt().withMessage("State ID must be an integer"),
+  check("image_alt").optional().notEmpty().withMessage("Image Alt cannot be empty"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+
 const validateApplicants = [
   check("name").exists().trim().isLength({ max: 100 }).withMessage("Name is required and must not exceed 100 characters"),
   check("email")
@@ -1611,6 +1660,9 @@ const validateGeneralApplicationsUpdate = [
 ];
 
 module.exports = {
+  validatePopupServicesUpdate,
+  validatePopupServices,
+  validatePopupSettingsUpdate,
   validatePaymentModes,
   validatePaymentModesUpdate,
   validateHeaderContentsUpdate,
@@ -1760,6 +1812,8 @@ module.exports = {
   validateGoldCaratTypeUpdate,
   validateGoldType,
   validateGoldTypeUpdate,
+  validateCareerDistricts,
+  validateCareerDistrictsUpdate
   validateApplicants,
   validateApplicantsUpdate,
   validateApplicationStatuses,
