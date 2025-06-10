@@ -6,19 +6,13 @@ class JobApplicationSubmissionController {
   static async submitApplication(req, res, next) {
     try {
       const { applicant, job_application } = req.body;
-      const file = req.file;
+      const file = req.file; // File uploaded via multipart/form-data
 
+      // Validate foreign key reference for preferred location
       const location = await models.CareerLocations.findByPk(applicant.preferred_location);
-
       console.log("Preferred location:", location);
-
       if (!location) {
         throw new CustomError("Preferred location not found", 404);
-      }
-
-      // Check if file was uploaded and set the file path
-      if (!file) {
-        throw new CustomError("Resume file is required", 400);
       }
 
       // Validate foreign key references for job application
@@ -29,19 +23,48 @@ class JobApplicationSubmissionController {
       if (!job) throw new CustomError("Job not found", 404);
       if (!status) throw new CustomError("Application status not found", 404);
 
-      // Add file path to applicant data
-      const applicantData = {
-        ...applicant,
-        file: file.path, // Store the file path from req.file
-      };
+      // Check if file was uploaded
+      if (!file) {
+        throw new CustomError("Resume file is required", 400);
+      }
 
-      // Create applicant record
-      const newApplicant = await models.Applicants.create(applicantData);
+      // Check if applicant with this email already exists
+      let newApplicant = await models.Applicants.findOne({
+        where: { email: applicant.email },
+      });
 
-      // Create job application record with the new applicant_id
+      if (newApplicant) {
+        // Applicant exists; check for existing application for this job
+        const existingApplication = await models.JobApplications.findOne({
+          where: {
+            applicant_id: newApplicant.id,
+            job_id: job_application.job_id,
+          },
+        });
+        if (existingApplication) {
+          throw new CustomError("You have already applied for this job", 409);
+        }
+
+        // Optionally update applicant data
+        const applicantData = {
+          ...applicant,
+          file: file.path, // Update file path if a new file is uploaded
+        };
+        await newApplicant.update(applicantData);
+      } else {
+        // Create new applicant record with file path
+        const applicantData = {
+          ...applicant,
+          file: file.path,
+        };
+        newApplicant = await models.Applicants.create(applicantData);
+      }
+
+      // Create job application record with the applicant_id
       const applicationData = {
         ...job_application,
         applicant_id: newApplicant.id,
+        file: file.path, // Optionally store the same file path in job_applications
       };
       const newApplication = await models.JobApplications.create(applicationData);
 
