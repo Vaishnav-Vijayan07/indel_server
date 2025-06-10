@@ -36,10 +36,7 @@ class JobsController {
       const job = await Jobs.create(updateData);
 
       // Invalidate caches after creation
-      await Promise.all([
-        CacheService.invalidate("jobs"),
-        CacheService.invalidate("webCareerPage"),
-      ]);
+      await Promise.all([CacheService.invalidate("jobs"), CacheService.invalidate("webCareerPage")]);
       res.status(201).json({ success: true, data: job, message: "Job created" });
     } catch (error) {
       next(error);
@@ -48,27 +45,44 @@ class JobsController {
 
   static async getDropdowns(req, res, next) {
     try {
-      const [roles, locations, states] = await Promise.all([
+      const [roles, locations, states, statuses] = await Promise.all([
         models.CareerRoles.findAll({
           where: { is_active: true },
-          attributes: [["id", "value"], ["role_name", "label"]],
+          attributes: [
+            ["id", "value"],
+            ["role_name", "label"],
+          ],
           order: [["role_name", "ASC"]],
         }),
         models.CareerLocations.findAll({
           where: { is_active: true },
-          attributes: [["id", "value"], ["location_name", "label"]],
+          attributes: [
+            ["id", "value"],
+            ["location_name", "label"],
+          ],
           order: [["location_name", "ASC"]],
         }),
         models.CareerStates.findAll({
           where: { is_active: true },
-          attributes: [["id", "value"], ["state_name", "label"]],
+          attributes: [
+            ["id", "value"],
+            ["state_name", "label"],
+          ],
           order: [["state_name", "ASC"]],
+        }),
+        models.ApplicationStatus.findAll({
+          where: { is_active: true },
+          attributes: [
+            ["id", "value"],
+            ["status_name", "label"],
+          ],
+          order: [["status_name", "ASC"]],
         }),
       ]);
 
       res.json({
         success: true,
-        data: { roles, locations, states },
+        data: { roles, locations, states, statuses },
       });
     } catch (error) {
       next(error);
@@ -91,7 +105,10 @@ class JobsController {
           { model: models.CareerLocations, as: "location", attributes: ["location_name"] },
           { model: models.CareerStates, as: "state", attributes: ["state_name"] },
         ],
-        order: [["order", "ASC"], ["id", "ASC"]], // Prioritize custom order
+        order: [
+          ["order", "ASC"],
+          ["id", "ASC"],
+        ], // Prioritize custom order
       });
 
       await CacheService.set(cacheKey, JSON.stringify(jobs), 3600);
@@ -197,7 +214,6 @@ class JobsController {
     }
   }
 }
-
 
 // class JobsController {
 //   static async create(req, res, next) {

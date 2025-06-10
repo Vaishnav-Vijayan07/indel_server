@@ -38,15 +38,6 @@ module.exports = (sequelize) => {
         allowNull: false,
         defaultValue: DataTypes.NOW,
       },
-      is_active: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: true,
-      },
-      order: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-      },
       created_at: {
         type: DataTypes.DATE,
         allowNull: false,
