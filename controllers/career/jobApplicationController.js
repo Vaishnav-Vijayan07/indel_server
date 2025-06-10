@@ -91,7 +91,7 @@ class JobApplicationSubmissionController {
       }
 
       // Build filter conditions
-      const whereConditions = { is_active: true }; // Only active applications
+      const whereConditions = {}; // Only active applications
       const jobWhere = {};
       const applicantWhere = {};
 
