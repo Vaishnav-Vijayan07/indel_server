@@ -670,6 +670,8 @@ const validateCareerLocationsUpdate = [
 
 const validateCareerLocations = [
   check("location_name").notEmpty().withMessage("Location Name is required"),
+  check("state_id").isInt().withMessage("State ID must be an integer"),
+  check("district_id").isInt().withMessage("District ID must be an integer"),
   check("order").isInt().withMessage("Order must be an integer"),
   check("is_active").isBoolean().withMessage("Is active must be a boolean"),
 ];
