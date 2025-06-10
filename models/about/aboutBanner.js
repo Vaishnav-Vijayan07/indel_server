@@ -28,7 +28,11 @@ module.exports = (sequelize) => {
       order: {
         type: DataTypes.INTEGER,
         allowNull: false,
-      }
+      },
+      is_active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+      },
     },
     {
       tableName: "about_banners",

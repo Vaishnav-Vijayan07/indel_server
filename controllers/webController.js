@@ -117,7 +117,13 @@ class WebController {
       // }
 
       const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks, teamMessages, serviceImages, statsData, accolades] = await Promise.all([
-        models.AboutBanner.findAll(),
+        models.AboutBanner.findAll({
+          where: {
+            is_active: true,
+          },
+          order: [["order", "ASC"]],
+          attributes: ["id", "title", "super_title", "image", "alt_text", "order", "is_active"],
+        }),
         models.AboutPageContent.findAll(),
         models.AboutLifeAtIndelGallery.findAll(),
         models.AboutQuickLinks.findAll(),
