@@ -1102,6 +1102,33 @@ class WebController {
       next(new CustomError("Failed to get partner data for web", 500, error.message));
     }
   }
+
+  static async directors(req, res, next) {
+    const cacheKey = "webDirectorsData";
+
+    try {
+      // await CacheService.invalidate("webManagementData");
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving management data from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const [content, teams] = await Promise.all([models.DirectorsContent.findAll(), models.Directors.findAll()]);
+
+      const data = {
+        content: content[0] || null,
+        teams,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched management data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching management data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch management data", 500, error.message));
+    }
+  }
 }
 
 module.exports = WebController;

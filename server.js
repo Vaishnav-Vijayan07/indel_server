@@ -30,6 +30,7 @@ const { initIndelCaresContent } = require("./utils/initIndelCareContent");
 const { initFooterContent } = require("./utils/initFooterContent");
 const { initHeaderContents } = require("./utils/initHeaderContent");
 const { initPopupSettings } = require("./utils/initPopupSettings");
+const { initDirectorsContent } = require("./utils/initDirectorsContent");
 
 dotenv.config();
 const app = express();
@@ -76,7 +77,8 @@ const startServer = async () => {
     await initIndelCaresContent();
     await initFooterContent();
     await initHeaderContents();
-    await initPopupSettings()
+    await initPopupSettings();
+    await initDirectorsContent();
 
     app.listen(PORT, () => {
       Logger.info(`Server running on port ${PORT}`);
