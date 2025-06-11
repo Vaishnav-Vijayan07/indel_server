@@ -3,6 +3,7 @@ const CacheService = require("../services/cacheService");
 const CustomError = require("../utils/customError");
 const logger = require("../services/logger");
 const { Sequelize, where, Op } = require("sequelize");
+const cacheService = require("../services/cacheService");
 
 class WebController {
   static async getHomeData(req, res, next) {
@@ -1196,6 +1197,32 @@ class WebController {
     } catch (error) {
       logger.error("Error fetching management data", { error: error.message, stack: error.stack });
       next(new CustomError("Failed to fetch management data", 500, error.message));
+    }
+  }
+
+  static async policy(req, res, next) {
+    const { type } = req.query;
+    console.log(type);
+    const cacheKey = `webPolicy${type}`;
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        logger.info(`Serving ${type} policy from cache`);
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
+
+      const policy = await models.MasterPolicies.findOne({
+        where: {
+          type: type,
+        },
+      });
+
+      await cacheService.set(cacheKey, JSON.stringify(policy), 3600);
+      logger.info(`Fetched ${type} policy from DB`);
+      res.json({ status: "success", policy });
+    } catch (error) {
+      logger.error(`Error fetching ${type} policy`, { error: error.message, stack: error.stack });
+      next(new CustomError(`Failed to fetch ${type} policy`, 500, error.message));
     }
   }
 }

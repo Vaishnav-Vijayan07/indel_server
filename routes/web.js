@@ -44,6 +44,7 @@ router.get("/testimonials", WebController.testimonials);
 router.get("/partners", WebController.partners);
 router.get("/partner-data", WebController.partnersData);
 router.get("/directors", WebController.directors);
+router.get("/policies", WebController.policy);
 
 
 router.post("/career/resume", uploadField, JobApplicationsController.create);
