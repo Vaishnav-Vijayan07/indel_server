@@ -38,23 +38,6 @@ const GeneralApplications = (sequelize) => {
         allowNull: false,
         defaultValue: DataTypes.NOW,
       },
-      current_salary: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: true,
-      },
-      expected_salary: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: true,
-      },
-      is_active: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: true,
-      },
-      order: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-      },
       created_at: {
         type: DataTypes.DATE,
         allowNull: false,

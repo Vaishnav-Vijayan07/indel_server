@@ -568,7 +568,7 @@ class WebController {
     const cacheKey = "webCareerPage";
 
     try {
-      const cachedData = await CacheService.get(cacheKey);
+      // const cachedData = await CacheService.get(cacheKey);
       // if (cachedData) {
       //   logger.info("Serving Career Page from cache");
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
@@ -580,7 +580,7 @@ class WebController {
         models.CareerGallery.findAll(),
         models.CareerStates.findAll(),
         models.CareerJobs.findAll({
-          attributes: ["id", "role_id", "location_id", "state_id", "short_description", "detailed_description", "experience", "is_active"],
+          // attributes: ["id", "role_id", "location_id", "state_id", "job_title", "job_description", "key_responsibilities", "is_active"],
           include: [
             { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
             { model: models.CareerLocations, as: "location", attributes: ["location_name"] },
@@ -604,7 +604,11 @@ class WebController {
         testimoinials,
       };
 
-      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+
+      console.log("Data fetched for Career Page:", data);
+      
+
+      // await CacheService.set(cacheKey, JSON.stringify(data), 3600);
       logger.info("Fetched Career Page data from DB");
       res.json({ status: "success", data });
     } catch (error) {

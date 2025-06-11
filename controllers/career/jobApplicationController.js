@@ -191,6 +191,161 @@ class JobApplicationSubmissionController {
       next(error);
     }
   }
+
+  static async submitGeneralApplication(req, res, next) {
+    try {
+      const { applicant, general_application } = req.body;
+      const file = req.file;
+
+      // Validate foreign key reference for preferred location
+      const location = await models.CareerLocations.findByPk(applicant.preferred_location);
+      if (!location) {
+        throw new CustomError("Preferred location not found", 404);
+      }
+
+      // Validate foreign key reference for role
+      const role = await models.CareerRoles.findByPk(general_application.role_id);
+      if (!role) throw new CustomError("Role not found", 404);
+
+      // Fetch "Pending" status
+      const pendingStatus = await models.ApplicationStatus.findOne({
+        where: { status_name: "Pending" },
+      });
+      if (!pendingStatus) throw new CustomError("Pending status not found", 500);
+
+      // Check if file was uploaded
+      if (!file) {
+        throw new CustomError("Resume file is required", 400);
+      }
+
+      // Check if applicant with this email already exists
+      let newApplicant = await models.Applicants.findOne({
+        where: { email: applicant.email },
+      });
+
+      if (newApplicant) {
+        // Check for existing general application for this role
+        const existingApplication = await models.GeneralApplications.findOne({
+          where: {
+            applicant_id: newApplicant.id,
+            role_id: general_application.role_id,
+          },
+        });
+        if (existingApplication) {
+          throw new CustomError("You have already applied for this role", 409);
+        }
+
+        // Update applicant data
+        const applicantData = {
+          ...applicant,
+          file: file.path, // Update file path if a new file is uploaded
+        };
+        await newApplicant.update(applicantData);
+      } else {
+        // Create new applicant record with file path
+        const applicantData = {
+          ...applicant,
+          file: file.path,
+        };
+        newApplicant = await models.Applicants.create(applicantData);
+      }
+
+      // Create general application record with applicant_id, pending status, and auto application date
+      const applicationData = {
+        applicant_id: newApplicant.id,
+        status_id: pendingStatus.id,
+        role_id: general_application.role_id,
+      };
+      const newApplication = await models.GeneralApplications.create(applicationData);
+
+      // Invalidate caches
+      await Promise.all([CacheService.invalidate("applicants"), CacheService.invalidate("general_applications")]);
+
+      res.status(201).json({
+        success: true,
+        data: {
+          applicant: newApplicant,
+          general_application: newApplication,
+        },
+        message: "General application submitted successfully",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async listGeneralApplications(req, res, next) {
+    try {
+      const { role_id, location_id, status_id } = req.query;
+
+      // Build cache key based on query parameters
+      const cacheKey = `general_applications_all_${role_id || "all"}_${location_id || "all"}_${status_id || "all"}`;
+      const cachedData = await CacheService.get(cacheKey);
+
+      if (cachedData) {
+        return res.json({
+          success: true,
+          data: JSON.parse(cachedData),
+        });
+      }
+
+      // Build filter conditions
+      const whereConditions = {};
+      const applicantWhere = {};
+
+      if (status_id) {
+        whereConditions.status_id = parseInt(status_id);
+      }
+
+      if (role_id) {
+        whereConditions.role_id = parseInt(role_id);
+      }
+
+      if (location_id) {
+        applicantWhere.preferred_location = parseInt(location_id);
+      }
+
+      const applications = await models.GeneralApplications.findAll({
+        where: whereConditions,
+        include: [
+          {
+            model: models.Applicants,
+            as: "applicant",
+            attributes: ["id", "name", "email", "phone"],
+            where: applicantWhere,
+            include: [
+              {
+                model: models.CareerLocations,
+                as: "location",
+                attributes: ["id", "location_name"],
+              },
+            ],
+          },
+          {
+            model: models.CareerRoles,
+            as: "role",
+            attributes: ["id", "role_name"],
+          },
+          {
+            model: models.ApplicationStatus,
+            as: "status",
+            attributes: ["id", "status_name"],
+          },
+        ],
+        order: [["application_date", "DESC"]],
+      });
+
+      // Store in cache
+      await CacheService.set(cacheKey, JSON.stringify(applications), 3600); // Cache for 1 hour
+
+      res.status(200).json({
+        success: true,
+        data: applications,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = JobApplicationSubmissionController;

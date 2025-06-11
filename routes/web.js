@@ -57,4 +57,13 @@ router.post(
 
 router.get("/careers/job_applications", JobApplicationSubmissionController.listApplications);
 
+router.post(
+  "/careers/general_application",
+  validateJobApplicationSubmission,
+  uploadApplicantFile,
+  JobApplicationSubmissionController.submitGeneralApplication
+);
+
+router.get("/careers/general_applications", JobApplicationSubmissionController.listGeneralApplications);
+
 module.exports = router;
