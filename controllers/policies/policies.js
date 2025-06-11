@@ -86,11 +86,11 @@ class PoliciesController {
     // Find a policy by its type
     static async findByType(req, res, next) {
         try {
-            const { type } = req.query; // or req.query if you prefer query params
+            const { type } = req.query;
             const policy = await MasterPolicies.findOne({ where: { type } });
 
             if (!policy) {
-                return res.status(404).json({ success: false, message: "Policy not found for the given type." });
+                return res.status(200).json({ success: true, data: [] });
             }
 
             res.json({ success: true, data: policy });
