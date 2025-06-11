@@ -9,6 +9,12 @@ class EventTypesController {
   static async create(req, res, next) {
     try {
       const data = { ...req.body };
+
+      if (req.file) {
+        data.cover_image = `/uploads/event-types/${req.file.filename}`;
+        Logger.info(`Uploaded image for Event Type: ${data.cover_image}`);
+      }
+
       const eventType = await EventTypes.create(data);
       await CacheService.invalidate("EventTypes");
       await CacheService.invalidate("webEventGallery");
@@ -64,8 +70,17 @@ class EventTypesController {
       if (!eventType) {
         throw new CustomError("Event Type not found", 404);
       }
-
       const updateData = { ...req.body };
+      const oldImage = eventType.cover_image;
+
+      if (req.file) {
+        updateData.cover_image = `/uploads/event-types/${req.file.filename}`;
+        Logger.info(`Updated image for Event Type ID ${id}: ${updateData.cover_image}`);
+        if (oldImage) {
+          await EventTypesController.deleteFile(oldImage);
+        }
+      }
+
       await eventType.update(updateData);
       await CacheService.invalidate("EventTypes");
       await CacheService.invalidate("webEventGallery");

@@ -2,7 +2,7 @@ const { models } = require("../models/index");
 const CacheService = require("../services/cacheService");
 const CustomError = require("../utils/customError");
 const logger = require("../services/logger");
-const { Sequelize, where } = require("sequelize");
+const { Sequelize, where, Op } = require("sequelize");
 
 class WebController {
   static async getHomeData(req, res, next) {
@@ -690,6 +690,35 @@ class WebController {
   }
   static async eventGallery(req, res, next) {
     const cacheKey = "webEventGallery";
+    const {
+      type = "all", // 'all', 'image', 'video'
+      page = 1, // page number (1-based)
+      limit = 10, // items per page
+    } = req.query;
+
+    // Convert page to number and calculate offset
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const offset = (pageNum - 1) * limitNum;
+
+    // Build where conditions for EventGallery
+    const galleryWhere = {
+      is_active: true,
+    };
+
+    // Add type filter
+    if (type === "image") {
+      galleryWhere.is_video = false;
+      galleryWhere.image = { [Op.ne]: null }; // Ensure image is not null
+    } else if (type === "video") {
+      galleryWhere.is_video = true;
+      galleryWhere.video = { [Op.ne]: null }; // Ensure video is not null
+    }
+
+    // Build where conditions for EventTypes
+    const eventTypeWhere = {
+      is_active: true,
+    };
 
     try {
       const cachedData = await CacheService.get(cacheKey);
@@ -698,43 +727,83 @@ class WebController {
       //   return res.json({ success: true, data: JSON.parse(cachedData) });
       // }
 
-      const [contents, eventMedias, eventTypes] = await Promise.all([
+      console.log(eventTypeWhere);
+      console.log(galleryWhere);
+
+      const [contents, eventMedias] = await Promise.all([
         models.GalleryPageContent.findAll(),
-        models.EventTypes.findAll({
-          where: { is_active: true },
+        models.EventTypes.findAndCountAll({
+          where: eventTypeWhere,
           order: [["order", "ASC"]],
           include: [
             {
               model: models.EventGallery,
               as: "galleryItems",
-              where: { is_active: true },
-              attributes: ["image", "video"],
-              required: false,
+              where: galleryWhere,
+              attributes: ["id", "image", "video", "is_video", "order", "image_alt", "createdAt"],
+              required: type !== "all", // Use inner join for specific types
+              order: [["order", "ASC"]],
             },
           ],
+          limit: limitNum,
+          offset: offset,
+          distinct: true, // Important for correct count with joins
         }),
-        models.EventTypes.findAll(),
       ]);
 
-      const galleryItems = eventMedias.map((eventType) => ({
-        title: eventType.title,
-        description: eventType.description,
-        images: (eventType.galleryItems || []).map((gallery) => gallery.image || gallery?.video),
-      }));
-
-      const mainSliderItems = eventMedias
-        .filter((eventType) => eventType.is_slider)
+      const galleryItems = eventMedias?.rows
         .map((eventType) => ({
           title: eventType.title,
           description: eventType.description,
-          gallery: eventType?.galleryItems[0]?.image || eventType?.galleryItems[0]?.video,
-        }));
+          images: (eventType.galleryItems || []).map((gallery) => gallery.image).filter((img) => img),
+          videos: (eventType.galleryItems || []).map((gallery) => gallery.video).filter((vid) => vid),
+        }))
+        .filter((item) => item.images.length > 0 || item.videos.length > 0);
+
+      const mainSliderItems = eventMedias?.rows
+        .filter((event) => event.is_slider)
+        .map((event) => {
+          return {
+            title: event.title,
+            description: event.description,
+            gallery: event?.cover_image,
+            alt: event?.image_alt,
+          };
+        });
 
       const data = {
         galleryPageContent: contents[0] || null,
         galleryItems,
         mainSliderItems,
+        pagination: {
+          totalCount: eventMedias.count,
+          totalPages: Math.ceil(eventMedias.count / limitNum),
+          currentPage: page,
+          limit: limitNum,
+        },
       };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched event gallery data from DB");
+      res.status(200).json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching event gallery data", { error: error.message, stack: error.stack });
+      res.json({ success: false, error: { message: error.message, stack: error.stack } });
+    }
+  }
+
+  static async event(req, res, next) {
+    const { slug } = req.query;
+
+    const cacheKey = "webEventGallery";
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving event gallery from cache");
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
+
+      // const events = await models.eve
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
       logger.info("Fetched event gallery data from DB");
