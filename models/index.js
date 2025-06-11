@@ -105,6 +105,7 @@ const definePartners = require("./partners/partners");
 const definePartnersData = require("./partners/partnersData");
 const defineDirectors = require("./directors/directors");
 const defineDirectorsContent = require("./directors/content");
+const defineMasterPolicies = require("./policies/policies");
 
 const models = {
   User: defineUser(sequelize),
@@ -214,6 +215,7 @@ const models = {
   Partners: definePartnersData(sequelize),
   Directors: defineDirectors(sequelize),
   DirectorsContent: defineDirectorsContent(sequelize),
+  MasterPolicies: defineMasterPolicies(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {
