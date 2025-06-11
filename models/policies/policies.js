@@ -20,6 +20,7 @@ module.exports = (sequelize) => {
                     "fair-practice-code",
                     "terms-and-conditions",
                     "kyc-policy",
+                    "disclaimer",
                 ),
                 allowNull: true,
             },

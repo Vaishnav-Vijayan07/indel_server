@@ -1206,10 +1206,10 @@ class WebController {
     const cacheKey = `webPolicy${type}`;
     try {
       const cachedData = await CacheService.get(cacheKey);
-      if (cachedData) {
-        logger.info(`Serving ${type} policy from cache`);
-        return res.json({ status: "success", data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   logger.info(`Serving ${type} policy from cache`);
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
 
       const policy = await models.MasterPolicies.findOne({
         where: {
@@ -1217,9 +1217,9 @@ class WebController {
         },
       });
 
-      await cacheService.set(cacheKey, JSON.stringify(policy), 3600);
+      await cacheService.set(cacheKey, JSON.stringify(policy || []), 3600);
       logger.info(`Fetched ${type} policy from DB`);
-      res.json({ status: "success", policy });
+      res.json({ status: "success", policy: policy || [] });
     } catch (error) {
       logger.error(`Error fetching ${type} policy`, { error: error.message, stack: error.stack });
       next(new CustomError(`Failed to fetch ${type} policy`, 500, error.message));
