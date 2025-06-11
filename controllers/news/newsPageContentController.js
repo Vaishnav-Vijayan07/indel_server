@@ -7,7 +7,7 @@ const NewsPageContent = models.NewsPageContent;
 class NewsPageContentController {
   static async get(req, res, next) {
     try {
-      const cacheKey = "newsPageContent";
+      const cacheKey = "NewsPageContent";
       const cachedData = await CacheService.get(cacheKey);
 
       if (cachedData) {
@@ -16,7 +16,7 @@ class NewsPageContentController {
 
       const content = await NewsPageContent.findOne();
       if (!content) {
-        throw new CustomError("Content not found", 404);
+        throw new CustomError("News Page Content not found", 404);
       }
 
       await CacheService.set(cacheKey, JSON.stringify(content), 3600);
@@ -30,13 +30,14 @@ class NewsPageContentController {
     try {
       const content = await NewsPageContent.findOne();
       if (!content) {
-        throw new CustomError("Content not found", 404);
+        throw new CustomError("News Page Content not found", 404);
       }
 
       const updateData = { ...req.body };
+
       await content.update(updateData);
 
-      await CacheService.invalidate("newsPageContent");
+      await CacheService.invalidate("NewsPageContent");
       res.json({ success: true, data: content, message: "News Page Content updated" });
     } catch (error) {
       next(error);

@@ -728,9 +728,6 @@ class WebController {
       //   return res.json({ success: true, data: JSON.parse(cachedData) });
       // }
 
-      console.log(eventTypeWhere);
-      console.log(galleryWhere);
-
       const [contents, eventMedias] = await Promise.all([
         models.GalleryPageContent.findAll(),
         models.EventTypes.findAndCountAll({
@@ -741,7 +738,7 @@ class WebController {
               model: models.EventGallery,
               as: "galleryItems",
               where: galleryWhere,
-              attributes: ["id", "image", "video", "is_video", "order", "image_alt", "createdAt"],
+              attributes: ["id", "image", "video", "is_video", "order", "image_alt", "video_thumbnail", "thumbnail_alt", "createdAt"],
               required: type !== "all", // Use inner join for specific types
               order: [["order", "ASC"]],
             },
@@ -753,13 +750,20 @@ class WebController {
       ]);
 
       const galleryItems = eventMedias?.rows
-        .map((eventType) => ({
-          title: eventType.title,
-          description: eventType.description,
-          images: (eventType.galleryItems || []).map((gallery) => gallery.image).filter((img) => img),
-          videos: (eventType.galleryItems || []).map((gallery) => gallery.video).filter((vid) => vid),
-        }))
-        .filter((item) => item.images.length > 0 || item.videos.length > 0);
+        .map((eventType) => {
+          const images = (eventType.galleryItems || []).map((gallery) => gallery.image).filter((img) => img);
+
+          const video_thumbs = (eventType.galleryItems || []).map((gallery) => gallery.video_thumbnail).filter((vid) => vid);
+
+          const thumbnails = [...images, ...video_thumbs];
+
+          return {
+            title: eventType.title,
+            description: eventType.description,
+            thumbnails,
+          };
+        })
+        .filter((item) => item.thumbnails.length > 0);
 
       const mainSliderItems = eventMedias?.rows
         .filter((event) => event.is_slider)
@@ -794,19 +798,52 @@ class WebController {
   }
 
   static async event(req, res, next) {
-    const { slug } = req.query;
+    const { slug, page = 1, limit = 6 } = req.query;
+
+    console.log(slug);
+
+    // Convert page to number and calculate offset
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const offset = (pageNum - 1) * limitNum;
 
     const cacheKey = "webEventGallery";
     try {
-      const cachedData = await CacheService.get(cacheKey);
-      // if (cachedData) {
-      //   logger.info("Serving event gallery from cache");
-      //   return res.json({ success: true, data: JSON.parse(cachedData) });
-      // }
+      const event = await models.EventTypes.findOne({
+        where: { slug },
+        attributes: ["id", "title", "description", "slug"],
+      });
 
-      // const events = await models.eve
+      console.log(event);
 
-      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      const eventData = await models.EventGallery.findAndCountAll({
+        where: {
+          is_active: true,
+          event_type_id: event.id,
+        },
+        attributes: ["id", "image", "video", "is_video", "order", "image_alt", "video_thumbnail", "thumbnail_alt", "event_type_id", "is_active"],
+        limit: limitNum,
+        offset: offset,
+        order: [["order", "ASC"]],
+      });
+
+      const { count, rows: events } = eventData;
+      const pages = Math.ceil(count / limitNum);
+
+      const data = {
+        galleryItems: events || [],
+        content: {
+          title: event?.title,
+          description: event?.description,
+        },
+        pagination: {
+          totalCount: count,
+          totalPages: pages,
+          currentPage: page,
+          limit: limitNum,
+        },
+      };
+
       logger.info("Fetched event gallery data from DB");
       res.status(200).json({ status: "success", data });
     } catch (error) {
@@ -1223,6 +1260,60 @@ class WebController {
     } catch (error) {
       logger.error(`Error fetching ${type} policy`, { error: error.message, stack: error.stack });
       next(new CustomError(`Failed to fetch ${type} policy`, 500, error.message));
+    }
+  }
+
+  static async newsData(req, res, next) {
+    const cacheKey = "webNewsData";
+
+    try {
+      await CacheService.invalidate("webNewsData");
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving blog data from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const [content, blogs] = await Promise.all([models.NewsPageContent.findAll(), models.News.findAll()]);
+
+      const sliderItems = blogs.filter((blog) => blog.is_slider);
+
+      const data = {
+        content: content[0] || null,
+        blogs,
+        sliderItems,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched news data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching news data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch news data", 500, error.message));
+    }
+  }
+  static async newsDetails(req, res, next) {
+    const { slug } = req.params;
+    const cacheKey = `webNewsData_${slug}`;
+
+    try {
+      await CacheService.invalidate(`webNewsData_${slug}`);
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving blog details from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const blog = await models.News.findOne({
+        where: { slug },
+      });
+
+      await CacheService.set(cacheKey, JSON.stringify(blog), 3600);
+      logger.info("Fetched news details from DB");
+      res.json({ status: "success", data: blog });
+    } catch (error) {
+      logger.error("Error fetching news details", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch news details", 500, error.message));
     }
   }
 }

@@ -3,9 +3,9 @@ const router = express.Router();
 const authMiddleware = require("../../middlewares/authMiddleware");
 const validateMiddleware = require("../../middlewares/validateMiddleware");
 const NewsPageContentController = require("../../controllers/news/newsPageContentController");
-const { validateNewsPageContentItemUpdate } = require("../../utils/validator");
+const { validateBlogPageContentUpdate } = require("../../utils/validator");
 
 router.get("/", NewsPageContentController.get);
-router.put("/", authMiddleware(["admin"]), validateNewsPageContentItemUpdate, validateMiddleware, NewsPageContentController.update);
+router.put("/", authMiddleware(["admin"]), validateBlogPageContentUpdate, validateMiddleware, NewsPageContentController.update);
 
 module.exports = router;

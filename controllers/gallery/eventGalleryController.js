@@ -103,7 +103,7 @@ class EventGalleryController {
       const updateData = { ...req.body };
       const oldImage = eventGallery.image;
       const oldVideo = eventGallery.video;
-
+      const oldVideoThumbnail = eventGallery.video_thumbnail;
 
       if (req.files) {
         if (req.files.image) {
@@ -115,6 +115,11 @@ class EventGalleryController {
           updateData.video = `/uploads/event-gallery/${req.files.video[0].filename}`;
           Logger.info(`Updated video for testimonial ID ${id}: ${updateData.video}`);
           if (oldVideo) await TestimonialsController.deleteFile(oldVideo);
+        }
+        if (req.files.video_thumbnail) {
+          updateData.video_thumbnail = `/uploads/event-gallery/${req.files.video_thumbnail[0].filename}`;
+          Logger.info(`Updated video_thumbnail for testimonial ID ${id}: ${updateData.video_thumbnail}`);
+          if (oldVideoThumbnail) await TestimonialsController.deleteFile(oldVideoThumbnail);
         }
       }
 

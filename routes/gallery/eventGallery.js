@@ -10,6 +10,7 @@ const upload = createUploadMiddleware("event-gallery");
 const uploadFields = upload.fields([
     { name: "image", maxCount: 1 },
     { name: "video", maxCount: 1 },
+    { name: "video_thumbnail", maxCount: 1 },
 ]);
 
 router.get("/", EventGalleryController.getAll);
