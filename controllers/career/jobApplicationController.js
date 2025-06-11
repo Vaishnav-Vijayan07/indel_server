@@ -91,12 +91,15 @@ class JobApplicationSubmissionController {
 
   static async listApplications(req, res, next) {
     try {
-      const { role_id, location_id, state_id, status_id, applicant_location_id } = req.query;
+      const { role_id, location_id, state_id, status_id, applicant_location_id, limit = "10", offset = "0" } = req.query;
+
+      const parsedLimit = Math.max(1, parseInt(limit, 10) || 10); // Ensure limit >= 1
+      const parsedOffset = Math.max(0, parseInt(offset, 10) || 0); // Ensure offset >= 0
 
       // Build cache key based on query parameters
       const cacheKey = `job_applications_all_${role_id || "all"}_${location_id || "all"}_${state_id || "all"}_${
         status_id || "all"
-      }_${applicant_location_id || "all"}`;
+      }_${applicant_location_id || "all"}_${parsedLimit}_${parsedOffset}`;
       const cachedData = await CacheService.get(cacheKey);
 
       if (cachedData) {
@@ -178,14 +181,28 @@ class JobApplicationSubmissionController {
         ],
         order: [["created_at", "DESC"]],
         // attributes: ["id", "application_date", "order", "is_active"],
+        limit: parsedLimit,
+        offset: parsedOffset,
       });
 
-      // Store in cache
-      await CacheService.set(cacheKey, JSON.stringify(applications), 3600); // Cache for 1 hour
+      const response = {
+        success: true,
+        data: applications,
+        total,
+        meta: {
+          page: Math.floor(parsedOffset / parsedLimit) + 1,
+          totalPages: Math.ceil(total / parsedLimit),
+          limit: parsedLimit,
+          offset: parsedOffset,
+        },
+      };
+
+      // Store in cache for 1 hour
+      await CacheService.set(cacheKey, JSON.stringify(response), 3600); // Cache for 1 hour
 
       res.status(200).json({
         status: "success",
-        data: applications,
+        data: response,
       });
     } catch (error) {
       next(error);
@@ -276,10 +293,15 @@ class JobApplicationSubmissionController {
 
   static async listGeneralApplications(req, res, next) {
     try {
-      const { role_id, location_id, status_id } = req.query;
+      const { role_id, location_id, status_id, limit = "10", offset = "0" } = req.query;
+
+      const parsedLimit = Math.max(1, parseInt(limit, 10) || 10); // Ensure limit >= 1
+      const parsedOffset = Math.max(0, parseInt(offset, 10) || 0); // Ensure offset >= 0
 
       // Build cache key based on query parameters
-      const cacheKey = `general_applications_all_${role_id || "all"}_${location_id || "all"}_${status_id || "all"}`;
+      const cacheKey = `general_applications_all_${role_id || "all"}_${location_id || "all"}_${
+        status_id || "all"
+      }_${parsedLimit}_${parsedOffset}`;
       const cachedData = await CacheService.get(cacheKey);
 
       if (cachedData) {
@@ -333,14 +355,29 @@ class JobApplicationSubmissionController {
           },
         ],
         order: [["application_date", "DESC"]],
+        limit: parsedLimit,
+        offset: parsedOffset,
       });
 
+      // Prepare response
+      const response = {
+        success: true,
+        data: applications,
+        total,
+        meta: {
+          page: Math.floor(parsedOffset / parsedLimit) + 1,
+          totalPages: Math.ceil(total / parsedLimit),
+          limit: parsedLimit,
+          offset: parsedOffset,
+        },
+      };
+
       // Store in cache
-      await CacheService.set(cacheKey, JSON.stringify(applications), 3600); // Cache for 1 hour
+      await CacheService.set(cacheKey, JSON.stringify(response), 3600); // Cache for 1 hour
 
       res.status(200).json({
         success: true,
-        data: applications,
+        data: response,
       });
     } catch (error) {
       next(error);
