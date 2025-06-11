@@ -134,7 +134,7 @@ class JobApplicationSubmissionController {
         applicantWhere.preferred_location = parseInt(applicant_location_id);
       }
 
-      const applications = await models.JobApplications.findAll({
+      const { rows: applications, count: total } = await models.JobApplications.findAndCountAll({
         where: whereConditions,
         include: [
           {
@@ -327,7 +327,7 @@ class JobApplicationSubmissionController {
         applicantWhere.preferred_location = parseInt(location_id);
       }
 
-      const applications = await models.GeneralApplications.findAll({
+      const { rows: applications, count: total } = await models.GeneralApplications.findAndCountAll({
         where: whereConditions,
         include: [
           {
