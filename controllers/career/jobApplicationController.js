@@ -140,7 +140,7 @@ class JobApplicationSubmissionController {
           {
             model: models.Applicants,
             as: "applicant",
-            attributes: ["id", "name", "email", "phone"],
+            attributes: ["id", "name", "email", "phone", "file"],
             where: applicantWhere,
             include: [
               {
@@ -333,7 +333,7 @@ class JobApplicationSubmissionController {
           {
             model: models.Applicants,
             as: "applicant",
-            attributes: ["id", "name", "email", "phone"],
+            attributes: ["id", "name", "email", "phone", "file"],
             where: applicantWhere,
             include: [
               {
