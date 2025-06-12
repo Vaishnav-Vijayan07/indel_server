@@ -18,8 +18,29 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
+      },
+      firstName: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      lastName: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      phone: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      isActive: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+      },
       role: {
-        type: DataTypes.ENUM("admin", "user"),
+        type: DataTypes.ENUM("admin", "user", "hr", "manager"),
         defaultValue: "user",
       },
     },
