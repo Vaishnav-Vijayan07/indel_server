@@ -106,6 +106,8 @@ const definePartnersData = require("./partners/partnersData");
 const defineDirectors = require("./directors/directors");
 const defineDirectorsContent = require("./directors/content");
 const defineMasterPolicies = require("./policies/policies");
+const defineLoanAgainstProperty = require("./policies/policies");
+const defineContactSubmissions = require("./contact/contactSubmissions");
 
 const models = {
   User: defineUser(sequelize),
@@ -216,6 +218,8 @@ const models = {
   Directors: defineDirectors(sequelize),
   DirectorsContent: defineDirectorsContent(sequelize),
   MasterPolicies: defineMasterPolicies(sequelize),
+  LoanAgainstProperty: defineLoanAgainstProperty(sequelize),
+  ContactSubmissions: defineContactSubmissions(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {
