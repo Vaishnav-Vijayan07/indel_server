@@ -108,7 +108,6 @@ const defineDirectors = require("./directors/directors");
 const defineDirectorsContent = require("./directors/content");
 const defineMasterPolicies = require("./policies/policies");
 const defineLoanAgainstProperty = require("./policies/policies");
-const defineContactSubmissions = require("./contact/contactSubmissions");
 const defineApplicationStatus = require("./career/application_status");
 const defineGeneralApplications = require("./career/general_application");
 
@@ -223,7 +222,6 @@ const models = {
   DirectorsContent: defineDirectorsContent(sequelize),
   MasterPolicies: defineMasterPolicies(sequelize),
   LoanAgainstProperty: defineLoanAgainstProperty(sequelize),
-  ContactSubmissions: defineContactSubmissions(sequelize),
   ApplicationStatus: defineApplicationStatus(sequelize),
   GeneralApplications: defineGeneralApplications(sequelize),
 };

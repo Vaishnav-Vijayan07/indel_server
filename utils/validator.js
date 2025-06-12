@@ -1423,7 +1423,7 @@ const validateServiceEnquiry = [
   check("name").notEmpty().withMessage("Name is required"),
   check("phone").notEmpty().withMessage("Phone is required"),
   check("service_types").notEmpty().withMessage("Service types is required"),
-  check("enquiry_type").isIn(["gold_loan_calculator", "emi_calculator", "general"]).withMessage("Invalid enquiry type"),
+  check("enquiry_type").isIn(["gold_loan_calculator", "emi_calculator", "general","contact"]).withMessage("Invalid enquiry type"),
   check("email").optional().isEmail().withMessage("Email must be valid"),
   check("enquiry_type_details").optional().isObject().withMessage("Enquiry type details must be an object"),
 ];
@@ -1434,7 +1434,7 @@ const validateServiceEnquiryUpdate = [
   check("service_types").optional().notEmpty().withMessage("Service types cannot be empty"),
   check("enquiry_type")
     .optional()
-    .isIn(["gold_loan_calculator", "emi_calculator", "general"])
+    .isIn(["gold_loan_calculator", "emi_calculator", "general","contact"])
     .withMessage("Invalid enquiry type"),
   check("email").optional().isEmail().withMessage("Email must be valid"),
   check("enquiry_type_details").optional().isObject().withMessage("Enquiry type details must be an object"),
