@@ -160,10 +160,26 @@ const validateHomeSmartDealsUpdate = [
   check("title").optional().notEmpty().withMessage("Title cannot be empty"),
   check("order").optional().isInt().withMessage("Order must be an integer"),
 ];
-
-const validateAuth = [
-  check("username").notEmpty().withMessage("Username is required"),
+const validateRegister = [
+  check("username")
+    .notEmpty()
+    .withMessage("Username is required")
+    .isLength({ min: 3 })
+    .withMessage("Username must be at least 3 characters"),
+  check("email").notEmpty().withMessage("Email is required").isEmail().withMessage("Invalid email format"),
   check("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters"),
+  check("firstName").optional().isLength({ min: 1 }).withMessage("First name must not be empty if provided"),
+  check("lastName").optional().isLength({ min: 1 }).withMessage("Last name must not be empty if provided"),
+  check("phone").optional().isMobilePhone().withMessage("Invalid phone number format"),
+];
+
+const validateLogin = [
+  check("username").notEmpty().withMessage("Username is required"),
+  check("password")
+    .notEmpty()
+    .withMessage("Password is required")
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters"),
 ];
 
 const validateHeroBanner = [
@@ -1743,7 +1759,6 @@ module.exports = {
   validateCreditRatingsUpdate,
   validateQuarterlyReports,
   validateQuarterlyReportsUpdate,
-  validateAuth,
   validateHeroBanner,
   validateHeroBannerUpdate,
   validateHomeStatistics,
@@ -1887,4 +1902,6 @@ module.exports = {
   validateGeneralApplications,
   validateGeneralApplicationsUpdate,
   validateJobApplicationSubmission,
+  validateRegister,
+  validateLogin
 };
