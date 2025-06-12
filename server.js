@@ -6,6 +6,7 @@ const errorMiddleware = require("./middlewares/errorMiddleware");
 const Logger = require("./services/logger");
 const path = require("path");
 const cors = require("cors");
+const formData = require('express-form-data');
 const { createDemoAdmin } = require("./utils/demoUser");
 const { initHomePageContent } = require("./utils/initHomePageContent");
 const { initMngmntTeamContent } = require("./utils/initMangementTeamContent");
@@ -43,6 +44,11 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api", apiRoutes);
 
 app.use(errorMiddleware);
+app.use(formData.parse({
+  uploadDir: './uploads',
+  autoClean: true
+}));
+
 
 const PORT = process.env.PORT || 3000;
 

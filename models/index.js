@@ -55,6 +55,7 @@ const defineCareerRoles = require("./career/roles");
 const defineCareerJobs = require("./career/jobs");
 const defineCareerGallery = require("./career/gallery");
 const defineCareerBenfs = require("./career/employeeBenfs");
+const defineApplicants = require("./career/applicants");
 const defineBlogContent = require("./blog/content");
 const defineBlogs = require("./blog/blogs");
 const defineGalleryPageContent = require("./gallery/galleryPageContent");
@@ -108,6 +109,8 @@ const defineDirectorsContent = require("./directors/content");
 const defineMasterPolicies = require("./policies/policies");
 const defineLoanAgainstProperty = require("./policies/policies");
 const defineContactSubmissions = require("./contact/contactSubmissions");
+const defineApplicationStatus = require("./career/application_status");
+const defineGeneralApplications = require("./career/general_application");
 
 const models = {
   User: defineUser(sequelize),
@@ -165,6 +168,7 @@ const models = {
   CareerRoles: defineCareerRoles(sequelize),
   CareerJobs: defineCareerJobs(sequelize),
   CareerGallery: defineCareerGallery(sequelize),
+  Applicants: defineApplicants(sequelize),
   EmployeeBenefits: defineCareerBenfs(sequelize),
   BlogPageContent: defineBlogContent(sequelize),
   Blogs: defineBlogs(sequelize),
@@ -220,6 +224,8 @@ const models = {
   MasterPolicies: defineMasterPolicies(sequelize),
   LoanAgainstProperty: defineLoanAgainstProperty(sequelize),
   ContactSubmissions: defineContactSubmissions(sequelize),
+  ApplicationStatus: defineApplicationStatus(sequelize),
+  GeneralApplications: defineGeneralApplications(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {

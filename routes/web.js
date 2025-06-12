@@ -4,9 +4,12 @@ const WebController = require("../controllers/webController");
 const JobApplicationsController = require("../controllers/resumeController");
 const createUploadMiddleware = require("../middlewares/multerMiddleware");
 const InvestorsController = require("../controllers/investorsController");
+const { validateJobApplicationSubmission } = require("../utils/validator");
+const JobApplicationSubmissionController = require("../controllers/career/jobApplicationController");
 
 const upload = createUploadMiddleware("job-applications");
 const uploadField = upload.single("resume");
+const uploadApplicantFile = upload.single("applicant[file]");
 
 router.get("/home", WebController.getHomeData);
 router.get("/about", WebController.aboutData);
@@ -49,8 +52,25 @@ router.get("/partner-data", WebController.partnersData);
 router.get("/directors", WebController.directors);
 router.get("/policies", WebController.policy);
 
-
 router.post("/career/resume", uploadField, JobApplicationsController.create);
 router.get("/career/resume", uploadField, JobApplicationsController.getAll);
+
+router.post(
+  "/careers/job_application",
+  validateJobApplicationSubmission,
+  uploadApplicantFile,
+  JobApplicationSubmissionController.submitApplication
+);
+
+router.get("/careers/job_applications", JobApplicationSubmissionController.listApplications);
+
+router.post(
+  "/careers/general_application",
+  validateJobApplicationSubmission,
+  uploadApplicantFile,
+  JobApplicationSubmissionController.submitGeneralApplication
+);
+
+router.get("/careers/general_applications", JobApplicationSubmissionController.listGeneralApplications);
 
 module.exports = router;

@@ -1,21 +1,13 @@
 const { DataTypes } = require("sequelize");
 
-module.exports = (sequelize) => {
-  const JobApplications = sequelize.define(
-    "JobApplications",
+const GeneralApplications = (sequelize) => {
+  const GeneralApplications = sequelize.define(
+    "GeneralApplications",
     {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
-      },
-      job_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: "jobs",
-          key: "id",
-        },
       },
       applicant_id: {
         type: DataTypes.INTEGER,
@@ -30,6 +22,14 @@ module.exports = (sequelize) => {
         allowNull: false,
         references: {
           model: "application_statuses",
+          key: "id",
+        },
+      },
+      role_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: "roles",
           key: "id",
         },
       },
@@ -50,27 +50,28 @@ module.exports = (sequelize) => {
       },
     },
     {
-      tableName: "job_applications",
+      tableName: "general_applications",
       timestamps: true,
       createdAt: "created_at",
       updatedAt: "updated_at",
     }
   );
 
-  JobApplications.associate = (models) => {
-    JobApplications.belongsTo(models.CareerJobs, {
-      foreignKey: "job_id",
-      as: "job",
-    });
-    JobApplications.belongsTo(models.Applicants, {
+  GeneralApplications.associate = (models) => {
+    GeneralApplications.belongsTo(models.Applicants, {
       foreignKey: "applicant_id",
       as: "applicant",
     });
-    JobApplications.belongsTo(models.ApplicationStatus, {
+    GeneralApplications.belongsTo(models.ApplicationStatus, {
       foreignKey: "status_id",
       as: "status",
     });
+    GeneralApplications.belongsTo(models.CareerRoles, {
+      foreignKey: "role_id",
+      as: "role",
+    });
   };
 
-  return JobApplications;
+  return GeneralApplications;
 };
+module.exports = GeneralApplications;

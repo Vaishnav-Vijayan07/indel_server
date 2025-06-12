@@ -1,0 +1,388 @@
+const { models } = require("../../models/index");
+const CacheService = require("../../services/cacheService");
+const CustomError = require("../../utils/customError");
+
+class JobApplicationSubmissionController {
+  static async submitApplication(req, res, next) {
+    try {
+      const { applicant, job_application } = req.body;
+      const file = req.file;
+
+      // Validate foreign key reference for preferred location
+      const location = await models.CareerLocations.findByPk(applicant.preferred_location);
+      console.log("Preferred location:", location);
+      if (!location) {
+        throw new CustomError("Preferred location not found", 404);
+      }
+
+      // Validate foreign key reference for job
+      const job = await models.CareerJobs.findByPk(job_application.job_id);
+      if (!job) throw new CustomError("Job not found", 404);
+
+      // Fetch "Pending" status
+      const pendingStatus = await models.ApplicationStatus.findOne({
+        where: { status_name: "Pending" },
+      });
+      if (!pendingStatus) throw new CustomError("Pending status not found", 500);
+
+      // Check if file was uploaded
+      if (!file) {
+        throw new CustomError("Resume file is required", 400);
+      }
+
+      // Check if applicant with this email already exists
+      let newApplicant = await models.Applicants.findOne({
+        where: { email: applicant.email },
+      });
+
+      if (newApplicant) {
+        // Check for existing application for this job
+        const existingApplication = await models.JobApplications.findOne({
+          where: {
+            applicant_id: newApplicant.id,
+            job_id: job_application.job_id,
+          },
+        });
+        if (existingApplication) {
+          throw new CustomError("You have already applied for this job", 409);
+        }
+
+        // Update applicant data
+        const applicantData = {
+          ...applicant,
+          file: file.path, // Update file path if a new file is uploaded
+        };
+        await newApplicant.update(applicantData);
+      } else {
+        // Create new applicant record with file path
+        const applicantData = {
+          ...applicant,
+          file: file.path,
+        };
+        newApplicant = await models.Applicants.create(applicantData);
+      }
+
+      // Create job application record with applicant_id, pending status, and auto application date
+      const applicationData = {
+        job_id: job_application.job_id,
+        applicant_id: newApplicant.id,
+        status_id: pendingStatus.id,
+        file: file.path, // Optionally store the same file path in job_applications
+        is_active: job_application.is_active ?? true, // Default to true if not provided
+        order: job_application.order ?? 1, // Default to 1 if not provided
+      };
+      const newApplication = await models.JobApplications.create(applicationData);
+
+      // Invalidate caches
+      await Promise.all([CacheService.invalidate("applicants"), CacheService.invalidate("job_applications")]);
+
+      res.status(201).json({
+        success: true,
+        data: {
+          applicant: newApplicant,
+          job_application: newApplication,
+        },
+        message: "Job application submitted successfully",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async listApplications(req, res, next) {
+    try {
+      const { role_id, location_id, state_id, status_id, applicant_location_id, limit = "10", offset = "0" } = req.query;
+
+      const parsedLimit = Math.max(1, parseInt(limit, 10) || 10); // Ensure limit >= 1
+      const parsedOffset = Math.max(0, parseInt(offset, 10) || 0); // Ensure offset >= 0
+
+      // Build cache key based on query parameters
+      const cacheKey = `job_applications_all_${role_id || "all"}_${location_id || "all"}_${state_id || "all"}_${
+        status_id || "all"
+      }_${applicant_location_id || "all"}_${parsedLimit}_${parsedOffset}`;
+      const cachedData = await CacheService.get(cacheKey);
+
+      if (cachedData) {
+        return res.json({
+          success: true,
+          data: JSON.parse(cachedData),
+        });
+      }
+
+      // Build filter conditions
+      const whereConditions = {}; // Only active applications
+      const jobWhere = {};
+      const applicantWhere = {};
+
+      if (status_id) {
+        whereConditions.status_id = parseInt(status_id);
+      }
+
+      if (role_id) {
+        jobWhere.role_id = parseInt(role_id);
+      }
+
+      if (location_id) {
+        jobWhere.location_id = parseInt(location_id);
+      }
+
+      if (state_id) {
+        jobWhere.state_id = parseInt(state_id);
+      }
+
+      if (applicant_location_id) {
+        applicantWhere.preferred_location = parseInt(applicant_location_id);
+      }
+
+      const { rows: applications, count: total } = await models.JobApplications.findAndCountAll({
+        where: whereConditions,
+        include: [
+          {
+            model: models.Applicants,
+            as: "applicant",
+            attributes: ["id", "name", "email", "phone"],
+            where: applicantWhere,
+            include: [
+              {
+                model: models.CareerLocations,
+                as: "location",
+                attributes: ["id", "location_name"],
+              },
+            ],
+          },
+          {
+            model: models.CareerJobs,
+            as: "job",
+            attributes: ["id", "job_title"],
+            where: jobWhere,
+            include: [
+              {
+                model: models.CareerRoles,
+                as: "role",
+                attributes: ["id", "role_name"],
+              },
+              {
+                model: models.CareerLocations,
+                as: "location",
+                attributes: ["id", "location_name"],
+              },
+              {
+                model: models.CareerStates,
+                as: "state",
+                attributes: ["id", "state_name"],
+              },
+            ],
+          },
+          {
+            model: models.ApplicationStatus,
+            as: "status",
+            attributes: ["id", "status_name"],
+          },
+        ],
+        order: [["created_at", "DESC"]],
+        // attributes: ["id", "application_date", "order", "is_active"],
+        limit: parsedLimit,
+        offset: parsedOffset,
+      });
+
+      const response = {
+        success: true,
+        data: applications,
+        total,
+        meta: {
+          page: Math.floor(parsedOffset / parsedLimit) + 1,
+          totalPages: Math.ceil(total / parsedLimit),
+          limit: parsedLimit,
+          offset: parsedOffset,
+        },
+      };
+
+      // Store in cache for 1 hour
+      await CacheService.set(cacheKey, JSON.stringify(response), 3600); // Cache for 1 hour
+
+      res.status(200).json({
+        status: "success",
+        data: response,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async submitGeneralApplication(req, res, next) {
+    try {
+      const { applicant, general_application } = req.body;
+      const file = req.file;
+
+      // Validate foreign key reference for preferred location
+      const location = await models.CareerLocations.findByPk(applicant.preferred_location);
+      if (!location) {
+        throw new CustomError("Preferred location not found", 404);
+      }
+
+      // Validate foreign key reference for role
+      const role = await models.CareerRoles.findByPk(general_application.role_id);
+      if (!role) throw new CustomError("Role not found", 404);
+
+      // Fetch "Pending" status
+      const pendingStatus = await models.ApplicationStatus.findOne({
+        where: { status_name: "Pending" },
+      });
+      if (!pendingStatus) throw new CustomError("Pending status not found", 500);
+
+      // Check if file was uploaded
+      if (!file) {
+        throw new CustomError("Resume file is required", 400);
+      }
+
+      // Check if applicant with this email already exists
+      let newApplicant = await models.Applicants.findOne({
+        where: { email: applicant.email },
+      });
+
+      if (newApplicant) {
+        // Check for existing general application for this role
+        const existingApplication = await models.GeneralApplications.findOne({
+          where: {
+            applicant_id: newApplicant.id,
+            role_id: general_application.role_id,
+          },
+        });
+        if (existingApplication) {
+          throw new CustomError("You have already applied for this role", 409);
+        }
+
+        // Update applicant data
+        const applicantData = {
+          ...applicant,
+          file: file.path, // Update file path if a new file is uploaded
+        };
+        await newApplicant.update(applicantData);
+      } else {
+        // Create new applicant record with file path
+        const applicantData = {
+          ...applicant,
+          file: file.path,
+        };
+        newApplicant = await models.Applicants.create(applicantData);
+      }
+
+      // Create general application record with applicant_id, pending status, and auto application date
+      const applicationData = {
+        applicant_id: newApplicant.id,
+        status_id: pendingStatus.id,
+        role_id: general_application.role_id,
+      };
+      const newApplication = await models.GeneralApplications.create(applicationData);
+
+      // Invalidate caches
+      await Promise.all([CacheService.invalidate("applicants"), CacheService.invalidate("general_applications")]);
+
+      res.status(201).json({
+        success: true,
+        data: {
+          applicant: newApplicant,
+          general_application: newApplication,
+        },
+        message: "General application submitted successfully",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async listGeneralApplications(req, res, next) {
+    try {
+      const { role_id, location_id, status_id, limit = "10", offset = "0" } = req.query;
+
+      const parsedLimit = Math.max(1, parseInt(limit, 10) || 10); // Ensure limit >= 1
+      const parsedOffset = Math.max(0, parseInt(offset, 10) || 0); // Ensure offset >= 0
+
+      // Build cache key based on query parameters
+      const cacheKey = `general_applications_all_${role_id || "all"}_${location_id || "all"}_${
+        status_id || "all"
+      }_${parsedLimit}_${parsedOffset}`;
+      const cachedData = await CacheService.get(cacheKey);
+
+      if (cachedData) {
+        return res.json({
+          success: true,
+          data: JSON.parse(cachedData),
+        });
+      }
+
+      // Build filter conditions
+      const whereConditions = {};
+      const applicantWhere = {};
+
+      if (status_id) {
+        whereConditions.status_id = parseInt(status_id);
+      }
+
+      if (role_id) {
+        whereConditions.role_id = parseInt(role_id);
+      }
+
+      if (location_id) {
+        applicantWhere.preferred_location = parseInt(location_id);
+      }
+
+      const { rows: applications, count: total } = await models.GeneralApplications.findAndCountAll({
+        where: whereConditions,
+        include: [
+          {
+            model: models.Applicants,
+            as: "applicant",
+            attributes: ["id", "name", "email", "phone"],
+            where: applicantWhere,
+            include: [
+              {
+                model: models.CareerLocations,
+                as: "location",
+                attributes: ["id", "location_name"],
+              },
+            ],
+          },
+          {
+            model: models.CareerRoles,
+            as: "role",
+            attributes: ["id", "role_name"],
+          },
+          {
+            model: models.ApplicationStatus,
+            as: "status",
+            attributes: ["id", "status_name"],
+          },
+        ],
+        order: [["application_date", "DESC"]],
+        limit: parsedLimit,
+        offset: parsedOffset,
+      });
+
+      // Prepare response
+      const response = {
+        success: true,
+        data: applications,
+        total,
+        meta: {
+          page: Math.floor(parsedOffset / parsedLimit) + 1,
+          totalPages: Math.ceil(total / parsedLimit),
+          limit: parsedLimit,
+          offset: parsedOffset,
+        },
+      };
+
+      // Store in cache
+      await CacheService.set(cacheKey, JSON.stringify(response), 3600); // Cache for 1 hour
+
+      res.status(200).json({
+        success: true,
+        data: response,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+module.exports = JobApplicationSubmissionController;
