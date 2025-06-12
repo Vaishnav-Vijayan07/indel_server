@@ -17,6 +17,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      link: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       alt_text: {
         type: DataTypes.STRING,
         allowNull: true,

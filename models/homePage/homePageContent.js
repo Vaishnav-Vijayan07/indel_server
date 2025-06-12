@@ -69,6 +69,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      smart_deal_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       branch_section_title: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -110,6 +114,14 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       life_section_image3: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      life_section_mob_description: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      awards_title: {
         type: DataTypes.STRING,
         allowNull: true,
       },

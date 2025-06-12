@@ -18,7 +18,7 @@ class WebController {
       // }
 
       // Fetch all data concurrently
-      const [heroBanner, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs, popUp] = await Promise.all([
+      const [heroBanner, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs, popUp, smartMoneyDeals] = await Promise.all([
         models.HeroBanner.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
           logger.error("Failed to fetch heroBanner", { error: err.message, stack: err.stack });
           throw err;
@@ -39,7 +39,12 @@ class WebController {
           logger.error("Failed to fetch pageContent", { error: err.message, stack: err.stack });
           throw err;
         }),
-        models.Awards.findAll().catch((err) => {
+        models.Awards.findAll({
+          where: {
+            is_slide: true,
+          },
+          attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
+        }).catch((err) => {
           logger.error("Failed to fetch lifeAtIndel", { error: err.message, stack: err.stack });
           throw err;
         }),
@@ -48,6 +53,14 @@ class WebController {
           throw err;
         }),
         models.PopupSettings.findAll().catch((err) => {
+          logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
+          throw err;
+        }),
+        models.SmartMoneyDeals.findAll({
+          attributes: ["id", "title", "icon", "order", "is_active", "link"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }).catch((err) => {
           logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
           throw err;
         }),
@@ -86,6 +99,7 @@ class WebController {
 
       // Structure the response data
       const data = {
+        smartMoneyDeals,
         banner: isBanner ? bannerPopupData : null,
         service: !isBanner ? servicePopupData : null,
         lifeAtIndel,
@@ -636,9 +650,7 @@ class WebController {
         testimoinials,
       };
 
-
       console.log("Data fetched for Career Page:", data);
-      
 
       // await CacheService.set(cacheKey, JSON.stringify(data), 3600);
       logger.info("Fetched Career Page data from DB");
@@ -765,6 +777,7 @@ class WebController {
             title: eventType.title,
             description: eventType.description,
             thumbnails,
+            slug: eventType.slug,
           };
         })
         .filter((item) => item.thumbnails.length > 0);
@@ -777,6 +790,7 @@ class WebController {
             description: event.description,
             gallery: event?.cover_image,
             alt: event?.image_alt,
+            slug: event.slug,
           };
         });
 
