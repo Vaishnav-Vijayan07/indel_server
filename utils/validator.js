@@ -701,6 +701,8 @@ const validateCareerLocationsUpdate = [
 
 const validateCareerLocations = [
   check("location_name").notEmpty().withMessage("Location Name is required"),
+  check("state_id").isInt().withMessage("State ID must be an integer"),
+  check("district_id").isInt().withMessage("District ID must be an integer"),
   check("order").isInt().withMessage("Order must be an integer"),
   check("is_active").isBoolean().withMessage("Is active must be a boolean"),
 ];
@@ -1452,7 +1454,7 @@ const validateServiceEnquiry = [
   check("name").notEmpty().withMessage("Name is required"),
   check("phone").notEmpty().withMessage("Phone is required"),
   check("service_types").notEmpty().withMessage("Service types is required"),
-  check("enquiry_type").isIn(["gold_loan_calculator", "emi_calculator", "general"]).withMessage("Invalid enquiry type"),
+  check("enquiry_type").isIn(["gold_loan_calculator", "emi_calculator", "general","contact"]).withMessage("Invalid enquiry type"),
   check("email").optional().isEmail().withMessage("Email must be valid"),
   check("enquiry_type_details").optional().isObject().withMessage("Enquiry type details must be an object"),
 ];
@@ -1463,7 +1465,7 @@ const validateServiceEnquiryUpdate = [
   check("service_types").optional().notEmpty().withMessage("Service types cannot be empty"),
   check("enquiry_type")
     .optional()
-    .isIn(["gold_loan_calculator", "emi_calculator", "general"])
+    .isIn(["gold_loan_calculator", "emi_calculator", "general","contact"])
     .withMessage("Invalid enquiry type"),
   check("email").optional().isEmail().withMessage("Email must be valid"),
   check("enquiry_type_details").optional().isObject().withMessage("Enquiry type details must be an object"),
@@ -1568,6 +1570,25 @@ const validatePopupServices = [
   check("button_link").isURL().withMessage("Button Link must be a valid URL"),
   check("button_text").notEmpty().withMessage("Button Text cannot be empty"),
   // check("image").isURL().withMessage("Image must be a valid URL"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+  check("order").isInt().withMessage("Order must be an integer"),
+];
+
+const validateLoanTypesUpdate = [
+  check("title").optional().notEmpty().withMessage("Title is required"),
+  check("image_alt").optional().notEmpty().withMessage("Image Alt is required"),
+  check("sub_title").optional().notEmpty().withMessage("Sub Title cannot be empty"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("link").optional().isURL().withMessage("Link must be a valid URL"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+];
+const validateLoanTypes = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("image_alt").notEmpty().withMessage("Image Alt is required"),
+  check("sub_title").notEmpty().withMessage("Sub Title cannot be empty"),
+  check("description").notEmpty().withMessage("Description cannot be empty"),
+  check("link").isURL().withMessage("Link must be a valid URL"),
   check("is_active").isBoolean().withMessage("Is active must be a boolean"),
   check("order").isInt().withMessage("Order must be an integer"),
 ];
@@ -1757,6 +1778,8 @@ const validateJobApplicationSubmission = [
 ];
 
 module.exports = {
+  validateLoanTypes,
+  validateLoanTypesUpdate,
   validatePopupServicesUpdate,
   validatePopupServices,
   validatePopupSettingsUpdate,

@@ -61,6 +61,35 @@ class DistrictsController {
         }
     }
 
+    static async getDistrictsByStateId(req, res, next) {
+        try {
+            const { id } = req.params;
+
+            if (!id) {
+                return res.status(400).json({ success: false, message: "state_id parameter is required." });
+            }
+
+            const cacheKey = `districts_state_${id}`;
+            const cachedData = await CacheService.get(cacheKey);
+
+            if (cachedData) {
+                return res.json({ success: true, data: JSON.parse(cachedData) });
+            }
+
+            const districts = await Districts.findAll({
+                where: { state_id: id }, // filter by state_id
+                order: [["order", "ASC"]],
+                include: [{ model: models.CareerStates, as: "state", attributes: ["state_name"] }]
+            });
+
+            await CacheService.set(cacheKey, JSON.stringify(districts), 3600);
+
+            res.json({ success: true, data: districts });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     static async getById(req, res, next) {
         try {
             const { id } = req.params;

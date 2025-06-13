@@ -26,9 +26,9 @@ class PopupSettingsController {
       const cacheKey = "PopupSettings";
       const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
 
       const settings = await PopupSettings.findOne();
       if (!settings) {
@@ -52,6 +52,26 @@ class PopupSettingsController {
       const updateData = { ...req.body };
       const oldLogo = settings.logo;
       const oldBannerImage = settings.banner_popup_image;
+
+      const { service_popup_status, banner_popup_status } = req.body;
+      const serviceStatus = service_popup_status === "true" || service_popup_status === true;
+      const bannerStatus = banner_popup_status === "true" || banner_popup_status === true;
+
+      // If service popup is being enabled, disable banner popup
+      if (serviceStatus && bannerStatus) {
+        updateData.service_popup_status = true;
+        updateData.banner_popup_status = false;
+      }
+      // If banner popup is being enabled, disable service popup
+      else if (bannerStatus) {
+        updateData.banner_popup_status = true;
+        updateData.service_popup_status = false;
+      }
+      // If both are false, keep them false
+      else {
+        updateData.service_popup_status = false;
+        updateData.banner_popup_status = false;
+      }
 
       if (req.files?.logo) {
         updateData.logo = `/uploads/popup-settings/${req.files.logo[0].filename}`;

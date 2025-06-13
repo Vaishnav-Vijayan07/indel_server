@@ -14,7 +14,7 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       meta_description: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       meta_keywords: {
@@ -25,16 +25,24 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      image: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      title_image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       loan_offer_title: {
         type: DataTypes.STRING,
         allowNull: true,
       },
       loan_offer_description: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       loan_offer_button_text: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING,
         allowNull: true,
       },
       loan_offer_button_link: {
@@ -42,7 +50,7 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       covered_products_section_title: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING,
         allowNull: true,
       },
       covered_products_section_image: {
@@ -51,7 +59,7 @@ module.exports = (sequelize) => {
       },
       covered_products_section_image_alt: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: true,
       },
       eligibility_criteria_icon: {
         type: DataTypes.STRING,
@@ -59,14 +67,14 @@ module.exports = (sequelize) => {
       },
       eligibility_criteria_image_alt: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: true,
       },
       eligibility_criteria_title: {
         type: DataTypes.STRING,
         allowNull: true,
       },
       eligibility_criteria_description: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       eligibility_criteria_note: {
@@ -74,7 +82,7 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       feature_title: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING,
         allowNull: true,
       },
       feature_image: {
@@ -83,8 +91,8 @@ module.exports = (sequelize) => {
       },
       feature_image_alt: {
         type: DataTypes.STRING,
-        allowNull: true
-      }
+        allowNull: true,
+      },
     },
     {
       tableName: "cd_loan_content",

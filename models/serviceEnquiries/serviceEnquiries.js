@@ -21,6 +21,18 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      city: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      message: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      subject: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       service_types: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -30,14 +42,14 @@ module.exports = (sequelize) => {
         },
       },
       enquiry_type: {
-        type: DataTypes.ENUM("gold_loan_calculator", "emi_calculator", "general"),
+        type: DataTypes.ENUM("gold_loan_calculator", "emi_calculator", "general", "contact"),
         allowNull: false,
       },
       enquiry_type_details: {
         type: DataTypes.JSONB,
         allowNull: true,
         defaultValue: null,
-      }
+      },
     },
     {
       tableName: "service_enquiries",

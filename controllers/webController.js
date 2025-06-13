@@ -2,7 +2,8 @@ const { models } = require("../models/index");
 const CacheService = require("../services/cacheService");
 const CustomError = require("../utils/customError");
 const logger = require("../services/logger");
-const { Sequelize, where } = require("sequelize");
+const { Sequelize, where, Op } = require("sequelize");
+const cacheService = require("../services/cacheService");
 
 class WebController {
   static async getHomeData(req, res, next) {
@@ -17,7 +18,7 @@ class WebController {
       // }
 
       // Fetch all data concurrently
-      const [heroBanner, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs, popUp] = await Promise.all([
+      const [heroBanner, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs, popUp, smartMoneyDeals] = await Promise.all([
         models.HeroBanner.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
           logger.error("Failed to fetch heroBanner", { error: err.message, stack: err.stack });
           throw err;
@@ -38,7 +39,12 @@ class WebController {
           logger.error("Failed to fetch pageContent", { error: err.message, stack: err.stack });
           throw err;
         }),
-        models.Awards.findAll().catch((err) => {
+        models.Awards.findAll({
+          where: {
+            is_slide: true,
+          },
+          attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
+        }).catch((err) => {
           logger.error("Failed to fetch lifeAtIndel", { error: err.message, stack: err.stack });
           throw err;
         }),
@@ -52,32 +58,52 @@ class WebController {
           logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
           throw err;
         }),
+        models.SmartMoneyDeals.findAll({
+          attributes: ["id", "title", "icon", "order", "is_active", "link"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }).catch((err) => {
+          logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
+          throw err;
+        }),
       ]);
 
       const settings = popUp[0] || null;
 
-      const bannerPopupStatus = settings?.banner_popup_status;
-      const servicePopupStatus = settings?.service_popup_status;
+      const isBanner = settings?.is_banner || false;
 
       const bannerPopupData = {
-        banner_popup_disappear_time: settings?.banner_popup_disappear_time || null,
-        banner_popup_appearence_time: settings?.banner_popup_appearence_time || null,
+        appearence_time: settings?.banner_popup_appearence_time || null,
+        image_alt: settings?.image_alt || null,
+        image_link: settings?.image_link || null,
         banner_popup_image: settings?.banner_popup_image || null,
         sub_title: settings?.sub_title || null,
         title: settings?.title || null,
         logo: settings?.logo || null,
       };
 
+      let popupServices = null;
+      if (!isBanner) {
+        popupServices = await models.PopupServices.findAll({
+          attributes: ["id", "image", "image_alt", "title", "description", "button_link", "button_text", "order", "is_active"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        });
+      }
+
       const servicePopupData = {
+        appearence_time: settings?.service_popup_appearence_time || null,
         sub_title: settings?.sub_title || null,
         title: settings?.title || null,
         logo: settings?.logo || null,
+        services: popupServices,
       };
 
       // Structure the response data
       const data = {
-        banner: bannerPopupStatus ? bannerPopupData : null,
-        service: servicePopupStatus ? servicePopupData : null,
+       smartMoneyDeals,
+        banner: isBanner ? bannerPopupData : null,
+        service: !isBanner ? servicePopupData : null,
         lifeAtIndel,
         blogs,
         heroBanner,
@@ -109,7 +135,13 @@ class WebController {
 
       const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks, teamMessages, serviceImages, statsData, accolades] =
         await Promise.all([
-          models.AboutBanner.findAll(),
+          models.AboutBanner.findAll({
+          where: {
+            is_active: true,
+          },
+          order: [["order", "ASC"]],
+          attributes: ["id", "title", "super_title", "image", "alt_text", "order", "is_active"],
+        }),
           models.AboutPageContent.findAll(),
           models.AboutLifeAtIndelGallery.findAll(),
           models.AboutQuickLinks.findAll(),
@@ -418,10 +450,10 @@ class WebController {
 
     try {
       const cachedData = await CacheService.get(cacheKey);
-      if (cachedData) {
-        logger.info("Serving gold loan from cache");
-        return res.json({ status: "success", data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   logger.info("Serving gold loan from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
 
       const service = await models.Services.findOne({
         where: { slug: "gold-loan", is_active: true },
@@ -536,12 +568,25 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [msmeLoanContent, msmeLoanSupportedIndustries, msmeOfferings, msmeTargetedAudience, msmeLoanFaq] = await Promise.all([
+      const [msmeLoanContent, msmeLoanSupportedIndustries, msmeOfferings, msmeTargetedAudience, msmeLoanFaq, msmeLoanTypes] = await Promise.all([
         models.MsmeLoanContent.findAll(),
-        models.MsmeLoanSupportedIndustries.findAll(),
+        models.MsmeLoanSupportedIndustries.findAll({
+          // attributes: ["id", "image", "title", "description", "is_active", "order"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
         models.MsmeOfferings.findAll(),
-        models.MsmeTargetedAudience.findAll(),
+        models.MsmeTargetedAudience.findAll({
+          // attributes: ["id", "icon", "title", "description", "is_active", "order"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
         models.MsmeLoanFaq.findAll(),
+        models.MsmeloanTypes.findAll({
+          attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
       ]);
 
       const data = {
@@ -550,6 +595,7 @@ class WebController {
         msmeOfferings,
         msmeTargetedAudience,
         msmeLoanFaq,
+        msmeLoanTypes,
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
@@ -618,9 +664,16 @@ class WebController {
             order: [["id", "ASC"]],
           }),
           models.EmployeeBenefits.findAll(),
-          models.Awards.findAll(),
+          models.Awards.findAll({
+          where: {
+            is_slide: true,
+          },
+        }),
           models.Testimonials.findAll(),
         ]);
+
+      const textTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "text");
+      const imageTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "video");
 
       const data = {
         careersContent: careersContent[0] || null,
@@ -630,7 +683,10 @@ class WebController {
         careerJobs,
         empBenefits,
         awards,
-        testimoinials,
+        testimoinials: {
+          textTestimonials,
+          imageTestimonials,
+        },
       };
 
       console.log("Data fetched for Career Page:", data);
@@ -699,6 +755,35 @@ class WebController {
   }
   static async eventGallery(req, res, next) {
     const cacheKey = "webEventGallery";
+    const {
+      type = "all", // 'all', 'image', 'video'
+      page = 1, // page number (1-based)
+      limit = 10, // items per page
+    } = req.query;
+
+    // Convert page to number and calculate offset
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const offset = (pageNum - 1) * limitNum;
+
+    // Build where conditions for EventGallery
+    const galleryWhere = {
+      is_active: true,
+    };
+
+    // Add type filter
+    if (type === "image") {
+      galleryWhere.is_video = false;
+      galleryWhere.image = { [Op.ne]: null }; // Ensure image is not null
+    } else if (type === "video") {
+      galleryWhere.is_video = true;
+      galleryWhere.video = { [Op.ne]: null }; // Ensure video is not null
+    }
+
+    // Build where conditions for EventTypes
+    const eventTypeWhere = {
+      is_active: true,
+    };
 
     try {
       const cachedData = await CacheService.get(cacheKey);
@@ -707,45 +792,124 @@ class WebController {
       //   return res.json({ success: true, data: JSON.parse(cachedData) });
       // }
 
-      const [contents, eventMedias, eventTypes] = await Promise.all([
+      const [contents, eventMedias] = await Promise.all([
         models.GalleryPageContent.findAll(),
-        models.EventTypes.findAll({
-          where: { is_active: true },
+        models.EventTypes.findAndCountAll({
+          where: eventTypeWhere,
           order: [["order", "ASC"]],
           include: [
             {
               model: models.EventGallery,
               as: "galleryItems",
-              where: { is_active: true },
-              attributes: ["image", "video"],
-              required: false,
+              where: galleryWhere,
+              attributes: ["id", "image", "video", "is_video", "order", "image_alt", "video_thumbnail", "thumbnail_alt", "createdAt"],
+              required: type !== "all", // Use inner join for specific types
+              order: [["order", "ASC"]],
             },
           ],
+          limit: limitNum,
+          offset: offset,
+          distinct: true, // Important for correct count with joins
         }),
-        models.EventTypes.findAll(),
       ]);
 
-      const galleryItems = eventMedias.map((eventType) => ({
-        title: eventType.title,
-        description: eventType.description,
-        images: (eventType.galleryItems || []).map((gallery) => gallery.image || gallery?.video),
-      }));
+      const galleryItems = eventMedias?.rows
+        .map((eventType) => {
+          const images = (eventType.galleryItems || []).map((gallery) => gallery.image).filter((img) => img);
 
-      const mainSliderItems = eventMedias
-        .filter((eventType) => eventType.is_slider)
-        .map((eventType) => ({
-          title: eventType.title,
-          description: eventType.description,
-          gallery: eventType?.galleryItems[0]?.image || eventType?.galleryItems[0]?.video,
-        }));
+          const video_thumbs = (eventType.galleryItems || []).map((gallery) => gallery.video_thumbnail).filter((vid) => vid);
+
+          const thumbnails = [...images, ...video_thumbs];
+
+          return {
+            title: eventType.title,
+            description: eventType.description,
+            thumbnails,
+            slug: eventType.slug,
+          };
+        })
+        .filter((item) => item.thumbnails.length > 0);
+
+      const mainSliderItems = eventMedias?.rows
+        .filter((event) => event.is_slider)
+        .map((event) => {
+          return {
+            title: event.title,
+            description: event.description,
+            gallery: event?.cover_image,
+            alt: event?.image_alt,
+            slug: event.slug,
+          };
+        });
 
       const data = {
         galleryPageContent: contents[0] || null,
         galleryItems,
         mainSliderItems,
+        pagination: {
+          totalCount: eventMedias.count,
+          totalPages: Math.ceil(eventMedias.count / limitNum),
+          currentPage: page,
+          limit: limitNum,
+        },
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched event gallery data from DB");
+      res.status(200).json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching event gallery data", { error: error.message, stack: error.stack });
+      res.json({ success: false, error: { message: error.message, stack: error.stack } });
+    }
+  }
+
+  static async event(req, res, next) {
+    const { slug, page = 1, limit = 6 } = req.query;
+
+    console.log(slug);
+
+    // Convert page to number and calculate offset
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const offset = (pageNum - 1) * limitNum;
+
+    const cacheKey = "webEventGallery";
+    try {
+      const event = await models.EventTypes.findOne({
+        where: { slug },
+        attributes: ["id", "title", "description", "slug"],
+      });
+
+      console.log(event);
+
+      const eventData = await models.EventGallery.findAndCountAll({
+        where: {
+          is_active: true,
+          event_type_id: event.id,
+        },
+        attributes: ["id", "image", "video", "is_video", "order", "image_alt", "video_thumbnail", "thumbnail_alt", "event_type_id", "is_active"],
+        limit: limitNum,
+        offset: offset,
+        order: [["order", "ASC"]],
+      });
+
+      const { count, rows: events } = eventData;
+      const pages = Math.ceil(count / limitNum);
+
+      const data = {
+        galleryItems: events || [],
+        content: {
+          title: event?.title,
+          description: event?.description,
+        },
+        pagination: {
+          totalCount: count,
+          totalPages: pages,
+          currentPage: page,
+          limit: limitNum,
+        },
+      };
+
       logger.info("Fetched event gallery data from DB");
       res.status(200).json({ status: "success", data });
     } catch (error) {
@@ -971,8 +1135,8 @@ class WebController {
       const popUp = await models.PopupSettings.findAll();
       const settings = popUp[0] || null;
 
-      const bannerPopupStatus = settings?.banner_popup_status;
-      const servicePopupStatus = settings?.service_popup_status;
+      const isBanner = settings?.is_banner || false;
+      console.log(isBanner);
 
       const bannerPopupData = {
         banner_popup_disappear_time: settings?.banner_popup_disappear_time || null,
@@ -990,8 +1154,8 @@ class WebController {
       };
 
       const data = {
-        banner: bannerPopupStatus ? bannerPopupData : null,
-        service: servicePopupStatus ? servicePopupData : null,
+        banner: isBanner ? bannerPopupData : null,
+        service: !isBanner ? servicePopupData : null,
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
@@ -1000,6 +1164,222 @@ class WebController {
     } catch (error) {
       logger.error("Error fetching content data", { error: error.message, stack: error.stack });
       next(new CustomError("Failed to fetch content data", 500, error.message));
+    }
+  }
+
+  static async testimonials(req, res, next) {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const offset = (page - 1) * limit;
+    const type = req.query.type || "all";
+
+    const whereClause = {
+      is_active: true,
+    };
+
+    if (type && type !== "all") {
+      whereClause.type = type;
+    }
+
+    try {
+      const content = await models.TestimonialPageContent.findAll();
+      const testimonials = await models.Testimonials.findAndCountAll({
+        where: whereClause,
+        limit,
+        offset,
+        order: [["order", "DESC"]],
+        attributes: [
+          "id",
+          "name",
+          "designation",
+          "avatar",
+          "testimonial",
+          "thumbnail",
+          "thumbnail_alt",
+          "video",
+          "order",
+          "type",
+          "is_active",
+          "is_about",
+          "image_alt",
+        ],
+      });
+
+      const totalPages = Math.ceil(testimonials.count / limit);
+
+      const data = {
+        content: content[0] || null,
+        testimonials: testimonials.rows,
+        pagination: {
+          totalCount: testimonials.count,
+          totalPages: totalPages,
+          currentPage: page,
+          limit: limit,
+        },
+      };
+
+      logger.info("Fetched testimonials from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error getting testimoinials data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to get testimoinials data", 500, error.message));
+    }
+  }
+
+  static async partners(req, res, next) {
+    try {
+      const partners = await models.PartnersTypes.findAll({
+        where: {
+          is_active: true,
+        },
+        order: [["order", "ASC"]],
+        attributes: ["id", "title", "order", "is_active"],
+      });
+      const content = await models.DebtPartnersContent.findAll({
+        attributes: ["id", "title"],
+      });
+      const data = {
+        content: content[0] || null,
+        partners,
+      };
+
+      logger.info("Fetched partners for web from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error getting partners data for web", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to get partners data for web", 500, error.message));
+    }
+  }
+
+  static async partnersData(req, res, next) {
+    const { type } = req.query || null;
+
+    try {
+      if (!type) {
+        throw new CustomError("No type provided", 400);
+      }
+
+      const partnerData = await models.Partners.findAll({
+        where: {
+          partner_type_id: type,
+          is_active: true,
+        },
+        order: [["order", "ASC"]],
+        attributes: ["id", "partner_type_id", "logo", "logo_alt", "is_active", "order"],
+      });
+
+      logger.info("Fetched partner for web from DB");
+      res.json({ status: "success", partnerData });
+    } catch (error) {
+      logger.error("Error getting partner data for web", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to get partner data for web", 500, error.message));
+    }
+  }
+
+  static async directors(req, res, next) {
+    const cacheKey = "webDirectorsData";
+
+    try {
+      // await CacheService.invalidate("webManagementData");
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving management data from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const [content, teams] = await Promise.all([models.DirectorsContent.findAll(), models.Directors.findAll()]);
+
+      const data = {
+        content: content[0] || null,
+        teams,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched management data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching management data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch management data", 500, error.message));
+    }
+  }
+
+  static async policy(req, res, next) {
+    const { type } = req.query;
+    console.log(type);
+    const cacheKey = `webPolicy${type}`;
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info(`Serving ${type} policy from cache`);
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const policy = await models.MasterPolicies.findOne({
+        where: {
+          type: type,
+        },
+      });
+
+      await cacheService.set(cacheKey, JSON.stringify(policy || []), 3600);
+      logger.info(`Fetched ${type} policy from DB`);
+      res.json({ status: "success", policy: policy || [] });
+    } catch (error) {
+      logger.error(`Error fetching ${type} policy`, { error: error.message, stack: error.stack });
+      next(new CustomError(`Failed to fetch ${type} policy`, 500, error.message));
+    }
+  }
+
+  static async newsData(req, res, next) {
+    const cacheKey = "webNewsData";
+
+    try {
+      await CacheService.invalidate("webNewsData");
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving blog data from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const [content, blogs] = await Promise.all([models.NewsPageContent.findAll(), models.News.findAll()]);
+
+      const sliderItems = blogs.filter((blog) => blog.is_slider);
+
+      const data = {
+        content: content[0] || null,
+        blogs,
+        sliderItems,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched news data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching news data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch news data", 500, error.message));
+    }
+  }
+  static async newsDetails(req, res, next) {
+    const { slug } = req.params;
+    const cacheKey = `webNewsData_${slug}`;
+
+    try {
+      await CacheService.invalidate(`webNewsData_${slug}`);
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving blog details from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const blog = await models.News.findOne({
+        where: { slug },
+      });
+
+      await CacheService.set(cacheKey, JSON.stringify(blog), 3600);
+      logger.info("Fetched news details from DB");
+      res.json({ status: "success", data: blog });
+    } catch (error) {
+      logger.error("Error fetching news details", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch news details", 500, error.message));
     }
   }
 }

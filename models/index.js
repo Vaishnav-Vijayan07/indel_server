@@ -43,6 +43,7 @@ const defineMsmeFaq = require("./msme/faq");
 const defineMsmeOfferings = require("./msme/msmeOfferings");
 const defineMsmeTargetAudience = require("./msme/targetAudience");
 const defineMsmeSupportedIndustries = require("./msme/supportedIndustries");
+const defineMsmeLoanTypes = require("./msme/loanTypes");
 const defineCdLoanContent = require("./CD/cdContent");
 const defineCdLoanProducts = require("./CD/loanProducts");
 const defineCdLoanBenefits = require("./CD/loanBenefits");
@@ -101,6 +102,12 @@ const definePaymentModes = require("./header/payment_modes");
 const definePopUpSettings = require("./popup/settings");
 const definePopUpServices = require("./popup/services");
 const defineDistricts = require("./career/districts");
+const definePartners = require("./partners/partners");
+const definePartnersData = require("./partners/partnersData");
+const defineDirectors = require("./directors/directors");
+const defineDirectorsContent = require("./directors/content");
+const defineMasterPolicies = require("./policies/policies");
+const defineLoanAgainstProperty = require("./policies/policies");
 const defineApplicationStatus = require("./career/application_status");
 const defineGeneralApplications = require("./career/general_application");
 
@@ -149,6 +156,7 @@ const models = {
   MsmeOfferings: defineMsmeOfferings(sequelize),
   MsmeTargetedAudience: defineMsmeTargetAudience(sequelize),
   MsmeLoanSupportedIndustries: defineMsmeSupportedIndustries(sequelize),
+  MsmeloanTypes: defineMsmeLoanTypes(sequelize),
   CdLoanContent: defineCdLoanContent(sequelize),
   CdLoanProducts: defineCdLoanProducts(sequelize),
   CdLoanBenefits: defineCdLoanBenefits(sequelize),
@@ -208,6 +216,12 @@ const models = {
   PopupSettings: definePopUpSettings(sequelize),
   PopupServices: definePopUpServices(sequelize),
   Districts: defineDistricts(sequelize),
+  PartnersTypes: definePartners(sequelize),
+  Partners: definePartnersData(sequelize),
+  Directors: defineDirectors(sequelize),
+  DirectorsContent: defineDirectorsContent(sequelize),
+  MasterPolicies: defineMasterPolicies(sequelize),
+  LoanAgainstProperty: defineLoanAgainstProperty(sequelize),
   ApplicationStatus: defineApplicationStatus(sequelize),
   GeneralApplications: defineGeneralApplications(sequelize),
 };

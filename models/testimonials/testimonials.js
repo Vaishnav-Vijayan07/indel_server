@@ -29,6 +29,14 @@ module.exports = (sequelize) => {
         type: DataTypes.TEXT,
         allowNull: true,
       },
+      thumbnail: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      thumbnail_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       video: {
         type: DataTypes.STRING,
         allowNull: true,
