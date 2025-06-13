@@ -49,7 +49,7 @@ class WebController {
           throw err;
         }),
         models.Blogs.findAll({
-          attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on"],
+          attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on, slug"],
         }).catch((err) => {
           logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
           throw err;
