@@ -25,6 +25,14 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      banner_image: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      banner_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       gold_rate_text: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -71,6 +79,14 @@ module.exports = (sequelize) => {
       },
       gold_loan_description: {
         type: DataTypes.TEXT,
+        allowNull: true,
+      },
+       hassle_free_image: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      hassle_free_image_alt: {
+        type: DataTypes.STRING,
         allowNull: true,
       },
       scheme_title: {

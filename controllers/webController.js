@@ -444,10 +444,10 @@ class WebController {
 
     try {
       const cachedData = await CacheService.get(cacheKey);
-      if (cachedData) {
-        logger.info("Serving gold loan from cache");
-        return res.json({ status: "success", data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   logger.info("Serving gold loan from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
 
       const [goldloanContent, goldLoanFeatures, goldloanBannerFeatures, goldLoanFaq, goldLoanSchemes, schemeDetails, steps] = await Promise.all([
         models.GoldloanContent.findAll(),
