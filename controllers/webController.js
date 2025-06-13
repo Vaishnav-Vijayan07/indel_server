@@ -42,7 +42,9 @@ class WebController {
           logger.error("Failed to fetch lifeAtIndel", { error: err.message, stack: err.stack });
           throw err;
         }),
-        models.Blogs.findAll({ attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on"] }).catch((err) => {
+        models.Blogs.findAll({
+          attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on"],
+        }).catch((err) => {
           logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
           throw err;
         }),
@@ -74,7 +76,7 @@ class WebController {
 
       // Structure the response data
       const data = {
-         banner: bannerPopupStatus ? bannerPopupData : null,
+        banner: bannerPopupStatus ? bannerPopupData : null,
         service: servicePopupStatus ? servicePopupData : null,
         lifeAtIndel,
         blogs,
@@ -105,16 +107,17 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks, teamMessages, serviceImages, statsData, accolades] = await Promise.all([
-        models.AboutBanner.findAll(),
-        models.AboutPageContent.findAll(),
-        models.AboutLifeAtIndelGallery.findAll(),
-        models.AboutQuickLinks.findAll(),
-        models.AboutMessageFromTeam.findAll(),
-        models.AboutServiceGallery.findAll(),
-        models.AboutStatistics.findAll(),
-        models.AboutAccolades.findAll(),
-      ]);
+      const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks, teamMessages, serviceImages, statsData, accolades] =
+        await Promise.all([
+          models.AboutBanner.findAll(),
+          models.AboutPageContent.findAll(),
+          models.AboutLifeAtIndelGallery.findAll(),
+          models.AboutQuickLinks.findAll(),
+          models.AboutMessageFromTeam.findAll(),
+          models.AboutServiceGallery.findAll(),
+          models.AboutStatistics.findAll(),
+          models.AboutAccolades.findAll(),
+        ]);
 
       const data = {
         aboutBanner,
@@ -360,7 +363,10 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [differentShades, shadesOfIndelContent] = await Promise.all([models.DifferentShades.findAll(), models.ShadesOfIndelContent.findAll()]);
+      const [differentShades, shadesOfIndelContent] = await Promise.all([
+        models.DifferentShades.findAll(),
+        models.ShadesOfIndelContent.findAll(),
+      ]);
 
       const data = {
         shadesOfIndelContent: shadesOfIndelContent[0] || null,
@@ -417,11 +423,32 @@ class WebController {
         return res.json({ status: "success", data: JSON.parse(cachedData) });
       }
 
-      const [goldloanContent, goldLoanFeatures, goldloanBannerFeatures, goldLoanFaq, goldLoanSchemes, schemeDetails, steps] = await Promise.all([
+      const service = await models.Services.findOne({
+        where: { slug: "gold-loan", is_active: true },
+        attributes: ["id"],
+      });
+
+      const [
+        goldloanContent,
+        goldLoanFeatures,
+        goldloanBannerFeatures,
+        ServiceBenefit,
+        goldLoanFaq,
+        goldLoanSchemes,
+        schemeDetails,
+        steps,
+      ] = await Promise.all([
         models.GoldloanContent.findAll(),
         models.GoldLoanFeatures.findAll(),
         models.GoldloanBannerFeatures.findAll(),
-        models.GoldLoanFaq.findAll({ where: { is_active: true }, order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]] }),
+        models.ServiceBenefit.findAll({
+          where: { is_active: true, service_id: service?.id },
+          order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
+        }),
+        models.GoldLoanFaq.findAll({
+          where: { is_active: true },
+          order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
+        }),
         models.GoldLoanScheme.findAll(),
         models.SchemeDetails.findAll({
           order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
@@ -482,6 +509,7 @@ class WebController {
         GoldLoanFeatures: grouped,
         GoldloanBannerFeatures: goldloanBannerFeatures,
         GoldLoanFaq: goldLoanFaq,
+        GoldloanBenefits: ServiceBenefit,
         Steps: steps,
         schemes: {
           goldLoanSchemes: schemes,
@@ -574,24 +602,25 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [careersContent, careerBanners, careerGallery, careerStates, careerJobs, empBenefits, awards, testimoinials] = await Promise.all([
-        models.CareersContent.findAll(),
-        models.CareerBanners.findAll(),
-        models.CareerGallery.findAll(),
-        models.CareerStates.findAll(),
-        models.CareerJobs.findAll({
-          // attributes: ["id", "role_id", "location_id", "state_id", "job_title", "job_description", "key_responsibilities", "is_active"],
-          include: [
-            { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
-            { model: models.CareerLocations, as: "location", attributes: ["location_name"] },
-            { model: models.CareerStates, as: "state", attributes: ["state_name"] },
-          ],
-          order: [["id", "ASC"]],
-        }),
-        models.EmployeeBenefits.findAll(),
-        models.Awards.findAll(),
-        models.Testimonials.findAll(),
-      ]);
+      const [careersContent, careerBanners, careerGallery, careerStates, careerJobs, empBenefits, awards, testimoinials] =
+        await Promise.all([
+          models.CareersContent.findAll(),
+          models.CareerBanners.findAll(),
+          models.CareerGallery.findAll(),
+          models.CareerStates.findAll(),
+          models.CareerJobs.findAll({
+            // attributes: ["id", "role_id", "location_id", "state_id", "job_title", "job_description", "key_responsibilities", "is_active"],
+            include: [
+              { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
+              { model: models.CareerLocations, as: "location", attributes: ["location_name"] },
+              { model: models.CareerStates, as: "state", attributes: ["state_name"] },
+            ],
+            order: [["id", "ASC"]],
+          }),
+          models.EmployeeBenefits.findAll(),
+          models.Awards.findAll(),
+          models.Testimonials.findAll(),
+        ]);
 
       const data = {
         careersContent: careersContent[0] || null,
@@ -604,9 +633,7 @@ class WebController {
         testimoinials,
       };
 
-
       console.log("Data fetched for Career Page:", data);
-      
 
       // await CacheService.set(cacheKey, JSON.stringify(data), 3600);
       logger.info("Fetched Career Page data from DB");
@@ -638,7 +665,16 @@ class WebController {
 
       const jobs = await models.CareerJobs.findAll({
         where: whereClause,
-        attributes: ["id", "role_id", "location_id", "state_id", "short_description", "detailed_description", "experience", "is_active"],
+        attributes: [
+          "id",
+          "role_id",
+          "location_id",
+          "state_id",
+          "short_description",
+          "detailed_description",
+          "experience",
+          "is_active",
+        ],
         include: [
           { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
           { model: models.CareerLocations, as: "location", attributes: ["location_name"] },
