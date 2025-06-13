@@ -152,13 +152,6 @@ class ServiceBenefitsController {
   static async getByServiceSlug(req, res, next) {
     try {
       const { slug } = req.params;
-      const cacheKey = `ServiceBenefits_Slug_${slug}`;
-      const cachedData = await CacheService.get(cacheKey);
-
-      if (cachedData) {
-        Logger.info(`Cache hit for service benefits: ${slug}`);
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
 
       const service = await models.Services.findOne({
         where: { slug, is_active: true },
@@ -187,7 +180,6 @@ class ServiceBenefitsController {
         benefits,
       };
 
-      await CacheService.set(cacheKey, JSON.stringify(responseData), 3600);
       Logger.info(`Fetched and cached service benefits for slug: ${slug}`);
 
       res.json({ success: true, data: responseData });
