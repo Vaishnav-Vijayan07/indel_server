@@ -398,6 +398,21 @@ const validateIndelValueUpdate = [
   check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
 ];
 
+const validateServices = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("description").notEmpty().withMessage("Description is required"),
+  check("order").isInt().withMessage("Order must be an integer"),
+  check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+  check("slug").notEmpty().withMessage("Slug is required"),
+];
+
+const validateServiceUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("description").optional().notEmpty().withMessage("Description cannot be empty"),
+  check("order").optional().isInt().withMessage("Order must be an integer"),
+  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  check("slug").optional().notEmpty().withMessage("Slug cannot be empty"),
+];
 const validateDifferentShadesValue = [
   check("title").notEmpty().withMessage("Title is required"),
   check("paragraph_1").notEmpty().withMessage("Paragraph 1 is required"),
@@ -1926,5 +1941,7 @@ module.exports = {
   validateGeneralApplicationsUpdate,
   validateJobApplicationSubmission,
   validateRegister,
-  validateLogin
+  validateLogin,
+  validateServices,
+  validateServiceUpdate,
 };
