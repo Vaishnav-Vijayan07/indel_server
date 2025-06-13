@@ -148,6 +148,90 @@ class ServiceBenefitsController {
       next(error);
     }
   }
+
+  static async getByServiceSlug(req, res, next) {
+    try {
+      const { slug } = req.params;
+      const cacheKey = `ServiceBenefits_Slug_${slug}`;
+      const cachedData = await CacheService.get(cacheKey);
+
+      if (cachedData) {
+        Logger.info(`Cache hit for service benefits: ${slug}`);
+        return res.json({ success: true, data: JSON.parse(cachedData) });
+      }
+
+      const service = await models.Services.findOne({
+        where: { slug, is_active: true },
+        attributes: ["id", "title", "slug"],
+      });
+
+      if (!service) {
+        throw new CustomError("Service not found", 404);
+      }
+
+      const benefits = await ServiceBenefit.findAll({
+        where: {
+          service_id: service.id,
+          is_active: true,
+        },
+        attributes: ["id", "icon", "image_alt", "title", "order"],
+        order: [["order", "ASC"]],
+      });
+
+      const responseData = {
+        service: {
+          id: service.id,
+          title: service.title,
+          slug: service.slug,
+        },
+        benefits,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(responseData), 3600);
+      Logger.info(`Fetched and cached service benefits for slug: ${slug}`);
+
+      res.json({ success: true, data: responseData });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async createByServiceSlug(req, res, next) {
+    try {
+      const { slug } = req.params;
+      const updateData = { ...req.body };
+
+      const service = await models.Services.findOne({
+        where: { slug, is_active: true },
+        attributes: ["id", "slug"],
+      });
+      if (!service) {
+        throw new CustomError("Service not found", 404);
+      }
+
+      updateData.service_id = service.id; // Set service_id from found service
+
+      if (req.file) {
+        updateData.icon = `/Uploads/service-benefits/${req.file.filename}`;
+        Logger.info(`Uploaded icon for Benefit: ${updateData.icon}`);
+      }
+
+      const benefit = await ServiceBenefit.create(updateData);
+      await CacheService.invalidate(`ServiceBenefits_${service.id}`);
+      await CacheService.invalidate(`ServiceBenefits_Slug_${slug}`);
+      await CacheService.invalidate("ServiceBenefits_all");
+
+      Logger.info(`Created service benefit for service slug: ${slug}`);
+
+      res.status(201).json({ success: true, data: benefit, message: "Service benefit created successfully" });
+    } catch (error) {
+      if (req.file) {
+        // Cleanup uploaded file on error
+        await ServiceBenefitsController.deleteFile(`/Uploads/service-benefits/${req.file.filename}`);
+      }
+      next(error);
+    }
+  }
 }
 
 module.exports = ServiceBenefitsController;
