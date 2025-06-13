@@ -635,9 +635,16 @@ class WebController {
           order: [["id", "ASC"]],
         }),
         models.EmployeeBenefits.findAll(),
-        models.Awards.findAll(),
+        models.Awards.findAll({
+          where: {
+            is_slide: true,
+          },
+        }),
         models.Testimonials.findAll(),
       ]);
+
+      const textTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "text");
+      const imageTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "video");
 
       const data = {
         careersContent: careersContent[0] || null,
@@ -647,7 +654,10 @@ class WebController {
         careerJobs,
         empBenefits,
         awards,
-        testimoinials,
+        testimoinials: {
+          textTestimonials,
+          imageTestimonials,
+        },
       };
 
       console.log("Data fetched for Career Page:", data);
