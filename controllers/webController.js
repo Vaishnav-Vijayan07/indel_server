@@ -18,55 +18,56 @@ class WebController {
       // }
 
       // Fetch all data concurrently
-      const [heroBanner, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs, popUp, smartMoneyDeals] = await Promise.all([
-        models.HeroBanner.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
-          logger.error("Failed to fetch heroBanner", { error: err.message, stack: err.stack });
-          throw err;
-        }),
-        models.HomeFaq.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
-          logger.error("Failed to fetch faqs", { error: err.message, stack: err.stack });
-          throw err;
-        }),
-        models.HomeLoanStep.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
-          logger.error("Failed to fetch loanSteps", { error: err.message, stack: err.stack });
-          throw err;
-        }),
-        models.AboutStatistics.findAll().catch((err) => {
-          logger.error("Failed to fetch homeStatistics", { error: err.message, stack: err.stack });
-          throw err;
-        }),
-        models.HomePageContent.findAll().catch((err) => {
-          logger.error("Failed to fetch pageContent", { error: err.message, stack: err.stack });
-          throw err;
-        }),
-        models.Awards.findAll({
-          where: {
-            is_slide: true,
-          },
-          attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
-        }).catch((err) => {
-          logger.error("Failed to fetch lifeAtIndel", { error: err.message, stack: err.stack });
-          throw err;
-        }),
-        models.Blogs.findAll({
-          attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on, slug"],
-        }).catch((err) => {
-          logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
-          throw err;
-        }),
-        models.PopupSettings.findAll().catch((err) => {
-          logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
-          throw err;
-        }),
-        models.SmartMoneyDeals.findAll({
-          attributes: ["id", "title", "icon", "order", "is_active", "link"],
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }).catch((err) => {
-          logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
-          throw err;
-        }),
-      ]);
+      const [heroBanner, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs, popUp, smartMoneyDeals] =
+        await Promise.all([
+          models.HeroBanner.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
+            logger.error("Failed to fetch heroBanner", { error: err.message, stack: err.stack });
+            throw err;
+          }),
+          models.HomeFaq.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
+            logger.error("Failed to fetch faqs", { error: err.message, stack: err.stack });
+            throw err;
+          }),
+          models.HomeLoanStep.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
+            logger.error("Failed to fetch loanSteps", { error: err.message, stack: err.stack });
+            throw err;
+          }),
+          models.AboutStatistics.findAll().catch((err) => {
+            logger.error("Failed to fetch homeStatistics", { error: err.message, stack: err.stack });
+            throw err;
+          }),
+          models.HomePageContent.findAll().catch((err) => {
+            logger.error("Failed to fetch pageContent", { error: err.message, stack: err.stack });
+            throw err;
+          }),
+          models.Awards.findAll({
+            where: {
+              is_slide: true,
+            },
+            attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
+          }).catch((err) => {
+            logger.error("Failed to fetch lifeAtIndel", { error: err.message, stack: err.stack });
+            throw err;
+          }),
+          models.Blogs.findAll({
+            attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on", "slug"],
+          }).catch((err) => {
+            logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
+            throw err;
+          }),
+          models.PopupSettings.findAll().catch((err) => {
+            logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
+            throw err;
+          }),
+          models.SmartMoneyDeals.findAll({
+            attributes: ["id", "title", "icon", "order", "is_active", "link"],
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }).catch((err) => {
+            logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
+            throw err;
+          }),
+        ]);
 
       const settings = popUp[0] || null;
 
@@ -101,7 +102,7 @@ class WebController {
 
       // Structure the response data
       const data = {
-       smartMoneyDeals,
+        smartMoneyDeals,
         banner: isBanner ? bannerPopupData : null,
         service: !isBanner ? servicePopupData : null,
         lifeAtIndel,
@@ -136,12 +137,12 @@ class WebController {
       const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks, teamMessages, serviceImages, statsData, accolades] =
         await Promise.all([
           models.AboutBanner.findAll({
-          where: {
-            is_active: true,
-          },
-          order: [["order", "ASC"]],
-          attributes: ["id", "title", "super_title", "image", "alt_text", "order", "is_active"],
-        }),
+            where: {
+              is_active: true,
+            },
+            order: [["order", "ASC"]],
+            attributes: ["id", "title", "super_title", "image", "alt_text", "order", "is_active"],
+          }),
           models.AboutPageContent.findAll(),
           models.AboutLifeAtIndelGallery.findAll(),
           models.AboutQuickLinks.findAll(),
@@ -568,26 +569,27 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [msmeLoanContent, msmeLoanSupportedIndustries, msmeOfferings, msmeTargetedAudience, msmeLoanFaq, msmeLoanTypes] = await Promise.all([
-        models.MsmeLoanContent.findAll(),
-        models.MsmeLoanSupportedIndustries.findAll({
-          // attributes: ["id", "image", "title", "description", "is_active", "order"],
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-        models.MsmeOfferings.findAll(),
-        models.MsmeTargetedAudience.findAll({
-          // attributes: ["id", "icon", "title", "description", "is_active", "order"],
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-        models.MsmeLoanFaq.findAll(),
-        models.MsmeloanTypes.findAll({
-          attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-      ]);
+      const [msmeLoanContent, msmeLoanSupportedIndustries, msmeOfferings, msmeTargetedAudience, msmeLoanFaq, msmeLoanTypes] =
+        await Promise.all([
+          models.MsmeLoanContent.findAll(),
+          models.MsmeLoanSupportedIndustries.findAll({
+            // attributes: ["id", "image", "title", "description", "is_active", "order"],
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.MsmeOfferings.findAll(),
+          models.MsmeTargetedAudience.findAll({
+            // attributes: ["id", "icon", "title", "description", "is_active", "order"],
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.MsmeLoanFaq.findAll(),
+          models.MsmeloanTypes.findAll({
+            attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+        ]);
 
       const data = {
         msmeLoanContent: msmeLoanContent[0] || null,
@@ -665,10 +667,10 @@ class WebController {
           }),
           models.EmployeeBenefits.findAll(),
           models.Awards.findAll({
-          where: {
-            is_slide: true,
-          },
-        }),
+            where: {
+              is_slide: true,
+            },
+          }),
           models.Testimonials.findAll(),
         ]);
 
@@ -802,7 +804,17 @@ class WebController {
               model: models.EventGallery,
               as: "galleryItems",
               where: galleryWhere,
-              attributes: ["id", "image", "video", "is_video", "order", "image_alt", "video_thumbnail", "thumbnail_alt", "createdAt"],
+              attributes: [
+                "id",
+                "image",
+                "video",
+                "is_video",
+                "order",
+                "image_alt",
+                "video_thumbnail",
+                "thumbnail_alt",
+                "createdAt",
+              ],
               required: type !== "all", // Use inner join for specific types
               order: [["order", "ASC"]],
             },
@@ -887,7 +899,18 @@ class WebController {
           is_active: true,
           event_type_id: event.id,
         },
-        attributes: ["id", "image", "video", "is_video", "order", "image_alt", "video_thumbnail", "thumbnail_alt", "event_type_id", "is_active"],
+        attributes: [
+          "id",
+          "image",
+          "video",
+          "is_video",
+          "order",
+          "image_alt",
+          "video_thumbnail",
+          "thumbnail_alt",
+          "event_type_id",
+          "is_active",
+        ],
         limit: limitNum,
         offset: offset,
         order: [["order", "ASC"]],
