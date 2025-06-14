@@ -110,6 +110,7 @@ const defineMasterPolicies = require("./policies/policies");
 const defineLoanAgainstProperty = require("./policies/policies");
 const defineApplicationStatus = require("./career/application_status");
 const defineGeneralApplications = require("./career/general_application");
+const defineOtp = require("./otp");
 
 const models = {
   User: defineUser(sequelize),
@@ -224,6 +225,7 @@ const models = {
   LoanAgainstProperty: defineLoanAgainstProperty(sequelize),
   ApplicationStatus: defineApplicationStatus(sequelize),
   GeneralApplications: defineGeneralApplications(sequelize),
+  Otp: defineOtp(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {
