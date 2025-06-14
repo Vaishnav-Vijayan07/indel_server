@@ -5,6 +5,7 @@ const CustomError = require("../../utils/customError");
 const crypto = require("crypto");
 
 class JobApplicationSubmissionController {
+  // Generate and send OTP
   static async sendOtp(req, res, next) {
     try {
       const { email } = req.body;
@@ -49,6 +50,7 @@ class JobApplicationSubmissionController {
       const applicant = await models.Applicants.findOne({
         where: { email },
         attributes: [
+          "id",
           "name",
           "email",
           "phone",
@@ -58,13 +60,24 @@ class JobApplicationSubmissionController {
           "age",
           "current_salary",
           "expected_salary",
+          "file",
         ],
       });
+      console.log("Applicant data:", applicant);
+
+      const preferred_role = await models.GeneralApplications.findOne({
+        where: { applicant_id: applicant.id },
+        attributes: ["role_id"],
+      });
+
+      console.log("Preferred role:", preferred_role);
+
+      const modifiedData = { ...applicant?.toJSON(), preferred_role: preferred_role.role_id };
 
       res.status(200).json({
         success: true,
-        data: applicant || null,
-        message: applicant ? "Applicant data retrieved" : "No applicant data found",
+        data: modifiedData || null,
+        message: modifiedData ? "Applicant data retrieved" : "No applicant data found",
       });
     } catch (error) {
       next(error);

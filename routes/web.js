@@ -72,7 +72,7 @@ router.post(
 );
 
 router.get("/careers/general_applications", JobApplicationSubmissionController.listGeneralApplications);
-router.post("/send-otp", JobApplicationSubmissionController.sendOtp);
-router.post("/verify-otp", JobApplicationSubmissionController.verifyOtp);
+router.post("/careers/send-otp", JobApplicationSubmissionController.sendOtp);
+router.post("/careers/verify-otp", JobApplicationSubmissionController.verifyOtp);
 
 module.exports = router;
