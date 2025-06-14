@@ -8,6 +8,7 @@
         "dev": "nodemon server.js"
     },
     "dependencies": {
+        "@headlessui/react": "^2.2.4",
         "axios": "^1.9.0",
         "bcrypt": "^5.1.1",
         "cors": "^2.8.5",
@@ -21,6 +22,7 @@
         "nodemailer": "^7.0.3",
         "pg": "^8.12.0",
         "pg-hstore": "^2.3.4",
+        "react-hot-toast": "^2.5.2",
         "sequelize": "^6.37.3",
         "winston": "^3.14.2"
     },
