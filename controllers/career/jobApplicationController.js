@@ -63,16 +63,21 @@ class JobApplicationSubmissionController {
           "file",
         ],
       });
-      console.log("Applicant data:", applicant);
 
-      const preferred_role = await models.GeneralApplications.findOne({
-        where: { applicant_id: applicant.id },
-        attributes: ["role_id"],
-      });
+      let modifiedData = null;
 
-      console.log("Preferred role:", preferred_role);
+      if (applicant) {
+        console.log("Applicant data:", applicant);
 
-      const modifiedData = { ...applicant?.toJSON(), preferred_role: preferred_role.role_id };
+        const preferred_role = await models.GeneralApplications.findOne({
+          where: { applicant_id: applicant?.id },
+          attributes: ["role_id"],
+        });
+
+        console.log("Preferred role:", preferred_role);
+
+        modifiedData = { ...applicant?.toJSON(), preferred_role: preferred_role.role_id };
+      }
 
       res.status(200).json({
         success: true,
@@ -331,6 +336,9 @@ class JobApplicationSubmissionController {
         if (existingApplication) {
           throw new CustomError("You have already applied for this role", 409);
         }
+
+        console.log("applicantData", newApplicant);
+        
 
         // Update applicant data
         const applicantData = {

@@ -8,7 +8,7 @@ const { validateJobApplicationSubmission } = require("../utils/validator");
 const JobApplicationSubmissionController = require("../controllers/career/jobApplicationController");
 
 const upload = createUploadMiddleware("job-applications");
-const uploadField = upload.single("resume");
+const uploadField = upload.single("file");
 const uploadApplicantFile = upload.single("applicant[file]");
 
 router.get("/home", WebController.getHomeData);
