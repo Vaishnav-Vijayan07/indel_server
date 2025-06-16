@@ -53,6 +53,11 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING(255),
         allowNull: true,
       },
+      file_uploaded_at: { 
+        type: DataTypes.DATE, 
+        allowNull: true, // Null if no resume
+        defaultValue: null,
+      },
       is_active: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
