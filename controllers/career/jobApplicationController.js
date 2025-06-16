@@ -1,8 +1,88 @@
 const { models } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
+const { sendOtpEmail } = require("../../services/emailService");
 const CustomError = require("../../utils/customError");
+const crypto = require("crypto");
 
 class JobApplicationSubmissionController {
+  // Generate and send OTP
+  static async sendOtp(req, res, next) {
+    try {
+      const { email } = req.body;
+      if (!email) throw new CustomError("Email is required", 400);
+
+      // Generate 6-digit OTP
+      const otp = crypto.randomInt(100000, 999999).toString();
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+      // Delete existing OTPs for this email
+      await models.Otp.destroy({ where: { email } });
+
+      // Save OTP
+      await models.Otp.create({ email, otp, expires_at: expiresAt });
+
+      // Send OTP email
+      await sendOtpEmail(email, otp);
+
+      res.status(200).json({ success: true, message: "OTP sent successfully" });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Verify OTP and return applicant data if exists
+  static async verifyOtp(req, res, next) {
+    try {
+      const { email, otp } = req.body;
+      if (!email || !otp) throw new CustomError("Email and OTP are required", 400);
+
+      const otpRecord = await models.Otp.findOne({ where: { email, otp } });
+      if (!otpRecord) throw new CustomError("Invalid OTP", 400);
+      if (new Date() > otpRecord.expires_at) {
+        await otpRecord.destroy();
+        throw new CustomError("OTP expired", 400);
+      }
+
+      // Delete OTP after successful verification
+      await otpRecord.destroy();
+
+      // Fetch applicant data if exists
+      const applicant = await models.Applicants.findOne({
+        where: { email },
+        attributes: [
+          "id",
+          "name",
+          "email",
+          "phone",
+          "preferred_location",
+          "referred_employee_name",
+          "employee_referral_code",
+          "age",
+          "current_salary",
+          "expected_salary",
+          "file",
+        ],
+      });
+      console.log("Applicant data:", applicant);
+
+      const preferred_role = await models.GeneralApplications.findOne({
+        where: { applicant_id: applicant.id },
+        attributes: ["role_id"],
+      });
+
+      console.log("Preferred role:", preferred_role);
+
+      const modifiedData = { ...applicant?.toJSON(), preferred_role: preferred_role.role_id };
+
+      res.status(200).json({
+        success: true,
+        data: modifiedData || null,
+        message: modifiedData ? "Applicant data retrieved" : "No applicant data found",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
   static async submitApplication(req, res, next) {
     try {
       const { applicant, job_application } = req.body;
