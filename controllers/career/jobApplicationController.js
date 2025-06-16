@@ -93,6 +93,9 @@ class JobApplicationSubmissionController {
       const { applicant, job_application } = req.body;
       const file = req.file;
 
+      console.log("File:", file);
+      
+
       // Validate foreign key reference for preferred location
       const location = await models.CareerLocations.findByPk(applicant.preferred_location);
       console.log("Preferred location:", location);
@@ -110,10 +113,10 @@ class JobApplicationSubmissionController {
       });
       if (!pendingStatus) throw new CustomError("Pending status not found", 500);
 
-      // Check if file was uploaded
-      if (!file) {
-        throw new CustomError("Resume file is required", 400);
-      }
+      // // Check if file was uploaded
+      // if (!file) {
+      //   throw new CustomError("Resume file is required", 400);
+      // }
 
       // Check if applicant with this email already exists
       let newApplicant = await models.Applicants.findOne({
@@ -135,14 +138,14 @@ class JobApplicationSubmissionController {
         // Update applicant data
         const applicantData = {
           ...applicant,
-          file: file.path, // Update file path if a new file is uploaded
+          ...(file && { file: file?.path }),
         };
         await newApplicant.update(applicantData);
       } else {
         // Create new applicant record with file path
         const applicantData = {
           ...applicant,
-          file: file.path,
+          ...(file && { file: file.path }),
         };
         newApplicant = await models.Applicants.create(applicantData);
       }
@@ -152,7 +155,6 @@ class JobApplicationSubmissionController {
         job_id: job_application.job_id,
         applicant_id: newApplicant.id,
         status_id: pendingStatus.id,
-        file: file.path, // Optionally store the same file path in job_applications
         is_active: job_application.is_active ?? true, // Default to true if not provided
         order: job_application.order ?? 1, // Default to 1 if not provided
       };
