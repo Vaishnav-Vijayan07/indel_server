@@ -27,7 +27,7 @@ module.exports = (sequelize) => {
       },
       slug: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         unique: true,
       },
       order: {
