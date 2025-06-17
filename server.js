@@ -17,6 +17,8 @@ const { initShadesOfIndelContent } = require("./utils/initShadesOfIndelContent")
 const { initServicesPageContent } = require("./utils/initServicePageContent");
 const { initGoldLoanContent } = require("./utils/initGoldLoanContent");
 const { initMsmeLoanContent } = require("./utils/initMsmeLoanContent");
+const { initLoanAgainstPropertyContent } = require("./utils/initLoanAgainstPropertyContent");
+
 const { initCdLoanContent } = require("./utils/initCdLoanContent");
 const { initCareerContents } = require("./utils/initCareerContent");
 const { initDebtPartnersContent, initAboutPageContent, initBlogPageContent } = require("./utils/initContents");
@@ -71,6 +73,7 @@ const startServer = async () => {
     await initServicesPageContent();
     await initGoldLoanContent();
     await initMsmeLoanContent();
+    await initLoanAgainstPropertyContent();
     await initCdLoanContent();
     await initCareerContents();
     await initBlogPageContent();

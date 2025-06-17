@@ -27,6 +27,7 @@ router.get("/our-services", WebController.OurServices);
 router.get("/gold-loan", WebController.goldLoan);
 router.get("/msme", WebController.MSMELoan);
 router.get("/cd-loan", WebController.CDLoan);
+router.get("/loan-against-property", WebController.LoanAgainstProperty);
 router.get("/career", WebController.CareerPage);
 router.get("/career-active-jobs", WebController.ActiveJobs);
 router.get("/event-gallery", WebController.eventGallery);

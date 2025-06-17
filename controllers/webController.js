@@ -579,7 +579,6 @@ class WebController {
 
   static async MSMELoan(req, res, next) {
     const cacheKey = "webMSMELoan";
-
     try {
       const cachedData = await CacheService.get(cacheKey);
       // if (cachedData) {
@@ -626,6 +625,7 @@ class WebController {
     }
   }
 
+  
   static async CDLoan(req, res, next) {
     const cacheKey = "webCDLoan";
 
@@ -654,6 +654,57 @@ class WebController {
     } catch (error) {
       logger.error("Error fetching CD Loan data", { error: error.message, stack: error.stack });
       next(new CustomError("Failed to fetch CD Loan data", 500, error.message));
+    }
+  }
+
+
+
+  static async LoanAgainstProperty(req, res, next) {
+    const cacheKey = "webLoanAgainstProperty";
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving MSME Loan from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const [loanAgainstPropertyContent, loanAgainstPropertySupportedIndustries, loanPropertyOfferings, loanAgainstPropertyTargetedAudience, loanAgainstPropertyFaq, loanAgainstPropertyTypes] =
+        await Promise.all([
+          models.LoanAgainstPropertyContent.findAll(),
+          models.LoanAgainstPropertySupportedIndustries.findAll({
+            // attributes: ["id", "image", "title", "description", "is_active", "order"],
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.LoanAgainstPropertyOfferings.findAll(),
+          models.LoanAgainstPropertyTargetedAudience.findAll({
+            // attributes: ["id", "icon", "title", "description", "is_active", "order"],
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.LoanAgainstPropertyFaq.findAll(),
+          models.LoanAgainstPropertyTypes.findAll({
+            attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+        ]);
+
+      const data = {
+        loanAgainstPropertyContent: loanAgainstPropertyContent[0] || null,
+        loanAgainstPropertySupportedIndustries,
+        loanPropertyOfferings,
+        loanAgainstPropertyTargetedAudience,
+        loanAgainstPropertyFaq,
+        loanAgainstPropertyTypes,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched  Loan Against Property data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching initLOanAgainstPropertyContent data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch initLOanAgainstPropertyContent data", 500, error.message));
     }
   }
 
