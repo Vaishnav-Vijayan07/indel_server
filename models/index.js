@@ -44,6 +44,12 @@ const defineMsmeOfferings = require("./msme/msmeOfferings");
 const defineMsmeTargetAudience = require("./msme/targetAudience");
 const defineMsmeSupportedIndustries = require("./msme/supportedIndustries");
 const defineMsmeLoanTypes = require("./msme/loanTypes");
+const defineLoanAgainstPropertyContent = require("./loanAgainstProperty/loanContent");
+const defineLoanAgaintPropertyFaq = require("./loanAgainstProperty/faq");
+const defineLoanAgaintPropertyOfferings = require("./loanAgainstProperty/LoanPropertyOfferings");
+const defineLoanAgaintPropertyTargetAudience = require("./loanAgainstProperty/targetAudience");
+const defineLoanAgaintPropertySupportedIndustries = require("./loanAgainstProperty/supportedIndustries");
+const defineLoanAgaintPropertyLoanTypes = require("./loanAgainstProperty/loanTypes");
 const defineCdLoanContent = require("./CD/cdContent");
 const defineCdLoanProducts = require("./CD/loanProducts");
 const defineCdLoanBenefits = require("./CD/loanBenefits");
@@ -69,15 +75,15 @@ const defineEventPageContent = require("./event/eventPageContent");
 const defineEvents = require("./event/event");
 const defineInvestorsPageContent = require("./investors/investorsPageContent");
 const defineFiscalYears = require("./investors/fiscalYears");
-const defineAnnualReport = require("./investors/annualReport");
-const defineAnnualReturns = require("./investors/annualReturns");
-const defineInvestorsContact = require("./investors/investorsContact");
+// const defineAnnualReport = require("./investors/annualReport");
+// const defineAnnualReturns = require("./investors/annualReturns");
+// const defineInvestorsContact = require("./investors/investorsContact");
 const definePolicies = require("./investors/policies");
-const defineBoardMeetings = require("./investors/boardMeetings");
-const defineOtherIntimations = require("./investors/otherIntimations");
-const defineCsrCommittee = require("./investors/csrCommittee");
-const defineCsrReport = require("./investors/csrReport");
-const defineCsrActionPlan = require("./investors/csrActionPlan");
+// const defineBoardMeetings = require("./investors/boardMeetings");
+// const defineOtherIntimations = require("./investors/otherIntimations");
+// const defineCsrCommittee = require("./investors/csrCommittee");
+// const defineCsrReport = require("./investors/csrReport");
+// const defineCsrActionPlan = require("./investors/csrActionPlan");
 const defineTestimonialPageContent = require("./testimonials/testimonialPageContent");
 const defineTestimonials = require("./testimonials/testimonials");
 const defineBranchLocatorPageContents = require("./branch/branchLocatorPageContentsModel");
@@ -158,6 +164,14 @@ const models = {
   MsmeTargetedAudience: defineMsmeTargetAudience(sequelize),
   MsmeLoanSupportedIndustries: defineMsmeSupportedIndustries(sequelize),
   MsmeloanTypes: defineMsmeLoanTypes(sequelize),
+
+  LoanAgainstPropertyContent: defineLoanAgainstPropertyContent(sequelize),
+  LoanAgainstPropertyFaq: defineLoanAgaintPropertyFaq(sequelize),
+  LoanAgainstPropertyOfferings: defineLoanAgaintPropertyOfferings(sequelize),
+  LoanAgainstPropertyTargetedAudience: defineLoanAgaintPropertyTargetAudience(sequelize),
+  LoanAgainstPropertySupportedIndustries: defineLoanAgaintPropertySupportedIndustries(sequelize),
+  LoanAgainstPropertyTypes: defineLoanAgaintPropertyLoanTypes(sequelize),
+
   CdLoanContent: defineCdLoanContent(sequelize),
   CdLoanProducts: defineCdLoanProducts(sequelize),
   CdLoanBenefits: defineCdLoanBenefits(sequelize),
@@ -184,15 +198,15 @@ const models = {
   InvestorsPageContent: defineInvestorsPageContent(sequelize),
   InvestorsPageContent: defineInvestorsPageContent(sequelize),
   FiscalYears: defineFiscalYears(sequelize),
-  AnnualReport: defineAnnualReport(sequelize),
-  AnnualReturns: defineAnnualReturns(sequelize),
-  InvestorsContact: defineInvestorsContact(sequelize),
+  // AnnualReport: defineAnnualReport(sequelize),
+  // AnnualReturns: defineAnnualReturns(sequelize),
+  // InvestorsContact: defineInvestorsContact(sequelize),
   Policies: definePolicies(sequelize),
-  BoardMeetings: defineBoardMeetings(sequelize),
-  OtherIntimations: defineOtherIntimations(sequelize),
-  CsrCommittee: defineCsrCommittee(sequelize),
-  CsrReport: defineCsrReport(sequelize),
-  CsrActionPlan: defineCsrActionPlan(sequelize),
+  // BoardMeetings: defineBoardMeetings(sequelize),
+  // OtherIntimations: defineOtherIntimations(sequelize),
+  // CsrCommittee: defineCsrCommittee(sequelize),
+  // CsrReport: defineCsrReport(sequelize),
+  // CsrActionPlan: defineCsrActionPlan(sequelize),
   TestimonialPageContent: defineTestimonialPageContent(sequelize),
   Testimonials: defineTestimonials(sequelize),
   BranchLocatorPageContents: defineBranchLocatorPageContents(sequelize),
