@@ -222,6 +222,37 @@ class JobsController {
       next(error);
     }
   }
+
+  static async updateOrder(req, res, next) {
+    try {
+      // Expect: req.body.jobs = [{ id: 1, order: 1 }, ...]
+      const { jobs } = req.body;
+      if (!Array.isArray(jobs) || jobs.length === 0) {
+        throw new CustomError("No job order data provided", 400);
+      }
+
+      // Validate all jobs exist
+      const jobIds = jobs.map((j) => j.id);
+      const foundJobs = await Jobs.findAll({ where: { id: jobIds } });
+      if (foundJobs.length !== jobs.length) {
+        throw new CustomError("Some jobs not found", 404);
+      }
+
+      // Update order in a transaction
+      await Jobs.sequelize.transaction(async (t) => {
+        for (const { id, order } of jobs) {
+          await Jobs.update({ order }, { where: { id }, transaction: t });
+        }
+      });
+
+      // Invalidate cache
+      await Promise.all([CacheService.invalidate("jobs"), CacheService.invalidate("webCareerPage")]);
+
+      res.json({ success: true, message: "Order updated successfully" });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = JobsController;
