@@ -32,6 +32,7 @@ const { initFooterContent } = require("./utils/initFooterContent");
 const { initHeaderContents } = require("./utils/initHeaderContent");
 const { initPopupSettings } = require("./utils/initPopupSettings");
 const { initDirectorsContent } = require("./utils/initDirectorsContent");
+require('./utils/fileExpiration');
 
 dotenv.config();
 const app = express();
