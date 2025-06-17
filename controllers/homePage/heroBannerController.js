@@ -4,11 +4,12 @@ const CustomError = require("../../utils/customError");
 const path = require("path");
 
 const HeroBanner = models.HeroBanner;
+const States = models.CareerStates;
 
 class HeroBannerController {
   static async create(req, res, next) {
     try {
-      const { title, title2, button_text, button_link, location, image_alt_text, is_active, order } = req.body;
+      const { title, button_text, button_link, image_alt_text, is_active, order, state_id } = req.body;
       const image = req.file ? `/uploads/banner/${req.file.filename}` : null;
 
       if (!image) {
@@ -17,17 +18,24 @@ class HeroBannerController {
 
       const heroBanner = await HeroBanner.create({
         title,
-        title2,
         button_text,
         button_link,
-        location,
+        state_id: state_id || null,
         image,
         image_alt_text,
         is_active,
         order,
       });
 
+      if (state_id) {
+        const state = await States.findByPk(state_id);
+        if (!state || !state.is_active) {
+          throw new CustomError("Invalid or inactive state", 400);
+        }
+      }
+
       await CacheService.invalidate("heroBanners");
+      await CacheService.invalidate(`banners_${state_id || "null"}_${type}`);
       await CacheService.invalidate("webHomeData");
 
       res.status(201).json({ success: true, data: heroBanner, message: "Hero Banner created successfully" });
@@ -74,12 +82,11 @@ class HeroBannerController {
         throw new CustomError("HeroBanner not found", 404);
       }
 
-      const { title, title2, button_text, button_link, location, image_alt_text, is_active, order } = req.body;
+      const { title, button_text, button_link, location, image_alt_text, is_active, order } = req.body;
       const image = req.file ? `/uploads/banner/${req.file.filename}` : heroBanner.image;
 
       await heroBanner.update({
         title,
-        title2,
         button_text,
         button_link,
         location,
