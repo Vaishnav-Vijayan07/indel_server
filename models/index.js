@@ -111,6 +111,7 @@ const defineLoanAgainstProperty = require("./policies/policies");
 const defineApplicationStatus = require("./career/application_status");
 const defineGeneralApplications = require("./career/general_application");
 const defineOtp = require("./otp");
+const defineFloatButtons = require("./floatButtons/buttons");
 
 const models = {
   User: defineUser(sequelize),
@@ -226,6 +227,7 @@ const models = {
   ApplicationStatus: defineApplicationStatus(sequelize),
   GeneralApplications: defineGeneralApplications(sequelize),
   Otp: defineOtp(sequelize),
+  FloatButtons: defineFloatButtons(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {
