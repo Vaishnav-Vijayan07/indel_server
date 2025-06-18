@@ -55,6 +55,12 @@ class WebController {
             logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
             throw err;
           }),
+          // models.Csr.findAll({
+          //   attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on", "slug"],
+          // }).catch((err) => {
+          //   logger.error("Failed to fetch CSR", { error: err.message, stack: err.stack });
+          //   throw err;
+          // }),
           models.PopupSettings.findAll().catch((err) => {
             logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
             throw err;
@@ -355,6 +361,63 @@ class WebController {
     }
   }
 
+
+  static async CsrData(req, res, next) {
+    const cacheKey = "webCsrData";
+
+    try {
+      await CacheService.invalidate("webCsrData");
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving CSR data from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const [content, csr] = await Promise.all([models.CsrPageContent.findAll(), models.Csr.findAll()]);
+
+      const sliderItems = csr.filter((csr) => csr.is_slider);
+
+      const data = {
+        content: content[0] || null,
+        csr,
+        sliderItems,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched CSR data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching CSR data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch CSR data", 500, error.message));
+    }
+  }
+  static async csrDetails(req, res, next) {
+    const { slug } = req.params;
+    const cacheKey = `webCsrData_${slug}`;
+
+    try {
+      await CacheService.invalidate(`webCsrData_${slug}`);
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving CSR details from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const csr = await models.Csr.findOne({
+        where: { slug },
+      });
+
+      await CacheService.set(cacheKey, JSON.stringify(csr), 3600);
+      logger.info("Fetched csr details from DB");
+      res.json({ status: "success", data: csr });
+    } catch (error) {
+      logger.error("Error fetching CSR details", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch CSR details", 500, error.message));
+    }
+  }
+
+  
+
   static async IndelValuesData(req, res, next) {
     const cacheKey = "webIndelValueData";
 
@@ -608,7 +671,60 @@ class WebController {
     }
   }
 
-  
+  static async LoanAgainstProperty(req, res, next) {
+  const cacheKey = "webLoanAgainstProperty";
+
+  try {
+    const cachedData = await CacheService.get(cacheKey);
+    // if (cachedData) {
+    //   logger.info("Serving Loan Against Property data from cache");
+    //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+    // }
+
+    const [
+      lapContent,
+      lapSupportedIndustries,
+      lapOfferings,
+      lapTargetedAudience,
+      lapFaq,
+      lapLoanTypes
+    ] = await Promise.all([
+      models.LoanAgainstPropertyContent.findAll(),
+      models.LoanAgainstPropertySupportedIndustries.findAll({
+        where: { is_active: true },
+        order: [["order", "ASC"]],
+      }),
+      models.LoanAgainstPropertyOfferings.findAll(),
+      models.LoanAgainstPropertyTargetedAudience.findAll({
+        where: { is_active: true },
+        order: [["order", "ASC"]],
+      }),
+      models.LoanAgainstPropertyFaq.findAll(),
+      models.LoanAgainstPropertyTypes.findAll({
+        attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
+        where: { is_active: true },
+        order: [["order", "ASC"]],
+      }),
+    ]);
+
+    const data = {
+      lapContent: lapContent[0] || null,
+      lapSupportedIndustries,
+      lapOfferings,
+      lapTargetedAudience,
+      lapFaq,
+      lapLoanTypes,
+    };
+
+    await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+    logger.info("Fetched Loan Against Property data from DB");
+    res.json({ status: "success", data });
+  } catch (error) {
+    logger.error("Error fetching Loan Against Property data", { error: error.message, stack: error.stack });
+    next(new CustomError("Failed to fetch Loan Against Property data", 500, error.message));
+  }
+}
+
   static async CDLoan(req, res, next) {
     const cacheKey = "webCDLoan";
 
