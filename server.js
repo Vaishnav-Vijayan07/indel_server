@@ -38,28 +38,23 @@ const session = require("express-session");
 dotenv.config();
 const app = express();
 
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
-    credentials: true,
-  })
-);
+app.use(cors({ origin: "*" }));
 
 app.use(express.json());
 
-app.use(session({
-  secret: 'your-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: false,      // true only for HTTPS!
-    sameSite: 'lax',    // 'none' for HTTPS and cross-origin
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000
-  }
-}));
-
-
+app.use(
+  session({
+    secret: "your-secret-key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // true only for HTTPS!
+      sameSite: "lax", // 'none' for HTTPS and cross-origin
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    },
+  })
+);
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
