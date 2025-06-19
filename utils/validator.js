@@ -863,6 +863,18 @@ const validateBlogs = [
   check("posted_on").optional().notEmpty().withMessage("Posted On cannot be empty"),
 ];
 
+
+const validateCSRPageContentUpdate = [
+  check("meta_title").optional().notEmpty().withMessage("Meta Title cannot be empty"),
+  check("meta_description").optional().notEmpty().withMessage("Meta Description cannot be empty"),
+  check("meta_keywords").optional().notEmpty().withMessage("Meta Keywords cannot be empty"),
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("slider_title").optional().notEmpty().withMessage("Slider Title cannot be empty"),
+  check("slider_button_text").optional().notEmpty().withMessage("Slider Button Text cannot be empty"),
+  check("slider_button_link").optional().isURL().withMessage("Slider Button Link must be a valid URL"),
+  check("all_csr_title").optional().notEmpty().withMessage("All CSR Title cannot be empty"),
+];
+
 const validateGalleryPageContentItemUpdate = [
   check("title").optional().notEmpty().withMessage("Title cannot be empty"),
   check("description").optional().notEmpty().withMessage("Description cannot be empty"),
@@ -1934,6 +1946,7 @@ module.exports = {
   validateBlogs,
   validateBlogsUpdate,
   generateStringValidators,
+  validateCSRPageContentUpdate,
   validateGalleryPageContentItemUpdate,
   validateEventType,
   validateEventTypeUpdate,

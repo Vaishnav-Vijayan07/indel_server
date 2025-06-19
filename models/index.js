@@ -64,6 +64,8 @@ const defineCareerBenfs = require("./career/employeeBenfs");
 const defineApplicants = require("./career/applicants");
 const defineBlogContent = require("./blog/content");
 const defineBlogs = require("./blog/blogs");
+const defineCsrContent = require("./csr/content");
+const defineCsr = require("./csr/csr");
 const defineGalleryPageContent = require("./gallery/galleryPageContent");
 const defineEventTypes = require("./gallery/eventTypes");
 const defineEventGallery = require("./gallery/eventGallery");
@@ -187,6 +189,8 @@ const models = {
   EmployeeBenefits: defineCareerBenfs(sequelize),
   BlogPageContent: defineBlogContent(sequelize),
   Blogs: defineBlogs(sequelize),
+  CsrPageContent: defineCsrContent(sequelize),
+  Csr: defineCsr(sequelize),
   GalleryPageContent: defineGalleryPageContent(sequelize),
   EventTypes: defineEventTypes(sequelize),
   EventGallery: defineEventGallery(sequelize),

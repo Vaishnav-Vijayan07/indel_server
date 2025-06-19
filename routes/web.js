@@ -19,6 +19,8 @@ router.get("/contacts", WebController.contactData);
 router.get("/history", WebController.historyData);
 router.get("/blogs", WebController.blogData);
 router.get("/blogs/:slug", WebController.blogDetails);
+router.get("/csr", WebController.CsrData);
+router.get("/csr/:slug", WebController.csrDetails);
 router.get("/news", WebController.newsData);
 router.get("/news/:slug", WebController.newsDetails);
 router.get("/indel-values", WebController.IndelValuesData);

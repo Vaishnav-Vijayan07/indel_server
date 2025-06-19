@@ -21,7 +21,7 @@ const { initLoanAgainstPropertyContent } = require("./utils/initLoanAgainstPrope
 
 const { initCdLoanContent } = require("./utils/initCdLoanContent");
 const { initCareerContents } = require("./utils/initCareerContent");
-const { initDebtPartnersContent, initAboutPageContent, initBlogPageContent } = require("./utils/initContents");
+const { initDebtPartnersContent, initAboutPageContent, initBlogPageContent, initCSRPageContent } = require("./utils/initContents");
 const { initGalleryPageContent } = require("./utils/initGalleryContents");
 const { initAwardPageContent } = require("./utils/initAwardPageContent");
 const { initNewsPageContent } = require("./utils/initNewsPageContent");
@@ -67,6 +67,7 @@ const startServer = async () => {
     await initMngmntTeamContent();
     await initDebtPartnersContent();
     await initContactContent();
+    await initCSRPageContent();
     await initHistoryPageContent();
     await initIndelValueContent();
     await initShadesOfIndelContent();

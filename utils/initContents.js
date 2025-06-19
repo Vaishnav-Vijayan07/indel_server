@@ -1,6 +1,8 @@
 const { models } = require("../models/index");
 
 const BlogPageContent = models.BlogPageContent;
+
+const CSRPageContent = models.CsrPageContent;
 const AboutPageContent = models.AboutPageContent;
 const DebtPartnersContent = models.DebtPartnersContent;
 
@@ -29,6 +31,34 @@ const initBlogPageContent = async () => {
     console.error("Failed to initialize Blog Page content:", error.message);
   }
 };
+
+
+const initCSRPageContent = async () => {
+  try {
+    const existingContent = await CSRPageContent.findOne();
+
+    if (existingContent) {
+      console.log("CSR Page content already exists");
+      return;
+    }
+
+    await CSRPageContent.create({
+      meta_title: "Our CSR - Insights and Updates",
+      meta_description: "Stay updated with our latest CSR posts on finance, careers, and more.",
+      meta_keywords: "CSR, finance, careers, updates, insights",
+      title: "Our CSRs",
+      slider_title: "Explore Our Latest Insights",
+      slider_button_text: "Read More",
+      slider_button_link: "https://example.com/blogs",
+      all_csr_title: "All CSRs",
+    });
+
+    console.log("CSR Page content initialized with default values");
+  } catch (error) {
+    console.error("Failed to initialize CSR Page content:", error.message);
+  }
+};
+
 
 const initAboutPageContent = async () => {
   try {
@@ -96,4 +126,4 @@ const initDebtPartnersContent = async () => {
   }
 };
 
-module.exports = { initBlogPageContent, initAboutPageContent, initDebtPartnersContent };
+module.exports = { initBlogPageContent, initAboutPageContent, initDebtPartnersContent,initCSRPageContent };
