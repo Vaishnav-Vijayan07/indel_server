@@ -161,8 +161,7 @@ class WebController {
         req.session.stateId = stateId;
         req.session.stateName = stateName;
         console.log("hited here");
-    console.log("session ======>", req.session);
-
+        console.log("session ======>", req.session);
       } catch (error) {
         console.error("Failed to resolve geolocation:", error.message);
       }
@@ -171,72 +170,91 @@ class WebController {
     const cacheKey = `webHomeData_${stateId || "null"}`;
     try {
       const cachedData = await CacheService.get(cacheKey);
-      if (cachedData) {
-        // console.log(`Serving home data from cache for stateId: ${stateId || "null"}`);
-        return res.json({ status: "success", data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   // console.log(`Serving home data from cache for stateId: ${stateId || "null"}`);
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
 
       // Fetch all required data in parallel
-      const [heroBanner, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs, popUp, smartMoneyDeals] =
-        await Promise.all([
-          models.HeroBanner.findAll({
-            where: {
-              is_active: true,
-              [Op.or]: [{ state_id: stateId || null }, { state_id: null }],
-            },
-            include: [{ model: models.CareerStates, attributes: ["state_name"], as: "state" }],
-            order: [
-              [sequelize.literal(`state_id ${stateId ? "= " + stateId : "IS NULL"}`), "DESC"],
-              ["order", "ASC"],
-              ["createdAt", "DESC"],
-            ],
-            limit: 5,
-          }).catch((err) => {
-            console.error("Failed to fetch heroBanner:", err.message);
-            throw err;
-          }),
-          models.HomeFaq.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
-            console.error("Failed to fetch faqs:", err.message);
-            throw err;
-          }),
-          models.HomeLoanStep.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
-            console.error("Failed to fetch loanSteps:", err.message);
-            throw err;
-          }),
-          models.AboutStatistics.findAll().catch((err) => {
-            console.error("Failed to fetch homeStatistics:", err.message);
-            throw err;
-          }),
-          models.HomePageContent.findAll().catch((err) => {
-            console.error("Failed to fetch pageContent:", err.message);
-            throw err;
-          }),
-          models.Awards.findAll({
-            where: { is_slide: true },
-            attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
-          }).catch((err) => {
-            console.error("Failed to fetch lifeAtIndel:", err.message);
-            throw err;
-          }),
-          models.Blogs.findAll({
-            attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on", "slug"],
-          }).catch((err) => {
-            console.error("Failed to fetch blogs:", err.message);
-            throw err;
-          }),
-          models.PopupSettings.findAll().catch((err) => {
-            console.error("Failed to fetch popUp:", err.message);
-            throw err;
-          }),
-          models.SmartMoneyDeals.findAll({
-            attributes: ["id", "title", "icon", "order", "is_active", "link"],
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }).catch((err) => {
-            console.error("Failed to fetch smartMoneyDeals:", err.message);
-            throw err;
-          }),
-        ]);
+      const [
+        heroBanner,
+        announcement,
+        faqs,
+        loanSteps,
+        homeStatistics,
+        homePageData,
+        lifeAtIndel,
+        blogs,
+        popUp,
+        smartMoneyDeals,
+      ] = await Promise.all([
+        models.HeroBanner.findAll({
+          where: {
+            is_active: true,
+            [Op.or]: [{ state_id: stateId || null }, { state_id: null }],
+          },
+          include: [{ model: models.CareerStates, attributes: ["state_name"], as: "state" }],
+          order: [
+            [sequelize.literal(`state_id ${stateId ? "= " + stateId : "IS NULL"}`), "DESC"],
+            ["order", "ASC"],
+            ["createdAt", "DESC"],
+          ],
+          limit: 5,
+        }).catch((err) => {
+          console.error("Failed to fetch heroBanner:", err.message);
+          throw err;
+        }),
+        models.Announcement.findAll({
+          where: {
+            is_active: true,
+            state_id: stateId || null,
+          },
+        }).catch((err) => {
+          console.error("Failed to fetch Announcement:", err.message);
+          throw err;
+        }),
+        models.HomeFaq.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
+          console.error("Failed to fetch faqs:", err.message);
+          throw err;
+        }),
+        models.HomeLoanStep.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
+          console.error("Failed to fetch loanSteps:", err.message);
+          throw err;
+        }),
+        models.AboutStatistics.findAll().catch((err) => {
+          console.error("Failed to fetch homeStatistics:", err.message);
+          throw err;
+        }),
+        models.HomePageContent.findAll().catch((err) => {
+          console.error("Failed to fetch pageContent:", err.message);
+          throw err;
+        }),
+        models.Awards.findAll({
+          where: { is_slide: true },
+          attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
+        }).catch((err) => {
+          console.error("Failed to fetch lifeAtIndel:", err.message);
+          throw err;
+        }),
+        models.Blogs.findAll({
+          attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on", "slug"],
+        }).catch((err) => {
+          console.error("Failed to fetch blogs:", err.message);
+          throw err;
+        }),
+        models.PopupSettings.findAll().catch((err) => {
+          console.error("Failed to fetch popUp:", err.message);
+          throw err;
+        }),
+        models.SmartMoneyDeals.findAll({
+          attributes: ["id", "title", "icon", "order", "is_active", "link"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }).catch((err) => {
+          console.error("Failed to fetch smartMoneyDeals:", err.message);
+          throw err;
+        }),
+      ]);
 
       const settings = popUp[0] || null;
       const isBanner = settings?.is_banner || false;
@@ -271,6 +289,7 @@ class WebController {
       const data = {
         smartMoneyDeals,
         banner: isBanner ? bannerPopupData : null,
+        announcement: announcement,
         service: !isBanner ? servicePopupData : null,
         lifeAtIndel,
         blogs,
