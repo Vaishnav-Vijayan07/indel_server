@@ -39,22 +39,28 @@ dotenv.config();
 const app = express();
 
 app.use(cors({ origin: "*" }));
-
 app.use(express.json());
-
+app.use(errorMiddleware);
 app.use(
-  session({
-    secret: "your-secret-key",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: false, // true only for HTTPS!
-      sameSite: "lax", // 'none' for HTTPS and cross-origin
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000,
-    },
+  formData.parse({
+    uploadDir: "./uploads",
+    autoClean: true,
   })
 );
+
+// app.use(
+//   session({
+//     secret: "your-secret-key",
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//       secure: false, // true only for HTTPS!
+//       sameSite: "lax", // 'none' for HTTPS and cross-origin
+//       httpOnly: true,
+//       maxAge: 24 * 60 * 60 * 1000,
+//     },
+//   })
+// );
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -72,14 +78,6 @@ app.get("/get-location", (req, res) => {
 });
 
 app.use("/api", apiRoutes);
-
-app.use(errorMiddleware);
-app.use(
-  formData.parse({
-    uploadDir: "./uploads",
-    autoClean: true,
-  })
-);
 
 const PORT = process.env.PORT || 3000;
 

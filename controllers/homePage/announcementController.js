@@ -10,7 +10,9 @@ class AnnouncementController {
   // Create new announcement
   static async create(req, res, next) {
     try {
-      const { Text, state_id, is_active, order } = req.body;
+      const { text, state_id, is_active } = req.body;
+
+      console.log("req.body", req.body);
 
       // Validate region if provided
       if (state_id) {
@@ -23,6 +25,7 @@ class AnnouncementController {
         const existing = await Announcement.findOne({
           where: { state_id },
         });
+        console.log("existing", existing);
 
         if (existing) {
           throw new CustomError("Only one announcement allowed per state", 409);
@@ -30,14 +33,13 @@ class AnnouncementController {
       }
 
       const announcement = await Announcement.create({
-        Text,
+        text,
         state_id: state_id || null,
         is_active: is_active ?? true,
-        order: order || 1,
       });
 
       // Invalidate relevant caches
-      await this.invalidateCaches(state_id);
+      //   await this.invalidateCaches(state_id);
       res.status(201).json({
         success: true,
         data: announcement,
@@ -52,19 +54,17 @@ class AnnouncementController {
   static async getAll(req, res, next) {
     try {
       const { state_id } = req.query;
-      const cacheKey = `announcements_${state_id || "global"}`;
+      //   const cacheKey = `announcements_${state_id || "global"}`;
 
-      // Check cache
-      const cachedData = await CacheService.get(cacheKey);
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
+      //   // Check cache
+      //   const cachedData = await CacheService.get(cacheKey);
+      //   if (cachedData) {
+      //     return res.json({ success: true, data: JSON.parse(cachedData) });
+      //   }
 
-      const where = { is_active: true };
       if (state_id) where.state_id = state_id;
 
       const announcements = await Announcement.findAll({
-        where,
         include: [
           {
             model: CareerStates,
@@ -72,11 +72,11 @@ class AnnouncementController {
             attributes: ["state_name"],
           },
         ],
-        order: [["order", "ASC"]],
+        order: [["createdAt", "ASC"]],
       });
 
       // Cache results
-      await CacheService.set(cacheKey, JSON.stringify(announcements), 3600);
+      //   await CacheService.set(cacheKey, JSON.stringify(announcements), 3600);
       res.json({ success: true, data: announcements });
     } catch (error) {
       next(error);
@@ -91,7 +91,7 @@ class AnnouncementController {
         throw new CustomError("Announcement not found", 404);
       }
 
-      const { Text, state_id, is_active, order } = req.body;
+      const { text, state_id, is_active } = req.body;
       const originalStateId = announcement.state_id;
 
       // Validate new region if changed
@@ -112,15 +112,11 @@ class AnnouncementController {
       }
 
       await announcement.update({
-        Text: Text ?? announcement.Text,
+        text: text ?? announcement.text,
         state_id: state_id ?? announcement.state_id,
         is_active: is_active ?? announcement.is_active,
-        order: order ?? announcement.order,
       });
 
-      // Invalidate both old and new state caches
-      await this.invalidateCaches(originalStateId);
-      await this.invalidateCaches(state_id || announcement.state_id);
       res.json({
         success: true,
         data: announcement,
