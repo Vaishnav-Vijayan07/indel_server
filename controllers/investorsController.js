@@ -404,8 +404,9 @@ class InvestorsController {
       // If not in cache, fetch from DB
       const [intimations, meetings] = await Promise.all([
         models.OtherIntimations.findAll({
+            where: {is_active: true},
           attributes: ["id", "fiscal_year", "record_date_document", "interest_payment_document", "month_date"],
-          where: { fiscal_year: year },
+          where: { fiscal_year: year, is_active: true },
           include: [
             {
               model: models.FiscalYears,
@@ -416,7 +417,7 @@ class InvestorsController {
         }),
         models.BoardMeetings.findAll({
           attributes: ["id", "fiscal_year", "outcome_document", "intimation_document", "meeting_date"],
-          where: { fiscal_year: year },
+          where: { fiscal_year: year, is_active: true },
           include: [
             {
               model: models.FiscalYears,
