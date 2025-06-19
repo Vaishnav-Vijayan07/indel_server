@@ -289,7 +289,7 @@ class WebController {
       const data = {
         smartMoneyDeals,
         banner: isBanner ? bannerPopupData : null,
-        announcement: announcement,
+        announcement: announcement ? announcement[0] : null,
         service: !isBanner ? servicePopupData : null,
         lifeAtIndel,
         blogs,
