@@ -112,6 +112,7 @@ const defineApplicationStatus = require("./career/application_status");
 const defineGeneralApplications = require("./career/general_application");
 const defineOtp = require("./otp");
 const defineFloatButtons = require("./floatButtons/buttons");
+const defineAnnouncement = require("./homePage/announcement");
 
 const models = {
   User: defineUser(sequelize),
@@ -228,6 +229,7 @@ const models = {
   GeneralApplications: defineGeneralApplications(sequelize),
   Otp: defineOtp(sequelize),
   FloatButtons: defineFloatButtons(sequelize),
+  Announcement: defineAnnouncement(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {

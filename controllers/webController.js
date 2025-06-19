@@ -8,56 +8,75 @@ const { getStateFromIp } = require("../utils/geolocation");
 
 class WebController {
   // static async getHomeData(req, res, next) {
-  //   const cacheKey = "webHomeData";
-  //   try {
-  //     // Invalidate cache and check for cached data
-  //     await CacheService.invalidate(cacheKey);
-  //     const cachedData = await CacheService.get(cacheKey);
-  //     // if (cachedData) {
-  //     //   logger.info("Serving home data from cache");
-  //     //   return res.json({ status: "success", data: JSON.parse(cachedData) });
-  //     // }
+  //   const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
+  //   let stateId = null;
+  //   let stateName = "Global";
 
-  //     // Fetch all data concurrently
+  //   try {
+  //     const geo = await getStateFromIp(ip);
+  //     stateId = geo.stateId;
+  //     stateName = geo.stateName;
+  //   } catch (error) {
+  //     console.error("Failed to resolve geolocation:", error.message);
+  //   }
+
+  //   const cacheKey = `webHomeData_${stateId || "null"}`;
+  //   try {
+  //     const cachedData = await CacheService.get(cacheKey);
+  //     if (cachedData) {
+  //       console.log(`Serving home data from cache for stateId: ${stateId || "null"}`);
+  //       return res.json({ status: "success", data: JSON.parse(cachedData) });
+  //     }
+
   //     const [heroBanner, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs, popUp, smartMoneyDeals] =
   //       await Promise.all([
-  //         models.HeroBanner.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
-  //           logger.error("Failed to fetch heroBanner", { error: err.message, stack: err.stack });
+  //         models.HeroBanner.findAll({
+  //           where: {
+  //             is_active: true,
+  //             [Op.or]: [{ state_id: stateId || null }, { state_id: null }],
+  //           },
+  //           include: [{ model: models.CareerStates, attributes: ["state_name"], as: "state" }],
+  //           order: [
+  //             [sequelize.literal(`state_id ${stateId ? "= " + stateId : "IS NULL"}`), "DESC"],
+  //             ["order", "ASC"],
+  //             ["createdAt", "DESC"],
+  //           ],
+  //           limit: 5,
+  //         }).catch((err) => {
+  //           console.error("Failed to fetch heroBanner:", err.message);
   //           throw err;
   //         }),
   //         models.HomeFaq.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
-  //           logger.error("Failed to fetch faqs", { error: err.message, stack: err.stack });
+  //           console.error("Failed to fetch faqs:", err.message);
   //           throw err;
   //         }),
   //         models.HomeLoanStep.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
-  //           logger.error("Failed to fetch loanSteps", { error: err.message, stack: err.stack });
+  //           console.error("Failed to fetch loanSteps:", err.message);
   //           throw err;
   //         }),
   //         models.AboutStatistics.findAll().catch((err) => {
-  //           logger.error("Failed to fetch homeStatistics", { error: err.message, stack: err.stack });
+  //           console.error("Failed to fetch homeStatistics:", err.message);
   //           throw err;
   //         }),
   //         models.HomePageContent.findAll().catch((err) => {
-  //           logger.error("Failed to fetch pageContent", { error: err.message, stack: err.stack });
+  //           console.error("Failed to fetch pageContent:", err.message);
   //           throw err;
   //         }),
   //         models.Awards.findAll({
-  //           where: {
-  //             is_slide: true,
-  //           },
+  //           where: { is_slide: true },
   //           attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
   //         }).catch((err) => {
-  //           logger.error("Failed to fetch lifeAtIndel", { error: err.message, stack: err.stack });
+  //           console.error("Failed to fetch lifeAtIndel:", err.message);
   //           throw err;
   //         }),
   //         models.Blogs.findAll({
   //           attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on", "slug"],
   //         }).catch((err) => {
-  //           logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
+  //           console.error("Failed to fetch blogs:", err.message);
   //           throw err;
   //         }),
   //         models.PopupSettings.findAll().catch((err) => {
-  //           logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
+  //           console.error("Failed to fetch popUp:", err.message);
   //           throw err;
   //         }),
   //         models.SmartMoneyDeals.findAll({
@@ -65,13 +84,12 @@ class WebController {
   //           where: { is_active: true },
   //           order: [["order", "ASC"]],
   //         }).catch((err) => {
-  //           logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
+  //           console.error("Failed to fetch smartMoneyDeals:", err.message);
   //           throw err;
   //         }),
   //       ]);
 
   //     const settings = popUp[0] || null;
-
   //     const isBanner = settings?.is_banner || false;
 
   //     const bannerPopupData = {
@@ -101,7 +119,6 @@ class WebController {
   //       services: popupServices,
   //     };
 
-  //     // Structure the response data
   //     const data = {
   //       smartMoneyDeals,
   //       banner: isBanner ? bannerPopupData : null,
@@ -113,38 +130,53 @@ class WebController {
   //       loanSteps,
   //       homeStatistics,
   //       pageContent: homePageData[0],
+  //       stateId,
+  //       stateName,
   //     };
 
-  //     // Cache the data for 1 hour
   //     await CacheService.set(cacheKey, JSON.stringify(data), 3600);
-  //     logger.info("Fetched home data");
+  //     console.log(`Fetched home data for stateId: ${stateId || "null"}`);
   //     res.json({ status: "success", data });
   //   } catch (error) {
-  //     logger.error("Error fetching home data", { error: error.message, stack: error.stack });
+  //     console.error("Error fetching home data:", error.message);
   //     next(new CustomError("Failed to fetch home data", 500, error.message));
   //   }
   // }
-  static async getHomeData(req, res, next) {
-    const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
-    let stateId = null;
-    let stateName = "Global";
 
-    try {
-      const geo = await getStateFromIp(ip);
-      stateId = geo.stateId;
-      stateName = geo.stateName;
-    } catch (error) {
-      console.error("Failed to resolve geolocation:", error.message);
+  static async getHomeData(req, res, next) {
+    // 1. Try to get stateId and stateName from session
+    let stateId = req.session?.stateId || null;
+    let stateName = req.session?.stateName || "Global";
+
+    console.log("session ======>", req.session);
+
+    // 2. If not in session, call geolocation API and store in session
+    if (!stateId) {
+      const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
+      try {
+        const geo = await getStateFromIp(ip);
+        stateId = geo.stateId;
+        stateName = geo.stateName;
+        // Store in session for future requests
+        req.session.stateId = stateId;
+        req.session.stateName = stateName;
+        console.log("hited here");
+    console.log("session ======>", req.session);
+
+      } catch (error) {
+        console.error("Failed to resolve geolocation:", error.message);
+      }
     }
 
     const cacheKey = `webHomeData_${stateId || "null"}`;
     try {
       const cachedData = await CacheService.get(cacheKey);
       if (cachedData) {
-        console.log(`Serving home data from cache for stateId: ${stateId || "null"}`);
+        // console.log(`Serving home data from cache for stateId: ${stateId || "null"}`);
         return res.json({ status: "success", data: JSON.parse(cachedData) });
       }
 
+      // Fetch all required data in parallel
       const [heroBanner, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs, popUp, smartMoneyDeals] =
         await Promise.all([
           models.HeroBanner.findAll({

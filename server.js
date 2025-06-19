@@ -6,7 +6,7 @@ const errorMiddleware = require("./middlewares/errorMiddleware");
 const Logger = require("./services/logger");
 const path = require("path");
 const cors = require("cors");
-const formData = require('express-form-data');
+const formData = require("express-form-data");
 const { createDemoAdmin } = require("./utils/demoUser");
 const { initHomePageContent } = require("./utils/initHomePageContent");
 const { initMngmntTeamContent } = require("./utils/initMangementTeamContent");
@@ -32,24 +32,59 @@ const { initFooterContent } = require("./utils/initFooterContent");
 const { initHeaderContents } = require("./utils/initHeaderContent");
 const { initPopupSettings } = require("./utils/initPopupSettings");
 const { initDirectorsContent } = require("./utils/initDirectorsContent");
-require('./utils/fileExpiration');
+require("./utils/fileExpiration");
+const session = require("express-session");
 
 dotenv.config();
 const app = express();
 
-app.use(cors({ origin: "*" }));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    credentials: true,
+  })
+);
 
 app.use(express.json());
+
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false,      // true only for HTTPS!
+    sameSite: 'lax',    // 'none' for HTTPS and cross-origin
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000
+  }
+}));
+
+
+
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+app.get("/set-location", (req, res) => {
+  req.session.stateId = 1;
+  req.session.stateName = "Kerala";
+  res.send("Location stored in session!");
+});
+
+app.get("/get-location", (req, res) => {
+  res.json({
+    stateId: req.session.stateId,
+    stateName: req.session.stateName,
+  });
+});
 
 app.use("/api", apiRoutes);
 
 app.use(errorMiddleware);
-app.use(formData.parse({
-  uploadDir: './uploads',
-  autoClean: true
-}));
-
+app.use(
+  formData.parse({
+    uploadDir: "./uploads",
+    autoClean: true,
+  })
+);
 
 const PORT = process.env.PORT || 3000;
 
