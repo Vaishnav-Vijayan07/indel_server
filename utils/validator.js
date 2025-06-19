@@ -1824,11 +1824,12 @@ const validateJobApplicationSubmission = [
     .exists()
     .isFloat({ min: 0 })
     .withMessage("Expected salary is required and must be a non-negative number"),
-  check("applicant.file")
-    .exists()
-    .trim()
-    .isLength({ max: 255 })
-    .withMessage("File path is required and must not exceed 255 characters"),
+  // check("applicant.file")
+  //   .exists()
+  //   .optional()
+  //   .trim()
+  //   .isLength({ max: 255 })
+  //   .withMessage("File path is required and must not exceed 255 characters"),
   check("applicant.is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
   // Job Application Fields
   check("job_application.job_id").exists().isInt({ min: 1 }).withMessage("Job ID is required and must be a positive integer"),

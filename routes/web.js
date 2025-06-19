@@ -8,10 +8,11 @@ const { validateJobApplicationSubmission } = require("../utils/validator");
 const JobApplicationSubmissionController = require("../controllers/career/jobApplicationController");
 
 const upload = createUploadMiddleware("job-applications");
-const uploadField = upload.single("resume");
+const uploadField = upload.single("file");
 const uploadApplicantFile = upload.single("applicant[file]");
 
 router.get("/home", WebController.getHomeData);
+router.get("/float-buttons", WebController.floatButtons);
 router.get("/about", WebController.aboutData);
 router.get("/management", WebController.mangementData);
 router.get("/contacts", WebController.contactData);
@@ -58,12 +59,7 @@ router.get("/policies", WebController.policy);
 router.post("/career/resume", uploadField, JobApplicationsController.create);
 router.get("/career/resume", uploadField, JobApplicationsController.getAll);
 
-router.post(
-  "/careers/job_application",
-  validateJobApplicationSubmission,
-  uploadApplicantFile,
-  JobApplicationSubmissionController.submitApplication
-);
+router.post("/careers/job_application", validateJobApplicationSubmission, uploadApplicantFile, JobApplicationSubmissionController.submitApplication);
 
 router.get("/careers/job_applications", JobApplicationSubmissionController.listApplications);
 

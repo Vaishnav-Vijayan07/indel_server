@@ -32,6 +32,7 @@ class AnnualReportController {
 
       const annualReport = await AnnualReport.create(data);
       await CacheService.invalidate("AnnualReport");
+      await CacheService.invalidate("webCsrReports");
       res.status(201).json({ success: true, data: annualReport, message: "Annual Report created" });
     } catch (error) {
       if (req.file) {
@@ -106,6 +107,7 @@ class AnnualReportController {
 
       await annualReport.update(updateData);
       await CacheService.invalidate("AnnualReport");
+      await CacheService.invalidate("webCsrReports");
       await CacheService.invalidate(`annualReport_${id}`);
       res.json({ success: true, data: annualReport, message: "Annual Report updated" });
     } catch (error) {
@@ -132,6 +134,7 @@ class AnnualReportController {
       }
 
       await CacheService.invalidate("AnnualReport");
+      await CacheService.invalidate("webCsrReports");
       await CacheService.invalidate(`annualReport_${id}`);
       res.json({ success: true, message: "Annual Report deleted", data: id });
     } catch (error) {

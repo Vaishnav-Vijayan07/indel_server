@@ -8,6 +8,7 @@ const JobsController = require("../../controllers/career/jobsController");
 router.get("/dropdowns", JobsController.getDropdowns);
 router.get("/", JobsController.getAll);
 router.get("/:id", JobsController.getById);
+router.put("/order", JobsController.updateOrder);
 
 router.use(authMiddleware(["admin"]));
 router.post("/", validateJobs, validateMiddleware, JobsController.create);

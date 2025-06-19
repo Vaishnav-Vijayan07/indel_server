@@ -77,15 +77,15 @@ const defineEventPageContent = require("./event/eventPageContent");
 const defineEvents = require("./event/event");
 const defineInvestorsPageContent = require("./investors/investorsPageContent");
 const defineFiscalYears = require("./investors/fiscalYears");
-// const defineAnnualReport = require("./investors/annualReport");
-// const defineAnnualReturns = require("./investors/annualReturns");
-// const defineInvestorsContact = require("./investors/investorsContact");
+const defineAnnualReport = require("./investors/annualReport");
+const defineAnnualReturns = require("./investors/annualReturns");
+const defineInvestorsContact = require("./investors/investorsContact");
 const definePolicies = require("./investors/policies");
-// const defineBoardMeetings = require("./investors/boardMeetings");
-// const defineOtherIntimations = require("./investors/otherIntimations");
-// const defineCsrCommittee = require("./investors/csrCommittee");
-// const defineCsrReport = require("./investors/csrReport");
-// const defineCsrActionPlan = require("./investors/csrActionPlan");
+const defineBoardMeetings = require("./investors/boardMeetings");
+const defineOtherIntimations = require("./investors/otherIntimations");
+const defineCsrCommittee = require("./investors/csrCommittee");
+const defineCsrReport = require("./investors/csrReport");
+const defineCsrActionPlan = require("./investors/csrActionPlan");
 const defineTestimonialPageContent = require("./testimonials/testimonialPageContent");
 const defineTestimonials = require("./testimonials/testimonials");
 const defineBranchLocatorPageContents = require("./branch/branchLocatorPageContentsModel");
@@ -119,6 +119,7 @@ const defineLoanAgainstProperty = require("./policies/policies");
 const defineApplicationStatus = require("./career/application_status");
 const defineGeneralApplications = require("./career/general_application");
 const defineOtp = require("./otp");
+const defineFloatButtons = require("./floatButtons/buttons");
 
 const models = {
   User: defineUser(sequelize),
@@ -202,15 +203,15 @@ const models = {
   InvestorsPageContent: defineInvestorsPageContent(sequelize),
   InvestorsPageContent: defineInvestorsPageContent(sequelize),
   FiscalYears: defineFiscalYears(sequelize),
-  // AnnualReport: defineAnnualReport(sequelize),
-  // AnnualReturns: defineAnnualReturns(sequelize),
-  // InvestorsContact: defineInvestorsContact(sequelize),
+  AnnualReport: defineAnnualReport(sequelize),
+  AnnualReturns: defineAnnualReturns(sequelize),
+  InvestorsContact: defineInvestorsContact(sequelize),
   Policies: definePolicies(sequelize),
-  // BoardMeetings: defineBoardMeetings(sequelize),
-  // OtherIntimations: defineOtherIntimations(sequelize),
-  // CsrCommittee: defineCsrCommittee(sequelize),
-  // CsrReport: defineCsrReport(sequelize),
-  // CsrActionPlan: defineCsrActionPlan(sequelize),
+  BoardMeetings: defineBoardMeetings(sequelize),
+  OtherIntimations: defineOtherIntimations(sequelize),
+  CsrCommittee: defineCsrCommittee(sequelize),
+  CsrReport: defineCsrReport(sequelize),
+  CsrActionPlan: defineCsrActionPlan(sequelize),
   TestimonialPageContent: defineTestimonialPageContent(sequelize),
   Testimonials: defineTestimonials(sequelize),
   BranchLocatorPageContents: defineBranchLocatorPageContents(sequelize),
@@ -244,6 +245,7 @@ const models = {
   ApplicationStatus: defineApplicationStatus(sequelize),
   GeneralApplications: defineGeneralApplications(sequelize),
   Otp: defineOtp(sequelize),
+  FloatButtons: defineFloatButtons(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {
