@@ -48,18 +48,18 @@ class WebController {
           logger.error("Failed to fetch lifeAtIndel", { error: err.message, stack: err.stack });
           throw err;
         }),
-        models.Blogs.findAll({
+        // models.Blogs.findAll({
+        //   attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on", "slug"],
+        // }).catch((err) => {
+        //   logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
+        //   throw err;
+        // }),
+        models.Csr.findAll({
           attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on", "slug"],
         }).catch((err) => {
-          logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
+          logger.error("Failed to fetch CSR", { error: err.message, stack: err.stack });
           throw err;
         }),
-          // models.Csr.findAll({
-          //   attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on", "slug"],
-          // }).catch((err) => {
-          //   logger.error("Failed to fetch CSR", { error: err.message, stack: err.stack });
-          //   throw err;
-          // }),
         models.PopupSettings.findAll().catch((err) => {
           logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
           throw err;
@@ -390,7 +390,6 @@ class WebController {
     }
   }
 
-
   static async CsrData(req, res, next) {
     const cacheKey = "webCsrData";
 
@@ -444,8 +443,6 @@ class WebController {
       next(new CustomError("Failed to fetch CSR details", 500, error.message));
     }
   }
-
-  
 
   static async IndelValuesData(req, res, next) {
     const cacheKey = "webIndelValueData";
@@ -689,58 +686,51 @@ class WebController {
   }
 
   static async LoanAgainstProperty(req, res, next) {
-  const cacheKey = "webLoanAgainstProperty";
+    const cacheKey = "webLoanAgainstProperty";
 
-  try {
-    const cachedData = await CacheService.get(cacheKey);
-    // if (cachedData) {
-    //   logger.info("Serving Loan Against Property data from cache");
-    //   return res.json({ status: "success", data: JSON.parse(cachedData) });
-    // }
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving Loan Against Property data from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
 
-    const [
-      lapContent,
-      lapSupportedIndustries,
-      lapOfferings,
-      lapTargetedAudience,
-      lapFaq,
-      lapLoanTypes
-    ] = await Promise.all([
-      models.LoanAgainstPropertyContent.findAll(),
-      models.LoanAgainstPropertySupportedIndustries.findAll({
-        where: { is_active: true },
-        order: [["order", "ASC"]],
-      }),
-      models.LoanAgainstPropertyOfferings.findAll(),
-      models.LoanAgainstPropertyTargetedAudience.findAll({
-        where: { is_active: true },
-        order: [["order", "ASC"]],
-      }),
-      models.LoanAgainstPropertyFaq.findAll(),
-      models.LoanAgainstPropertyTypes.findAll({
-        attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
-        where: { is_active: true },
-        order: [["order", "ASC"]],
-      }),
-    ]);
+      const [lapContent, lapSupportedIndustries, lapOfferings, lapTargetedAudience, lapFaq, lapLoanTypes] = await Promise.all([
+        models.LoanAgainstPropertyContent.findAll(),
+        models.LoanAgainstPropertySupportedIndustries.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.LoanAgainstPropertyOfferings.findAll(),
+        models.LoanAgainstPropertyTargetedAudience.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.LoanAgainstPropertyFaq.findAll(),
+        models.LoanAgainstPropertyTypes.findAll({
+          attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+      ]);
 
-    const data = {
-      lapContent: lapContent[0] || null,
-      lapSupportedIndustries,
-      lapOfferings,
-      lapTargetedAudience,
-      lapFaq,
-      lapLoanTypes,
-    };
+      const data = {
+        lapContent: lapContent[0] || null,
+        lapSupportedIndustries,
+        lapOfferings,
+        lapTargetedAudience,
+        lapFaq,
+        lapLoanTypes,
+      };
 
-    await CacheService.set(cacheKey, JSON.stringify(data), 3600);
-    logger.info("Fetched Loan Against Property data from DB");
-    res.json({ status: "success", data });
-  } catch (error) {
-    logger.error("Error fetching Loan Against Property data", { error: error.message, stack: error.stack });
-    next(new CustomError("Failed to fetch Loan Against Property data", 500, error.message));
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched Loan Against Property data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching Loan Against Property data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch Loan Against Property data", 500, error.message));
+    }
   }
-}
 
   static async CDLoan(req, res, next) {
     const cacheKey = "webCDLoan";
@@ -773,8 +763,6 @@ class WebController {
     }
   }
 
-
-
   static async LoanAgainstProperty(req, res, next) {
     const cacheKey = "webLoanAgainstProperty";
     try {
@@ -784,27 +772,33 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [loanAgainstPropertyContent, loanAgainstPropertySupportedIndustries, loanPropertyOfferings, loanAgainstPropertyTargetedAudience, loanAgainstPropertyFaq, loanAgainstPropertyTypes] =
-        await Promise.all([
-          models.LoanAgainstPropertyContent.findAll(),
-          models.LoanAgainstPropertySupportedIndustries.findAll({
-            // attributes: ["id", "image", "title", "description", "is_active", "order"],
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }),
-          models.LoanAgainstPropertyOfferings.findAll(),
-          models.LoanAgainstPropertyTargetedAudience.findAll({
-            // attributes: ["id", "icon", "title", "description", "is_active", "order"],
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }),
-          models.LoanAgainstPropertyFaq.findAll(),
-          models.LoanAgainstPropertyTypes.findAll({
-            attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }),
-        ]);
+      const [
+        loanAgainstPropertyContent,
+        loanAgainstPropertySupportedIndustries,
+        loanPropertyOfferings,
+        loanAgainstPropertyTargetedAudience,
+        loanAgainstPropertyFaq,
+        loanAgainstPropertyTypes,
+      ] = await Promise.all([
+        models.LoanAgainstPropertyContent.findAll(),
+        models.LoanAgainstPropertySupportedIndustries.findAll({
+          // attributes: ["id", "image", "title", "description", "is_active", "order"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.LoanAgainstPropertyOfferings.findAll(),
+        models.LoanAgainstPropertyTargetedAudience.findAll({
+          // attributes: ["id", "icon", "title", "description", "is_active", "order"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.LoanAgainstPropertyFaq.findAll(),
+        models.LoanAgainstPropertyTypes.findAll({
+          attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+      ]);
 
       const data = {
         loanAgainstPropertyContent: loanAgainstPropertyContent[0] || null,
