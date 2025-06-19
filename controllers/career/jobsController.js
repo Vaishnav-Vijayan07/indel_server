@@ -93,14 +93,6 @@ class JobsController {
     try {
       const { state_id, location_id, role_id } = req.query;
 
-      // Build cache key based on query parameters
-      const cacheKey = `jobs_${role_id || "all"}_${location_id || "all"}_${state_id || "all"}`;
-      const cachedData = await CacheService.get(cacheKey);
-
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
-
       // Build where conditions
       const whereConditions = { is_active: true };
       if (role_id) whereConditions.role_id = parseInt(role_id);
@@ -119,8 +111,6 @@ class JobsController {
           ["id", "ASC"],
         ],
       });
-
-      await CacheService.set(cacheKey, JSON.stringify(jobs), 3600);
       res.json({ success: true, data: jobs });
     } catch (error) {
       next(error);

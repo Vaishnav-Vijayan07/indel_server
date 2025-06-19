@@ -21,9 +21,13 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      location: {
-        type: DataTypes.STRING,
+      state_id: {
+        type: DataTypes.INTEGER,
         allowNull: true,
+        references: {
+          model: "states",
+          key: "id",
+        },
       },
       image: {
         type: DataTypes.STRING,
@@ -47,6 +51,13 @@ module.exports = (sequelize) => {
       timestamps: true,
     }
   );
+
+  HeroBanner.associate = (models) => {
+    HeroBanner.belongsTo(models.CareerStates, {
+      foreignKey: "state_id",
+      as: "state",
+    });
+  };
 
   return HeroBanner;
 };

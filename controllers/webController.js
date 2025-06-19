@@ -1,81 +1,212 @@
-const { models } = require("../models/index");
+const { models, sequelize } = require("../models/index");
 const CacheService = require("../services/cacheService");
 const CustomError = require("../utils/customError");
 const logger = require("../services/logger");
 const { Sequelize, where, Op } = require("sequelize");
 const cacheService = require("../services/cacheService");
+const { getStateFromIp } = require("../utils/geolocation");
 
 class WebController {
+  // static async getHomeData(req, res, next) {
+  //   const cacheKey = "webHomeData";
+  //   try {
+  //     // Invalidate cache and check for cached data
+  //     await CacheService.invalidate(cacheKey);
+  //     const cachedData = await CacheService.get(cacheKey);
+  //     // if (cachedData) {
+  //     //   logger.info("Serving home data from cache");
+  //     //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+  //     // }
+
+  //     // Fetch all data concurrently
+  //     const [heroBanner, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs, popUp, smartMoneyDeals] =
+  //       await Promise.all([
+  //         models.HeroBanner.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
+  //           logger.error("Failed to fetch heroBanner", { error: err.message, stack: err.stack });
+  //           throw err;
+  //         }),
+  //         models.HomeFaq.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
+  //           logger.error("Failed to fetch faqs", { error: err.message, stack: err.stack });
+  //           throw err;
+  //         }),
+  //         models.HomeLoanStep.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
+  //           logger.error("Failed to fetch loanSteps", { error: err.message, stack: err.stack });
+  //           throw err;
+  //         }),
+  //         models.AboutStatistics.findAll().catch((err) => {
+  //           logger.error("Failed to fetch homeStatistics", { error: err.message, stack: err.stack });
+  //           throw err;
+  //         }),
+  //         models.HomePageContent.findAll().catch((err) => {
+  //           logger.error("Failed to fetch pageContent", { error: err.message, stack: err.stack });
+  //           throw err;
+  //         }),
+  //         models.Awards.findAll({
+  //           where: {
+  //             is_slide: true,
+  //           },
+  //           attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
+  //         }).catch((err) => {
+  //           logger.error("Failed to fetch lifeAtIndel", { error: err.message, stack: err.stack });
+  //           throw err;
+  //         }),
+  //         models.Blogs.findAll({
+  //           attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on", "slug"],
+  //         }).catch((err) => {
+  //           logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
+  //           throw err;
+  //         }),
+  //         models.PopupSettings.findAll().catch((err) => {
+  //           logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
+  //           throw err;
+  //         }),
+  //         models.SmartMoneyDeals.findAll({
+  //           attributes: ["id", "title", "icon", "order", "is_active", "link"],
+  //           where: { is_active: true },
+  //           order: [["order", "ASC"]],
+  //         }).catch((err) => {
+  //           logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
+  //           throw err;
+  //         }),
+  //       ]);
+
+  //     const settings = popUp[0] || null;
+
+  //     const isBanner = settings?.is_banner || false;
+
+  //     const bannerPopupData = {
+  //       appearence_time: settings?.banner_popup_appearence_time || null,
+  //       image_alt: settings?.image_alt || null,
+  //       image_link: settings?.image_link || null,
+  //       banner_popup_image: settings?.banner_popup_image || null,
+  //       sub_title: settings?.sub_title || null,
+  //       title: settings?.title || null,
+  //       logo: settings?.logo || null,
+  //     };
+
+  //     let popupServices = null;
+  //     if (!isBanner) {
+  //       popupServices = await models.PopupServices.findAll({
+  //         attributes: ["id", "image", "image_alt", "title", "description", "button_link", "button_text", "order", "is_active"],
+  //         where: { is_active: true },
+  //         order: [["order", "ASC"]],
+  //       });
+  //     }
+
+  //     const servicePopupData = {
+  //       appearence_time: settings?.service_popup_appearence_time || null,
+  //       sub_title: settings?.sub_title || null,
+  //       title: settings?.title || null,
+  //       logo: settings?.logo || null,
+  //       services: popupServices,
+  //     };
+
+  //     // Structure the response data
+  //     const data = {
+  //       smartMoneyDeals,
+  //       banner: isBanner ? bannerPopupData : null,
+  //       service: !isBanner ? servicePopupData : null,
+  //       lifeAtIndel,
+  //       blogs,
+  //       heroBanner,
+  //       faqs,
+  //       loanSteps,
+  //       homeStatistics,
+  //       pageContent: homePageData[0],
+  //     };
+
+  //     // Cache the data for 1 hour
+  //     await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+  //     logger.info("Fetched home data");
+  //     res.json({ status: "success", data });
+  //   } catch (error) {
+  //     logger.error("Error fetching home data", { error: error.message, stack: error.stack });
+  //     next(new CustomError("Failed to fetch home data", 500, error.message));
+  //   }
+  // }
   static async getHomeData(req, res, next) {
-    const cacheKey = "webHomeData";
+    const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
+    let stateId = null;
+    let stateName = "Global";
+
     try {
-      // Invalidate cache and check for cached data
-      await CacheService.invalidate(cacheKey);
+      const geo = await getStateFromIp(ip);
+      stateId = geo.stateId;
+      stateName = geo.stateName;
+    } catch (error) {
+      console.error("Failed to resolve geolocation:", error.message);
+    }
+
+    const cacheKey = `webHomeData_${stateId || "null"}`;
+    try {
       const cachedData = await CacheService.get(cacheKey);
       // if (cachedData) {
-      //   logger.info("Serving home data from cache");
+      //   console.log(`Serving home data from cache for stateId: ${stateId || "null"}`);
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      // Fetch all data concurrently
-      const [heroBanner, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs, popUp, smartMoneyDeals] = await Promise.all([
-        models.HeroBanner.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
-          logger.error("Failed to fetch heroBanner", { error: err.message, stack: err.stack });
-          throw err;
-        }),
-        models.HomeFaq.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
-          logger.error("Failed to fetch faqs", { error: err.message, stack: err.stack });
-          throw err;
-        }),
-        models.HomeLoanStep.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
-          logger.error("Failed to fetch loanSteps", { error: err.message, stack: err.stack });
-          throw err;
-        }),
-        models.AboutStatistics.findAll().catch((err) => {
-          logger.error("Failed to fetch homeStatistics", { error: err.message, stack: err.stack });
-          throw err;
-        }),
-        models.HomePageContent.findAll().catch((err) => {
-          logger.error("Failed to fetch pageContent", { error: err.message, stack: err.stack });
-          throw err;
-        }),
-        models.Awards.findAll({
-          where: {
-            is_slide: true,
-          },
-          attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
-        }).catch((err) => {
-          logger.error("Failed to fetch lifeAtIndel", { error: err.message, stack: err.stack });
-          throw err;
-        }),
-        models.Blogs.findAll({
-          attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on", "slug"],
-        }).catch((err) => {
-          logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
-          throw err;
-        }),
-          // models.Csr.findAll({
-          //   attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on", "slug"],
-          // }).catch((err) => {
-          //   logger.error("Failed to fetch CSR", { error: err.message, stack: err.stack });
-          //   throw err;
-          // }),
-        models.PopupSettings.findAll().catch((err) => {
-          logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
-          throw err;
-        }),
-        models.SmartMoneyDeals.findAll({
-          attributes: ["id", "title", "icon", "order", "is_active", "link"],
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }).catch((err) => {
-          logger.error("Failed to fetch blogs", { error: err.message, stack: err.stack });
-          throw err;
-        }),
-      ]);
+      const [heroBanner, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs, popUp, smartMoneyDeals] =
+        await Promise.all([
+          models.HeroBanner.findAll({
+            where: {
+              is_active: true,
+              [Op.or]: [{ state_id: stateId || null }, { state_id: null }],
+            },
+            include: [{ model: models.CareerStates, attributes: ["state_name"], as: "state" }],
+            order: [
+              [sequelize.literal(`state_id ${stateId ? "= " + stateId : "IS NULL"}`), "DESC"],
+              ["order", "ASC"],
+              ["createdAt", "DESC"],
+            ],
+            limit: 5,
+          }).catch((err) => {
+            console.error("Failed to fetch heroBanner:", err.message);
+            throw err;
+          }),
+          models.HomeFaq.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
+            console.error("Failed to fetch faqs:", err.message);
+            throw err;
+          }),
+          models.HomeLoanStep.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
+            console.error("Failed to fetch loanSteps:", err.message);
+            throw err;
+          }),
+          models.AboutStatistics.findAll().catch((err) => {
+            console.error("Failed to fetch homeStatistics:", err.message);
+            throw err;
+          }),
+          models.HomePageContent.findAll().catch((err) => {
+            console.error("Failed to fetch pageContent:", err.message);
+            throw err;
+          }),
+          models.Awards.findAll({
+            where: { is_slide: true },
+            attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
+          }).catch((err) => {
+            console.error("Failed to fetch lifeAtIndel:", err.message);
+            throw err;
+          }),
+          models.Csr.findAll({
+            attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on", "slug"],
+          }).catch((err) => {
+            console.error("Failed to fetch blogs:", err.message);
+            throw err;
+          }),
+          models.PopupSettings.findAll().catch((err) => {
+            console.error("Failed to fetch popUp:", err.message);
+            throw err;
+          }),
+          models.SmartMoneyDeals.findAll({
+            attributes: ["id", "title", "icon", "order", "is_active", "link"],
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }).catch((err) => {
+            console.error("Failed to fetch smartMoneyDeals:", err.message);
+            throw err;
+          }),
+        ]);
 
       const settings = popUp[0] || null;
-
       const isBanner = settings?.is_banner || false;
 
       const bannerPopupData = {
@@ -105,7 +236,6 @@ class WebController {
         services: popupServices,
       };
 
-      // Structure the response data
       const data = {
         smartMoneyDeals,
         banner: isBanner ? bannerPopupData : null,
@@ -117,14 +247,15 @@ class WebController {
         loanSteps,
         homeStatistics,
         pageContent: homePageData[0],
+        stateId,
+        stateName,
       };
 
-      // Cache the data for 1 hour
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
-      logger.info("Fetched home data");
+      console.log(`Fetched home data for stateId: ${stateId || "null"}`);
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching home data", { error: error.message, stack: error.stack });
+      console.error("Error fetching home data:", error.message);
       next(new CustomError("Failed to fetch home data", 500, error.message));
     }
   }
@@ -390,7 +521,6 @@ class WebController {
     }
   }
 
-
   static async CsrData(req, res, next) {
     const cacheKey = "webCsrData";
 
@@ -444,8 +574,6 @@ class WebController {
       next(new CustomError("Failed to fetch CSR details", 500, error.message));
     }
   }
-
-  
 
   static async IndelValuesData(req, res, next) {
     const cacheKey = "webIndelValueData";
@@ -689,58 +817,51 @@ class WebController {
   }
 
   static async LoanAgainstProperty(req, res, next) {
-  const cacheKey = "webLoanAgainstProperty";
+    const cacheKey = "webLoanAgainstProperty";
 
-  try {
-    const cachedData = await CacheService.get(cacheKey);
-    // if (cachedData) {
-    //   logger.info("Serving Loan Against Property data from cache");
-    //   return res.json({ status: "success", data: JSON.parse(cachedData) });
-    // }
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving Loan Against Property data from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
 
-    const [
-      lapContent,
-      lapSupportedIndustries,
-      lapOfferings,
-      lapTargetedAudience,
-      lapFaq,
-      lapLoanTypes
-    ] = await Promise.all([
-      models.LoanAgainstPropertyContent.findAll(),
-      models.LoanAgainstPropertySupportedIndustries.findAll({
-        where: { is_active: true },
-        order: [["order", "ASC"]],
-      }),
-      models.LoanAgainstPropertyOfferings.findAll(),
-      models.LoanAgainstPropertyTargetedAudience.findAll({
-        where: { is_active: true },
-        order: [["order", "ASC"]],
-      }),
-      models.LoanAgainstPropertyFaq.findAll(),
-      models.LoanAgainstPropertyTypes.findAll({
-        attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
-        where: { is_active: true },
-        order: [["order", "ASC"]],
-      }),
-    ]);
+      const [lapContent, lapSupportedIndustries, lapOfferings, lapTargetedAudience, lapFaq, lapLoanTypes] = await Promise.all([
+        models.LoanAgainstPropertyContent.findAll(),
+        models.LoanAgainstPropertySupportedIndustries.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.LoanAgainstPropertyOfferings.findAll(),
+        models.LoanAgainstPropertyTargetedAudience.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.LoanAgainstPropertyFaq.findAll(),
+        models.LoanAgainstPropertyTypes.findAll({
+          attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+      ]);
 
-    const data = {
-      lapContent: lapContent[0] || null,
-      lapSupportedIndustries,
-      lapOfferings,
-      lapTargetedAudience,
-      lapFaq,
-      lapLoanTypes,
-    };
+      const data = {
+        lapContent: lapContent[0] || null,
+        lapSupportedIndustries,
+        lapOfferings,
+        lapTargetedAudience,
+        lapFaq,
+        lapLoanTypes,
+      };
 
-    await CacheService.set(cacheKey, JSON.stringify(data), 3600);
-    logger.info("Fetched Loan Against Property data from DB");
-    res.json({ status: "success", data });
-  } catch (error) {
-    logger.error("Error fetching Loan Against Property data", { error: error.message, stack: error.stack });
-    next(new CustomError("Failed to fetch Loan Against Property data", 500, error.message));
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched Loan Against Property data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching Loan Against Property data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch Loan Against Property data", 500, error.message));
+    }
   }
-}
 
   static async CDLoan(req, res, next) {
     const cacheKey = "webCDLoan";
@@ -773,8 +894,6 @@ class WebController {
     }
   }
 
-
-
   static async LoanAgainstProperty(req, res, next) {
     const cacheKey = "webLoanAgainstProperty";
     try {
@@ -784,27 +903,33 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [loanAgainstPropertyContent, loanAgainstPropertySupportedIndustries, loanPropertyOfferings, loanAgainstPropertyTargetedAudience, loanAgainstPropertyFaq, loanAgainstPropertyTypes] =
-        await Promise.all([
-          models.LoanAgainstPropertyContent.findAll(),
-          models.LoanAgainstPropertySupportedIndustries.findAll({
-            // attributes: ["id", "image", "title", "description", "is_active", "order"],
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }),
-          models.LoanAgainstPropertyOfferings.findAll(),
-          models.LoanAgainstPropertyTargetedAudience.findAll({
-            // attributes: ["id", "icon", "title", "description", "is_active", "order"],
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }),
-          models.LoanAgainstPropertyFaq.findAll(),
-          models.LoanAgainstPropertyTypes.findAll({
-            attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }),
-        ]);
+      const [
+        loanAgainstPropertyContent,
+        loanAgainstPropertySupportedIndustries,
+        loanPropertyOfferings,
+        loanAgainstPropertyTargetedAudience,
+        loanAgainstPropertyFaq,
+        loanAgainstPropertyTypes,
+      ] = await Promise.all([
+        models.LoanAgainstPropertyContent.findAll(),
+        models.LoanAgainstPropertySupportedIndustries.findAll({
+          // attributes: ["id", "image", "title", "description", "is_active", "order"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.LoanAgainstPropertyOfferings.findAll(),
+        models.LoanAgainstPropertyTargetedAudience.findAll({
+          // attributes: ["id", "icon", "title", "description", "is_active", "order"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.LoanAgainstPropertyFaq.findAll(),
+        models.LoanAgainstPropertyTypes.findAll({
+          attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+      ]);
 
       const data = {
         loanAgainstPropertyContent: loanAgainstPropertyContent[0] || null,
