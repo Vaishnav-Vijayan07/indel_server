@@ -140,10 +140,10 @@ class WebController {
     const cacheKey = `webHomeData_${stateId || "null"}`;
     try {
       const cachedData = await CacheService.get(cacheKey);
-      if (cachedData) {
-        console.log(`Serving home data from cache for stateId: ${stateId || "null"}`);
-        return res.json({ status: "success", data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   console.log(`Serving home data from cache for stateId: ${stateId || "null"}`);
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
 
       const [heroBanner, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs, popUp, smartMoneyDeals] =
         await Promise.all([
@@ -186,7 +186,7 @@ class WebController {
             console.error("Failed to fetch lifeAtIndel:", err.message);
             throw err;
           }),
-          models.Blogs.findAll({
+          models.Csr.findAll({
             attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on", "slug"],
           }).catch((err) => {
             console.error("Failed to fetch blogs:", err.message);
