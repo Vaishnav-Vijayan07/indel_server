@@ -42,6 +42,10 @@ module.exports = (sequelize) => {
       foreignKey: "state_id",
       as: "job_states",
     });
+    States.hasMany(models.HeroBanner, {
+      foreignKey: "state_id",
+      as: "banners",
+    });
   };
 
   return States;
