@@ -25,6 +25,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      mobile_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       all_awards_title: {
         type: DataTypes.STRING,
         allowNull: true,

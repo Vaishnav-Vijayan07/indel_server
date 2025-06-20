@@ -145,66 +145,65 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [heroBanner, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs, popUp, smartMoneyDeals] =
-        await Promise.all([
-          models.HeroBanner.findAll({
-            where: {
-              is_active: true,
-              [Op.or]: [{ state_id: stateId || null }, { state_id: null }],
-            },
-            include: [{ model: models.CareerStates, attributes: ["state_name"], as: "state" }],
-            order: [
-              [sequelize.literal(`state_id ${stateId ? "= " + stateId : "IS NULL"}`), "DESC"],
-              ["order", "ASC"],
-              ["createdAt", "DESC"],
-            ],
-            limit: 5,
-          }).catch((err) => {
-            console.error("Failed to fetch heroBanner:", err.message);
-            throw err;
-          }),
-          models.HomeFaq.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
-            console.error("Failed to fetch faqs:", err.message);
-            throw err;
-          }),
-          models.HomeLoanStep.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
-            console.error("Failed to fetch loanSteps:", err.message);
-            throw err;
-          }),
-          models.AboutStatistics.findAll().catch((err) => {
-            console.error("Failed to fetch homeStatistics:", err.message);
-            throw err;
-          }),
-          models.HomePageContent.findAll().catch((err) => {
-            console.error("Failed to fetch pageContent:", err.message);
-            throw err;
-          }),
-          models.Awards.findAll({
-            where: { is_slide: true },
-            attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
-          }).catch((err) => {
-            console.error("Failed to fetch lifeAtIndel:", err.message);
-            throw err;
-          }),
-          models.Csr.findAll({
-            attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on", "slug"],
-          }).catch((err) => {
-            console.error("Failed to fetch blogs:", err.message);
-            throw err;
-          }),
-          models.PopupSettings.findAll().catch((err) => {
-            console.error("Failed to fetch popUp:", err.message);
-            throw err;
-          }),
-          models.SmartMoneyDeals.findAll({
-            attributes: ["id", "title", "icon", "order", "is_active", "link"],
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }).catch((err) => {
-            console.error("Failed to fetch smartMoneyDeals:", err.message);
-            throw err;
-          }),
-        ]);
+      const [heroBanner, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs, popUp, smartMoneyDeals] = await Promise.all([
+        models.HeroBanner.findAll({
+          where: {
+            is_active: true,
+            [Op.or]: [{ state_id: stateId || null }, { state_id: null }],
+          },
+          include: [{ model: models.CareerStates, attributes: ["state_name"], as: "state" }],
+          order: [
+            [sequelize.literal(`state_id ${stateId ? "= " + stateId : "IS NULL"}`), "DESC"],
+            ["order", "ASC"],
+            ["createdAt", "DESC"],
+          ],
+          limit: 5,
+        }).catch((err) => {
+          console.error("Failed to fetch heroBanner:", err.message);
+          throw err;
+        }),
+        models.HomeFaq.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
+          console.error("Failed to fetch faqs:", err.message);
+          throw err;
+        }),
+        models.HomeLoanStep.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
+          console.error("Failed to fetch loanSteps:", err.message);
+          throw err;
+        }),
+        models.AboutStatistics.findAll().catch((err) => {
+          console.error("Failed to fetch homeStatistics:", err.message);
+          throw err;
+        }),
+        models.HomePageContent.findAll().catch((err) => {
+          console.error("Failed to fetch pageContent:", err.message);
+          throw err;
+        }),
+        models.Awards.findAll({
+          where: { is_slide: true },
+          attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
+        }).catch((err) => {
+          console.error("Failed to fetch lifeAtIndel:", err.message);
+          throw err;
+        }),
+        models.Csr.findAll({
+          attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on", "slug"],
+        }).catch((err) => {
+          console.error("Failed to fetch blogs:", err.message);
+          throw err;
+        }),
+        models.PopupSettings.findAll().catch((err) => {
+          console.error("Failed to fetch popUp:", err.message);
+          throw err;
+        }),
+        models.SmartMoneyDeals.findAll({
+          attributes: ["id", "title", "icon", "order", "is_active", "link"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }).catch((err) => {
+          console.error("Failed to fetch smartMoneyDeals:", err.message);
+          throw err;
+        }),
+      ]);
 
       const settings = popUp[0] || null;
       const isBanner = settings?.is_banner || false;
@@ -478,12 +477,13 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, blogs] = await Promise.all([models.BlogPageContent.findAll(), models.Blogs.findAll(
-        {
+      const [content, blogs] = await Promise.all([
+        models.BlogPageContent.findAll(),
+        models.Blogs.findAll({
           where: { is_active: true },
           order: [["order", "ASC"]],
-        }
-      )]);
+        }),
+      ]);
 
       console.log(blogs);
       const sliderItems = blogs.filter((blog) => blog.is_slider);
@@ -538,10 +538,10 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, csr] = await Promise.all([models.CsrPageContent.findAll(), models.Csr.findAll(
-       { where: { is_active: true },
-        order: [["order", "ASC"]]}
-      )]);
+      const [content, csr] = await Promise.all([
+        models.CsrPageContent.findAll(),
+        models.Csr.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }),
+      ]);
 
       const sliderItems = csr.filter((csr) => csr.is_slider);
 
@@ -596,12 +596,10 @@ class WebController {
 
       const [indelValueContent, indelValues, approachPropositions] = await Promise.all([
         models.IndelValueContent.findAll(),
-        models.IndelValues.findAll(
-          {
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }
-        ),
+        models.IndelValues.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
         models.ApproachPropositions.findAll(),
       ]);
 
@@ -630,7 +628,31 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [differentShades, shadesOfIndelContent] = await Promise.all([models.DifferentShades.findAll(), models.ShadesOfIndelContent.findAll()]);
+      const [differentShades, shadesOfIndelContent] = await Promise.all([
+        models.DifferentShades.findAll({
+          attributes: [
+            "id",
+            "title",
+            "sort_order",
+            "is_active",
+            "second_image",
+            "second_image_alt",
+            "image",
+            "image_alt",
+            "paragraph_1",
+            "paragraph_2",
+            "brand_icon",
+            "brand_icon_alt",
+            "banner_image",
+            "banner_image_alt",
+            "mobile_icon",
+            "mobile_icon_alt",
+          ],
+          where: { is_active: true },
+          order: [["sort_order", "ASC"]],
+        }),
+        models.ShadesOfIndelContent.findAll(),
+      ]);
 
       const data = {
         shadesOfIndelContent: shadesOfIndelContent[0] || null,
@@ -1238,10 +1260,10 @@ class WebController {
 
     try {
       const cachedData = await CacheService.get(cacheKey);
-      // if (cachedData) {
-      //   logger.info("Serving Awards from cache");
-      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
-      // }
+      if (cachedData) {
+        logger.info("Serving Awards from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
 
       const [awardPageContent, awards] = await Promise.all([
         models.AwardPageContent.findAll(),
@@ -1257,11 +1279,6 @@ class WebController {
         slideItems,
         nonSlideItems,
       };
-
-      // const data = {
-      //   awardPageContent: awardPageContent[0] || null,
-      //   awards,
-      // };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
       logger.info("Fetched Awards data from DB");
