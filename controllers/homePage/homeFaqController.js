@@ -1,4 +1,4 @@
-const { where } = require("sequelize");
+const { where, Op } = require("sequelize");
 const { models, sequelize } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
@@ -24,13 +24,15 @@ class HomeFaqController {
   static async getAll(req, res, next) {
     console.log("api called for faq");
     const { stateId } = req.query;
+    console.log("stateId", stateId);
+    
     try {
       const cacheKey = "homeFaqs";
-      const cachedData = await CacheService.get(cacheKey);
+      // const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
 
       let whereClause = { is_active: true };
       if (stateId) {
@@ -50,6 +52,9 @@ class HomeFaqController {
           ["createdAt", "DESC"],
         ],
       });
+
+      console.log("faqs", faqs);
+      
 
       await CacheService.set(cacheKey, JSON.stringify(faqs), 3600);
       res.json({ success: true, data: faqs });
