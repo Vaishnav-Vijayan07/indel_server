@@ -1,26 +1,21 @@
 const { DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
-  const FiscalYears = sequelize.define(
-    "FiscalYears",
+  const LoanAgainstPropertyFaq = sequelize.define(
+    "LoanAgainstPropertyFaq",
     {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
-      fiscal_year: {
-        type: DataTypes.STRING(7),
+      question: {
+        type: DataTypes.STRING,
         allowNull: false,
       },
-      description: {
+      answer: {
         type: DataTypes.TEXT,
         allowNull: true,
-      },
-      is_active: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: true,
       },
       order: {
         type: DataTypes.INTEGER,
@@ -28,10 +23,10 @@ module.exports = (sequelize) => {
       },
     },
     {
-      tableName: "fiscal_years",
+      tableName: "loan_against_property_faqs",
       timestamps: true,
     }
   );
 
-  return FiscalYears;
+  return LoanAgainstPropertyFaq;
 };

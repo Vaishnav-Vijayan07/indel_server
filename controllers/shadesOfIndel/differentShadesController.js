@@ -137,12 +137,17 @@ class DifferentShadesController {
         throw new CustomError("Item not found", 404);
       }
 
+      const oldBannerImage = item.banner_image;
+      const oldBrandIcon = item.brand_icon;
+      const oldImage = item.image;
+      const oldSecondImage = item.second_image;
+
       await item.destroy();
 
-      await DifferentShadesController.deleteFile(item.banner_image);
-      await DifferentShadesController.deleteFile(item.brand_icon);
-      await DifferentShadesController.deleteFile(item.image);
-      await DifferentShadesController.deleteFile(item.second_image);
+      await DifferentShadesController.deleteFile(oldBannerImage);
+      await DifferentShadesController.deleteFile(oldBrandIcon);
+      await DifferentShadesController.deleteFile(oldImage);
+      await DifferentShadesController.deleteFile(oldSecondImage);
 
       await CacheService.invalidate("differentShades");
       await CacheService.invalidate(`differentShades_${id}`);

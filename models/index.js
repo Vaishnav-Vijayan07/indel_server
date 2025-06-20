@@ -44,6 +44,12 @@ const defineMsmeOfferings = require("./msme/msmeOfferings");
 const defineMsmeTargetAudience = require("./msme/targetAudience");
 const defineMsmeSupportedIndustries = require("./msme/supportedIndustries");
 const defineMsmeLoanTypes = require("./msme/loanTypes");
+const defineLoanAgainstPropertyContent = require("./loanAgainstProperty/loanContent");
+const defineLoanAgaintPropertyFaq = require("./loanAgainstProperty/faq");
+const defineLoanAgaintPropertyOfferings = require("./loanAgainstProperty/LoanPropertyOfferings");
+const defineLoanAgaintPropertyTargetAudience = require("./loanAgainstProperty/targetAudience");
+const defineLoanAgaintPropertySupportedIndustries = require("./loanAgainstProperty/supportedIndustries");
+const defineLoanAgaintPropertyLoanTypes = require("./loanAgainstProperty/loanTypes");
 const defineCdLoanContent = require("./CD/cdContent");
 const defineCdLoanProducts = require("./CD/loanProducts");
 const defineCdLoanBenefits = require("./CD/loanBenefits");
@@ -58,6 +64,8 @@ const defineCareerBenfs = require("./career/employeeBenfs");
 const defineApplicants = require("./career/applicants");
 const defineBlogContent = require("./blog/content");
 const defineBlogs = require("./blog/blogs");
+const defineCsrContent = require("./csr/content");
+const defineCsr = require("./csr/csr");
 const defineGalleryPageContent = require("./gallery/galleryPageContent");
 const defineEventTypes = require("./gallery/eventTypes");
 const defineEventGallery = require("./gallery/eventGallery");
@@ -160,6 +168,14 @@ const models = {
   MsmeTargetedAudience: defineMsmeTargetAudience(sequelize),
   MsmeLoanSupportedIndustries: defineMsmeSupportedIndustries(sequelize),
   MsmeloanTypes: defineMsmeLoanTypes(sequelize),
+
+  LoanAgainstPropertyContent: defineLoanAgainstPropertyContent(sequelize),
+  LoanAgainstPropertyFaq: defineLoanAgaintPropertyFaq(sequelize),
+  LoanAgainstPropertyOfferings: defineLoanAgaintPropertyOfferings(sequelize),
+  LoanAgainstPropertyTargetedAudience: defineLoanAgaintPropertyTargetAudience(sequelize),
+  LoanAgainstPropertySupportedIndustries: defineLoanAgaintPropertySupportedIndustries(sequelize),
+  LoanAgainstPropertyTypes: defineLoanAgaintPropertyLoanTypes(sequelize),
+
   CdLoanContent: defineCdLoanContent(sequelize),
   CdLoanProducts: defineCdLoanProducts(sequelize),
   CdLoanBenefits: defineCdLoanBenefits(sequelize),
@@ -174,6 +190,8 @@ const models = {
   EmployeeBenefits: defineCareerBenfs(sequelize),
   BlogPageContent: defineBlogContent(sequelize),
   Blogs: defineBlogs(sequelize),
+  CsrPageContent: defineCsrContent(sequelize),
+  Csr: defineCsr(sequelize),
   GalleryPageContent: defineGalleryPageContent(sequelize),
   EventTypes: defineEventTypes(sequelize),
   EventGallery: defineEventGallery(sequelize),

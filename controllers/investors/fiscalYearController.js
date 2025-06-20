@@ -21,11 +21,14 @@ class FiscalYearsController {
       const cacheKey = "FiscalYears";
       const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
 
-      const fiscalYears = await FiscalYears.findAll({ order: [["fiscal_year", "DESC"]] });
+      const fiscalYears = await FiscalYears.findAll({
+        where: { is_active: true },
+        order: [["fiscal_year", "DESC"]],
+      });
       await CacheService.set(cacheKey, JSON.stringify(fiscalYears), 3600);
       res.json({ success: true, data: fiscalYears });
     } catch (error) {

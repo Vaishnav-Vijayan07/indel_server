@@ -12,12 +12,15 @@ const uploadField = upload.single("file");
 const uploadApplicantFile = upload.single("applicant[file]");
 
 router.get("/home", WebController.getHomeData);
+router.get("/float-buttons", WebController.floatButtons);
 router.get("/about", WebController.aboutData);
 router.get("/management", WebController.mangementData);
 router.get("/contacts", WebController.contactData);
 router.get("/history", WebController.historyData);
 router.get("/blogs", WebController.blogData);
 router.get("/blogs/:slug", WebController.blogDetails);
+router.get("/csr", WebController.CsrData);
+router.get("/csr/:slug", WebController.csrDetails);
 router.get("/news", WebController.newsData);
 router.get("/news/:slug", WebController.newsDetails);
 router.get("/indel-values", WebController.IndelValuesData);
@@ -26,6 +29,7 @@ router.get("/our-services", WebController.OurServices);
 router.get("/gold-loan", WebController.goldLoan);
 router.get("/msme", WebController.MSMELoan);
 router.get("/cd-loan", WebController.CDLoan);
+router.get("/loan-against-property", WebController.LoanAgainstProperty);
 router.get("/career", WebController.CareerPage);
 router.get("/career-active-jobs", WebController.ActiveJobs);
 router.get("/event-gallery", WebController.eventGallery);
@@ -55,12 +59,7 @@ router.get("/policies", WebController.policy);
 router.post("/career/resume", uploadField, JobApplicationsController.create);
 router.get("/career/resume", uploadField, JobApplicationsController.getAll);
 
-router.post(
-  "/careers/job_application",
-  validateJobApplicationSubmission,
-  uploadApplicantFile,
-  JobApplicationSubmissionController.submitApplication
-);
+router.post("/careers/job_application", validateJobApplicationSubmission, uploadApplicantFile, JobApplicationSubmissionController.submitApplication);
 
 router.get("/careers/job_applications", JobApplicationSubmissionController.listApplications);
 

@@ -32,6 +32,7 @@ class FloatButtonsController {
       const floatButton = await FloatButtons.create(updateData);
 
       await CacheService.invalidate("floatButtons");
+      await CacheService.invalidate("webFloatButton");
       res.status(201).json({ success: true, data: floatButton, message: "Float Button created" });
     } catch (error) {
       next(error);
@@ -103,6 +104,7 @@ class FloatButtonsController {
 
       await CacheService.invalidate("floatButtons");
       await CacheService.invalidate(`floatButton_${id}`);
+      await CacheService.invalidate("webFloatButton");
       res.json({ success: true, data: floatButton, message: "Float Button updated" });
     } catch (error) {
       next(error);
@@ -126,6 +128,7 @@ class FloatButtonsController {
 
       await CacheService.invalidate("floatButtons");
       await CacheService.invalidate(`floatButton_${id}`);
+      await CacheService.invalidate("webFloatButton");
       res.json({ success: true, message: "Float Button deleted", data: id });
     } catch (error) {
       next(error);

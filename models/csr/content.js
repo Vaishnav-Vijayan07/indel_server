@@ -1,73 +1,52 @@
 const { DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
-  const DifferentShades = sequelize.define(
-    "DifferentShades",
+  const CsrPageContent = sequelize.define(
+    "CsrPageContent",
     {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
+      meta_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      meta_description: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      meta_keywords: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       title: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
-      banner_image: {
+      slider_title: {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      banner_image_alt: {
+      slider_button_text: {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      brand_icon: {
+      slider_button_link: {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      brand_icon_alt: {
+      all_csr_title: {
         type: DataTypes.STRING,
         allowNull: true,
-      },
-      paragraph_1: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-      },
-      paragraph_2: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-      },
-      image: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      image_alt: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      second_image: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      second_image_alt: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      sort_order: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-      },
-      is_active: {
-        type: DataTypes.BOOLEAN,
-        allowNull: true,
-        defaultValue: true,
       },
     },
     {
-      tableName: "different_shades",
+      tableName: "csr_page_content",
       timestamps: true,
     }
   );
 
-  return DifferentShades;
+  return CsrPageContent;
 };

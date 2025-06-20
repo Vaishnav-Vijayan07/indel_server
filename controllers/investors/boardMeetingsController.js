@@ -160,6 +160,8 @@ class BoardMeetingsController {
         await BoardMeetingsController.deleteFile(oldOutcome);
       }
 
+      await boardMeeting.destroy();
+
       await CacheService.invalidate("BoardMeetings");
       await CacheService.invalidate(`boardMeeting_${id}`);
       res.json({ success: true, message: "Board Meeting deleted", data: id });

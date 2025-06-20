@@ -311,6 +311,37 @@ class WebController {
     }
   }
 
+  static async floatButtons(req, res, next) {
+    const cacheKey = "webFloatButton";
+
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        logger.info("Serving buttons from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
+
+      const buttons = await models.FloatButtons.findAll({
+        attributes: ["id", "icon", "order", "is_active", "link"],
+        where: {
+          is_active: true,
+        },
+        order: [["order", "ASC"]],
+      });
+
+      const data = {
+        buttons,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched buttons from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching buttons", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch buttons", 500, error.message));
+    }
+  }
+
   static async aboutData(req, res, next) {
     const cacheKey = "webAboutData";
 
@@ -321,23 +352,22 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks, teamMessages, serviceImages, statsData, accolades] =
-        await Promise.all([
-          models.AboutBanner.findAll({
-            where: {
-              is_active: true,
-            },
-            order: [["order", "ASC"]],
-            attributes: ["id", "title", "super_title", "image", "alt_text", "order", "is_active"],
-          }),
-          models.AboutPageContent.findAll(),
-          models.AboutLifeAtIndelGallery.findAll(),
-          models.AboutQuickLinks.findAll(),
-          models.AboutMessageFromTeam.findAll(),
-          models.AboutServiceGallery.findAll(),
-          models.AboutStatistics.findAll(),
-          models.AboutAccolades.findAll(),
-        ]);
+      const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks, teamMessages, serviceImages, statsData, accolades] = await Promise.all([
+        models.AboutBanner.findAll({
+          where: {
+            is_active: true,
+          },
+          order: [["order", "ASC"]],
+          attributes: ["id", "title", "super_title", "image", "alt_text", "order", "is_active"],
+        }),
+        models.AboutPageContent.findAll(),
+        models.AboutLifeAtIndelGallery.findAll(),
+        models.AboutQuickLinks.findAll(),
+        models.AboutMessageFromTeam.findAll(),
+        models.AboutServiceGallery.findAll(),
+        models.AboutStatistics.findAll(),
+        models.AboutAccolades.findAll(),
+      ]);
 
       const data = {
         aboutBanner,
@@ -542,6 +572,60 @@ class WebController {
     }
   }
 
+  static async CsrData(req, res, next) {
+    const cacheKey = "webCsrData";
+
+    try {
+      await CacheService.invalidate("webCsrData");
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving CSR data from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const [content, csr] = await Promise.all([models.CsrPageContent.findAll(), models.Csr.findAll()]);
+
+      const sliderItems = csr.filter((csr) => csr.is_slider);
+
+      const data = {
+        content: content[0] || null,
+        csr,
+        sliderItems,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched CSR data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching CSR data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch CSR data", 500, error.message));
+    }
+  }
+  static async csrDetails(req, res, next) {
+    const { slug } = req.params;
+    const cacheKey = `webCsrData_${slug}`;
+
+    try {
+      await CacheService.invalidate(`webCsrData_${slug}`);
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving CSR details from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const csr = await models.Csr.findOne({
+        where: { slug },
+      });
+
+      await CacheService.set(cacheKey, JSON.stringify(csr), 3600);
+      logger.info("Fetched csr details from DB");
+      res.json({ status: "success", data: csr });
+    } catch (error) {
+      logger.error("Error fetching CSR details", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch CSR details", 500, error.message));
+    }
+  }
+
   static async IndelValuesData(req, res, next) {
     const cacheKey = "webIndelValueData";
 
@@ -583,10 +667,7 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [differentShades, shadesOfIndelContent] = await Promise.all([
-        models.DifferentShades.findAll(),
-        models.ShadesOfIndelContent.findAll(),
-      ]);
+      const [differentShades, shadesOfIndelContent] = await Promise.all([models.DifferentShades.findAll(), models.ShadesOfIndelContent.findAll()]);
 
       const data = {
         shadesOfIndelContent: shadesOfIndelContent[0] || null,
@@ -648,33 +729,25 @@ class WebController {
         attributes: ["id"],
       });
 
-      const [
-        goldloanContent,
-        goldLoanFeatures,
-        goldloanBannerFeatures,
-        ServiceBenefit,
-        goldLoanFaq,
-        goldLoanSchemes,
-        schemeDetails,
-        steps,
-      ] = await Promise.all([
-        models.GoldloanContent.findAll(),
-        models.GoldLoanFeatures.findAll(),
-        models.GoldloanBannerFeatures.findAll(),
-        models.ServiceBenefit.findAll({
-          where: { is_active: true, service_id: service?.id },
-          order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
-        }),
-        models.GoldLoanFaq.findAll({
-          where: { is_active: true },
-          order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
-        }),
-        models.GoldLoanScheme.findAll(),
-        models.SchemeDetails.findAll({
-          order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
-        }),
-        models.HomeLoanStep.findAll(),
-      ]);
+      const [goldloanContent, goldLoanFeatures, goldloanBannerFeatures, ServiceBenefit, goldLoanFaq, goldLoanSchemes, schemeDetails, steps] =
+        await Promise.all([
+          models.GoldloanContent.findAll(),
+          models.GoldLoanFeatures.findAll(),
+          models.GoldloanBannerFeatures.findAll(),
+          models.ServiceBenefit.findAll({
+            where: { is_active: true, service_id: service?.id },
+            order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
+          }),
+          models.GoldLoanFaq.findAll({
+            where: { is_active: true },
+            order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
+          }),
+          models.GoldLoanScheme.findAll(),
+          models.SchemeDetails.findAll({
+            order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
+          }),
+          models.HomeLoanStep.findAll(),
+        ]);
 
       // Group scheme details under their respective schemes
       // const schemes = goldLoanSchemes.map((scheme) => ({
@@ -749,7 +822,6 @@ class WebController {
 
   static async MSMELoan(req, res, next) {
     const cacheKey = "webMSMELoan";
-
     try {
       const cachedData = await CacheService.get(cacheKey);
       // if (cachedData) {
@@ -757,27 +829,26 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [msmeLoanContent, msmeLoanSupportedIndustries, msmeOfferings, msmeTargetedAudience, msmeLoanFaq, msmeLoanTypes] =
-        await Promise.all([
-          models.MsmeLoanContent.findAll(),
-          models.MsmeLoanSupportedIndustries.findAll({
-            // attributes: ["id", "image", "title", "description", "is_active", "order"],
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }),
-          models.MsmeOfferings.findAll(),
-          models.MsmeTargetedAudience.findAll({
-            // attributes: ["id", "icon", "title", "description", "is_active", "order"],
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }),
-          models.MsmeLoanFaq.findAll(),
-          models.MsmeloanTypes.findAll({
-            attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }),
-        ]);
+      const [msmeLoanContent, msmeLoanSupportedIndustries, msmeOfferings, msmeTargetedAudience, msmeLoanFaq, msmeLoanTypes] = await Promise.all([
+        models.MsmeLoanContent.findAll(),
+        models.MsmeLoanSupportedIndustries.findAll({
+          // attributes: ["id", "image", "title", "description", "is_active", "order"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.MsmeOfferings.findAll(),
+        models.MsmeTargetedAudience.findAll({
+          // attributes: ["id", "icon", "title", "description", "is_active", "order"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.MsmeLoanFaq.findAll(),
+        models.MsmeloanTypes.findAll({
+          attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+      ]);
 
       const data = {
         msmeLoanContent: msmeLoanContent[0] || null,
@@ -794,6 +865,53 @@ class WebController {
     } catch (error) {
       logger.error("Error fetching MSME Loan data", { error: error.message, stack: error.stack });
       next(new CustomError("Failed to fetch MSME Loan data", 500, error.message));
+    }
+  }
+
+  static async LoanAgainstProperty(req, res, next) {
+    const cacheKey = "webLoanAgainstProperty";
+
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving Loan Against Property data from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const [lapContent, lapSupportedIndustries, lapOfferings, lapTargetedAudience, lapFaq, lapLoanTypes] = await Promise.all([
+        models.LoanAgainstPropertyContent.findAll(),
+        models.LoanAgainstPropertySupportedIndustries.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.LoanAgainstPropertyOfferings.findAll(),
+        models.LoanAgainstPropertyTargetedAudience.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.LoanAgainstPropertyFaq.findAll(),
+        models.LoanAgainstPropertyTypes.findAll({
+          attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+      ]);
+
+      const data = {
+        lapContent: lapContent[0] || null,
+        lapSupportedIndustries,
+        lapOfferings,
+        lapTargetedAudience,
+        lapFaq,
+        lapLoanTypes,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched Loan Against Property data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching Loan Against Property data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch Loan Against Property data", 500, error.message));
     }
   }
 
@@ -828,6 +946,61 @@ class WebController {
     }
   }
 
+  static async LoanAgainstProperty(req, res, next) {
+    const cacheKey = "webLoanAgainstProperty";
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving MSME Loan from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const [
+        loanAgainstPropertyContent,
+        loanAgainstPropertySupportedIndustries,
+        loanPropertyOfferings,
+        loanAgainstPropertyTargetedAudience,
+        loanAgainstPropertyFaq,
+        loanAgainstPropertyTypes,
+      ] = await Promise.all([
+        models.LoanAgainstPropertyContent.findAll(),
+        models.LoanAgainstPropertySupportedIndustries.findAll({
+          // attributes: ["id", "image", "title", "description", "is_active", "order"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.LoanAgainstPropertyOfferings.findAll(),
+        models.LoanAgainstPropertyTargetedAudience.findAll({
+          // attributes: ["id", "icon", "title", "description", "is_active", "order"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.LoanAgainstPropertyFaq.findAll(),
+        models.LoanAgainstPropertyTypes.findAll({
+          attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+      ]);
+
+      const data = {
+        loanAgainstPropertyContent: loanAgainstPropertyContent[0] || null,
+        loanAgainstPropertySupportedIndustries,
+        loanPropertyOfferings,
+        loanAgainstPropertyTargetedAudience,
+        loanAgainstPropertyFaq,
+        loanAgainstPropertyTypes,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched  Loan Against Property data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching initLOanAgainstPropertyContent data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch initLOanAgainstPropertyContent data", 500, error.message));
+    }
+  }
+
   static async CareerPage(req, res, next) {
     const cacheKey = "webCareerPage";
 
@@ -838,29 +1011,28 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [careersContent, careerBanners, careerGallery, careerStates, careerJobs, empBenefits, awards, testimoinials] =
-        await Promise.all([
-          models.CareersContent.findAll(),
-          models.CareerBanners.findAll(),
-          models.CareerGallery.findAll(),
-          models.CareerStates.findAll(),
-          models.CareerJobs.findAll({
-            // attributes: ["id", "role_id", "location_id", "state_id", "job_title", "job_description", "key_responsibilities", "is_active"],
-            include: [
-              { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
-              { model: models.CareerLocations, as: "location", attributes: ["location_name"] },
-              { model: models.CareerStates, as: "state", attributes: ["state_name"] },
-            ],
-            order: [["id", "ASC"]],
-          }),
-          models.EmployeeBenefits.findAll(),
-          models.Awards.findAll({
-            where: {
-              is_slide: true,
-            },
-          }),
-          models.Testimonials.findAll(),
-        ]);
+      const [careersContent, careerBanners, careerGallery, careerStates, careerJobs, empBenefits, awards, testimoinials] = await Promise.all([
+        models.CareersContent.findAll(),
+        models.CareerBanners.findAll(),
+        models.CareerGallery.findAll(),
+        models.CareerStates.findAll(),
+        models.CareerJobs.findAll({
+          // attributes: ["id", "role_id", "location_id", "state_id", "job_title", "job_description", "key_responsibilities", "is_active"],
+          include: [
+            { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
+            { model: models.CareerLocations, as: "location", attributes: ["location_name"] },
+            { model: models.CareerStates, as: "state", attributes: ["state_name"] },
+          ],
+          order: [["id", "ASC"]],
+        }),
+        models.EmployeeBenefits.findAll(),
+        models.Awards.findAll({
+          where: {
+            is_slide: true,
+          },
+        }),
+        models.Testimonials.findAll(),
+      ]);
 
       const textTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "text");
       const imageTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "video");
@@ -911,16 +1083,7 @@ class WebController {
 
       const jobs = await models.CareerJobs.findAll({
         where: whereClause,
-        attributes: [
-          "id",
-          "role_id",
-          "location_id",
-          "state_id",
-          "short_description",
-          "detailed_description",
-          "experience",
-          "is_active",
-        ],
+        attributes: ["id", "role_id", "location_id", "state_id", "short_description", "detailed_description", "experience", "is_active"],
         include: [
           { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
           { model: models.CareerLocations, as: "location", attributes: ["location_name"] },
@@ -992,17 +1155,7 @@ class WebController {
               model: models.EventGallery,
               as: "galleryItems",
               where: galleryWhere,
-              attributes: [
-                "id",
-                "image",
-                "video",
-                "is_video",
-                "order",
-                "image_alt",
-                "video_thumbnail",
-                "thumbnail_alt",
-                "createdAt",
-              ],
+              attributes: ["id", "image", "video", "is_video", "order", "image_alt", "video_thumbnail", "thumbnail_alt", "createdAt"],
               required: type !== "all", // Use inner join for specific types
               order: [["order", "ASC"]],
             },
@@ -1087,18 +1240,7 @@ class WebController {
           is_active: true,
           event_type_id: event.id,
         },
-        attributes: [
-          "id",
-          "image",
-          "video",
-          "is_video",
-          "order",
-          "image_alt",
-          "video_thumbnail",
-          "thumbnail_alt",
-          "event_type_id",
-          "is_active",
-        ],
+        attributes: ["id", "image", "video", "is_video", "order", "image_alt", "video_thumbnail", "thumbnail_alt", "event_type_id", "is_active"],
         limit: limitNum,
         offset: offset,
         order: [["order", "ASC"]],

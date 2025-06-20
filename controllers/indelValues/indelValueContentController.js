@@ -1,10 +1,26 @@
 const { models } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
+const Logger = require("../../services/logger");
+const fs = require("fs").promises;
+const path = require("path");
 
 const IndelValueContent = models.IndelValueContent;
 
 class IndelValueContentController {
+  static async deleteFile(filePath) {
+    if (!filePath) return;
+    try {
+      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
+      await fs.unlink(absolutePath);
+      Logger.info(`Deleted file: ${filePath}`);
+    } catch (error) {
+      if (error.code !== "ENOENT") {
+        Logger.error(`Failed to delete file ${filePath}: ${error.message}`);
+      }
+    }
+  }
+
   static async get(req, res, next) {
     try {
       const cacheKey = "IndelValueContent";
@@ -34,6 +50,11 @@ class IndelValueContentController {
       }
 
       const updateData = { ...req.body };
+
+      if (req.file) {
+        updateData.banner_image = `/uploads/indel-value-content/${req.file.filename}`;
+        await IndelValueContentController.deleteFile(content.banner_image);
+      }
 
       await content.update(updateData);
 
