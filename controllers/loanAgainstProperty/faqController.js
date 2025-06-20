@@ -4,6 +4,7 @@ const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
 
 const loanAgainstPropertyFaqs = models.LoanAgainstPropertyFaq;
+const States = models.CareerStates;
 
 class loanAgainstPropertyFaqsController {
   static async create(req, res, next) {
@@ -31,7 +32,7 @@ class loanAgainstPropertyFaqsController {
       // }
 
       const whereClause = {
-        is_active: true,
+        // is_active: true,
         ...(stateId && { state_id: Number(stateId) }),
       };
 
