@@ -397,8 +397,14 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, blogs] = await Promise.all([models.BlogPageContent.findAll(), models.Blogs.findAll()]);
+      const [content, blogs] = await Promise.all([models.BlogPageContent.findAll(), models.Blogs.findAll(
+        {
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }
+      )]);
 
+      console.log(blogs);
       const sliderItems = blogs.filter((blog) => blog.is_slider);
 
       const data = {
@@ -451,7 +457,10 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, csr] = await Promise.all([models.CsrPageContent.findAll(), models.Csr.findAll()]);
+      const [content, csr] = await Promise.all([models.CsrPageContent.findAll(), models.Csr.findAll(
+       { where: { is_active: true },
+        order: [["order", "ASC"]]}
+      )]);
 
       const sliderItems = csr.filter((csr) => csr.is_slider);
 
@@ -506,7 +515,12 @@ class WebController {
 
       const [indelValueContent, indelValues, approachPropositions] = await Promise.all([
         models.IndelValueContent.findAll(),
-        models.IndelValues.findAll(),
+        models.IndelValues.findAll(
+          {
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }
+        ),
         models.ApproachPropositions.findAll(),
       ]);
 
