@@ -732,6 +732,21 @@ class WebController {
 
   static async MSMELoan(req, res, next) {
     const cacheKey = "webMSMELoan";
+    let stateId = req.session?.stateId || null;
+    let stateName = req.session?.stateName || "Global";
+    if (!stateId) {
+      const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
+      try {
+        const geo = await getStateFromIp(ip);
+        stateId = geo.stateId;
+        stateName = geo.stateName;
+        // Store in session for future requests
+        req.session.stateId = stateId;
+        req.session.stateName = stateName;
+      } catch (error) {
+        console.error("Failed to resolve geolocation:", error.message);
+      }
+    }
     try {
       const cachedData = await CacheService.get(cacheKey);
       // if (cachedData) {
@@ -753,7 +768,13 @@ class WebController {
             where: { is_active: true },
             order: [["order", "ASC"]],
           }),
-          models.MsmeLoanFaq.findAll(),
+          models.MsmeLoanFaq.findAll({
+            where: {
+              is_active: true,
+              state_id: stateId || null,
+            },
+            order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
+          }),
           models.MsmeloanTypes.findAll({
             attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
             where: { is_active: true },
