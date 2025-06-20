@@ -41,28 +41,28 @@ const app = express();
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use(errorMiddleware);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 app.use(
   formData.parse({
-    uploadDir: "./uploads",
+    uploadDir: "./uploads/",
     autoClean: true,
   })
 );
 
-// app.use(
-//   session({
-//     secret: "your-secret-key",
-//     resave: false,
-//     saveUninitialized: false,
-//     cookie: {
-//       secure: false, // true only for HTTPS!
-//       sameSite: "lax", // 'none' for HTTPS and cross-origin
-//       httpOnly: true,
-//       maxAge: 24 * 60 * 60 * 1000,
-//     },
-//   })
-// );
-
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use(
+  session({
+    secret: "your-secret-key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // true only for HTTPS!
+      sameSite: "lax", // 'none' for HTTPS and cross-origin
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    },
+  })
+);
 
 app.get("/set-location", (req, res) => {
   req.session.stateId = 1;

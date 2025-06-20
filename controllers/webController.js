@@ -741,6 +741,7 @@ class WebController {
       logger.info("Fetched gold loan data from DB");
       res.json({ status: "success", data });
     } catch (error) {
+      logger.error("Error fetching gold loan data", { error });
       logger.error("Error fetching gold loan data", { error: error.message, stack: error.stack });
       next(new CustomError("Failed to fetch gold loan data", 500, error.message));
     }
