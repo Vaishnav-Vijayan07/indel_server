@@ -1,4 +1,5 @@
-const { models } = require("../../models/index");
+const { where } = require("sequelize");
+const { models, sequelize } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 
@@ -21,6 +22,7 @@ class HomeFaqController {
 
   static async getAll(req, res, next) {
     console.log("api called for faq");
+    const { stateId } = req.query;
     try {
       const cacheKey = "homeFaqs";
       const cachedData = await CacheService.get(cacheKey);
@@ -29,8 +31,23 @@ class HomeFaqController {
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
 
+      let whereClause = { is_active: true };
+      if (stateId) {
+        whereClause = {
+          ...whereClause,
+          [Op.or]: [{ state_id: Number(stateId) }, { state_id: null }],
+        };
+      }
+
       const faqs = await HomeFaq.findAll({
         order: [["order", "ASC"]],
+        where: whereClause,
+        include: [{ model: States, attributes: ["state_name"], as: "state" }],
+        order: [
+          [sequelize.literal(`state_id ${stateId ? "= " + Number(stateId) : "IS NULL"}`), "DESC"],
+          ["order", "ASC"],
+          ["createdAt", "DESC"],
+        ],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(faqs), 3600);
