@@ -36,7 +36,7 @@ class HomeFaqController {
       if (stateId) {
         whereClause = {
           ...whereClause,
-          [Op.or]: [{ state_id: Number(stateId) }, { state_id: null }],
+          state_id: Number(stateId),
         };
       }
 

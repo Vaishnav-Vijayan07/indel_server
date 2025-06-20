@@ -3,6 +3,7 @@ const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
 const logger = require("../../services/logger");
+const { Op } = require("sequelize");
 
 const GoldLoanFaqs = models.GoldLoanFaq;
 const States = models.CareerStates;
@@ -38,7 +39,7 @@ class GoldLoanFaqsController {
       if (stateId) {
         whereClause = {
           ...whereClause,
-          [Op.or]: [{ state_id: Number(stateId) }, { state_id: null }],
+          state_id: Number(stateId),
         };
       }
 
