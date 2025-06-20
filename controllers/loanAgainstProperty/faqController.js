@@ -21,15 +21,23 @@ class loanAgainstPropertyFaqsController {
   }
 
   static async getAll(req, res, next) {
+    const { stateId } = req.query;
     try {
       const cacheKey = "loanAgainstPropertyFaqs";
       const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
+
+      const whereClause = {
+        is_active: true,
+        ...(stateId && { state_id: Number(stateId) }),
+      };
 
       const faqs = await loanAgainstPropertyFaqs.findAll({
+        where: whereClause,
+        include: [{ model: States, attributes: ["state_name"], as: "state" }],
         order: [["order", "ASC"]],
       });
 

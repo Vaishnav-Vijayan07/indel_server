@@ -397,12 +397,13 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, blogs] = await Promise.all([models.BlogPageContent.findAll(), models.Blogs.findAll(
-        {
+      const [content, blogs] = await Promise.all([
+        models.BlogPageContent.findAll(),
+        models.Blogs.findAll({
           where: { is_active: true },
           order: [["order", "ASC"]],
-        }
-      )]);
+        }),
+      ]);
 
       console.log(blogs);
       const sliderItems = blogs.filter((blog) => blog.is_slider);
@@ -457,10 +458,10 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, csr] = await Promise.all([models.CsrPageContent.findAll(), models.Csr.findAll(
-       { where: { is_active: true },
-        order: [["order", "ASC"]]}
-      )]);
+      const [content, csr] = await Promise.all([
+        models.CsrPageContent.findAll(),
+        models.Csr.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }),
+      ]);
 
       const sliderItems = csr.filter((csr) => csr.is_slider);
 
@@ -515,12 +516,10 @@ class WebController {
 
       const [indelValueContent, indelValues, approachPropositions] = await Promise.all([
         models.IndelValueContent.findAll(),
-        models.IndelValues.findAll(
-          {
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }
-        ),
+        models.IndelValues.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
         models.ApproachPropositions.findAll(),
       ]);
 
@@ -816,7 +815,21 @@ class WebController {
 
   static async LoanAgainstProperty(req, res, next) {
     const cacheKey = "webLoanAgainstProperty";
-
+    let stateId = req.session?.stateId || null;
+    let stateName = req.session?.stateName || "Global";
+    if (!stateId) {
+      const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
+      try {
+        const geo = await getStateFromIp(ip);
+        stateId = geo.stateId;
+        stateName = geo.stateName;
+        // Store in session for future requests
+        req.session.stateId = stateId;
+        req.session.stateName = stateName;
+      } catch (error) {
+        console.error("Failed to resolve geolocation:", error.message);
+      }
+    }
     try {
       const cachedData = await CacheService.get(cacheKey);
       // if (cachedData) {
@@ -835,7 +848,13 @@ class WebController {
           where: { is_active: true },
           order: [["order", "ASC"]],
         }),
-        models.LoanAgainstPropertyFaq.findAll(),
+        models.LoanAgainstPropertyFaq.findAll({
+          where: {
+            is_active: true,
+            state_id: stateId || null,
+          },
+          order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
+        }),
         models.LoanAgainstPropertyTypes.findAll({
           attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
           where: { is_active: true },
