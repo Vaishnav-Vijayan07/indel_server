@@ -22,10 +22,8 @@ class HomeFaqController {
   }
 
   static async getAll(req, res, next) {
-    console.log("api called for faq");
     const { stateId } = req.query;
-    console.log("stateId", stateId);
-    
+
     try {
       const cacheKey = "homeFaqs";
       // const cachedData = await CacheService.get(cacheKey);
@@ -52,9 +50,6 @@ class HomeFaqController {
           ["createdAt", "DESC"],
         ],
       });
-
-      console.log("faqs", faqs);
-      
 
       await CacheService.set(cacheKey, JSON.stringify(faqs), 3600);
       res.json({ success: true, data: faqs });

@@ -23,21 +23,31 @@ class GoldLoanFaqsController {
   }
 
   static async getAll(req, res, next) {
+    const { stateId } = req.query;
     try {
       const cacheKey = "goldLoanFaqs";
       const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        logger.info("Retrieved gold loan data from cache");
-        return res.json({ success: true, data: JSON.parse(cachedData) });
+      // if (cachedData) {
+      //   logger.info("Retrieved gold loan data from cache");
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
+
+      let whereClause = { is_active: true };
+      if (stateId) {
+        whereClause = {
+          ...whereClause,
+          [Op.or]: [{ state_id: Number(stateId) }, { state_id: null }],
+        };
       }
-      
+
       const faqs = await GoldLoanFaqs.findAll({
+        where: whereClause,
         order: [["order", "ASC"]],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(faqs), 3600);
-      
+
       logger.info("Retrieved gold loan data");
       res.json({ success: true, data: faqs });
     } catch (error) {

@@ -25,12 +25,26 @@ module.exports = (sequelize) => {
         type: DataTypes.BOOLEAN,
         allowNull: true,
       },
+      state_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: "states",
+          key: "id",
+        },
+      },
     },
     {
       tableName: "gold_loan_faqs",
       timestamps: true,
     }
   );
+  GoldLoanFaqs.associate = (models) => {
+    GoldLoanFaqs.belongsTo(models.CareerStates, {
+      foreignKey: "state_id",
+      as: "state",
+    });
+  };
 
   return GoldLoanFaqs;
 };
