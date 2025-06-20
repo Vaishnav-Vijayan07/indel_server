@@ -12,6 +12,7 @@ const uploadField = upload.fields([
   { name: "brand_icon", maxCount: 1 },
   { name: "image", maxCount: 1 },
   { name: "second_image", maxCount: 1 },
+  { name: "mobile_icon", maxCount: 1 },
 ]);
 
 router.get("/", DifferentShadesController.getAll);

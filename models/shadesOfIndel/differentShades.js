@@ -13,6 +13,14 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      mobile_icon: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      mobile_icon_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       banner_image: {
         type: DataTypes.STRING,
         allowNull: true,
