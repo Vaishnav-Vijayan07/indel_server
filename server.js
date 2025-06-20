@@ -6,7 +6,6 @@ const errorMiddleware = require("./middlewares/errorMiddleware");
 const Logger = require("./services/logger");
 const path = require("path");
 const cors = require("cors");
-const formData = require("express-form-data");
 const { createDemoAdmin } = require("./utils/demoUser");
 const { initHomePageContent } = require("./utils/initHomePageContent");
 const { initMngmntTeamContent } = require("./utils/initMangementTeamContent");
@@ -21,7 +20,12 @@ const { initLoanAgainstPropertyContent } = require("./utils/initLoanAgainstPrope
 
 const { initCdLoanContent } = require("./utils/initCdLoanContent");
 const { initCareerContents } = require("./utils/initCareerContent");
-const { initDebtPartnersContent, initAboutPageContent, initBlogPageContent, initCSRPageContent } = require("./utils/initContents");
+const {
+  initDebtPartnersContent,
+  initAboutPageContent,
+  initBlogPageContent,
+  initCSRPageContent,
+} = require("./utils/initContents");
 const { initGalleryPageContent } = require("./utils/initGalleryContents");
 const { initAwardPageContent } = require("./utils/initAwardPageContent");
 const { initNewsPageContent } = require("./utils/initNewsPageContent");
@@ -44,13 +48,6 @@ app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use(errorMiddleware);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
-app.use(
-  formData.parse({
-    uploadDir: "./uploads/",
-    autoClean: true,
-  })
-);
 
 app.use(
   session({
