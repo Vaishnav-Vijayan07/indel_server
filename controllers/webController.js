@@ -7,148 +7,10 @@ const cacheService = require("../services/cacheService");
 const { getStateFromIp } = require("../utils/geolocation");
 
 class WebController {
-  // static async getHomeData(req, res, next) {
-  //   const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
-  //   let stateId = null;
-  //   let stateName = "Global";
-
-  //   try {
-  //     const geo = await getStateFromIp(ip);
-  //     stateId = geo.stateId;
-  //     stateName = geo.stateName;
-  //   } catch (error) {
-  //     console.error("Failed to resolve geolocation:", error.message);
-  //   }
-
-  //   const cacheKey = `webHomeData_${stateId || "null"}`;
-  //   try {
-  //     const cachedData = await CacheService.get(cacheKey);
-  //     if (cachedData) {
-  //       console.log(`Serving home data from cache for stateId: ${stateId || "null"}`);
-  //       return res.json({ status: "success", data: JSON.parse(cachedData) });
-  //     }
-
-  //     const [heroBanner, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs, popUp, smartMoneyDeals] =
-  //       await Promise.all([
-  //         models.HeroBanner.findAll({
-  //           where: {
-  //             is_active: true,
-  //             [Op.or]: [{ state_id: stateId || null }, { state_id: null }],
-  //           },
-  //           include: [{ model: models.CareerStates, attributes: ["state_name"], as: "state" }],
-  //           order: [
-  //             [sequelize.literal(`state_id ${stateId ? "= " + stateId : "IS NULL"}`), "DESC"],
-  //             ["order", "ASC"],
-  //             ["createdAt", "DESC"],
-  //           ],
-  //           limit: 5,
-  //         }).catch((err) => {
-  //           console.error("Failed to fetch heroBanner:", err.message);
-  //           throw err;
-  //         }),
-  //         models.HomeFaq.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
-  //           console.error("Failed to fetch faqs:", err.message);
-  //           throw err;
-  //         }),
-  //         models.HomeLoanStep.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
-  //           console.error("Failed to fetch loanSteps:", err.message);
-  //           throw err;
-  //         }),
-  //         models.AboutStatistics.findAll().catch((err) => {
-  //           console.error("Failed to fetch homeStatistics:", err.message);
-  //           throw err;
-  //         }),
-  //         models.HomePageContent.findAll().catch((err) => {
-  //           console.error("Failed to fetch pageContent:", err.message);
-  //           throw err;
-  //         }),
-  //         models.Awards.findAll({
-  //           where: { is_slide: true },
-  //           attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
-  //         }).catch((err) => {
-  //           console.error("Failed to fetch lifeAtIndel:", err.message);
-  //           throw err;
-  //         }),
-  //         models.Blogs.findAll({
-  //           attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on", "slug"],
-  //         }).catch((err) => {
-  //           console.error("Failed to fetch blogs:", err.message);
-  //           throw err;
-  //         }),
-  //         models.PopupSettings.findAll().catch((err) => {
-  //           console.error("Failed to fetch popUp:", err.message);
-  //           throw err;
-  //         }),
-  //         models.SmartMoneyDeals.findAll({
-  //           attributes: ["id", "title", "icon", "order", "is_active", "link"],
-  //           where: { is_active: true },
-  //           order: [["order", "ASC"]],
-  //         }).catch((err) => {
-  //           console.error("Failed to fetch smartMoneyDeals:", err.message);
-  //           throw err;
-  //         }),
-  //       ]);
-
-  //     const settings = popUp[0] || null;
-  //     const isBanner = settings?.is_banner || false;
-
-  //     const bannerPopupData = {
-  //       appearence_time: settings?.banner_popup_appearence_time || null,
-  //       image_alt: settings?.image_alt || null,
-  //       image_link: settings?.image_link || null,
-  //       banner_popup_image: settings?.banner_popup_image || null,
-  //       sub_title: settings?.sub_title || null,
-  //       title: settings?.title || null,
-  //       logo: settings?.logo || null,
-  //     };
-
-  //     let popupServices = null;
-  //     if (!isBanner) {
-  //       popupServices = await models.PopupServices.findAll({
-  //         attributes: ["id", "image", "image_alt", "title", "description", "button_link", "button_text", "order", "is_active"],
-  //         where: { is_active: true },
-  //         order: [["order", "ASC"]],
-  //       });
-  //     }
-
-  //     const servicePopupData = {
-  //       appearence_time: settings?.service_popup_appearence_time || null,
-  //       sub_title: settings?.sub_title || null,
-  //       title: settings?.title || null,
-  //       logo: settings?.logo || null,
-  //       services: popupServices,
-  //     };
-
-  //     const data = {
-  //       smartMoneyDeals,
-  //       banner: isBanner ? bannerPopupData : null,
-  //       service: !isBanner ? servicePopupData : null,
-  //       lifeAtIndel,
-  //       blogs,
-  //       heroBanner,
-  //       faqs,
-  //       loanSteps,
-  //       homeStatistics,
-  //       pageContent: homePageData[0],
-  //       stateId,
-  //       stateName,
-  //     };
-
-  //     await CacheService.set(cacheKey, JSON.stringify(data), 3600);
-  //     console.log(`Fetched home data for stateId: ${stateId || "null"}`);
-  //     res.json({ status: "success", data });
-  //   } catch (error) {
-  //     console.error("Error fetching home data:", error.message);
-  //     next(new CustomError("Failed to fetch home data", 500, error.message));
-  //   }
-  // }
-
   static async getHomeData(req, res, next) {
     // 1. Try to get stateId and stateName from session
     let stateId = req.session?.stateId || null;
     let stateName = req.session?.stateName || "Global";
-
-    console.log("session ======>", req.session);
 
     // 2. If not in session, call geolocation API and store in session
     if (!stateId) {
@@ -213,7 +75,10 @@ class WebController {
           console.error("Failed to fetch Announcement:", err.message);
           throw err;
         }),
-        models.HomeFaq.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
+        models.HomeFaq.findAll({
+          where: { is_active: true, [Op.or]: [{ state_id: stateId || null }, { state_id: null }] },
+          order: [["order", "ASC"]],
+        }).catch((err) => {
           console.error("Failed to fetch faqs:", err.message);
           throw err;
         }),
@@ -238,6 +103,8 @@ class WebController {
         }),
         models.Blogs.findAll({
           attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on", "slug"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
         }).catch((err) => {
           console.error("Failed to fetch blogs:", err.message);
           throw err;
