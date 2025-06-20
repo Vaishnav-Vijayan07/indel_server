@@ -5,6 +5,7 @@ const Logger = require("../../services/logger");
 const logger = require("../../services/logger");
 
 const GoldLoanFaqs = models.GoldLoanFaq;
+const States = models.CareerStates;
 
 class GoldLoanFaqsController {
   static async create(req, res, next) {
@@ -43,6 +44,7 @@ class GoldLoanFaqsController {
 
       const faqs = await GoldLoanFaqs.findAll({
         where: whereClause,
+        include: [{ model: States, attributes: ["state_name"], as: "state" }],
         order: [["order", "ASC"]],
       });
 
