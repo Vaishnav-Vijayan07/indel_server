@@ -41,6 +41,10 @@ class DifferentShadesController {
         data.second_image = `/uploads/different-shades/${req.files.second_image[0]?.filename}`;
       }
 
+      if (req.files?.mobile_icon) {
+        data.mobile_icon = `/uploads/different-shades/${req.files.mobile_icon[0]?.filename}`;
+      }
+
       const item = await DifferentShades.create(data);
       await CacheService.invalidate("differentShades");
       await CacheService.invalidate("webShadesOfIndel");
@@ -116,6 +120,11 @@ class DifferentShadesController {
       if (req.files?.second_image) {
         updateData.second_image = `/uploads/different-shades/${req.files.second_image[0].filename}`;
         await DifferentShadesController.deleteFile(item.second_image);
+      }
+
+      if (req.files?.mobile_icon) {
+        updateData.mobile_icon = `/uploads/different-shades/${req.files.mobile_icon[0].filename}`;
+        await DifferentShadesController.deleteFile(item.mobile_icon);
       }
 
       await item.update(updateData);
