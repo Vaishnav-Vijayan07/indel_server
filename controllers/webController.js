@@ -590,8 +590,6 @@ class WebController {
     let stateId = req.session?.stateId || null;
     let stateName = req.session?.stateName || "Global";
 
-    console.log("session ======>", req.session);
-
     // 2. If not in session, call geolocation API and store in session
     if (!stateId) {
       const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
@@ -647,7 +645,10 @@ class WebController {
           order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
         }),
         models.GoldLoanFaq.findAll({
-          where: { is_active: true },
+          where: {
+            is_active: true,
+            state_id: stateId || null,
+          },
           order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
         }),
         models.GoldLoanScheme.findAll(),
