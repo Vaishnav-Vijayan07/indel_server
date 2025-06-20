@@ -352,22 +352,23 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks, teamMessages, serviceImages, statsData, accolades] = await Promise.all([
-        models.AboutBanner.findAll({
-          where: {
-            is_active: true,
-          },
-          order: [["order", "ASC"]],
-          attributes: ["id", "title", "super_title", "image", "alt_text", "order", "is_active"],
-        }),
-        models.AboutPageContent.findAll(),
-        models.AboutLifeAtIndelGallery.findAll(),
-        models.AboutQuickLinks.findAll(),
-        models.AboutMessageFromTeam.findAll(),
-        models.AboutServiceGallery.findAll(),
-        models.AboutStatistics.findAll(),
-        models.AboutAccolades.findAll(),
-      ]);
+      const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks, teamMessages, serviceImages, statsData, accolades] =
+        await Promise.all([
+          models.AboutBanner.findAll({
+            where: {
+              is_active: true,
+            },
+            order: [["order", "ASC"]],
+            attributes: ["id", "title", "super_title", "image", "alt_text", "order", "is_active"],
+          }),
+          models.AboutPageContent.findAll(),
+          models.AboutLifeAtIndelGallery.findAll(),
+          models.AboutQuickLinks.findAll(),
+          models.AboutMessageFromTeam.findAll(),
+          models.AboutServiceGallery.findAll(),
+          models.AboutStatistics.findAll(),
+          models.AboutAccolades.findAll(),
+        ]);
 
       const data = {
         aboutBanner,
@@ -667,7 +668,10 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [differentShades, shadesOfIndelContent] = await Promise.all([models.DifferentShades.findAll(), models.ShadesOfIndelContent.findAll()]);
+      const [differentShades, shadesOfIndelContent] = await Promise.all([
+        models.DifferentShades.findAll(),
+        models.ShadesOfIndelContent.findAll(),
+      ]);
 
       const data = {
         shadesOfIndelContent: shadesOfIndelContent[0] || null,
@@ -716,6 +720,25 @@ class WebController {
 
   static async goldLoan(req, res, next) {
     const cacheKey = "webGoldLoan";
+    let stateId = req.session?.stateId || null;
+    let stateName = req.session?.stateName || "Global";
+
+    console.log("session ======>", req.session);
+
+    // 2. If not in session, call geolocation API and store in session
+    if (!stateId) {
+      const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
+      try {
+        const geo = await getStateFromIp(ip);
+        stateId = geo.stateId;
+        stateName = geo.stateName;
+        // Store in session for future requests
+        req.session.stateId = stateId;
+        req.session.stateName = stateName;
+      } catch (error) {
+        console.error("Failed to resolve geolocation:", error.message);
+      }
+    }
 
     try {
       const cachedData = await CacheService.get(cacheKey);
@@ -729,25 +752,43 @@ class WebController {
         attributes: ["id"],
       });
 
-      const [goldloanContent, goldLoanFeatures, goldloanBannerFeatures, ServiceBenefit, goldLoanFaq, goldLoanSchemes, schemeDetails, steps] =
-        await Promise.all([
-          models.GoldloanContent.findAll(),
-          models.GoldLoanFeatures.findAll(),
-          models.GoldloanBannerFeatures.findAll(),
-          models.ServiceBenefit.findAll({
-            where: { is_active: true, service_id: service?.id },
-            order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
-          }),
-          models.GoldLoanFaq.findAll({
-            where: { is_active: true },
-            order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
-          }),
-          models.GoldLoanScheme.findAll(),
-          models.SchemeDetails.findAll({
-            order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
-          }),
-          models.HomeLoanStep.findAll(),
-        ]);
+      const [
+        goldloanContent,
+        announcement,
+        goldLoanFeatures,
+        goldloanBannerFeatures,
+        ServiceBenefit,
+        goldLoanFaq,
+        goldLoanSchemes,
+        schemeDetails,
+        steps,
+      ] = await Promise.all([
+        models.GoldloanContent.findAll(),
+        models.Announcement.findAll({
+          where: {
+            is_active: true,
+            state_id: stateId || null,
+          },
+        }).catch((err) => {
+          console.error("Failed to fetch Announcement:", err.message);
+          throw err;
+        }),
+        models.GoldLoanFeatures.findAll(),
+        models.GoldloanBannerFeatures.findAll(),
+        models.ServiceBenefit.findAll({
+          where: { is_active: true, service_id: service?.id },
+          order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
+        }),
+        models.GoldLoanFaq.findAll({
+          where: { is_active: true },
+          order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
+        }),
+        models.GoldLoanScheme.findAll(),
+        models.SchemeDetails.findAll({
+          order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
+        }),
+        models.HomeLoanStep.findAll(),
+      ]);
 
       // Group scheme details under their respective schemes
       // const schemes = goldLoanSchemes.map((scheme) => ({
@@ -799,6 +840,7 @@ class WebController {
 
       const data = {
         GoldloanContent: goldloanContent[0] || null,
+        announcement: announcement[0] || null,
         GoldLoanFeatures: grouped,
         GoldloanBannerFeatures: goldloanBannerFeatures,
         GoldLoanFaq: goldLoanFaq,
@@ -829,26 +871,27 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [msmeLoanContent, msmeLoanSupportedIndustries, msmeOfferings, msmeTargetedAudience, msmeLoanFaq, msmeLoanTypes] = await Promise.all([
-        models.MsmeLoanContent.findAll(),
-        models.MsmeLoanSupportedIndustries.findAll({
-          // attributes: ["id", "image", "title", "description", "is_active", "order"],
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-        models.MsmeOfferings.findAll(),
-        models.MsmeTargetedAudience.findAll({
-          // attributes: ["id", "icon", "title", "description", "is_active", "order"],
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-        models.MsmeLoanFaq.findAll(),
-        models.MsmeloanTypes.findAll({
-          attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-      ]);
+      const [msmeLoanContent, msmeLoanSupportedIndustries, msmeOfferings, msmeTargetedAudience, msmeLoanFaq, msmeLoanTypes] =
+        await Promise.all([
+          models.MsmeLoanContent.findAll(),
+          models.MsmeLoanSupportedIndustries.findAll({
+            // attributes: ["id", "image", "title", "description", "is_active", "order"],
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.MsmeOfferings.findAll(),
+          models.MsmeTargetedAudience.findAll({
+            // attributes: ["id", "icon", "title", "description", "is_active", "order"],
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.MsmeLoanFaq.findAll(),
+          models.MsmeloanTypes.findAll({
+            attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+        ]);
 
       const data = {
         msmeLoanContent: msmeLoanContent[0] || null,
@@ -1011,28 +1054,29 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [careersContent, careerBanners, careerGallery, careerStates, careerJobs, empBenefits, awards, testimoinials] = await Promise.all([
-        models.CareersContent.findAll(),
-        models.CareerBanners.findAll(),
-        models.CareerGallery.findAll(),
-        models.CareerStates.findAll(),
-        models.CareerJobs.findAll({
-          // attributes: ["id", "role_id", "location_id", "state_id", "job_title", "job_description", "key_responsibilities", "is_active"],
-          include: [
-            { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
-            { model: models.CareerLocations, as: "location", attributes: ["location_name"] },
-            { model: models.CareerStates, as: "state", attributes: ["state_name"] },
-          ],
-          order: [["id", "ASC"]],
-        }),
-        models.EmployeeBenefits.findAll(),
-        models.Awards.findAll({
-          where: {
-            is_slide: true,
-          },
-        }),
-        models.Testimonials.findAll(),
-      ]);
+      const [careersContent, careerBanners, careerGallery, careerStates, careerJobs, empBenefits, awards, testimoinials] =
+        await Promise.all([
+          models.CareersContent.findAll(),
+          models.CareerBanners.findAll(),
+          models.CareerGallery.findAll(),
+          models.CareerStates.findAll(),
+          models.CareerJobs.findAll({
+            // attributes: ["id", "role_id", "location_id", "state_id", "job_title", "job_description", "key_responsibilities", "is_active"],
+            include: [
+              { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
+              { model: models.CareerLocations, as: "location", attributes: ["location_name"] },
+              { model: models.CareerStates, as: "state", attributes: ["state_name"] },
+            ],
+            order: [["id", "ASC"]],
+          }),
+          models.EmployeeBenefits.findAll(),
+          models.Awards.findAll({
+            where: {
+              is_slide: true,
+            },
+          }),
+          models.Testimonials.findAll(),
+        ]);
 
       const textTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "text");
       const imageTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "video");
@@ -1083,7 +1127,16 @@ class WebController {
 
       const jobs = await models.CareerJobs.findAll({
         where: whereClause,
-        attributes: ["id", "role_id", "location_id", "state_id", "short_description", "detailed_description", "experience", "is_active"],
+        attributes: [
+          "id",
+          "role_id",
+          "location_id",
+          "state_id",
+          "short_description",
+          "detailed_description",
+          "experience",
+          "is_active",
+        ],
         include: [
           { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
           { model: models.CareerLocations, as: "location", attributes: ["location_name"] },
@@ -1155,7 +1208,17 @@ class WebController {
               model: models.EventGallery,
               as: "galleryItems",
               where: galleryWhere,
-              attributes: ["id", "image", "video", "is_video", "order", "image_alt", "video_thumbnail", "thumbnail_alt", "createdAt"],
+              attributes: [
+                "id",
+                "image",
+                "video",
+                "is_video",
+                "order",
+                "image_alt",
+                "video_thumbnail",
+                "thumbnail_alt",
+                "createdAt",
+              ],
               required: type !== "all", // Use inner join for specific types
               order: [["order", "ASC"]],
             },
@@ -1240,7 +1303,18 @@ class WebController {
           is_active: true,
           event_type_id: event.id,
         },
-        attributes: ["id", "image", "video", "is_video", "order", "image_alt", "video_thumbnail", "thumbnail_alt", "event_type_id", "is_active"],
+        attributes: [
+          "id",
+          "image",
+          "video",
+          "is_video",
+          "order",
+          "image_alt",
+          "video_thumbnail",
+          "thumbnail_alt",
+          "event_type_id",
+          "is_active",
+        ],
         limit: limitNum,
         offset: offset,
         order: [["order", "ASC"]],
