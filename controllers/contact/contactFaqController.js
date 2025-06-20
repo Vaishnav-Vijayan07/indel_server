@@ -3,6 +3,7 @@ const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 
 const ContactFaq = models.ContactFaq;
+const States = models.CareerStates;
 
 class ContactFaqController {
   static async create(req, res, next) {
