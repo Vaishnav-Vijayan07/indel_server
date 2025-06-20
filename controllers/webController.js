@@ -571,7 +571,28 @@ class WebController {
       // }
 
       const [differentShades, shadesOfIndelContent] = await Promise.all([
-        models.DifferentShades.findAll(),
+        models.DifferentShades.findAll({
+          attributes: [
+            "id",
+            "title",
+            "sort_order",
+            "is_active",
+            "second_image",
+            "second_image_alt",
+            "image",
+            "image_alt",
+            "paragraph_1",
+            "paragraph_2",
+            "brand_icon",
+            "brand_icon_alt",
+            "banner_image",
+            "banner_image_alt",
+            "mobile_icon",
+            "mobile_icon_alt",
+          ],
+          where: { is_active: true },
+          order: [["sort_order", "ASC"]],
+        }),
         models.ShadesOfIndelContent.findAll(),
       ]);
 
@@ -1250,10 +1271,10 @@ class WebController {
 
     try {
       const cachedData = await CacheService.get(cacheKey);
-      // if (cachedData) {
-      //   logger.info("Serving Awards from cache");
-      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
-      // }
+      if (cachedData) {
+        logger.info("Serving Awards from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
 
       const [awardPageContent, awards] = await Promise.all([
         models.AwardPageContent.findAll(),
@@ -1269,11 +1290,6 @@ class WebController {
         slideItems,
         nonSlideItems,
       };
-
-      // const data = {
-      //   awardPageContent: awardPageContent[0] || null,
-      //   awards,
-      // };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
       logger.info("Fetched Awards data from DB");
