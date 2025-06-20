@@ -795,7 +795,7 @@ class WebController {
       logger.info("Fetched MSME Loan data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching MSME Loan data", { error: error.message, stack: error.stack });
+      logger.error("Error fetching MSME Loan data", { error });
       next(new CustomError("Failed to fetch MSME Loan data", 500, error.message));
     }
   }
