@@ -4,6 +4,7 @@ const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 
 const HomeFaq = models.HomeFaq;
+const States = models.CareerStates;
 
 class HomeFaqController {
   static async create(req, res, next) {
