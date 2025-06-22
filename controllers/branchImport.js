@@ -30,6 +30,9 @@ async function importBranchesFromXlsx(filePath, sequelize) {
       is_active: true
     }));
 
+    console.log("branchData =>", branchData[0]);
+    
+
     // Validate required fields
     for (const branch of branchData) {
       if (!branch.name || !branch.state || !branch.district) {
