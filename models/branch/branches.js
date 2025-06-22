@@ -14,16 +14,28 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
       state: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+          model: "states",
+          key: "id",
+        },
       },
       district: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+          model: "districts",
+          key: "id",
+        },
       },
       location: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+          model: "locations",
+          key: "id",
+        },
       },
       latitude: {
         type: DataTypes.DECIMAL(10, 8),
@@ -60,6 +72,22 @@ module.exports = (sequelize) => {
       timestamps: true,
     }
   );
+
+  Branches.associate = (models) => {
+    Branches.belongsTo(models.CareerStates, {
+      foreignKey: "state",
+      as: "states",
+    });
+
+    Branches.belongsTo(models.Districts, {
+      foreignKey: "district",
+      as: "districts",
+    });
+    Branches.belongsTo(models.CareerLocations, {
+      foreignKey: "location",
+      as: "locations",
+    });
+  };
 
   return Branches;
 };

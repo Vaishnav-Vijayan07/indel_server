@@ -2,6 +2,7 @@ const { Sequelize, Op } = require("sequelize");
 const { models } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
+const states = require("../../models/career/states");
 
 const Branches = models.Branches;
 
@@ -28,6 +29,11 @@ class BranchesController {
 
       const branches = await Branches.findAll({
         where: { is_active: true },
+        include: [
+          { model: models.CareerStates, as: "states", attributes: ["state_name"] },
+          { model: models.Districts, as: "districts", attributes: ["district_name"] },
+          { model: models.CareerLocations, as: "locations", attributes: ["location_name"] },
+        ],
         order: [["name", "ASC"]],
       });
       await CacheService.set(cacheKey, JSON.stringify(branches), 3600);
@@ -76,8 +82,8 @@ class BranchesController {
                   + sin(radians(${latFloat}))
                   * sin(radians("latitude"))
                 ) <= ${parseFloat(distance)}
-              `)
-            ]
+              `),
+            ],
           },
           order: [["name", "ASC"]],
         });
