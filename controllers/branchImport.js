@@ -1,5 +1,6 @@
 const xlsx = require('xlsx');
 const { Op } = require('sequelize');
+const { models } = require("../models/index");
 
 async function importBranchesFromXlsx(filePath, sequelize) {
   try {
@@ -11,7 +12,7 @@ async function importBranchesFromXlsx(filePath, sequelize) {
     // Convert sheet to JSON
     const data = xlsx.utils.sheet_to_json(worksheet);
     
-    const Branches = sequelize.models.Branches;
+    const Branches = models.Branches;
     
     // Map Excel columns to database fields
     const branchData = data.map(row => ({

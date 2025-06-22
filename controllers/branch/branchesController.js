@@ -3,6 +3,7 @@ const { models } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 const states = require("../../models/career/states");
+const { importBranchesFromXlsx } = require("../branchImport");
 
 const Branches = models.Branches;
 
@@ -152,6 +153,23 @@ class BranchesController {
       await CacheService.invalidate("Branches");
       await CacheService.invalidate(`branch_${id}`);
       res.json({ success: true, message: "Branch deleted", data: id });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async importBranch(req, res, next) {
+    try {
+      console.log("req.files ===>,", req.file);
+
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+      const result = await importBranchesFromXlsx(req.file.path);
+      res.json({
+        message: "Branches imported successfully",
+        count: result.count,
+      });
     } catch (error) {
       next(error);
     }
