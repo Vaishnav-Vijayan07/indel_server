@@ -63,7 +63,7 @@ module.exports = (sequelize) => {
       },
       address_1: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       address_2: {
         type: DataTypes.STRING,
@@ -75,7 +75,7 @@ module.exports = (sequelize) => {
       },
       pincode: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       is_active: {
         type: DataTypes.BOOLEAN,
