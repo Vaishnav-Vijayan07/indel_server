@@ -13,6 +13,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      branch_code: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       state: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -57,7 +61,19 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      address: {
+      address_1: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      address_2: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      address_3: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      pincode: {
         type: DataTypes.STRING,
         allowNull: false,
       },
