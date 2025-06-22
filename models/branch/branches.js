@@ -35,7 +35,7 @@ module.exports = (sequelize) => {
       },
       location: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: "locations",
           key: "id",
