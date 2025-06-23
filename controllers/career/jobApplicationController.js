@@ -334,6 +334,8 @@ class JobApplicationSubmissionController {
           where: { applicant_id: applicantRecord?.id },
         });
 
+        console.log("existingApplication", existingApplication);
+
         // Prepare updated data
         const updatedData = {
           ...applicant,
