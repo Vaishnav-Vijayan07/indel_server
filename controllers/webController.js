@@ -620,11 +620,14 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [serviceContent, serviceBenefit, services] = await Promise.all([
+      const [serviceContent, serviceBenefit, servicesRaw] = await Promise.all([
         models.ServiceContent.findAll(),
         models.ServiceBenefit.findAll(),
         models.Services.findAll(),
       ]);
+
+      // Filter out the item with slug 'gold-loan'
+      const services = servicesRaw.filter(service => service.slug !== 'gold-loan');
 
       const data = {
         serviceContent: serviceContent[0] || null,
