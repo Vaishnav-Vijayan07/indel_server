@@ -95,15 +95,17 @@ class JobApplicationSubmissionController {
 
       console.log("File:", file);
 
+      console.log("body ===========>", req.body);
+
       // Validate foreign key reference for preferred location
-      const location = await models.CareerLocations.findByPk(applicant.preferred_location);
+      const location = await models.CareerLocations.findByPk(applicant?.preferred_location);
       console.log("Preferred location:", location);
       if (!location) {
         throw new CustomError("Preferred location not found", 404);
       }
 
       // Validate foreign key reference for job
-      const job = await models.CareerJobs.findByPk(job_application.job_id);
+      const job = await models.CareerJobs.findByPk(job_application?.job_id);
       if (!job) throw new CustomError("Job not found", 404);
 
       // Fetch "Pending" status
@@ -119,15 +121,15 @@ class JobApplicationSubmissionController {
 
       // Check if applicant with this email already exists
       let newApplicant = await models.Applicants.findOne({
-        where: { email: applicant.email },
+        where: { email: applicant?.email },
       });
 
       if (newApplicant) {
         // Check for existing application for this job
         const existingApplication = await models.JobApplications.findOne({
           where: {
-            applicant_id: newApplicant.id,
-            job_id: job_application.job_id,
+            applicant_id: newApplicant?.id,
+            job_id: job_application?.job_id,
           },
         });
         if (existingApplication) {
@@ -151,11 +153,11 @@ class JobApplicationSubmissionController {
 
       // Create job application record with applicant_id, pending status, and auto application date
       const applicationData = {
-        job_id: job_application.job_id,
-        applicant_id: newApplicant.id,
-        status_id: pendingStatus.id,
-        is_active: job_application.is_active ?? true, // Default to true if not provided
-        order: job_application.order ?? 1, // Default to 1 if not provided
+        job_id: job_application?.job_id,
+        applicant_id: newApplicant?.id,
+        status_id: pendingStatus?.id,
+        is_active: job_application?.is_active ?? true, // Default to true if not provided
+        order: job_application?.order ?? 1, // Default to 1 if not provided
       };
       const newApplication = await models.JobApplications.create(applicationData);
 
