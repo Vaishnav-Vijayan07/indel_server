@@ -190,12 +190,12 @@ class JobApplicationSubmissionController {
       }_${applicant_location_id || "all"}_${parsedLimit}_${parsedOffset}`;
       const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({
-          success: true,
-          data: JSON.parse(cachedData),
-        });
-      }
+      // if (cachedData) {
+      //   return res.json({
+      //     success: true,
+      //     data: JSON.parse(cachedData),
+      //   });
+      // }
 
       // Build filter conditions
       const whereConditions = {}; // Only active applications
@@ -401,12 +401,12 @@ class JobApplicationSubmissionController {
       }_${parsedLimit}_${parsedOffset}`;
       const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({
-          success: true,
-          data: JSON.parse(cachedData),
-        });
-      }
+      // if (cachedData) {
+      //   return res.json({
+      //     success: true,
+      //     data: JSON.parse(cachedData),
+      //   });
+      // }
 
       // Build filter conditions
       const whereConditions = {};
