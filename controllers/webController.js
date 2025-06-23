@@ -996,7 +996,7 @@ class WebController {
             include: [
               { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
               { model: models.CareerLocations, as: "location", attributes: ["location_name"] },
-              { model: models.CareerStates, as: "state", attributes: ["state_name"] },
+              { model: models.CareerStates, as: "state", attributes: ["state_name"], where: { is_active: true } },
             ],
             order: [["id", "ASC"]],
           }),
