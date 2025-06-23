@@ -32,10 +32,10 @@ class WebController {
     const cacheKey = `webHomeData_${stateId || "null"}`;
     try {
       const cachedData = await CacheService.get(cacheKey);
-      // if (cachedData) {
-      //   // console.log(`Serving home data from cache for stateId: ${stateId || "null"}`);
-      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
-      // }
+      if (cachedData) {
+        // console.log(`Serving home data from cache for stateId: ${stateId || "null"}`);
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
 
       // Fetch all required data in parallel
       const [

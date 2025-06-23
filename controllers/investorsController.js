@@ -5,9 +5,8 @@ const logger = require("../services/logger");
 const CustomError = require("../utils/customError");
 
 class InvestorsController {
-  static async csrReports(req, res, next) {
+  static async AnnualReports(req, res, next) {
     const cacheKey = "webCsrReports";
-
     try {
       const cachedData = await cacheService.get(cacheKey);
       if (cachedData) {
@@ -21,26 +20,28 @@ class InvestorsController {
         }),
         models.AnnualReport.findAll({
           attributes: ["id", "year", "file", "order", "is_active"],
-          where: { is_active: true },
-          include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
+          where: { is_active: true},
+          include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year", 'is_active'], where: { is_active: true} }],
           order: [["order", "ASC"]],
         }),
         models.AnnualReturns.findAll({
           attributes: ["id", "year", "file", "order", "is_active"],
-          where: { is_active: true },
-          include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
+          where: { is_active: true},
+          include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year", "is_active"], where: { is_active: true} }],
           order: [["order", "ASC"]],
         }),
       ]);
+
+      
 
       const data = {
         content: content[0] || null,
         annualReports,
         annualReturn,
       };
-
-      await cacheService.set(cacheKey, JSON.stringify(data), 3600);
-      logger.info("Fetched csr report from DB");
+``
+      // await cacheService.set(cacheKey, JSON.stringify(data), 3600);
+      // logger.info("Fetched csr report from DB");
       res.json({ status: "success", data });
     } catch (error) {
       logger.error("Error fetching csr report", { error: error.message, stack: error.stack });
@@ -137,7 +138,7 @@ class InvestorsController {
                     attributes: ["id", "nature", "name", "designation", "order"],
                     order: [["order", "ASC"]],
                     attributes: ["id", "report", "order", "fiscal_year"],
-                    include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
+                    include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year", "is_active"], where: { is_active: true} }],
                     order: [["order", "ASC"]],
                 }),
                 models.CsrCommittee.findAll({
@@ -148,7 +149,7 @@ class InvestorsController {
                 models.CsrReport.findAll({
                     where: { is_active: true },
                     attributes: ["id", "report", "order", "fiscal_year"],
-                    include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
+                    include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year", "is_active"], where: { is_active: true} }],
                     order: [["order", "ASC"]],
                 }),
             ])
@@ -363,7 +364,7 @@ class InvestorsController {
       // }
 
             const fiscal_years = await models.FiscalYears.findAll(
-                { attributes: ["id", "fiscal_year"],
+                { attributes: ["id", "fiscal_year", "is_active"],
                 order: [["fiscal_year", "DESC"]],
                 where: { is_active: true }}
                 );
@@ -422,8 +423,8 @@ class InvestorsController {
             {
               model: models.FiscalYears,
               as: "fiscalYear",
-              attributes: ["id", "fiscal_year"],
-            },
+              attributes: ["id", "fiscal_year", "is_active", "is_active", "is_active"], 
+              where: { is_active: true} }
           ],
         }),
       ]);
