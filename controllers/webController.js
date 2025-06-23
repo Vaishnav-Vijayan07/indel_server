@@ -1655,13 +1655,17 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, blogs] = await Promise.all([models.NewsPageContent.findAll(), models.News.findAll()]);
+      const [content, news] = await Promise.all([models.NewsPageContent.findAll(), models.News.findAll({
+        where: {is_active: true},
+        order: [["order", "ASC"]],
+      }
+      )]);
 
-      const sliderItems = blogs.filter((blog) => blog.is_slider);
+      const sliderItems = news.filter((news) => news.is_slider);
 
       const data = {
         content: content[0] || null,
-        blogs,
+        news,
         sliderItems,
       };
 
@@ -1685,13 +1689,13 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const blog = await models.News.findOne({
+      const news = await models.News.findOne({
         where: { slug },
       });
 
-      await CacheService.set(cacheKey, JSON.stringify(blog), 3600);
+      await CacheService.set(cacheKey, JSON.stringify(news), 3600);
       logger.info("Fetched news details from DB");
-      res.json({ status: "success", data: blog });
+      res.json({ status: "success", data: news });
     } catch (error) {
       logger.error("Error fetching news details", { error: error.message, stack: error.stack });
       next(new CustomError("Failed to fetch news details", 500, error.message));
