@@ -3,8 +3,10 @@ const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
 const logger = require("../../services/logger");
+const { Op } = require("sequelize");
 
 const GoldLoanFaqs = models.GoldLoanFaq;
+const States = models.CareerStates;
 
 class GoldLoanFaqsController {
   static async create(req, res, next) {
@@ -23,21 +25,32 @@ class GoldLoanFaqsController {
   }
 
   static async getAll(req, res, next) {
+    const { stateId } = req.query;
     try {
       const cacheKey = "goldLoanFaqs";
       const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        logger.info("Retrieved gold loan data from cache");
-        return res.json({ success: true, data: JSON.parse(cachedData) });
+      // if (cachedData) {
+      //   logger.info("Retrieved gold loan data from cache");
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
+
+      let whereClause = { is_active: true };
+      if (stateId) {
+        whereClause = {
+          ...whereClause,
+          state_id: Number(stateId),
+        };
       }
-      
+
       const faqs = await GoldLoanFaqs.findAll({
+        where: whereClause,
+        include: [{ model: States, attributes: ["state_name"], as: "state" }],
         order: [["order", "ASC"]],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(faqs), 3600);
-      
+
       logger.info("Retrieved gold loan data");
       res.json({ success: true, data: faqs });
     } catch (error) {

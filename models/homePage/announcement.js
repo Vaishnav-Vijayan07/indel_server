@@ -1,29 +1,17 @@
 const { DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
-  const MsmeLoanFaq = sequelize.define(
-    "MsmeLoanFaq",
+  const Announcement = sequelize.define(
+    "Announcement",
     {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
-      question: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      answer: {
+      text: {
         type: DataTypes.TEXT,
-        allowNull: true,
-      },
-      order: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-      },
-      is_active: {
-        type: DataTypes.BOOLEAN,
-        allowNull: true,
+        allowNull: false,
       },
       state_id: {
         type: DataTypes.INTEGER,
@@ -33,19 +21,23 @@ module.exports = (sequelize) => {
           key: "id",
         },
       },
+      is_active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+      },
     },
     {
-      tableName: "msme_loan_faqs",
+      tableName: "announcements",
       timestamps: true,
     }
   );
 
-  MsmeLoanFaq.associate = (models) => {
-    MsmeLoanFaq.belongsTo(models.CareerStates, {
+  Announcement.associate = (models) => {
+    Announcement.belongsTo(models.CareerStates, {
       foreignKey: "state_id",
       as: "state",
     });
   };
 
-  return MsmeLoanFaq;
+  return Announcement;
 };

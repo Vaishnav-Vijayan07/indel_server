@@ -2,8 +2,10 @@ const { models } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
+const { MSMELoan } = require("../webController");
 
 const MsmeLoanFaqs = models.MsmeLoanFaq;
+const States = models.CareerStates;
 
 class MsmeLoanFaqsController {
   static async create(req, res, next) {
@@ -21,17 +23,29 @@ class MsmeLoanFaqsController {
   }
 
   static async getAll(req, res, next) {
+    const { stateId } = req.query;
+    console.log("faqs", stateId);
+
     try {
       const cacheKey = "msmeLoanFaqs";
       const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
+
+      const whereClause = { 
+        is_active: true,
+        ...(stateId && { state_id: Number(stateId) })
+      };
 
       const faqs = await MsmeLoanFaqs.findAll({
+        where: whereClause,
+        include: [{ model: States, attributes: ["state_name"], as: "state" }],
         order: [["order", "ASC"]],
       });
+
+      console.log("faqs", faqs);
 
       await CacheService.set(cacheKey, JSON.stringify(faqs), 3600);
       res.json({ success: true, data: faqs });

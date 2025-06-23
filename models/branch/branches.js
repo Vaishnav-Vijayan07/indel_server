@@ -13,17 +13,33 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      state: {
+      branch_code: {
         type: DataTypes.STRING,
+        allowNull: true,
+      },
+      state: {
+        type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+          model: "states",
+          key: "id",
+        },
       },
       district: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+          model: "districts",
+          key: "id",
+        },
       },
       location: {
-        type: DataTypes.STRING,
-        allowNull: false,
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: "locations",
+          key: "id",
+        },
       },
       latitude: {
         type: DataTypes.DECIMAL(10, 8),
@@ -45,9 +61,21 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      address: {
+      address_1: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
+      },
+      address_2: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      address_3: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      pincode: {
+        type: DataTypes.STRING,
+        allowNull: true,
       },
       is_active: {
         type: DataTypes.BOOLEAN,
@@ -60,6 +88,22 @@ module.exports = (sequelize) => {
       timestamps: true,
     }
   );
+
+  Branches.associate = (models) => {
+    Branches.belongsTo(models.CareerStates, {
+      foreignKey: "state",
+      as: "states",
+    });
+
+    Branches.belongsTo(models.Districts, {
+      foreignKey: "district",
+      as: "districts",
+    });
+    Branches.belongsTo(models.CareerLocations, {
+      foreignKey: "location",
+      as: "locations",
+    });
+  };
 
   return Branches;
 };

@@ -1,8 +1,10 @@
-const { models } = require("../../models/index");
+const { where, Op } = require("sequelize");
+const { models, sequelize } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 
 const HomeFaq = models.HomeFaq;
+const States = models.CareerStates;
 
 class HomeFaqController {
   static async create(req, res, next) {
@@ -20,17 +22,33 @@ class HomeFaqController {
   }
 
   static async getAll(req, res, next) {
-    console.log("api called for faq");
+    const { stateId } = req.query;
+
     try {
       const cacheKey = "homeFaqs";
-      const cachedData = await CacheService.get(cacheKey);
+      // const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
+      // if (cachedData) {
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
+
+      let whereClause = { is_active: true };
+      if (stateId) {
+        whereClause = {
+          ...whereClause,
+          state_id: Number(stateId),
+        };
       }
 
       const faqs = await HomeFaq.findAll({
         order: [["order", "ASC"]],
+        where: whereClause,
+        include: [{ model: States, attributes: ["state_name"], as: "state" }],
+        order: [
+          [sequelize.literal(`state_id ${stateId ? "= " + Number(stateId) : "IS NULL"}`), "DESC"],
+          ["order", "ASC"],
+          ["createdAt", "DESC"],
+        ],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(faqs), 3600);
