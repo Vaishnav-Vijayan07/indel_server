@@ -307,7 +307,7 @@ class JobApplicationSubmissionController {
       if (!location) throw new CustomError("Preferred location not found", 404);
 
       // Validate role
-      const role = await models.CareerRoles.findByPk(general_application.role_id);
+      const role = await models.CareerRoles.findByPk(general_application?.role_id);
       if (!role) throw new CustomError("Role not found", 404);
 
       // Get "Pending" status
@@ -317,7 +317,7 @@ class JobApplicationSubmissionController {
       if (!pendingStatus) throw new CustomError("Pending status not found", 500);
 
       let applicantRecord = await models.Applicants.findOne({
-        where: { email: applicant.email },
+        where: { email: applicant?.email },
       });
 
       // Check if file is expired
@@ -331,7 +331,7 @@ class JobApplicationSubmissionController {
       if (applicantRecord) {
         // Check if any general application exists
         const existingApplication = await models.GeneralApplications.findOne({
-          where: { applicant_id: applicantRecord.id },
+          where: { applicant_id: applicantRecord?.id },
         });
 
         // Prepare updated data
@@ -357,7 +357,7 @@ class JobApplicationSubmissionController {
         // Create new applicant
         const newApplicantData = {
           ...applicant,
-          file: file ? file.path : null,
+          file: file ? file?.path : null,
           file_uploaded_at: file ? new Date() : null,
         };
         applicantRecord = await models.Applicants.create(newApplicantData);
@@ -365,9 +365,9 @@ class JobApplicationSubmissionController {
 
       // Create the general application
       const newApplication = await models.GeneralApplications.create({
-        applicant_id: applicantRecord.id,
-        status_id: pendingStatus.id,
-        role_id: general_application.role_id,
+        applicant_id: applicantRecord?.id,
+        status_id: pendingStatus?.id,
+        role_id: general_application?.role_id,
       });
 
       // Invalidate caches
