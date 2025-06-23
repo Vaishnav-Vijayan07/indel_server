@@ -90,12 +90,12 @@ class JobApplicationSubmissionController {
   }
   static async submitApplication(req, res, next) {
     try {
+      console.log("body ===========>", req.body);
+
       const { applicant, job_application } = req.body;
       const file = req.file;
 
       console.log("File:", file);
-
-      console.log("body ===========>", req.body);
 
       // Validate foreign key reference for preferred location
       const location = await models.CareerLocations.findByPk(applicant?.preferred_location);
@@ -385,91 +385,6 @@ class JobApplicationSubmissionController {
       next(error);
     }
   }
-
-  // static async submitGeneralApplication(req, res, next) {
-  //   try {
-  //     const { applicant, general_application } = req.body;
-  //     const file = req?.file;
-
-  //     // Validate preferred location
-  //     const location = await models.CareerLocations.findByPk(applicant.preferred_location);
-  //     if (!location) throw new CustomError("Preferred location not found", 404);
-
-  //     // Validate role
-  //     const role = await models.CareerRoles.findByPk(general_application.role_id);
-  //     if (!role) throw new CustomError("Role not found", 404);
-
-  //     // Get "Pending" status
-  //     const pendingStatus = await models.ApplicationStatus.findOne({
-  //       where: { status_name: "Pending" },
-  //     });
-  //     if (!pendingStatus) throw new CustomError("Pending status not found", 500);
-
-  //     let applicantRecord = await models.Applicants.findOne({
-  //       where: { email: applicant.email },
-  //     });
-
-  //     if (applicantRecord) {
-  //       // Check if any general application already exists for this applicant
-  //       const existingApplication = await models.GeneralApplications.findOne({
-  //         where: { applicant_id: applicantRecord.id },
-  //       });
-
-  //       // If application exists, just update applicant details and return response
-  //       if (existingApplication) {
-  //         const updatedData = {
-  //           ...applicant,
-  //           ...(file && { file: file.path }), // Only update file if new one uploaded
-  //         };
-  //         await applicantRecord.update(updatedData);
-
-  //         return res.status(200).json({
-  //           success: true,
-  //           data: {
-  //             applicant: applicantRecord,
-  //             general_application: existingApplication,
-  //           },
-  //           message: "Application already exists. Details have been updated.",
-  //         });
-  //       }
-
-  //       // No application yet, create one after updating applicant details
-  //       const updatedData = {
-  //         ...applicant,
-  //         ...(file && { file: file.path }),
-  //       };
-  //       await applicantRecord.update(updatedData);
-  //     } else {
-  //       // Create new applicant
-  //       const newApplicantData = {
-  //         ...applicant,
-  //         ...(file && { file: file.path }),
-  //       };
-  //       applicantRecord = await models.Applicants.create(newApplicantData);
-  //     }
-
-  //     // Now create the general application
-  //     const newApplication = await models.GeneralApplications.create({
-  //       applicant_id: applicantRecord.id,
-  //       status_id: pendingStatus.id,
-  //       role_id: general_application.role_id,
-  //     });
-
-  //     // Invalidate caches
-  //     await Promise.all([CacheService.invalidate("applicants"), CacheService.invalidate("general_applications")]);
-
-  //     res.status(201).json({
-  //       success: true,
-  //       data: {
-  //         applicant: applicantRecord,
-  //         general_application: newApplication,
-  //       },
-  //       message: "General application submitted successfully",
-  //     });
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // }
 
   static async listGeneralApplications(req, res, next) {
     try {
