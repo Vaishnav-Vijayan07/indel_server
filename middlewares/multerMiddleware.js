@@ -24,16 +24,16 @@ const getStorage = (subfolder) => {
 const createUploadMiddleware = (subfolder) => {
   return multer({
     storage: getStorage(subfolder),
-    // fileFilter: (req, file, cb) => {
-    //   const filetypes = /jpeg|jpg|png|svg|webp|mp4|mov|avi|pdf|xlsx/;
+    fileFilter: (req, file, cb) => {
+      const filetypes = /jpeg|jpg|png|svg|webp|mp4|mov|avi|pdf|xlsx/;
 
-    //   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    //   const mimetype = filetypes.test(file.mimetype);
-    //   if (extname && mimetype) {
-    //     return cb(null, true);
-    //   }
-    //   cb(new CustomError("Images only (jpeg, jpg, png)", 400));
-    // },
+      const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+      const mimetype = filetypes.test(file.mimetype);
+      if (extname && mimetype) {
+        return cb(null, true);
+      }
+      cb(new CustomError("Images only (jpeg, jpg, png)", 400));
+    },
   });
 };
 
