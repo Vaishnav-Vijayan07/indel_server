@@ -76,7 +76,7 @@ class JobApplicationSubmissionController {
 
         console.log("Preferred role:", preferred_role);
 
-        modifiedData = { ...applicant?.toJSON(), preferred_role: preferred_role.role_id };
+        modifiedData = { ...applicant?.toJSON(), preferred_role: preferred_role?.role_id };
       }
 
       res.status(200).json({
