@@ -59,7 +59,12 @@ router.get("/policies", WebController.policy);
 router.post("/career/resume", uploadField, JobApplicationsController.create);
 router.get("/career/resume", uploadField, JobApplicationsController.getAll);
 
-router.post("/careers/job_application", validateJobApplicationSubmission, uploadApplicantFile, JobApplicationSubmissionController.submitApplication);
+router.post(
+  "/careers/job_application",
+  validateJobApplicationSubmission,
+  uploadApplicantFile,
+  JobApplicationSubmissionController.submitApplication
+);
 
 router.get("/careers/job_applications", JobApplicationSubmissionController.listApplications);
 
