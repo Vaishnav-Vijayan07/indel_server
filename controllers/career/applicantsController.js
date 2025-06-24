@@ -29,18 +29,40 @@ class ApplicantsController {
       const cacheKey = "applicants";
       const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
+      const { preferred_location, limit = "10", offset = "0" } = req.query;
+
+      const parsedLimit = Math.max(1, parseInt(limit, 10) || 10); // Ensure limit >= 1
+      const parsedOffset = Math.max(0, parseInt(offset, 10) || 0); // Ensure offset >= 0
+
+      // if (cachedData) {
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
+      const whereConditions = {};
+
+      if (preferred_location) {
+        whereConditions.preferred_location = parseInt(preferred_location);
       }
 
-      const applicants = await models.Applicants.findAll({
-        where: { is_active: true },
+      const { rows: applicants, count: total } = await models.Applicants.findAndCountAll({
+        where: whereConditions,
         include: [{ model: models.CareerLocations, as: "location", attributes: ["location_name"] }],
         order: [["created_at", "DESC"]],
+        limit: parsedLimit,
+        offset: parsedOffset,
       });
 
       await CacheService.set(cacheKey, JSON.stringify(applicants), 3600);
-      res.json({ success: true, data: applicants });
+      res.json({
+        success: true,
+        data: applicants,
+        total,
+        meta: {
+          page: Math.floor(parsedOffset / parsedLimit) + 1,
+          totalPages: Math.ceil(total / parsedLimit),
+          limit: parsedLimit,
+          offset: parsedOffset,
+        },
+      });
     } catch (error) {
       next(error);
     }
