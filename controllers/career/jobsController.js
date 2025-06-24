@@ -1,3 +1,4 @@
+const { literal } = require("sequelize");
 const { models } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
