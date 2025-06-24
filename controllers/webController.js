@@ -1627,10 +1627,10 @@ class WebController {
     const cacheKey = `webPolicy${type}`;
     try {
       const cachedData = await CacheService.get(cacheKey);
-      // if (cachedData) {
-      //   logger.info(`Serving ${type} policy from cache`);
-      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
-      // }
+      if (cachedData) {
+        logger.info(`Serving ${type} policy from cache`);
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
 
       const policy = await models.MasterPolicies.findOne({
         where: {

@@ -202,7 +202,6 @@ const models = {
   EventPageContent: defineEventPageContent(sequelize),
   Events: defineEvents(sequelize),
   InvestorsPageContent: defineInvestorsPageContent(sequelize),
-  InvestorsPageContent: defineInvestorsPageContent(sequelize),
   FiscalYears: defineFiscalYears(sequelize),
   AnnualReport: defineAnnualReport(sequelize),
   AnnualReturns: defineAnnualReturns(sequelize),
