@@ -946,7 +946,7 @@ class WebController {
           models.CareersContent.findAll(),
           models.CareerBanners.findAll(),
           models.CareerGallery.findAll(),
-          models.CareerStates.findAll(),
+          models.CareerStates.findAll({ where: { is_active: true } }),
           models.CareerJobs.findAll({
             // attributes: ["id", "role_id", "location_id", "state_id", "job_title", "job_description", "key_responsibilities", "is_active"],
             include: [

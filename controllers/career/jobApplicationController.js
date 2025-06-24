@@ -76,7 +76,7 @@ class JobApplicationSubmissionController {
 
         console.log("Preferred role:", preferred_role);
 
-        modifiedData = { ...applicant?.toJSON(), preferred_role: preferred_role.role_id };
+        modifiedData = { ...applicant?.toJSON(), preferred_role: preferred_role?.role_id };
       }
 
       res.status(200).json({
@@ -88,22 +88,106 @@ class JobApplicationSubmissionController {
       next(error);
     }
   }
+  // static async submitApplication(req, res, next) {
+  //   try {
+  //     console.log("body ===========>", req.body);
+
+  //     const { applicant, job_application } = req.body;
+  //     const file = req.file;
+
+  //     console.log("File:", file);
+
+  //     // Validate foreign key reference for preferred location
+  //     const location = await models.CareerLocations.findByPk(applicant?.preferred_location);
+  //     console.log("Preferred location:", location);
+  //     if (!location) {
+  //       throw new CustomError("Preferred location not found", 404);
+  //     }
+
+  //     // Validate foreign key reference for job
+  //     const job = await models.CareerJobs.findByPk(job_application?.job_id);
+  //     if (!job) throw new CustomError("Job not found", 404);
+
+  //     // Fetch "Pending" status
+  //     const pendingStatus = await models.ApplicationStatus.findOne({
+  //       where: { status_name: "Pending" },
+  //     });
+  //     if (!pendingStatus) throw new CustomError("Pending status not found", 500);
+
+  //     // // Check if file was uploaded
+  //     // if (!file) {
+  //     //   throw new CustomError("Resume file is required", 400);
+  //     // }
+
+  //     // Check if applicant with this email already exists
+  //     let newApplicant = await models.Applicants.findOne({
+  //       where: { email: applicant?.email },
+  //     });
+
+  //     if (newApplicant) {
+  //       // Check for existing application for this job
+  //       const existingApplication = await models.JobApplications.findOne({
+  //         where: {
+  //           applicant_id: newApplicant?.id,
+  //           job_id: job_application?.job_id,
+  //         },
+  //       });
+  //       if (existingApplication) {
+  //         throw new CustomError("You have already applied for this job", 409);
+  //       }
+
+  //       // Update applicant data
+  //       const applicantData = {
+  //         ...applicant,
+  //         ...(file && { file: file?.path }),
+  //       };
+  //       await newApplicant.update(applicantData);
+  //     } else {
+  //       // Create new applicant record with file path
+  //       const applicantData = {
+  //         ...applicant,
+  //         ...(file && { file: file.path }),
+  //       };
+  //       newApplicant = await models.Applicants.create(applicantData);
+  //     }
+
+  //     // Create job application record with applicant_id, pending status, and auto application date
+  //     const applicationData = {
+  //       job_id: job_application?.job_id,
+  //       applicant_id: newApplicant?.id,
+  //       status_id: pendingStatus?.id,
+  //       is_active: job_application?.is_active ?? true, // Default to true if not provided
+  //       order: job_application?.order ?? 1, // Default to 1 if not provided
+  //     };
+  //     const newApplication = await models.JobApplications.create(applicationData);
+
+  //     // Invalidate caches
+  //     await Promise.all([CacheService.invalidate("applicants"), CacheService.invalidate("job_applications")]);
+
+  //     res.status(201).json({
+  //       success: true,
+  //       data: {
+  //         applicant: newApplicant,
+  //         job_application: newApplication,
+  //       },
+  //       message: "Job application submitted successfully",
+  //     });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
+
   static async submitApplication(req, res, next) {
     try {
       const { applicant, job_application } = req.body;
       const file = req.file;
 
-      console.log("File:", file);
+      // Validate preferred location
+      const location = await models.CareerLocations.findByPk(applicant?.preferred_location);
+      if (!location) throw new CustomError("Preferred location not found", 404);
 
-      // Validate foreign key reference for preferred location
-      const location = await models.CareerLocations.findByPk(applicant.preferred_location);
-      console.log("Preferred location:", location);
-      if (!location) {
-        throw new CustomError("Preferred location not found", 404);
-      }
-
-      // Validate foreign key reference for job
-      const job = await models.CareerJobs.findByPk(job_application.job_id);
+      // Validate job
+      const job = await models.CareerJobs.findByPk(job_application?.job_id);
       if (!job) throw new CustomError("Job not found", 404);
 
       // Fetch "Pending" status
@@ -112,50 +196,51 @@ class JobApplicationSubmissionController {
       });
       if (!pendingStatus) throw new CustomError("Pending status not found", 500);
 
-      // // Check if file was uploaded
-      // if (!file) {
-      //   throw new CustomError("Resume file is required", 400);
-      // }
-
       // Check if applicant with this email already exists
-      let newApplicant = await models.Applicants.findOne({
-        where: { email: applicant.email },
+      let existingApplicant = await models.Applicants.findOne({
+        where: { email: applicant?.email },
       });
 
-      if (newApplicant) {
+      let applicantRecord;
+
+      if (existingApplicant) {
         // Check for existing application for this job
         const existingApplication = await models.JobApplications.findOne({
           where: {
-            applicant_id: newApplicant.id,
-            job_id: job_application.job_id,
+            applicant_id: existingApplicant.id,
+            job_id: job_application?.job_id,
           },
         });
         if (existingApplication) {
           throw new CustomError("You have already applied for this job", 409);
         }
 
-        // Update applicant data
-        const applicantData = {
-          ...applicant,
-          ...(file && { file: file?.path }),
-        };
-        await newApplicant.update(applicantData);
+        // Prepare update data
+        const updateData = { ...applicant };
+        if (file) {
+          updateData.file = file.path;
+          updateData.file_uploaded_at = new Date();
+        }
+        // Update applicant
+        await existingApplicant.update(updateData);
+        applicantRecord = existingApplicant;
       } else {
-        // Create new applicant record with file path
-        const applicantData = {
+        // Prepare create data
+        const createData = {
           ...applicant,
-          ...(file && { file: file.path }),
+          file: file ? file.path : null,
+          file_uploaded_at: file ? new Date() : null,
         };
-        newApplicant = await models.Applicants.create(applicantData);
+        applicantRecord = await models.Applicants.create(createData);
       }
 
-      // Create job application record with applicant_id, pending status, and auto application date
+      // Create job application record
       const applicationData = {
-        job_id: job_application.job_id,
-        applicant_id: newApplicant.id,
+        job_id: job_application?.job_id,
+        applicant_id: applicantRecord.id,
         status_id: pendingStatus.id,
-        is_active: job_application.is_active ?? true, // Default to true if not provided
-        order: job_application.order ?? 1, // Default to 1 if not provided
+        is_active: job_application?.is_active ?? true,
+        order: job_application?.order ?? 1,
       };
       const newApplication = await models.JobApplications.create(applicationData);
 
@@ -165,7 +250,7 @@ class JobApplicationSubmissionController {
       res.status(201).json({
         success: true,
         data: {
-          applicant: newApplicant,
+          applicant: applicantRecord,
           job_application: newApplication,
         },
         message: "Job application submitted successfully",
@@ -188,12 +273,12 @@ class JobApplicationSubmissionController {
       }_${applicant_location_id || "all"}_${parsedLimit}_${parsedOffset}`;
       const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({
-          success: true,
-          data: JSON.parse(cachedData),
-        });
-      }
+      // if (cachedData) {
+      //   return res.json({
+      //     success: true,
+      //     data: JSON.parse(cachedData),
+      //   });
+      // }
 
       // Build filter conditions
       const whereConditions = {}; // Only active applications
@@ -295,6 +380,97 @@ class JobApplicationSubmissionController {
     }
   }
 
+  // static async submitGeneralApplication(req, res, next) {
+  //   try {
+  //     const { applicant, general_application } = req.body;
+  //     const file = req?.file;
+
+  //     // Validate preferred location
+  //     const location = await models.CareerLocations.findByPk(applicant.preferred_location);
+  //     if (!location) throw new CustomError("Preferred location not found", 404);
+
+  //     // Validate role
+  //     const role = await models.CareerRoles.findByPk(general_application?.role_id);
+  //     if (!role) throw new CustomError("Role not found", 404);
+
+  //     // Get "Pending" status
+  //     const pendingStatus = await models.ApplicationStatus.findOne({
+  //       where: { status_name: "Pending" },
+  //     });
+  //     if (!pendingStatus) throw new CustomError("Pending status not found", 500);
+
+  //     let applicantRecord = await models.Applicants.findOne({
+  //       where: { email: applicant?.email },
+  //     });
+
+  //     // Check if file is expired
+  //     const isFileExpired = (record) => {
+  //       if (!record?.file || !record.file_uploaded_at) return true;
+  //       const sixMonthsAgo = new Date();
+  //       sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  //       return new Date(record.file_uploaded_at) < sixMonthsAgo;
+  //     };
+
+  //     if (applicantRecord) {
+  //       // Check if any general application exists
+  //       const existingApplication = await models.GeneralApplications.findOne({
+  //         where: { applicant_id: applicantRecord?.id },
+  //       });
+
+  //       console.log("existingApplication", existingApplication);
+
+  //       // Prepare updated data
+  //       const updatedData = {
+  //         ...applicant,
+  //         file: file ? file.path : isFileExpired(applicantRecord) ? null : applicantRecord.file,
+  //         file_uploaded_at: file ? new Date() : isFileExpired(applicantRecord) ? null : applicantRecord.file_uploaded_at,
+  //       };
+  //       await applicantRecord.update(updatedData);
+
+  //       // If application exists, return response
+  //       if (existingApplication) {
+  //         return res.status(200).json({
+  //           success: true,
+  //           data: {
+  //             applicant: applicantRecord,
+  //             general_application: existingApplication,
+  //           },
+  //           message: "Application already exists. Details have been updated.",
+  //         });
+  //       }
+  //     } else {
+  //       // Create new applicant
+  //       const newApplicantData = {
+  //         ...applicant,
+  //         file: file ? file?.path : null,
+  //         file_uploaded_at: file ? new Date() : null,
+  //       };
+  //       applicantRecord = await models.Applicants.create(newApplicantData);
+  //     }
+
+  //     // Create the general application
+  //     const newApplication = await models.GeneralApplications.create({
+  //       applicant_id: applicantRecord?.id,
+  //       status_id: pendingStatus?.id,
+  //       role_id: general_application?.role_id,
+  //     });
+
+  //     // Invalidate caches
+  //     await Promise.all([CacheService.invalidate("applicants"), CacheService.invalidate("general_applications")]);
+
+  //     res.status(201).json({
+  //       success: true,
+  //       data: {
+  //         applicant: applicantRecord,
+  //         general_application: newApplication,
+  //       },
+  //       message: "General application submitted successfully",
+  //     });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
+
   static async submitGeneralApplication(req, res, next) {
     try {
       const { applicant, general_application } = req.body;
@@ -305,7 +481,7 @@ class JobApplicationSubmissionController {
       if (!location) throw new CustomError("Preferred location not found", 404);
 
       // Validate role
-      const role = await models.CareerRoles.findByPk(general_application.role_id);
+      const role = await models.CareerRoles.findByPk(general_application?.role_id);
       if (!role) throw new CustomError("Role not found", 404);
 
       // Get "Pending" status
@@ -315,7 +491,7 @@ class JobApplicationSubmissionController {
       if (!pendingStatus) throw new CustomError("Pending status not found", 500);
 
       let applicantRecord = await models.Applicants.findOne({
-        where: { email: applicant.email },
+        where: { email: applicant?.email },
       });
 
       // Check if file is expired
@@ -329,15 +505,26 @@ class JobApplicationSubmissionController {
       if (applicantRecord) {
         // Check if any general application exists
         const existingApplication = await models.GeneralApplications.findOne({
-          where: { applicant_id: applicantRecord.id },
+          where: { applicant_id: applicantRecord?.id },
         });
 
         // Prepare updated data
         const updatedData = {
           ...applicant,
-          file: file ? file.path : isFileExpired(applicantRecord) ? null : applicantRecord.file,
-          file_uploaded_at: file ? new Date() : isFileExpired(applicantRecord) ? null : applicantRecord.file_uploaded_at,
         };
+
+        // Handle file logic:
+        if (file) {
+          // New file uploaded: update both fields
+          updatedData.file = file.path;
+          updatedData.file_uploaded_at = new Date();
+        } else if (isFileExpired(applicantRecord)) {
+          // No new file, but existing file is expired: clear fields
+          updatedData.file = null;
+          updatedData.file_uploaded_at = null;
+        }
+        // If no new file and file is not expired, keep existing fields
+
         await applicantRecord.update(updatedData);
 
         // If application exists, return response
@@ -365,7 +552,7 @@ class JobApplicationSubmissionController {
       const newApplication = await models.GeneralApplications.create({
         applicant_id: applicantRecord.id,
         status_id: pendingStatus.id,
-        role_id: general_application.role_id,
+        role_id: general_application?.role_id,
       });
 
       // Invalidate caches
@@ -384,91 +571,6 @@ class JobApplicationSubmissionController {
     }
   }
 
-  // static async submitGeneralApplication(req, res, next) {
-  //   try {
-  //     const { applicant, general_application } = req.body;
-  //     const file = req?.file;
-
-  //     // Validate preferred location
-  //     const location = await models.CareerLocations.findByPk(applicant.preferred_location);
-  //     if (!location) throw new CustomError("Preferred location not found", 404);
-
-  //     // Validate role
-  //     const role = await models.CareerRoles.findByPk(general_application.role_id);
-  //     if (!role) throw new CustomError("Role not found", 404);
-
-  //     // Get "Pending" status
-  //     const pendingStatus = await models.ApplicationStatus.findOne({
-  //       where: { status_name: "Pending" },
-  //     });
-  //     if (!pendingStatus) throw new CustomError("Pending status not found", 500);
-
-  //     let applicantRecord = await models.Applicants.findOne({
-  //       where: { email: applicant.email },
-  //     });
-
-  //     if (applicantRecord) {
-  //       // Check if any general application already exists for this applicant
-  //       const existingApplication = await models.GeneralApplications.findOne({
-  //         where: { applicant_id: applicantRecord.id },
-  //       });
-
-  //       // If application exists, just update applicant details and return response
-  //       if (existingApplication) {
-  //         const updatedData = {
-  //           ...applicant,
-  //           ...(file && { file: file.path }), // Only update file if new one uploaded
-  //         };
-  //         await applicantRecord.update(updatedData);
-
-  //         return res.status(200).json({
-  //           success: true,
-  //           data: {
-  //             applicant: applicantRecord,
-  //             general_application: existingApplication,
-  //           },
-  //           message: "Application already exists. Details have been updated.",
-  //         });
-  //       }
-
-  //       // No application yet, create one after updating applicant details
-  //       const updatedData = {
-  //         ...applicant,
-  //         ...(file && { file: file.path }),
-  //       };
-  //       await applicantRecord.update(updatedData);
-  //     } else {
-  //       // Create new applicant
-  //       const newApplicantData = {
-  //         ...applicant,
-  //         ...(file && { file: file.path }),
-  //       };
-  //       applicantRecord = await models.Applicants.create(newApplicantData);
-  //     }
-
-  //     // Now create the general application
-  //     const newApplication = await models.GeneralApplications.create({
-  //       applicant_id: applicantRecord.id,
-  //       status_id: pendingStatus.id,
-  //       role_id: general_application.role_id,
-  //     });
-
-  //     // Invalidate caches
-  //     await Promise.all([CacheService.invalidate("applicants"), CacheService.invalidate("general_applications")]);
-
-  //     res.status(201).json({
-  //       success: true,
-  //       data: {
-  //         applicant: applicantRecord,
-  //         general_application: newApplication,
-  //       },
-  //       message: "General application submitted successfully",
-  //     });
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // }
-
   static async listGeneralApplications(req, res, next) {
     try {
       const { role_id, location_id, status_id, limit = "10", offset = "0" } = req.query;
@@ -482,12 +584,12 @@ class JobApplicationSubmissionController {
       }_${parsedLimit}_${parsedOffset}`;
       const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({
-          success: true,
-          data: JSON.parse(cachedData),
-        });
-      }
+      // if (cachedData) {
+      //   return res.json({
+      //     success: true,
+      //     data: JSON.parse(cachedData),
+      //   });
+      // }
 
       // Build filter conditions
       const whereConditions = {};
@@ -556,6 +658,49 @@ class JobApplicationSubmissionController {
       res.status(200).json({
         success: true,
         data: response,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async changeStatus(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { status_id } = req.body;
+
+      // Validate input
+      if (!status_id) {
+        return res.status(400).json({ success: false, message: "status_id is required" });
+      }
+
+      // Find the job application
+      const application = await models.JobApplications.findByPk(id);
+      if (!application) {
+        return res.status(404).json({ success: false, message: "Job application not found" });
+      }
+
+      // Check if the status exists
+      const status = await models.ApplicationStatus.findByPk(status_id);
+      if (!status) {
+        return res.status(400).json({ success: false, message: "Invalid status_id" });
+      }
+
+      // Update the status
+      await application.update({ status_id });
+
+      // Invalidate cache if needed
+      await CacheService.invalidate("job_applications");
+
+      // Optionally, include updated application with status details
+      const updatedApplication = await models.JobApplications.findByPk(id, {
+        include: [{ model: models.ApplicationStatus, as: "status", attributes: ["id", "status_name"] }],
+      });
+
+      res.json({
+        success: true,
+        data: updatedApplication,
+        message: "Job application status updated successfully",
       });
     } catch (error) {
       next(error);
