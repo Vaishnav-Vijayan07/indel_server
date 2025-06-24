@@ -32,10 +32,10 @@ class WebController {
     const cacheKey = `webHomeData_${stateId || "null"}`;
     try {
       const cachedData = await CacheService.get(cacheKey);
-      // if (cachedData) {
-      //   // console.log(`Serving home data from cache for stateId: ${stateId || "null"}`);
-      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
-      // }
+      if (cachedData) {
+        // console.log(`Serving home data from cache for stateId: ${stateId || "null"}`);
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
 
       // Fetch all required data in parallel
       const [heroBanner, announcement, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs, popUp, smartMoneyDeals] = await Promise.all(
@@ -821,7 +821,10 @@ class WebController {
           where: { is_active: true },
           order: [["order", "ASC"]],
         }),
-        models.MsmeOfferings.findAll(),
+        models.MsmeOfferings.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
         models.MsmeTargetedAudience.findAll({
           // attributes: ["id", "icon", "title", "description", "is_active", "order"],
           where: { is_active: true },
@@ -829,13 +832,13 @@ class WebController {
         }),
         models.MsmeLoanFaq.findAll({
           where: {
-            is_active: true,
+            // is_active: true,
             state_id: stateId || null,
           },
           order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
         }),
         models.MsmeloanTypes.findAll({
-          attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
+          // attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
           where: { is_active: true },
           order: [["order", "ASC"]],
         }),
@@ -854,7 +857,7 @@ class WebController {
       logger.info("Fetched MSME Loan data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching MSME Loan data", { error });
+      logger.error("Error fetching MSME Loan data", { error: error.message });
       next(new CustomError("Failed to fetch MSME Loan data", 500, error.message));
     }
   }
@@ -871,8 +874,14 @@ class WebController {
 
       const [cdLoanContent, cdLoanBenefits, cdLoanProducts] = await Promise.all([
         models.CdLoanContent.findAll(),
-        models.CdLoanBenefits.findAll(),
-        models.CdLoanProducts.findAll(),
+        models.CdLoanBenefits.findAll({
+           where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.CdLoanProducts.findAll({
+           where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
       ]);
 
       const data = {
@@ -1311,6 +1320,7 @@ class WebController {
 
       const files = await models.OmbudsmanFiles.findAll({
         attributes: ["id", "title", "file", "order"],
+        where: { is_active: true },
         order: [["order", "DESC"]],
       });
 
@@ -1590,10 +1600,10 @@ class WebController {
     const cacheKey = `webPolicy${type}`;
     try {
       const cachedData = await CacheService.get(cacheKey);
-      // if (cachedData) {
-      //   logger.info(`Serving ${type} policy from cache`);
-      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
-      // }
+      if (cachedData) {
+        logger.info(`Serving ${type} policy from cache`);
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
 
       const policy = await models.MasterPolicies.findOne({
         where: {

@@ -5,9 +5,8 @@ const logger = require("../services/logger");
 const CustomError = require("../utils/customError");
 
 class InvestorsController {
-  static async csrReports(req, res, next) {
+  static async AnnualReports(req, res, next) {
     const cacheKey = "webCsrReports";
-
     try {
       const cachedData = await cacheService.get(cacheKey);
       if (cachedData) {
@@ -17,37 +16,38 @@ class InvestorsController {
 
       const [content, annualReports, annualReturn] = await Promise.all([
         models.InvestorsPageContent.findAll({
-          attributes: ["annual_returns_title", "annual_report_button_title"],
+          attributes: ["annual_returns_title", "annual_report_button_title", "page_title"],
         }),
         models.AnnualReport.findAll({
           attributes: ["id", "year", "file", "order", "is_active"],
-          where: { is_active: true },
-          include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
+          where: { is_active: true},
+          include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year", 'is_active'], where: { is_active: true} }],
           order: [["order", "ASC"]],
         }),
         models.AnnualReturns.findAll({
           attributes: ["id", "year", "file", "order", "is_active"],
-          where: { is_active: true },
-          include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
+          where: { is_active: true},
+          include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year", "is_active"], where: { is_active: true} }],
           order: [["order", "ASC"]],
         }),
       ]);
+
+      
 
       const data = {
         content: content[0] || null,
         annualReports,
         annualReturn,
       };
-
-      await cacheService.set(cacheKey, JSON.stringify(data), 3600);
-      logger.info("Fetched csr report from DB");
+``
+      // await cacheService.set(cacheKey, JSON.stringify(data), 3600);
+      // logger.info("Fetched csr report from DB");
       res.json({ status: "success", data });
     } catch (error) {
       logger.error("Error fetching csr report", { error: error.message, stack: error.stack });
       next(new CustomError("Failed to fetch csr report", 500, error.message));
     }
   }
-
   static async CorporateGovernence(req, res, next) {
     const cacheKey = "webCorporateGovernence";
 
@@ -60,7 +60,7 @@ class InvestorsController {
 
       const [content, files] = await Promise.all([
         models.InvestorsPageContent.findAll({
-          attributes: ["disclosure_title", "disclosure_file"],
+          attributes: ["disclosure_title", "disclosure_file", "page_title", "corporate_governance_title"],
         }),
         models.CorporateGovernance.findAll({
           attributes: ["id", "file", "order", "title"],
@@ -93,13 +93,20 @@ class InvestorsController {
         return res.json({ status: "success", data: JSON.parse(cachedData) });
       }
 
-      const files = await models.CreditRatings.findAll({
-        attributes: ["id", "file", "order", "title"],
-        order: [["order", "ASC"]],
-        where: { is_active: true },
-      });
-
+   const [content, files] = await Promise.all([
+     models.InvestorsPageContent.findAll({
+                    attributes: [
+                       "page_title"
+                    ],
+                }),
+     models.CreditRatings.findAll({
+                attributes: ["id", "file", "order", "title"],
+                order: [["order", "ASC"]],
+                where: {is_active: true},
+            })
+          ])
       const data = {
+        content,
         files,
       };
 
@@ -122,30 +129,37 @@ class InvestorsController {
         return res.json({ status: "success", data: JSON.parse(cachedData) });
       }
 
-      const [content, actionPlans, committees, reports] = await Promise.all([
-        models.InvestorsPageContent.findAll({
-          attributes: ["csr_policy_doc", "csr_committee_title", "csr_reports_title", "csr_action_plan_title", "csr_policy_title"],
-        }),
-        models.CsrActionPlan.findAll({
-          where: { is_active: true },
-          attributes: ["id", "nature", "name", "designation", "order"],
-          order: [["order", "ASC"]],
-          attributes: ["id", "report", "order", "fiscal_year"],
-          include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
-          order: [["order", "ASC"]],
-        }),
-        models.CsrCommittee.findAll({
-          where: { is_active: true },
-          attributes: ["id", "nature", "name", "designation", "order"],
-          order: [["order", "ASC"]],
-        }),
-        models.CsrReport.findAll({
-          where: { is_active: true },
-          attributes: ["id", "report", "order", "fiscal_year"],
-          include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
-          order: [["order", "ASC"]],
-        }),
-      ]);
+            const [content, actionPlans, committees, reports] = await Promise.all([
+                models.InvestorsPageContent.findAll({
+                    attributes: [
+                      "page_title",
+                        "csr_policy_doc",
+                        "csr_committee_title",
+                        "csr_reports_title",
+                        "csr_action_plan_title",
+                        "csr_policy_title",
+                    ],
+                }),
+                models.CsrActionPlan.findAll({
+                    where: { is_active: true },
+                    attributes: ["id", "nature", "name", "designation", "order"],
+                    order: [["order", "ASC"]],
+                    attributes: ["id", "report", "order", "fiscal_year"],
+                    include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year", "is_active"], where: { is_active: true} }],
+                    order: [["order", "ASC"]],
+                }),
+                models.CsrCommittee.findAll({
+                    where: { is_active: true },
+                    attributes: ["id", "nature", "name", "designation", "order"],
+                    order: [["order", "ASC"]],
+                }),
+                models.CsrReport.findAll({
+                    where: { is_active: true },
+                    attributes: ["id", "report", "order", "fiscal_year"],
+                    include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year", "is_active"], where: { is_active: true} }],
+                    order: [["order", "ASC"]],
+                }),
+            ])
 
       const data = {
         content: content[0] || null,
@@ -175,7 +189,7 @@ class InvestorsController {
 
       const [content, reports] = await Promise.all([
         models.InvestorsPageContent.findAll({
-          attributes: ["ncd_title"],
+          attributes: ["ncd_title", "page_title"],
         }),
         models.NcdReports.findAll({
           attributes: ["id", "file", "order", "title", "order", "is_active"],
@@ -216,20 +230,30 @@ class InvestorsController {
       //     return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const reports = await models.QuarterlyReports.findAll({
-        where: { year, is_active: true },
-        attributes: ["id", "title", "year", "file", "is_active", "order"],
-        order: [["order", "ASC"]],
-        include: [
-          {
-            model: models.FiscalYears,
-            as: "fiscalYear",
-            attributes: ["id", "fiscal_year"],
-          },
-        ],
-      });
+            const [content, reports] = await Promise.all([
+              models.InvestorsPageContent.findAll({
+                attributes: [
+                "page_title",
+                
+              ],
+            }),
+           models.QuarterlyReports.findAll({
+                where: { year, is_active: true},
+                attributes: ["id", "title", "year", "file", "is_active", "order"],
+                order: [["order", "ASC"]],
+                include: [
+                    {
+                        model: models.FiscalYears,
+                        as: "fiscalYear",
+                        attributes: ["id", "fiscal_year"]
+                    }
+                ]
+            })
+          ])
+
 
       const data = {
+        content,
         reports,
       };
 
@@ -254,7 +278,7 @@ class InvestorsController {
 
       const [content, contact] = await Promise.all([
         models.InvestorsPageContent.findAll({
-          attributes: ["investors_contact_title"],
+          attributes: ["investors_contact_title", "page_title"],
         }),
         models.InvestorsContact.findAll({
           attributes: ["id", "title", "name", "address", "email", "phone", "order", "is_active"],
@@ -297,24 +321,25 @@ class InvestorsController {
 
       // Check cache first
       const cachedData = await cacheService.get(cacheKey);
-      // if (cachedData) {
-      //     logger.info(`Serving investors policies from cache - Page: ${page}, Limit: ${limit}`);
-      //     return res.json({ status: "success", data: JSON.parse(cachedData) });
-      // }
+      if (cachedData) {
+          logger.info(`Serving investors policies from cache - Page: ${page}, Limit: ${limit}`);
+          return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
 
-      const [content, policiesResult] = await Promise.all([
-        // Content doesn't need pagination, fetch once
-        models.InvestorsPageContent.findAll({
-          attributes: ["policies_title"],
-        }),
-        // Policies with pagination
-        models.Policies.findAndCountAll({
-          order: [["order", "ASC"]],
-          limit: limit,
-          offset: offset,
-          where: { is_active: true },
-        }),
-      ]);
+            const [content, policiesResult] = await Promise.all([
+                // Content doesn't need pagination, fetch once
+                models.InvestorsPageContent.findAll({
+                    attributes: ["policies_title", "page_title"],
+                }),
+                // Policies with pagination
+                models.Policies.findAndCountAll({
+                    order: [["order", "ASC"]],
+                    limit: limit,
+                    offset: offset,
+                    where: { is_active: true },
+                },
+            )
+            ]);
 
       const totalPages = Math.ceil(policiesResult.count / limit);
 
@@ -354,11 +379,11 @@ class InvestorsController {
       //     return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const fiscal_years = await models.FiscalYears.findAll({
-        attributes: ["id", "fiscal_year"],
-        order: [["fiscal_year", "DESC"]],
-        where: { is_active: true },
-      });
+            const fiscal_years = await models.FiscalYears.findAll(
+                { attributes: ["id", "fiscal_year", "is_active"],
+                order: [["fiscal_year", "DESC"]],
+                where: { is_active: true }}
+                );
 
       await cacheService.set(cacheKey, JSON.stringify(fiscal_years), 3600);
       logger.info("Fetched fiscal years for stock exchange from DB");
@@ -394,7 +419,13 @@ class InvestorsController {
       // }
 
       // If not in cache, fetch from DB
-      const [intimations, meetings] = await Promise.all([
+      const [content, intimations, meetings] = await Promise.all([
+         models.InvestorsPageContent.findAll({
+                    attributes: [
+                       "page_title",
+                       "stock_exchange_title"
+                    ],
+                }),
         models.OtherIntimations.findAll({
           where: { is_active: true },
           attributes: ["id", "fiscal_year", "record_date_document", "interest_payment_document", "month_date"],
@@ -414,13 +445,13 @@ class InvestorsController {
             {
               model: models.FiscalYears,
               as: "fiscalYear",
-              attributes: ["id", "fiscal_year"],
-            },
+              attributes: ["id", "fiscal_year", "is_active", "is_active", "is_active"], 
+              where: { is_active: true} }
           ],
         }),
       ]);
 
-      const data = { intimations, meetings };
+      const data = {content, intimations, meetings };
 
       // Save data in cache for 1 hour (3600 seconds)
       await cacheService.set(cacheKey, JSON.stringify(data), 3600);

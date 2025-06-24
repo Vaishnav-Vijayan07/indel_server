@@ -5,7 +5,8 @@ const validateMiddleware = require("../../middlewares/validateMiddleware");
 const FiscalYearsController = require("../../controllers/investors/fiscalYearController");
 const { validateFiscalYear, validateFiscalYearUpdate } = require("../../utils/validator");
 
-router.get("/", FiscalYearsController.getAll);
+router.get("/get-fiscal-year", FiscalYearsController.getAll);
+router.get("/", FiscalYearsController.getActiveAll);
 router.get("/:id", FiscalYearsController.getById);
 
 router.use(authMiddleware(["admin"]));

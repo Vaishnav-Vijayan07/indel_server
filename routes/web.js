@@ -35,7 +35,7 @@ router.get("/career-active-jobs", WebController.ActiveJobs);
 router.get("/event-gallery", WebController.eventGallery);
 router.get("/event", WebController.event);
 router.get("/awards", WebController.Awards);
-router.get("/investors/report", InvestorsController.csrReports);
+router.get("/investors/report", InvestorsController.AnnualReports);
 router.get("/investors/contact", InvestorsController.contact);
 router.get("/investors/policies", InvestorsController.policies);
 router.get("/investors/stock-exchange", InvestorsController.stockExchangeData);

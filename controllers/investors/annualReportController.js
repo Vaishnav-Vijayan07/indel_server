@@ -52,10 +52,10 @@ class AnnualReportController {
       }
 
       const annualReports = await AnnualReport.findAll({
-        include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
+        include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year", "is_active"] }],
         order: [["order", "ASC"]],
       });
-      await CacheService.set(cacheKey, JSON.stringify(annualReports), 3600);
+      // await CacheService.set(cacheKey, JSON.stringify(annualReports), 3600);
       res.json({ success: true, data: annualReports });
     } catch (error) {
       next(error);
@@ -73,7 +73,7 @@ class AnnualReportController {
       }
 
       const annualReport = await AnnualReport.findByPk(id, {
-        include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
+        include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year", "is_active"] }],
       });
       if (!annualReport) {
         throw new CustomError("Annual Report not found", 404);
