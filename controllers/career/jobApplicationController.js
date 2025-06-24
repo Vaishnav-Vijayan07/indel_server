@@ -380,6 +380,97 @@ class JobApplicationSubmissionController {
     }
   }
 
+  // static async submitGeneralApplication(req, res, next) {
+  //   try {
+  //     const { applicant, general_application } = req.body;
+  //     const file = req?.file;
+
+  //     // Validate preferred location
+  //     const location = await models.CareerLocations.findByPk(applicant.preferred_location);
+  //     if (!location) throw new CustomError("Preferred location not found", 404);
+
+  //     // Validate role
+  //     const role = await models.CareerRoles.findByPk(general_application?.role_id);
+  //     if (!role) throw new CustomError("Role not found", 404);
+
+  //     // Get "Pending" status
+  //     const pendingStatus = await models.ApplicationStatus.findOne({
+  //       where: { status_name: "Pending" },
+  //     });
+  //     if (!pendingStatus) throw new CustomError("Pending status not found", 500);
+
+  //     let applicantRecord = await models.Applicants.findOne({
+  //       where: { email: applicant?.email },
+  //     });
+
+  //     // Check if file is expired
+  //     const isFileExpired = (record) => {
+  //       if (!record?.file || !record.file_uploaded_at) return true;
+  //       const sixMonthsAgo = new Date();
+  //       sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  //       return new Date(record.file_uploaded_at) < sixMonthsAgo;
+  //     };
+
+  //     if (applicantRecord) {
+  //       // Check if any general application exists
+  //       const existingApplication = await models.GeneralApplications.findOne({
+  //         where: { applicant_id: applicantRecord?.id },
+  //       });
+
+  //       console.log("existingApplication", existingApplication);
+
+  //       // Prepare updated data
+  //       const updatedData = {
+  //         ...applicant,
+  //         file: file ? file.path : isFileExpired(applicantRecord) ? null : applicantRecord.file,
+  //         file_uploaded_at: file ? new Date() : isFileExpired(applicantRecord) ? null : applicantRecord.file_uploaded_at,
+  //       };
+  //       await applicantRecord.update(updatedData);
+
+  //       // If application exists, return response
+  //       if (existingApplication) {
+  //         return res.status(200).json({
+  //           success: true,
+  //           data: {
+  //             applicant: applicantRecord,
+  //             general_application: existingApplication,
+  //           },
+  //           message: "Application already exists. Details have been updated.",
+  //         });
+  //       }
+  //     } else {
+  //       // Create new applicant
+  //       const newApplicantData = {
+  //         ...applicant,
+  //         file: file ? file?.path : null,
+  //         file_uploaded_at: file ? new Date() : null,
+  //       };
+  //       applicantRecord = await models.Applicants.create(newApplicantData);
+  //     }
+
+  //     // Create the general application
+  //     const newApplication = await models.GeneralApplications.create({
+  //       applicant_id: applicantRecord?.id,
+  //       status_id: pendingStatus?.id,
+  //       role_id: general_application?.role_id,
+  //     });
+
+  //     // Invalidate caches
+  //     await Promise.all([CacheService.invalidate("applicants"), CacheService.invalidate("general_applications")]);
+
+  //     res.status(201).json({
+  //       success: true,
+  //       data: {
+  //         applicant: applicantRecord,
+  //         general_application: newApplication,
+  //       },
+  //       message: "General application submitted successfully",
+  //     });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
+
   static async submitGeneralApplication(req, res, next) {
     try {
       const { applicant, general_application } = req.body;
@@ -417,14 +508,23 @@ class JobApplicationSubmissionController {
           where: { applicant_id: applicantRecord?.id },
         });
 
-        console.log("existingApplication", existingApplication);
-
         // Prepare updated data
         const updatedData = {
           ...applicant,
-          file: file ? file.path : isFileExpired(applicantRecord) ? null : applicantRecord.file,
-          file_uploaded_at: file ? new Date() : isFileExpired(applicantRecord) ? null : applicantRecord.file_uploaded_at,
         };
+
+        // Handle file logic:
+        if (file) {
+          // New file uploaded: update both fields
+          updatedData.file = file.path;
+          updatedData.file_uploaded_at = new Date();
+        } else if (isFileExpired(applicantRecord)) {
+          // No new file, but existing file is expired: clear fields
+          updatedData.file = null;
+          updatedData.file_uploaded_at = null;
+        }
+        // If no new file and file is not expired, keep existing fields
+
         await applicantRecord.update(updatedData);
 
         // If application exists, return response
@@ -442,7 +542,7 @@ class JobApplicationSubmissionController {
         // Create new applicant
         const newApplicantData = {
           ...applicant,
-          file: file ? file?.path : null,
+          file: file ? file.path : null,
           file_uploaded_at: file ? new Date() : null,
         };
         applicantRecord = await models.Applicants.create(newApplicantData);
@@ -450,8 +550,8 @@ class JobApplicationSubmissionController {
 
       // Create the general application
       const newApplication = await models.GeneralApplications.create({
-        applicant_id: applicantRecord?.id,
-        status_id: pendingStatus?.id,
+        applicant_id: applicantRecord.id,
+        status_id: pendingStatus.id,
         role_id: general_application?.role_id,
       });
 
