@@ -24,7 +24,7 @@ const initGoldLoanContent = async () => {
       identity_proof_description: "Aadhaar Card, PAN Card, or Passport",
       address_proof: "Required Address Proof",
       address_proof_description: "Utility Bill, Aadhaar Card, or Rental Agreement",
-      steps_image: "https://example.com/gold-loan-steps.jpg",
+      steps_image: null,
       gold_loan_title: "Gold Loan Benefits",
       gold_loan_description: "Flexible repayment options and competitive interest rates.",
       scheme_title: "Our Gold Loan Schemes",

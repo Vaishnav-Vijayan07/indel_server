@@ -37,6 +37,7 @@ class AwardPageContentController {
       await content.update(updateData);
 
       await CacheService.invalidate("awardPageContent");
+      await CacheService.invalidate("webAwards");
       res.json({ success: true, data: content, message: "Award Page Content updated" });
     } catch (error) {
       next(error);

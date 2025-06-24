@@ -892,79 +892,42 @@ class WebController {
 
   static async LoanAgainstProperty(req, res, next) {
     const cacheKey = "webLoanAgainstProperty";
-    console.log("Hited here");
-
-    let stateId = req.session?.stateId || null;
-    let stateName = req.session?.stateName || "Global";
-    if (!stateId) {
-      const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
-      try {
-        const geo = await getStateFromIp(ip);
-        stateId = geo.stateId;
-        stateName = geo.stateName;
-        // Store in session for future requests
-        req.session.stateId = stateId;
-        req.session.stateName = stateName;
-      } catch (error) {
-        console.error("Failed to resolve geolocation:", error.message);
-      }
-    }
     try {
       const cachedData = await CacheService.get(cacheKey);
       // if (cachedData) {
-      //   logger.info("Serving MSME Loan from cache");
+      //   logger.info("Serving CD Loan from cache");
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [
-        loanAgainstPropertyContent,
-        loanAgainstPropertySupportedIndustries,
-        loanPropertyOfferings,
-        loanAgainstPropertyTargetedAudience,
-        loanAgainstPropertyFaq,
-        loanAgainstPropertyTypes,
-      ] = await Promise.all([
-        models.LoanAgainstPropertyContent.findAll(),
-        models.LoanAgainstPropertySupportedIndustries.findAll({
-          // attributes: ["id", "image", "title", "description", "is_active", "order"],
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-        models.LoanAgainstPropertyOfferings.findAll(),
-        models.LoanAgainstPropertyTargetedAudience.findAll({
-          // attributes: ["id", "icon", "title", "description", "is_active", "order"],
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-        models.LoanAgainstPropertyFaq.findAll({
-          where: {
-            is_active: true,
-            state_id: stateId || null,
-          },
+      const service = await models.Services.findOne({
+        where: { slug: "lap", is_active: true },
+        attributes: ["id"],
+      });
+
+      const [cdLoanContent, cdLoanBenefits, cdLoanProducts] = await Promise.all([
+        models.LapContent.findAll(),
+        models.ServiceBenefit.findAll({
+          where: { is_active: true, service_id: service?.id },
           order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
         }),
-        models.LoanAgainstPropertyTypes.findAll({
-          attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
+        models.LapProducts.findAll({
           where: { is_active: true },
           order: [["order", "ASC"]],
         }),
       ]);
 
       const data = {
-        loanAgainstPropertyContent: loanAgainstPropertyContent[0] || null,
-        loanAgainstPropertySupportedIndustries,
-        loanPropertyOfferings,
-        loanAgainstPropertyTargetedAudience,
-        loanAgainstPropertyFaq,
-        loanAgainstPropertyTypes,
+        cdLoanContent: cdLoanContent[0] || null,
+        cdLoanBenefits,
+        cdLoanProducts,
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
-      logger.info("Fetched  Loan Against Property data from DB");
+      logger.info("Fetched CD Loan data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching initLOanAgainstPropertyContent data", { error: error.message, stack: error.stack });
-      next(new CustomError("Failed to fetch initLOanAgainstPropertyContent data", 500, error.message));
+      logger.error("Error fetching CD Loan data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch CD Loan data", 500, error.message));
     }
   }
 
@@ -1658,11 +1621,13 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, news] = await Promise.all([models.NewsPageContent.findAll(), models.News.findAll({
-        where: {is_active: true},
-        order: [["order", "ASC"]],
-      }
-      )]);
+      const [content, news] = await Promise.all([
+        models.NewsPageContent.findAll(),
+        models.News.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+      ]);
 
       const sliderItems = news.filter((news) => news.is_slider);
 

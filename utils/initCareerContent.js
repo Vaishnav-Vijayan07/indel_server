@@ -21,7 +21,7 @@ const initCareerContents = async () => {
       find_job_button_link: "https://example.com/jobs",
       make_your_move_title: "Make Your Move",
       make_your_move_description: "Join us to grow your career and make a difference.",
-      make_your_move_image: "https://example.com/career-move.jpg",
+      make_your_move_image: null,
       make_your_move_: "Start Your Journey",
       gallery_title: "Life at Our Company",
       gallery_sub_title: "A Glimpse of Our Culture",

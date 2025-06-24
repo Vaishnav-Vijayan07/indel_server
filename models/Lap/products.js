@@ -1,8 +1,8 @@
 const { DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
-  const LoanPropertyTargetedAudience = sequelize.define(
-    "LoanPropertyTargetedAudience",
+  const LapProducts = sequelize.define(
+    "LapProducts",
     {
       id: {
         type: DataTypes.INTEGER,
@@ -13,11 +13,7 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      description: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-      },
-      image: {
+      icon: {
         type: DataTypes.STRING,
         allowNull: true,
       },
@@ -36,10 +32,10 @@ module.exports = (sequelize) => {
       },
     },
     {
-      tableName: "loan_property_targeted_audience",
+      tableName: "lap_products",
       timestamps: true,
     }
   );
 
-  return LoanPropertyTargetedAudience;
+  return LapProducts;
 };
