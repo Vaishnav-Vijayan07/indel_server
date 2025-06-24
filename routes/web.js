@@ -59,7 +59,12 @@ router.get("/policies", WebController.policy);
 router.post("/career/resume", uploadField, JobApplicationsController.create);
 router.get("/career/resume", uploadField, JobApplicationsController.getAll);
 
-router.post("/careers/job_application", validateJobApplicationSubmission, uploadApplicantFile, JobApplicationSubmissionController.submitApplication);
+router.post(
+  "/careers/job_application",
+  validateJobApplicationSubmission,
+  uploadApplicantFile,
+  JobApplicationSubmissionController.submitApplication
+);
 
 router.get("/careers/job_applications", JobApplicationSubmissionController.listApplications);
 
@@ -74,5 +79,6 @@ router.get("/careers/general_applications", JobApplicationSubmissionController.l
 router.post("/careers/send-otp", JobApplicationSubmissionController.sendOtp);
 router.post("/careers/verify-otp", JobApplicationSubmissionController.verifyOtp);
 router.post("/careers/job-applications/:id/status", JobApplicationSubmissionController.changeStatus);
+router.post("/careers/general-applications/:id/status", JobApplicationSubmissionController.changeStatusGeneral);
 
 module.exports = router;
