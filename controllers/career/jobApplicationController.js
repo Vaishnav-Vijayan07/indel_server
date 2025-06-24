@@ -706,6 +706,49 @@ class JobApplicationSubmissionController {
       next(error);
     }
   }
+
+    static async changeStatusGeneral(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { status_id } = req.body;
+
+      // Validate input
+      if (!status_id) {
+        return res.status(400).json({ success: false, message: "status_id is required" });
+      }
+
+      // Find the job application
+      const application = await models.GeneralApplications.findByPk(id);
+      if (!application) {
+        return res.status(404).json({ success: false, message: "Job application not found" });
+      }
+
+      // Check if the status exists
+      const status = await models.ApplicationStatus.findByPk(status_id);
+      if (!status) {
+        return res.status(400).json({ success: false, message: "Invalid status_id" });
+      }
+
+      // Update the status
+      await application.update({ status_id });
+
+      // Invalidate cache if needed
+      await CacheService.invalidate("general_applications");
+
+      // Optionally, include updated application with status details
+      const updatedApplication = await models.GeneralApplications.findByPk(id, {
+        include: [{ model: models.ApplicationStatus, as: "status", attributes: ["id", "status_name"] }],
+      });
+
+      res.json({
+        success: true,
+        data: updatedApplication,
+        message: "General application status updated successfully",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = JobApplicationSubmissionController;

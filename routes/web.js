@@ -74,5 +74,6 @@ router.get("/careers/general_applications", JobApplicationSubmissionController.l
 router.post("/careers/send-otp", JobApplicationSubmissionController.sendOtp);
 router.post("/careers/verify-otp", JobApplicationSubmissionController.verifyOtp);
 router.post("/careers/job-applications/:id/status", JobApplicationSubmissionController.changeStatus);
+router.post("/careers/general-applications/:id/status", JobApplicationSubmissionController.changeStatusGeneral);
 
 module.exports = router;
