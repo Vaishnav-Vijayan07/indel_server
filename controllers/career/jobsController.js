@@ -104,17 +104,17 @@ class JobsController {
         where: whereConditions,
         attributes: {
           include: [
-            // Add a subquery attribute for application count
             [
-              literal(`(
-              SELECT COUNT(*)
-              FROM job_applications AS ja
-              WHERE ja.job_id = Jobs.id
-            )`),
+              sequelize.literal(`(
+          SELECT COUNT(*)
+          FROM job_applications AS ja
+          WHERE ja.job_id = "Jobs"."id"
+        )`),
               "application_count",
             ],
           ],
         },
+
         include: [
           { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
           { model: models.CareerLocations, as: "location", attributes: ["location_name"] },
