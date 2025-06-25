@@ -221,9 +221,13 @@ class WebController {
         models.AboutPageContent.findAll(),
         models.AboutLifeAtIndelGallery.findAll(),
         models.AboutQuickLinks.findAll(),
-        models.AboutMessageFromTeam.findAll(),
+        models.AboutMessageFromTeam.findAll({
+          where: {is_active: true},
+        }),
         models.AboutServiceGallery.findAll(),
-        models.AboutStatistics.findAll(),
+        models.AboutStatistics.findAll({
+          limit: 4
+        }),
         models.AboutAccolades.findAll(),
       ]);
 

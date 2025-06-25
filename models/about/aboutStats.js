@@ -23,7 +23,7 @@ module.exports = (sequelize) => {
       },
       icon: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       image_alt: {
         type: DataTypes.STRING,
