@@ -21,6 +21,7 @@ module.exports = (sequelize) => {
         type: DataTypes.TEXT,
         allowNull: false,
       },
+
       icon: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -28,6 +29,10 @@ module.exports = (sequelize) => {
       image_alt: {
         type: DataTypes.STRING,
         allowNull: true
+      },
+ order: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
     },
     {

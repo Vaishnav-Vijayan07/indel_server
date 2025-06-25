@@ -219,13 +219,18 @@ class WebController {
           attributes: ["id", "title", "super_title", "image", "alt_text", "order", "is_active"],
         }),
         models.AboutPageContent.findAll(),
-        models.AboutLifeAtIndelGallery.findAll(),
-        models.AboutQuickLinks.findAll(),
+        models.AboutLifeAtIndelGallery.findAll({
+          order: [["order", "ASC"]],
+        }),
+        models.AboutQuickLinks.findAll({
+          order: [["order", "ASC"]],
+        }),
         models.AboutMessageFromTeam.findAll({
           where: {is_active: true},
         }),
         models.AboutServiceGallery.findAll(),
         models.AboutStatistics.findAll({
+          order: [["order", "ASC"]],
           limit: 4
         }),
         models.AboutAccolades.findAll(),
