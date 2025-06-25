@@ -29,10 +29,6 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      annual_report_button_title: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
       annual_returns_title: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -62,6 +58,14 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       csr_committee_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      credit_rating_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      quarterly_results_title: {
         type: DataTypes.STRING,
         allowNull: true,
       },

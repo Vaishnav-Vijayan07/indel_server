@@ -165,9 +165,9 @@ class ServiceBenefitsController {
       const benefits = await ServiceBenefit.findAll({
         where: {
           service_id: service.id,
-          is_active: true,
+          // is_active: true,
         },
-        attributes: ["id", "icon", "image_alt", "title", "order"],
+        attributes: ["id", "icon", "image_alt", "title", "order", "is_active"],
         order: [["order", "ASC"]],
       });
 
