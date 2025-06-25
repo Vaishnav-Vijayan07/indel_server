@@ -411,32 +411,28 @@ class WebController {
     }
   }
 
-  static async blogData(req, res, next) {
+  static async blogDataLatest(req, res, next) {
     const cacheKey = "webBlogData";
 
     try {
       await CacheService.invalidate("webBlogData");
       const cachedData = await CacheService.get(cacheKey);
-      // if (cachedData) {
-      //   logger.info("Serving blog data from cache");
-      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
-      // }
+      if (cachedData) {
+        logger.info("Serving blog data from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
 
       const [content, blogs] = await Promise.all([
         models.BlogPageContent.findAll(),
         models.Blogs.findAll({
-          where: { is_active: true },
+          where: { is_active: true, is_slider: true },
           order: [["order", "ASC"]],
         }),
       ]);
 
-      console.log(blogs);
-      const sliderItems = blogs.filter((blog) => blog.is_slider);
-
       const data = {
         content: content[0] || null,
         blogs,
-        sliderItems,
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
@@ -447,6 +443,40 @@ class WebController {
       next(new CustomError("Failed to fetch blog data", 500, error.message));
     }
   }
+
+  static async allBlogs(req, res, next) {
+    const { page = 1, limit = 5 } = req.query;
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const offset = (pageNum - 1) * limitNum;
+
+    try {
+      const blogsData = await models.Blogs.findAndCountAll({
+        where: { is_active: true },
+        order: [["order", "ASC"]],
+        limit: limitNum,
+        offset,
+      });
+
+      const { count, rows: blogs } = blogsData;
+      const pages = Math.ceil(count / limitNum);
+      const data = {
+        blogs,
+        pagination: {
+          totalCount: count,
+          totalPages: pages,
+          currentPage: page,
+          limit: limitNum,
+        },
+      };
+
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching blog data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch blog data", 500, error.message));
+    }
+  }
+
   static async blogDetails(req, res, next) {
     const { slug } = req.params;
     const cacheKey = `webBlogData_${slug}`;
@@ -884,11 +914,11 @@ class WebController {
       const [cdLoanContent, cdLoanBenefits, cdLoanProducts] = await Promise.all([
         models.CdLoanContent.findAll(),
         models.CdLoanBenefits.findAll({
-           where: { is_active: true },
+          where: { is_active: true },
           order: [["order", "ASC"]],
         }),
         models.CdLoanProducts.findAll({
-           where: { is_active: true },
+          where: { is_active: true },
           order: [["order", "ASC"]],
         }),
       ]);
@@ -918,7 +948,7 @@ class WebController {
       // }
 
       const service = await models.Services.findOne({
-        where: { slug: "lap", is_active: true },
+        where: { slug: "loan-against-property", is_active: true },
         attributes: ["id"],
       });
 
@@ -1169,8 +1199,6 @@ class WebController {
 
   static async event(req, res, next) {
     const { slug, page = 1, limit = 6 } = req.query;
-
-    console.log(slug);
 
     // Convert page to number and calculate offset
     const pageNum = parseInt(page, 10);
