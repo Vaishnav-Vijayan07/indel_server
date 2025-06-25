@@ -939,7 +939,7 @@ class WebController {
       // }
 
       const service = await models.Services.findOne({
-        where: { slug: "lap", is_active: true },
+        where: { slug: "loan-against-property", is_active: true },
         attributes: ["id"],
       });
 
