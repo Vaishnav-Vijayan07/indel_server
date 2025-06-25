@@ -41,14 +41,10 @@ class OtherIntimationsController {
     } catch (error) {
       if (req.files) {
         if (req.files.record_date_document) {
-          await OtherIntimationsController.deleteFile(
-            `/uploads/investors/other-intimations/${req.files.record_date_document[0].filename}`
-          );
+          await OtherIntimationsController.deleteFile(`/uploads/investors/other-intimations/${req.files.record_date_document[0].filename}`);
         }
         if (req.files.interest_payment_document) {
-          await OtherIntimationsController.deleteFile(
-            `/uploads/investors/other-intimations/${req.files.interest_payment_document[0].filename}`
-          );
+          await OtherIntimationsController.deleteFile(`/uploads/investors/other-intimations/${req.files.interest_payment_document[0].filename}`);
         }
       }
       next(error);
@@ -60,13 +56,13 @@ class OtherIntimationsController {
       const cacheKey = "OtherIntimations";
       const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
 
       const otherIntimations = await OtherIntimations.findAll({
         include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
-        order: [["month_date", "DESC"]],
+        order: [["order", "ASC"]],
       });
       await CacheService.set(cacheKey, JSON.stringify(otherIntimations), 3600);
       res.json({ success: true, data: otherIntimations });
@@ -135,14 +131,10 @@ class OtherIntimationsController {
     } catch (error) {
       if (req.files) {
         if (req.files.record_date_document) {
-          await OtherIntimationsController.deleteFile(
-            `/uploads/investors/other-intimations/${req.files.record_date_document[0].filename}`
-          );
+          await OtherIntimationsController.deleteFile(`/uploads/investors/other-intimations/${req.files.record_date_document[0].filename}`);
         }
         if (req.files.interest_payment_document) {
-          await OtherIntimationsController.deleteFile(
-            `/uploads/investors/other-intimations/${req.files.interest_payment_document[0].filename}`
-          );
+          await OtherIntimationsController.deleteFile(`/uploads/investors/other-intimations/${req.files.interest_payment_document[0].filename}`);
         }
       }
       next(error);
