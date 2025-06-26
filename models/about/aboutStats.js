@@ -21,13 +21,18 @@ module.exports = (sequelize) => {
         type: DataTypes.TEXT,
         allowNull: false,
       },
+
       icon: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       image_alt: {
         type: DataTypes.STRING,
         allowNull: true
+      },
+ order: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
     },
     {
