@@ -14,7 +14,7 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
       event_date: {
-        type: DataTypes.DATE,
+        type: DataTypes.DATEONLY,
         allowNull: true,
       },
       is_slider: {

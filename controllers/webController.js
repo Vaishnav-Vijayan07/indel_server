@@ -388,7 +388,10 @@ class WebController {
 
       const [content, images, inceptions] = await Promise.all([
         models.HistoryPageContent.findAll(),
-        models.HistoryImages.findAll(),
+        models.HistoryImages.findAll({
+          where: { is_active: true},
+          order: [['order', "ASC"]],
+        }),
         models.HistoryInceptionsYears.findAll({
           attributes: ["id", "image", "image_alt", "year", "title", "description", "is_active", "order"],
           where: { is_active: true },
@@ -1046,7 +1049,7 @@ class WebController {
   static async ActiveJobs(req, res, next) {
     const cacheKey = "webCareerPage";
     const { state, location, role } = req.query;
-
+    
     const whereClause = {
       is_active: true,
     };
@@ -1056,14 +1059,14 @@ class WebController {
     if (location) whereClause.location_id = location;
 
     try {
-      // const cachedData = await CacheService.get(cacheKey);
-      // if (cachedData) {
-      //   logger.info("Serving Career Page from cache");
-      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
-      // }
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        logger.info("Serving Career Page from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
 
       const jobs = await models.CareerJobs.findAll({
-        where: whereClause,
+      where: whereClause,
         attributes: ["id", "role_id", "location_id", "state_id", "short_description", "detailed_description", "experience", "is_active"],
         include: [
           { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
@@ -1615,7 +1618,9 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, teams] = await Promise.all([models.DirectorsContent.findAll(), models.Directors.findAll()]);
+      const [content, teams] = await Promise.all([models.DirectorsContent.findAll(), models.Directors.findAll({
+        order: [["order", "ASC"]],
+      })]);
 
       const data = {
         content: content[0] || null,
