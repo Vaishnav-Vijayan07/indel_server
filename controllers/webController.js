@@ -91,12 +91,12 @@ class WebController {
             console.error("Failed to fetch lifeAtIndel:", err.message);
             throw err;
           }),
-          models.Csr.findAll({
-            attributes: ["id", "title", "is_slider", "image_description", "image", "image_alt", "posted_on", "slug"],
-            where: { is_active: true },
+          models.IndelCares.findAll({
+            attributes: ["id", "title", "show_on_home","description", "image", "image_alt", "event_date", "slug"],
+            where: { is_active: true, show_on_home: true },
             order: [["order", "ASC"]],
           }).catch((err) => {
-            console.error("Failed to fetch blogs:", err.message);
+            console.error("Failed to fetch indel cares:", err.message);
             throw err;
           }),
           models.PopupSettings.findAll().catch((err) => {
@@ -496,9 +496,34 @@ class WebController {
         where: { slug },
       });
 
-      await CacheService.set(cacheKey, JSON.stringify(blog), 3600);
+      const recentBlogs = await models.Blogs.findAll({
+        attributes: [
+          "id",
+          "title",
+          "slug",
+          "image",
+          "image_alt",
+          "posted_on",
+          "is_active",
+          "image_description",
+          "meta_title",
+          "meta_description",
+          "meta_keywords",
+          "other_meta_tags",
+        ],
+        where: { is_active: true },
+        order: [["posted_on", "DESC"]],
+        limit: 2,
+      });
+
+      const data = {
+        blog,
+        recentBlogs,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
       logger.info("Fetched blog details from DB");
-      res.json({ status: "success", data: blog });
+      res.json({ status: "success", data });
     } catch (error) {
       logger.error("Error fetching blog details", { error: error.message, stack: error.stack });
       next(new CustomError("Failed to fetch blog details", 500, error.message));
@@ -1312,12 +1337,12 @@ class WebController {
       const [content, slideItems, nonSlideItems] = await Promise.all([
         models.IndelCaresContent.findAll(),
         models.IndelCares.findAll({
-          attributes: ["id", "title", "description", "image", "event_date", "image_alt", "is_slider", "is_active", "order"],
+          attributes: ["id", "title", "description", "image", "event_date", "image_alt", "is_slider", "is_active", "order", "slug"],
           where: { is_active: true, is_slider: true },
           order: [["order", "ASC"]],
         }),
         models.IndelCares.findAndCountAll({
-          attributes: ["id", "title", "description", "image", "event_date", "image_alt", "is_slider", "is_active", "order"],
+          attributes: ["id", "title", "description", "image", "event_date", "image_alt", "is_slider", "is_active", "order", "slug"],
           where: { is_active: true, is_slider: false },
           order: [["order", "ASC"]],
           limit,
@@ -1345,6 +1370,44 @@ class WebController {
     } catch (error) {
       logger.error("Error fetching Awards data", { error: error.message, stack: error.stack });
       next(new CustomError("Failed to fetch Awards data", 500, error.message));
+    }
+  }
+
+  static async indelCaresDetails(req, res, next) {
+    const { slug } = req.params;
+    const cacheKey = `webIndelCaresData_${slug}`;
+
+    try {
+      await CacheService.invalidate(`webIndelCaresData_${slug}`);
+      const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info("Serving blog details from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const event = await models.IndelCares.findOne({
+        where: { slug },
+      });
+
+      const eventid = event?.id;
+
+      const recentEvents = await models.IndelCares.findAll({
+        where: { is_active: true, id: { [Op.ne]: eventid } },
+        order: [["order", "ASC"]],
+        limit: 2,
+      });
+
+      const data = {
+        event,
+        recentEvents,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched indel cares details from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching indel cares details", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch indel cares details", 500, error.message));
     }
   }
 
