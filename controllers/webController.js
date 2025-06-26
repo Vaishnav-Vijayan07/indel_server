@@ -603,7 +603,11 @@ class WebController {
           where: { is_active: true },
           order: [["order", "ASC"]],
         }),
-        models.ApproachPropositions.findAll(),
+        models.ApproachPropositions.findAll({
+          where: {
+            is_active: true,
+          },
+        }),
       ]);
 
       const data = {
