@@ -47,6 +47,7 @@ router.get("/investors/quarterly-reports", InvestorsController.quarterlyReports)
 router.get("/investors/credit-ratings", InvestorsController.creditRatings);
 router.get("/investors/csr-details", InvestorsController.csrDetails);
 router.get("/indel-cares", WebController.indelCares);
+router.get("/indel-cares/:slug", WebController.indelCaresDetails);
 router.get("/ombudsman", WebController.ombudsmanFiles);
 router.get("/footer", WebController.footerContent);
 router.get("/header", WebController.headerContent);
