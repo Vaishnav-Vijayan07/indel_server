@@ -32,6 +32,7 @@ class OmbudsmanFilesController {
       const ombudsmanFile = await OmbudsmanFiles.create(updateData);
 
       await CacheService.invalidate("ombudsmanFiles");
+      await CacheService.invalidate("webOmbudsmanFiles");
       res.status(201).json({ success: true, data: ombudsmanFile, message: "Ombudsman File created" });
     } catch (error) {
       next(error);
@@ -102,6 +103,7 @@ class OmbudsmanFilesController {
       await ombudsmanFile.update(updateData);
 
       await CacheService.invalidate("ombudsmanFiles");
+      await CacheService.invalidate("webOmbudsmanFiles");
       await CacheService.invalidate(`ombudsmanFile_${id}`);
       res.json({ success: true, data: ombudsmanFile, message: "Ombudsman File updated" });
     } catch (error) {
@@ -125,6 +127,7 @@ class OmbudsmanFilesController {
       }
 
       await CacheService.invalidate("ombudsmanFiles");
+      await CacheService.invalidate("webOmbudsmanFiles");
       await CacheService.invalidate(`ombudsmanFile_${id}`);
       res.json({ success: true, message: "Ombudsman File deleted", data: id });
     } catch (error) {

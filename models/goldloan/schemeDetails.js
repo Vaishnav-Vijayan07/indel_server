@@ -29,6 +29,11 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
+      is_active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: true,
+      },
     },
     {
       tableName: "gold_loan_scheme_details",
