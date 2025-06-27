@@ -92,7 +92,7 @@ class WebController {
             throw err;
           }),
           models.IndelCares.findAll({
-            attributes: ["id", "title", "show_on_home","description", "image", "image_alt", "event_date", "slug"],
+            attributes: ["id", "title", "show_on_home", "description", "image", "image_alt", "event_date", "slug"],
             where: { is_active: true, show_on_home: true },
             order: [["order", "ASC"]],
           }).catch((err) => {
@@ -226,12 +226,12 @@ class WebController {
           order: [["order", "ASC"]],
         }),
         models.AboutMessageFromTeam.findAll({
-          where: {is_active: true},
+          where: { is_active: true },
         }),
         models.AboutServiceGallery.findAll(),
         models.AboutStatistics.findAll({
           order: [["order", "ASC"]],
-          limit: 4
+          limit: 4,
         }),
         models.AboutAccolades.findAll(),
       ]);
@@ -451,6 +451,9 @@ class WebController {
     const offset = (pageNum - 1) * limitNum;
 
     try {
+      const content = await models.BlogPageContent.findAll({
+        attributes: ["id", "all_blogs_title"],
+      });
       const blogsData = await models.Blogs.findAndCountAll({
         where: { is_active: true },
         order: [["order", "ASC"]],
@@ -461,6 +464,7 @@ class WebController {
       const { count, rows: blogs } = blogsData;
       const pages = Math.ceil(count / limitNum);
       const data = {
+        title: content[0]?.all_blogs_title || "All Blogs",
         blogs,
         pagination: {
           totalCount: count,
@@ -493,6 +497,8 @@ class WebController {
         where: { slug },
       });
 
+      const blogId = blog?.id;
+
       const recentBlogs = await models.Blogs.findAll({
         attributes: [
           "id",
@@ -508,7 +514,7 @@ class WebController {
           "meta_keywords",
           "other_meta_tags",
         ],
-        where: { is_active: true },
+        where: { is_active: true, id: { [Op.ne]: blogId } }, // Exclude the current blog
         order: [["posted_on", "DESC"]],
         limit: 2,
       });
@@ -1720,7 +1726,7 @@ class WebController {
     }
   }
 
-  static async newsData(req, res, next) {
+  static async newsDataLatest(req, res, next) {
     const cacheKey = "webNewsData";
 
     try {
@@ -1730,21 +1736,17 @@ class WebController {
       //   logger.info("Serving blog data from cache");
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
-
       const [content, news] = await Promise.all([
         models.NewsPageContent.findAll(),
         models.News.findAll({
-          where: { is_active: true },
+          where: { is_active: true, is_slider: true },
           order: [["order", "ASC"]],
         }),
       ]);
 
-      const sliderItems = news.filter((news) => news.is_slider);
-
       const data = {
         content: content[0] || null,
         news,
-        sliderItems,
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
@@ -1755,6 +1757,45 @@ class WebController {
       next(new CustomError("Failed to fetch news data", 500, error.message));
     }
   }
+
+  static async allNews(req, res, next) {
+    const { page = 1, limit = 5 } = req.query;
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const offset = (pageNum - 1) * limitNum;
+
+    try {
+      const content = await models.NewsPageContent.findAll({
+        attributes: ["id", "all_news_title"],
+      });
+
+      const newsData = await models.News.findAndCountAll({
+        where: { is_active: true },
+        order: [["order", "ASC"]],
+        limit: limitNum,
+        offset,
+      });
+
+      const { count, rows: news } = newsData;
+      const pages = Math.ceil(count / limitNum);
+      const data = {
+        title: content[0]?.all_news_title || "All News",
+        news,
+        pagination: {
+          totalCount: count,
+          totalPages: pages,
+          currentPage: page,
+          limit: limitNum,
+        },
+      };
+
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching news data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch news data", 500, error.message));
+    }
+  }
+
   static async newsDetails(req, res, next) {
     const { slug } = req.params;
     const cacheKey = `webNewsData_${slug}`;
@@ -1771,9 +1812,36 @@ class WebController {
         where: { slug },
       });
 
-      await CacheService.set(cacheKey, JSON.stringify(news), 3600);
+      const newsId = news?.id;
+
+      const recentNews = await models.News.findAll({
+        attributes: [
+          "id",
+          "title",
+          "slug",
+          "image",
+          "image_alt",
+          "posted_on",
+          "is_active",
+          "image_description",
+          "meta_title",
+          "meta_description",
+          "meta_keywords",
+          "other_meta_tags",
+        ],
+        where: { is_active: true, id: { [Op.ne]: newsId } }, // Exclude the current blog
+        order: [["posted_on", "DESC"]],
+        limit: 2,
+      });
+
+      const data = {
+        news,
+        recentNews,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
       logger.info("Fetched news details from DB");
-      res.json({ status: "success", data: news });
+      res.json({ status: "success", data });
     } catch (error) {
       logger.error("Error fetching news details", { error: error.message, stack: error.stack });
       next(new CustomError("Failed to fetch news details", 500, error.message));
