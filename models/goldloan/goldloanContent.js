@@ -45,8 +45,20 @@ module.exports = (sequelize) => {
         type: DataTypes.TEXT,
         allowNull: true,
       },
+      eligibility_title:{
+                type: DataTypes.STRING,
+              allowNull: true,
+      },
       description: {
         type: DataTypes.STRING,
+        allowNull: true,
+      },
+      documentation_title:{
+                type: DataTypes.STRING,
+        allowNull: true,
+      },
+      documentation_description:{
+                type: DataTypes.STRING,
         allowNull: true,
       },
       identity_proof_title: {
