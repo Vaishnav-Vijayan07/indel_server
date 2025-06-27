@@ -21,10 +21,6 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      alternative_phone: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
       email: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -32,6 +28,11 @@ module.exports = (sequelize) => {
       order: {
         type: DataTypes.INTEGER,
         allowNull: false,
+      },
+      is_active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: true,
       },
     },
     {
