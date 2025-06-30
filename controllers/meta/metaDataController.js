@@ -24,7 +24,7 @@ class MetaDataController {
       const cachedData = await cacheService.get(cacheKey);
       if (cachedData) {
         console.log(`Cache hit for ${page}`);
-        return res.status(200).json(JSON.parse(cachedData));
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
       }
       const metaData = await typeToDbMap[page].findOne({
         attributes: ["id", "meta_title", "meta_description", "meta_keywords"],
@@ -34,7 +34,7 @@ class MetaDataController {
       }
       await cacheService.set(cacheKey, JSON.stringify(metaData));
       console.log(`Cache miss for ${page}, setting cache`);
-      return res.json({ status: "success", metaData });
+      res.status(200).json({ status: "success", data: metaData });
     } catch (error) {
       logger.error(`Error fetching meta data for ${page}: ${error.message}`);
       next(error);

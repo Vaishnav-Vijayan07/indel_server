@@ -73,6 +73,7 @@ class LAPContentController {
 
       await CacheService.invalidate("LAPContent");
       await CacheService.invalidate("webLap");
+      await CacheService.invalidate("metaData:lap");
       res.json({ success: true, data: content, message: "Content updated" });
     } catch (error) {
       next(error);
