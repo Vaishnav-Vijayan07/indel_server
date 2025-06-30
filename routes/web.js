@@ -6,11 +6,13 @@ const createUploadMiddleware = require("../middlewares/multerMiddleware");
 const InvestorsController = require("../controllers/investorsController");
 const { validateJobApplicationSubmission } = require("../utils/validator");
 const JobApplicationSubmissionController = require("../controllers/career/jobApplicationController");
+const MetaDataController = require("../controllers/meta/metaDataController");
 
 const upload = createUploadMiddleware("job-applications");
 const uploadField = upload.single("file");
 const uploadApplicantFile = upload.single("applicant[file]");
 
+router.get("/meta", MetaDataController.getMetaData);
 router.get("/home", WebController.getHomeData);
 router.get("/float-buttons", WebController.floatButtons);
 router.get("/about", WebController.aboutData);
@@ -62,12 +64,7 @@ router.get("/policies", WebController.policy);
 router.post("/career/resume", uploadField, JobApplicationsController.create);
 router.get("/career/resume", uploadField, JobApplicationsController.getAll);
 
-router.post(
-  "/careers/job_application",
-  validateJobApplicationSubmission,
-  uploadApplicantFile,
-  JobApplicationSubmissionController.submitApplication
-);
+router.post("/careers/job_application", validateJobApplicationSubmission, uploadApplicantFile, JobApplicationSubmissionController.submitApplication);
 
 router.get("/careers/job_applications", JobApplicationSubmissionController.listApplications);
 

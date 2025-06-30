@@ -73,14 +73,6 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      branch_section_title: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      branch_section_description: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
       life_section_title: {
         type: DataTypes.STRING,
         allowNull: true,

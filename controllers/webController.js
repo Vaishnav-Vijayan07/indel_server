@@ -38,8 +38,8 @@ class WebController {
       // }
 
       // Fetch all required data in parallel
-      const [heroBanner, announcement, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs, popUp, smartMoneyDeals] = await Promise.all(
-        [
+      const [heroBanner, announcement, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs, popUp, smartMoneyDeals, branchLocatorData] =
+        await Promise.all([
           models.HeroBanner.findAll({
             where: {
               is_active: true,
@@ -111,8 +111,13 @@ class WebController {
             console.error("Failed to fetch smartMoneyDeals:", err.message);
             throw err;
           }),
-        ]
-      );
+          models.BranchLocatorPageContents.findAll({
+            attributes: ["id", "title", "description"],
+          }).catch((err) => {
+            console.error("Failed to fetch branchLocatorData:", err.message);
+            throw err;
+          }),
+        ]);
 
       const settings = popUp[0] || null;
       const isBanner = settings?.is_banner || false;
@@ -145,6 +150,7 @@ class WebController {
       };
 
       const data = {
+        branchLocatorData: branchLocatorData[0] || null,
         smartMoneyDeals,
         banner: isBanner ? bannerPopupData : null,
         announcement: announcement ? announcement[0] : null,
@@ -346,16 +352,8 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, faqs, officeContacts] = await Promise.all([
-        models.ContactContent.findAll({
-          attributes: {
-            exclude: ["createdAt", "updatedAt", "branch_locator_title", "branch_locator_description"], // exclude timestamps
-            include: [
-              [Sequelize.col("branch_locator_title"), "branch_section_title"],
-              [Sequelize.col("branch_locator_description"), "branch_section_description"],
-            ],
-          },
-        }),
+      const [content, faqs, officeContacts, branchLocatorData] = await Promise.all([
+        models.ContactContent.findAll(),
         models.ContactFaq.findAll({
           where: {
             is_active: true,
@@ -364,12 +362,16 @@ class WebController {
           order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
         }),
         models.ContactOffice.findAll(),
+        models.BranchLocatorPageContents.findAll({
+          attributes: ["id", "title", "description"],
+        }),
       ]);
 
       const data = {
         content: content[0] || null,
         faqs,
         officeContacts,
+        branchLocatorData: branchLocatorData[0] || null,
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);

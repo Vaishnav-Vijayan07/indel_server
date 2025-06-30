@@ -19,9 +19,6 @@ const initContactContent = async () => {
       contact_image: null,
       form_title: "Send Us a Message",
       form_sub_title: "We usually respond within 24 hours.",
-      branch_locator_title: "Find Our Branches",
-      branch_locator_description: "Use the locator to find our offices near you.",
-      faq_super_title: "Top Questions",
       faq_title: "Frequently Asked Questions",
     });
 
