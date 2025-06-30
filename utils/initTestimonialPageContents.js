@@ -7,7 +7,7 @@ const initTestimonialPageContents = async () => {
     const existingContent = await TestimonialPageContents.findOne();
 
     if (existingContent) {
-      console.log("Testimonial Page Contents already exists");
+      
       return;
     }
 
@@ -18,7 +18,7 @@ const initTestimonialPageContents = async () => {
       title: "What Our Clients Say",
     });
 
-    console.log("Testimonial Page Contents initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Testimonial Page Contents:", error.message);
   }

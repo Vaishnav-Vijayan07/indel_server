@@ -7,7 +7,7 @@ const initMngmntTeamContent = async () => {
     const existingContent = await ManagementTeamContent.findOne();
 
     if (existingContent) {
-      console.log("Management Team Content already exists");
+      
       return;
     }
 
@@ -16,7 +16,7 @@ const initMngmntTeamContent = async () => {
       description : "This is new description",
     });
 
-    console.log("Management Team Content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Management Team Content:", error.message);
   }

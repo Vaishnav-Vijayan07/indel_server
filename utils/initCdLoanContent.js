@@ -7,7 +7,7 @@ const initCdLoanContent = async () => {
     const existingContent = await CdLoanContent.findOne();
 
     if (existingContent) {
-      console.log("CD Loan content already exists");
+      
       return;
     }
 
@@ -36,7 +36,7 @@ const initCdLoanContent = async () => {
       feature_image: null,
     });
 
-    console.log("CD Loan content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize CD Loan content:", error.message);
   }

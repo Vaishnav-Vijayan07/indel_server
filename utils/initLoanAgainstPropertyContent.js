@@ -7,7 +7,7 @@ const initLoanAgainstPropertyContent = async () => {
     const existingContent = await LoanAgainstPropertyContent.findOne();
 
     if (existingContent) {
-      console.log("Loan Against Property Page Content already exists");
+      
       return;
     }
 
@@ -36,7 +36,7 @@ const initLoanAgainstPropertyContent = async () => {
       feature_image: null,
     });
 
-    console.log("Loan Against Property Content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Loan Against Property Content:", error.message);
   }

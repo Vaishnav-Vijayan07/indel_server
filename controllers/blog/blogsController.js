@@ -124,7 +124,7 @@ class BlogsController {
   //       throw new CustomError("Blog not found", 404);
   //     }
 
-  //     console.log("Body ================>", req.body);
+  //     
 
   //     const updateData = { ...req.body };
   //     let oldImage = blog.image;
@@ -169,7 +169,7 @@ class BlogsController {
         throw new CustomError("Blog not found", 404);
       }
 
-      console.log("Body ================>", req.body);
+      
 
       let updateData = { ...req.body };
       let oldImage = blog.image;

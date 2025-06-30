@@ -15,8 +15,12 @@ const typeToDbMap = {
   management: models.ManagementTeamContent,
   directors: models.DirectorsContent,
   partners: models.DebtPartnersContent,
-  history:models.HistoryPageContent,
+  history: models.HistoryPageContent,
   shades: models.ShadesOfIndelContent,
+  indelValues: models.IndelValueContent,
+  services: models.ServiceContent,
+  award: models.AwardPageContent,
+  blog: models.BlogPageContent,
 };
 
 class MetaDataController {
@@ -29,7 +33,7 @@ class MetaDataController {
     try {
       const cachedData = await cacheService.get(cacheKey);
       if (cachedData) {
-        console.log(`Cache hit for ${page}`);
+        
         return res.json({ status: "success", data: JSON.parse(cachedData) });
       }
       const metaData = await typeToDbMap[page].findOne({
@@ -39,7 +43,7 @@ class MetaDataController {
         return res.status(404).json({ error: "Meta data not found" });
       }
       await cacheService.set(cacheKey, JSON.stringify(metaData));
-      console.log(`Cache miss for ${page}, setting cache`);
+      
       res.status(200).json({ status: "success", data: metaData });
     } catch (error) {
       logger.error(`Error fetching meta data for ${page}: ${error.message}`);

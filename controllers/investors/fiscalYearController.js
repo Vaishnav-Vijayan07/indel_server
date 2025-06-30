@@ -72,7 +72,7 @@ class FiscalYearsController {
       await CacheService.set(cacheKey, JSON.stringify(fiscalYear), 3600);
       res.json({ success: true, data: fiscalYear });
     } catch (error) {
-      console.log(error);
+      
       next(error);
     }
   }
@@ -100,7 +100,7 @@ class FiscalYearsController {
       const { id } = req.params;
       const fiscalYear = await FiscalYears.findByPk(id);
 
-      console.log(fiscalYear);
+      
       if (!fiscalYear) {
         throw new CustomError("Fiscal Year not found", 404);
       }

@@ -7,7 +7,7 @@ const initHeaderContents = async () => {
     const existingContent = await HeaderContents.findOne();
 
     if (existingContent) {
-      console.log("Header content already exists");
+      
       return;
     }
 
@@ -23,7 +23,7 @@ const initHeaderContents = async () => {
       andrioid_download_link: "https://play.google.com/store",
     });
 
-    console.log("Header content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Header content:", error.message);
   }

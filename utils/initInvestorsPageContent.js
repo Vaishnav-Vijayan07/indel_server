@@ -7,7 +7,7 @@ const initInvestorsPageContent = async () => {
     const existingContent = await InvestorsPageContent.findOne();
 
     if (existingContent) {
-      console.log("Investors Page Content already exists");
+      
       return;
     }
 
@@ -28,7 +28,7 @@ const initInvestorsPageContent = async () => {
       disclosure_file: null,
     });
 
-    console.log("Investors Page Content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Investors Page Content:", error.message);
   }

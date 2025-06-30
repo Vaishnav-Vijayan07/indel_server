@@ -7,7 +7,7 @@ const initEventPageContent = async () => {
     const existingContent = await EventPageContent.findOne();
 
     if (existingContent) {
-      console.log("Event Page Content already exists");
+      
       return;
     }
 
@@ -22,7 +22,7 @@ const initEventPageContent = async () => {
       all_events_title: "All Our Events",
     });
 
-    console.log("Event Page Content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Event Page Content:", error.message);
   }

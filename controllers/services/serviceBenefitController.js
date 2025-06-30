@@ -53,7 +53,7 @@ class ServiceBenefitsController {
       const cachedData = await CacheService.get(cacheKey);
 
       if (cachedData) {
-        console.log("From cache - Service Benefits");
+        
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
 

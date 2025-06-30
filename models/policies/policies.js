@@ -16,12 +16,11 @@ module.exports = (sequelize) => {
       type: {
         type: DataTypes.ENUM(
           "privacy-policy",
-          "mobile-app-policy",
-          "fair-practice-code",
-          "gold-loan-terms-and-conditions",
+          "disclaimer",
           "mobile-app-privacy-policy-indel-money-private-limited",
+          "fair-practices-code",
+          "gold-loan-terms-and-conditions",
           "kyc-policy",
-          "disclaimer"
         ),
         allowNull: true,
       },

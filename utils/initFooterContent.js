@@ -7,7 +7,7 @@ const initFooterContent = async () => {
     const existingContent = await FooterContent.findOne();
 
     if (existingContent) {
-      console.log("Footer content already exists");
+      
       return;
     }
 
@@ -27,7 +27,7 @@ const initFooterContent = async () => {
       social_media_text: "Follow Us on Social Media",
     });
 
-    console.log("Footer content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Footer content:", error.message);
   }

@@ -67,14 +67,14 @@ class JobApplicationSubmissionController {
       let modifiedData = null;
 
       if (applicant) {
-        console.log("Applicant data:", applicant);
+        
 
         const preferred_role = await models.GeneralApplications.findOne({
           where: { applicant_id: applicant?.id },
           attributes: ["role_id"],
         });
 
-        console.log("Preferred role:", preferred_role);
+        
 
         modifiedData = { ...applicant?.toJSON(), preferred_role: preferred_role?.role_id };
       }
@@ -90,16 +90,16 @@ class JobApplicationSubmissionController {
   }
   // static async submitApplication(req, res, next) {
   //   try {
-  //     console.log("body ===========>", req.body);
+  //     
 
   //     const { applicant, job_application } = req.body;
   //     const file = req.file;
 
-  //     console.log("File:", file);
+  //     
 
   //     // Validate foreign key reference for preferred location
   //     const location = await models.CareerLocations.findByPk(applicant?.preferred_location);
-  //     console.log("Preferred location:", location);
+  //     
   //     if (!location) {
   //       throw new CustomError("Preferred location not found", 404);
   //     }
@@ -417,7 +417,7 @@ class JobApplicationSubmissionController {
   //         where: { applicant_id: applicantRecord?.id },
   //       });
 
-  //       console.log("existingApplication", existingApplication);
+  //       
 
   //       // Prepare updated data
   //       const updatedData = {

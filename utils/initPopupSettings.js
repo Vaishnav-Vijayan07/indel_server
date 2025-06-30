@@ -7,7 +7,7 @@ const initPopupSettings = async () => {
     const existingSettings = await PopupSettings.findOne();
 
     if (existingSettings) {
-      console.log("Popup settings already exist");
+      
       return;
     }
 
@@ -23,7 +23,7 @@ const initPopupSettings = async () => {
       service_popup_appearence_time: 5,
     });
 
-    console.log("Popup settings initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Popup settings:", error.message);
   }

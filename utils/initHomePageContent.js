@@ -7,7 +7,7 @@ const initHomePageContent = async () => {
     const existingContent = await HomePageContent.findOne();
 
     if (existingContent) {
-      console.log("Home Page Content already exists");
+      
       return;
     }
 
@@ -48,7 +48,7 @@ const initHomePageContent = async () => {
       faq_section_super_title: "Got Questions?",
     });
 
-    console.log("Home Page Content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Home Page Content:", error.message);
   }

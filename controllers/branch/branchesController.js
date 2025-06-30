@@ -160,7 +160,7 @@ class BranchesController {
 
   static async importBranch(req, res, next) {
     try {
-      console.log("req.files ===>,", req.file);
+      
 
       if (!req.file) {
         return res.status(400).json({ message: "No file uploaded" });

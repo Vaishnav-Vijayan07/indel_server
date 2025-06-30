@@ -38,6 +38,7 @@ class BlogPageContentController {
       await content.update(updateData);
 
       await CacheService.invalidate("BlogPageContent");
+      await CacheService.invalidate("metaData:blog");
       res.json({ success: true, data: content, message: "Blog Page Content updated" });
     } catch (error) {
       next(error);

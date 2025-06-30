@@ -7,7 +7,7 @@ const initIndelValueContent = async () => {
     const existingContent = await IndelValueContent.findOne();
 
     if (existingContent) {
-      console.log("Indel Value Content already exists");
+      
       return;
     }
 
@@ -16,7 +16,7 @@ const initIndelValueContent = async () => {
       approach_title:"Our Approach",
     });
 
-    console.log("Indel Value Content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Indel Value Content:", error.message);
   }

@@ -96,7 +96,7 @@ class GoldLoanFeaturesController {
       const updateData = { ...req.body };
       const { is_center } = updateData;
 
-      console.log("Update Data:", updateData);
+      
 
       let oldIcon = feature.icon;
 

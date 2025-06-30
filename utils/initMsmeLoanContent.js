@@ -7,7 +7,7 @@ const initMsmeLoanContent = async () => {
     const existingContent = await MsmeLoanContent.findOne();
 
     if (existingContent) {
-      console.log("MSME Loan Page Content already exists");
+      
       return;
     }
 
@@ -39,7 +39,7 @@ const initMsmeLoanContent = async () => {
       msme_loan_overview_description: "Get a quick insight into eligibility, loan terms, and how we help businesses thrive with our offerings.",
     });
 
-    console.log("MSME Loan Content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize MSME Loan Content:", error.message);
   }

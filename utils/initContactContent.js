@@ -7,7 +7,7 @@ const initContactContent = async () => {
     const existingContent = await ContactContent.findOne();
 
     if (existingContent) {
-      console.log("Contact content already exists");
+      
       return;
     }
 
@@ -22,7 +22,7 @@ const initContactContent = async () => {
       faq_title: "Frequently Asked Questions",
     });
 
-    console.log("Contact content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize contact content:", error.message);
   }

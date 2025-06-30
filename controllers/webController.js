@@ -22,8 +22,8 @@ class WebController {
         // Store in session for future requests
         req.session.stateId = stateId;
         req.session.stateName = stateName;
-        console.log("hited here");
-        console.log("session ======>", req.session);
+        
+        
       } catch (error) {
         console.error("Failed to resolve geolocation:", error.message);
       }
@@ -33,7 +33,7 @@ class WebController {
     try {
       const cachedData = await CacheService.get(cacheKey);
       // if (cachedData) {
-      //   // console.log(`Serving home data from cache for stateId: ${stateId || "null"}`);
+      //   // 
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
@@ -167,7 +167,7 @@ class WebController {
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
-      console.log(`Fetched home data for stateId: ${stateId || "null"}`);
+      
       res.json({ status: "success", data });
     } catch (error) {
       console.error("Error fetching home data:", error.message);
@@ -1121,7 +1121,6 @@ class WebController {
           { model: models.CareerStates, as: "state", attributes: ["state_name"] },
         ],
         order: [["id", "ASC"]],
-        logging: console.log,
       });
 
       const data = {
@@ -1132,7 +1131,7 @@ class WebController {
       logger.info("Fetched Career Page data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      console.log(error);
+      
       logger.error("Error fetching Career Page data", { error: error.message, stack: error.stack });
       next(new CustomError("Failed to fetch Career Page data", 500, error.message));
     }
@@ -1262,7 +1261,7 @@ class WebController {
         attributes: ["id", "title", "description", "slug"],
       });
 
-      console.log(event);
+      
 
       const eventData = await models.EventGallery.findAndCountAll({
         where: {
@@ -1552,7 +1551,7 @@ class WebController {
       const settings = popUp[0] || null;
 
       const isBanner = settings?.is_banner || false;
-      console.log(isBanner);
+      
 
       const bannerPopupData = {
         banner_popup_disappear_time: settings?.banner_popup_disappear_time || null,
@@ -1727,7 +1726,7 @@ class WebController {
 
   static async policy(req, res, next) {
     const { type } = req.query;
-    console.log(type);
+    
     const cacheKey = `webPolicy${type}`;
     try {
       const cachedData = await CacheService.get(cacheKey);

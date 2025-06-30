@@ -124,7 +124,7 @@ class CsrController {
   //       throw new CustomError("csr not found", 404);
   //     }
 
-  //     console.log("Body ================>", req.body);
+  //     
 
   //     const updateData = { ...req.body };
   //     let oldImage = csr.image;
@@ -169,7 +169,7 @@ class CsrController {
         throw new CustomError("csr not found", 404);
       }
 
-      console.log("Body ================>", req.body);
+      
 
       let updateData = { ...req.body };
       let oldImage = csr.image;

@@ -7,7 +7,7 @@ const initGoldLoanContent = async () => {
     const existingContent = await GoldLoanContent.findOne();
 
     if (existingContent) {
-      console.log("Gold Loan content already exists");
+      
       return;
     }
 
@@ -31,7 +31,7 @@ const initGoldLoanContent = async () => {
       faq_title: "Frequently Asked Questions",
     });
 
-    console.log("Gold Loan content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Gold Loan content:", error.message);
   }

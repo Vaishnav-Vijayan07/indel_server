@@ -41,8 +41,8 @@ class LocationsController {
 
   static async getAllByStateDistrict(req, res, next) {
     try {
-      console.log('Calling getAllByStateDistrict');
-      console.log('QUERY', req.query);
+      
+      
       
       const { state_id, district_id } = req.query;
 

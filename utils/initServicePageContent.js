@@ -7,7 +7,7 @@ const initServicesPageContent = async () => {
     const existingContent = await ServicesPageContent.findOne();
 
     if (existingContent) {
-      console.log("Services Page Content already exists");
+      
       return;
     }
 
@@ -23,7 +23,7 @@ const initServicesPageContent = async () => {
       remit_section_button_link: "https://example.com/remittance",
     });
 
-    console.log("Services Page Content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Services Page Content:", error.message);
   }

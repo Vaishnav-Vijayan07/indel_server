@@ -7,7 +7,7 @@ const initCareerContents = async () => {
     const existingContent = await CareerContents.findOne();
 
     if (existingContent) {
-      console.log("Career content already exists");
+      
       return;
     }
 
@@ -36,7 +36,7 @@ const initCareerContents = async () => {
       testimonial_button_link: "https://example.com/testimonials",
     });
 
-    console.log("Career content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Career content:", error.message);
   }

@@ -11,7 +11,7 @@ const initBlogPageContent = async () => {
     const existingContent = await BlogPageContent.findOne();
 
     if (existingContent) {
-      console.log("Blog Page content already exists");
+      
       return;
     }
 
@@ -26,7 +26,7 @@ const initBlogPageContent = async () => {
       all_blogs_title: "All Blogs",
     });
 
-    console.log("Blog Page content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Blog Page content:", error.message);
   }
@@ -38,7 +38,7 @@ const initCSRPageContent = async () => {
     const existingContent = await CSRPageContent.findOne();
 
     if (existingContent) {
-      console.log("CSR Page content already exists");
+      
       return;
     }
 
@@ -53,7 +53,7 @@ const initCSRPageContent = async () => {
       all_csr_title: "All CSRs",
     });
 
-    console.log("CSR Page content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize CSR Page content:", error.message);
   }
@@ -65,7 +65,7 @@ const initAboutPageContent = async () => {
     const existingContent = await AboutPageContent.findOne();
 
     if (existingContent) {
-      console.log("About Page Content already exists");
+      
       return;
     }
 
@@ -100,7 +100,7 @@ const initAboutPageContent = async () => {
       life_at_indel_button_link: "/careers",
     });
 
-    console.log("About Page Content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize About Page Content:", error.message);
   }
@@ -111,7 +111,7 @@ const initDebtPartnersContent = async () => {
     const existingContent = await DebtPartnersContent.findOne();
 
     if (existingContent) {
-      console.log("Debt partners Content already exists");
+      
       return;
     }
 
@@ -120,7 +120,7 @@ const initDebtPartnersContent = async () => {
       super_title: "This is new super title",
     });
 
-    console.log("Debt partners content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize debt partners Content:", error.message);
   }
