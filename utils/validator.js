@@ -1396,9 +1396,6 @@ const validateIndelCaresContentUpdate = [
 ];
 
 const validateFooterContentUpdate = [
-  check("meta_title").optional().notEmpty().withMessage("Meta Title cannot be empty"),
-  check("meta_description").optional().notEmpty().withMessage("Meta Description cannot be empty"),
-  check("meta_keywords").optional().notEmpty().withMessage("Meta Keywords cannot be empty"),
   check("title").optional().notEmpty().withMessage("Title cannot be empty"),
   check("sub_title").optional().notEmpty().withMessage("Sub Title cannot be empty"),
   check("address").optional().notEmpty().withMessage("Address cannot be empty"),

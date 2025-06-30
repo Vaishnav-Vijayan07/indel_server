@@ -37,6 +37,7 @@ class GalleryPageContentController {
       await content.update(updateData);
 
       await CacheService.invalidate("galleryPageContent");
+      await CacheService.invalidate("metaData:career");
       res.json({ success: true, data: content, message: "Gallery Page Content updated" });
     } catch (error) {
       next(error);

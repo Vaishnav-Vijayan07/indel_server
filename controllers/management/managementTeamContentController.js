@@ -37,7 +37,9 @@ class ManagementTeamContentController {
       await content.update(updateData);
 
       await CacheService.invalidate("managementTeamContent");
-      res.json({ success: true, data: content,message: "Management Team Content updated" });
+      await CacheService.invalidate("metaData:management");
+
+      res.json({ success: true, data: content, message: "Management Team Content updated" });
     } catch (error) {
       next(error);
     }

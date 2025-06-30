@@ -12,9 +12,6 @@ const initFooterContent = async () => {
     }
 
     await FooterContent.create({
-      meta_title: "Indel Money - Footer",
-      meta_description: "Contact and connect with Indel Money through our footer links and social media.",
-      meta_keywords: "footer, contact, social media, Indel Money",
       title: "Indel Money",
       logo: null,
       news_letter_title: "Subscribe to Indels Newsletter",

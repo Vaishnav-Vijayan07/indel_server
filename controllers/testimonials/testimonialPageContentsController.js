@@ -34,6 +34,7 @@ class TestimonialPageContentsController {
       }
 
       await CacheService.invalidate("TestimonialPageContents");
+      await CacheService.invalidate("metaData:testimonials");
       res.json({ success: true, data: testimonialPageContent, message: "Testimonial Page Content updated" });
     } catch (error) {
       next(error);

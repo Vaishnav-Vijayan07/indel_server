@@ -12,9 +12,6 @@ const initHeaderContents = async () => {
     }
 
     await HeaderContents.create({
-      meta_title: "Meta Title",
-      meta_description: "Meta Description",
-      meta_keywords: "Meta Keywords",
       logo: null,
       button_1_text: "Get Started",
       button_1_inner_title: "Apply Now",

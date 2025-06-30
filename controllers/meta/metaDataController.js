@@ -11,6 +11,12 @@ const typeToDbMap = {
   lap: models.LoanAgainstPropertyContent,
   career: models.CareersContent,
   gallery: models.GalleryPageContent,
+  testimonials: models.TestimonialPageContent,
+  management: models.ManagementTeamContent,
+  directors: models.DirectorsContent,
+  partners: models.DebtPartnersContent,
+  history:models.HistoryPageContent,
+  shades: models.ShadesOfIndelContent,
 };
 
 class MetaDataController {

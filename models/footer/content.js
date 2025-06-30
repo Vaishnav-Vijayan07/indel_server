@@ -9,18 +9,6 @@ module.exports = (sequelize) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      meta_title: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      meta_description: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      meta_keywords: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
       title: {
         type: DataTypes.STRING,
         allowNull: true,
