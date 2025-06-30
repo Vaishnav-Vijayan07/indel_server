@@ -21,6 +21,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      other_meta: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
       gold_rate_icon: {
         type: DataTypes.STRING,
         allowNull: true, // Allow null since icon is uploaded later

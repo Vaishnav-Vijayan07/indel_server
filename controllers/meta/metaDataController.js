@@ -34,7 +34,7 @@ class MetaDataController {
       }
       await cacheService.set(cacheKey, JSON.stringify(metaData));
       console.log(`Cache miss for ${page}, setting cache`);
-      return res.status(200).json(metaData);
+      return res.json({ status: "success", metaData });
     } catch (error) {
       logger.error(`Error fetching meta data for ${page}: ${error.message}`);
       next(error);
