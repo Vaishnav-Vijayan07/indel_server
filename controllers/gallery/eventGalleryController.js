@@ -4,14 +4,19 @@ const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
 const fs = require("fs").promises;
 const path = require("path");
-
 const EventGallery = models.EventGallery;
 
 class EventGalleryController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
+      const absolutePath = path.join(
+        __dirname,
+        "..",
+        "..",
+        "uploads",
+        filePath.replace("/uploads/", "")
+      );
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {
@@ -39,10 +44,16 @@ class EventGalleryController {
       const eventGallery = await EventGallery.create(data);
       await CacheService.invalidate("EventGallery");
       await CacheService.invalidate("webEventGallery");
-      res.status(201).json({ success: true, data: eventGallery, message: "Event Gallery item created" });
+      res.status(201).json({
+        success: true,
+        data: eventGallery,
+        message: "Event Gallery item created",
+      });
     } catch (error) {
       if (req.file) {
-        await EventGalleryController.deleteFile(`/uploads/event-gallery/${req.file.filename}`);
+        await EventGalleryController.deleteFile(
+          `/uploads/event-gallery/${req.file.filename}`
+        );
       }
       next(error);
     }
@@ -108,18 +119,25 @@ class EventGalleryController {
       if (req.files) {
         if (req.files.image) {
           updateData.image = `/uploads/event-gallery/${req.files.image[0].filename}`;
-          Logger.info(`Updated image for testimonial ID ${id}: ${updateData.image}`);
-          if (oldImage) await TestimonialsController.deleteFile(oldImage);
+          Logger.info(
+            `Updated image for testimonial ID ${id}: ${updateData.image}`
+          );
+          if (oldImage) await EventGalleryController.deleteFile(oldImage);
         }
         if (req.files.video) {
           updateData.video = `/uploads/event-gallery/${req.files.video[0].filename}`;
-          Logger.info(`Updated video for testimonial ID ${id}: ${updateData.video}`);
-          if (oldVideo) await TestimonialsController.deleteFile(oldVideo);
+          Logger.info(
+            `Updated video for testimonial ID ${id}: ${updateData.video}`
+          );
+          if (oldVideo) await EventGalleryController.deleteFile(oldVideo);
         }
         if (req.files.video_thumbnail) {
           updateData.video_thumbnail = `/uploads/event-gallery/${req.files.video_thumbnail[0].filename}`;
-          Logger.info(`Updated video_thumbnail for testimonial ID ${id}: ${updateData.video_thumbnail}`);
-          if (oldVideoThumbnail) await TestimonialsController.deleteFile(oldVideoThumbnail);
+          Logger.info(
+            `Updated video_thumbnail for testimonial ID ${id}: ${updateData.video_thumbnail}`
+          );
+          if (oldVideoThumbnail)
+            await EventGalleryController.deleteFile(oldVideoThumbnail);
         }
       }
 
@@ -127,10 +145,16 @@ class EventGalleryController {
       await CacheService.invalidate("EventGallery");
       await CacheService.invalidate("webEventGallery");
       await CacheService.invalidate(`eventGallery_${id}`);
-      res.json({ success: true, data: eventGallery, message: "Event Gallery item updated" });
+      res.json({
+        success: true,
+        data: eventGallery,
+        message: "Event Gallery item updated",
+      });
     } catch (error) {
       if (req.file) {
-        await EventGalleryController.deleteFile(`/uploads/event-gallery/${req.file.filename}`);
+        await EventGalleryController.deleteFile(
+          `/uploads/event-gallery/${req.file.filename}`
+        );
       }
       next(error);
     }
@@ -154,7 +178,11 @@ class EventGalleryController {
       await CacheService.invalidate("EventGallery");
       await CacheService.invalidate("webEventGallery");
       await CacheService.invalidate(`eventGallery_${id}`);
-      res.json({ success: true, message: "Event Gallery item deleted", data: id });
+      res.json({
+        success: true,
+        message: "Event Gallery item deleted",
+        data: id,
+      });
     } catch (error) {
       next(error);
     }

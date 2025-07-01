@@ -6,6 +6,25 @@ const Logger = require("../../services/logger");
 const EventTypes = models.EventTypes;
 
 class EventTypesController {
+    static async deleteFile(filePath) {
+    if (!filePath) return;
+    try {
+      const absolutePath = path.join(
+        __dirname,
+        "..",
+        "..",
+        "uploads",
+        filePath.replace("/uploads/", "")
+      );
+      await fs.unlink(absolutePath);
+      Logger.info(`Deleted file: ${filePath}`);
+    } catch (error) {
+      if (error.code !== "ENOENT") {
+        Logger.error(`Failed to delete file ${filePath}: ${error.message}`);
+      }
+    }
+  }
+
   static async create(req, res, next) {
     try {
       const data = { ...req.body };
