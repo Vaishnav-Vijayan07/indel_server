@@ -116,6 +116,7 @@ const defineFloatButtons = require("./floatButtons/buttons");
 const defineAnnouncement = require("./homePage/announcement");
 const defineLapContent = require("./Lap/content");
 const defineLapProducts = require("./Lap/products");
+const defineCareerMeta = require("./career/careerMeta");
 
 const models = {
   User: defineUser(sequelize),
@@ -236,6 +237,7 @@ const models = {
   Announcement: defineAnnouncement(sequelize),
   LapContent: defineLapContent(sequelize),
   LapProducts: defineLapProducts(sequelize),
+  CareerMeta: defineCareerMeta(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {

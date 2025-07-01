@@ -1294,6 +1294,55 @@ class WebController {
     }
   }
 
+  static async galleryItems(req, res, next) {
+    const { slug } = req.query;
+    try {
+      const events = await models.EventTypes.findAll({
+        where: { slug: { [Op.ne]: slug } },
+        include: [
+          {
+            model: models.EventGallery,
+            as: "galleryItems",
+            attributes: ["id", "image", "video", "is_video", "order", "image_alt", "video_thumbnail", "thumbnail_alt", "createdAt"],
+            order: [["order", "ASC"]],
+          },
+        ],
+        logging: console.log,
+      });
+
+      const galleryItems = events
+        ?.map((eventType) => {
+          const images = (eventType.galleryItems || []).map((gallery) => gallery.image).filter((img) => img);
+
+          const video_thumbs = (eventType.galleryItems || []).map((gallery) => gallery.video_thumbnail).filter((vid) => vid);
+
+          let thumbnails = [...images, ...video_thumbs];
+
+          if (thumbnails.length === 0) {
+            thumbnails = [eventType.cover_image];
+          }
+
+          return {
+            title: eventType.title,
+            description: eventType.description,
+            thumbnails,
+            slug: eventType.slug,
+            alt: eventType.image_alt,
+          };
+        })
+        .filter((item) => item.thumbnails.length > 0);
+
+      const data = {
+        galleryItems: galleryItems || [],
+      };
+      console.log("Fetched More gallery data from DB");
+      res.status(200).json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching event gallery data", { error: error.message, stack: error.stack });
+      res.json({ success: false, error: { message: error.message, stack: error.stack } });
+    }
+  }
+
   static async Awards(req, res, next) {
     const cacheKey = "webAwards";
 

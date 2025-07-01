@@ -9,7 +9,6 @@ const typeToDbMap = {
   msme: models.MsmeLoanContent,
   cdloan: models.CdLoanContent,
   lap: models.LoanAgainstPropertyContent,
-  career: models.CareersContent,
   gallery: models.GalleryPageContent,
   testimonials: models.TestimonialPageContent,
   management: models.ManagementTeamContent,
@@ -20,18 +19,46 @@ const typeToDbMap = {
   indelValues: models.IndelValueContent,
   services: models.ServiceContent,
   award: models.AwardPageContent,
+  contact: models.ContactContent,
+  gallery: models.GalleryPageContent,
   blog: models.BlogPageContent,
   blogItem: models.Blogs,
   newsItem: models.News,
   news: models.NewsPageContent,
+  branchlocator: models.BranchLocatorPageContents,
 };
 
 class MetaDataController {
   static async getMetaData(req, res, next) {
     const { page } = req.query;
-    if (!typeToDbMap[page]) {
+
+    if (!typeToDbMap[page] && page !== "career" && page !== "listings") {
       return res.status(404).json({ error: "Page type not found" });
     }
+
+    if (page === "career" || page === "listings") {
+      const cacheKey = `metaData:${page}`;
+      const cachedData = await cacheService.get(cacheKey);
+
+      if (cachedData) {
+        console.log(`Getting ${page} data from cache`);
+        return res.status(200).json({ status: "success", data: JSON.parse(cachedData) });
+      }
+
+      const metaData = await models.CareerMeta.findOne({
+        attributes: ["id", "meta_title", "meta_description", "meta_keywords"],
+        where: { type: page },
+      });
+
+      if (!metaData) {
+        return res.status(404).json({ error: "Meta data not found" });
+      }
+
+      await cacheService.set(cacheKey, JSON.stringify(metaData));
+      console.log(`Getting ${page} data from DB`);
+      return res.status(200).json({ status: "success", data: metaData });
+    }
+
     const cacheKey = `metaData:${page}`;
     try {
       const cachedData = await cacheService.get(cacheKey);
