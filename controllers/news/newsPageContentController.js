@@ -38,6 +38,7 @@ class NewsPageContentController {
       await content.update(updateData);
 
       await CacheService.invalidate("NewsPageContent");
+      await CacheService.invalidate("metaData:news");
       res.json({ success: true, data: content, message: "News Page Content updated" });
     } catch (error) {
       next(error);

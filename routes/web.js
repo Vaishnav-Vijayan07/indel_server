@@ -13,6 +13,7 @@ const uploadField = upload.single("file");
 const uploadApplicantFile = upload.single("applicant[file]");
 
 router.get("/meta", MetaDataController.getMetaData);
+router.get("/meta-slug", MetaDataController.getMetaForSlug);
 router.get("/home", WebController.getHomeData);
 router.get("/float-buttons", WebController.floatButtons);
 router.get("/about", WebController.aboutData);
@@ -60,6 +61,7 @@ router.get("/partners", WebController.partners);
 router.get("/partner-data", WebController.partnersData);
 router.get("/directors", WebController.directors);
 router.get("/policies", WebController.policy);
+router.get("/branch-locator", WebController.branchLocator);
 
 router.post("/career/resume", uploadField, JobApplicationsController.create);
 router.get("/career/resume", uploadField, JobApplicationsController.getAll);

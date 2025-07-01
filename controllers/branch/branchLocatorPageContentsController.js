@@ -33,6 +33,7 @@ class BranchLocatorPageContentsController {
       }
 
       await CacheService.invalidate("BranchLocatorPageContents");
+      await CacheService.invalidate("webBranchLocatorData");
       res.json({ success: true, data: branchLocatorPageContent, message: "Branch Locator Page Content updated" });
     } catch (error) {
       next(error);

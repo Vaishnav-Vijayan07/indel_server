@@ -22,8 +22,6 @@ class WebController {
         // Store in session for future requests
         req.session.stateId = stateId;
         req.session.stateName = stateName;
-        
-        
       } catch (error) {
         console.error("Failed to resolve geolocation:", error.message);
       }
@@ -33,7 +31,7 @@ class WebController {
     try {
       const cachedData = await CacheService.get(cacheKey);
       // if (cachedData) {
-      //   // 
+      //   //
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
@@ -167,7 +165,7 @@ class WebController {
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
-      
+
       res.json({ status: "success", data });
     } catch (error) {
       console.error("Error fetching home data:", error.message);
@@ -1131,7 +1129,6 @@ class WebController {
       logger.info("Fetched Career Page data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      
       logger.error("Error fetching Career Page data", { error: error.message, stack: error.stack });
       next(new CustomError("Failed to fetch Career Page data", 500, error.message));
     }
@@ -1260,8 +1257,6 @@ class WebController {
         where: { slug },
         attributes: ["id", "title", "description", "slug"],
       });
-
-      
 
       const eventData = await models.EventGallery.findAndCountAll({
         where: {
@@ -1551,7 +1546,6 @@ class WebController {
       const settings = popUp[0] || null;
 
       const isBanner = settings?.is_banner || false;
-      
 
       const bannerPopupData = {
         banner_popup_disappear_time: settings?.banner_popup_disappear_time || null,
@@ -1726,7 +1720,7 @@ class WebController {
 
   static async policy(req, res, next) {
     const { type } = req.query;
-    
+
     const cacheKey = `webPolicy${type}`;
     try {
       const cachedData = await CacheService.get(cacheKey);
@@ -1869,6 +1863,33 @@ class WebController {
     } catch (error) {
       logger.error("Error fetching news details", { error: error.message, stack: error.stack });
       next(new CustomError("Failed to fetch news details", 500, error.message));
+    }
+  }
+
+  static async branchLocator(req, res, next) {
+    const cacheKey = "webBranchLocatorData";
+
+    try {
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        logger.info("Serving branch locator data from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
+
+      const branchLocatorData = await models.BranchLocatorPageContents.findAll({
+        attributes: ["id", "title", "description"],
+      });
+
+      const data = {
+        branchLocatorData: branchLocatorData[0] || null,
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+      logger.info("Fetched branch locator data from DB");
+      res.json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching branch locator data", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch branch locator data", 500, error.message));
     }
   }
 }

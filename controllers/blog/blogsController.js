@@ -205,6 +205,7 @@ class BlogsController {
 
       await CacheService.invalidate("blogs");
       await CacheService.invalidate(`blog_${id}`);
+      await CacheService.invalidate(`metaData:blogItem:${id}`);
 
       res.json({ success: true, data: blog, message: "Blog updated" });
     } catch (error) {
