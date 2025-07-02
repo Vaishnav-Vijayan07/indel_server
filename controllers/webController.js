@@ -1163,6 +1163,7 @@ class WebController {
     // Build where conditions for EventTypes
     const eventTypeWhere = {
       is_active: true,
+      is_slider: true,
     };
 
     try {
@@ -1172,8 +1173,13 @@ class WebController {
       //   return res.json({ success: true, data: JSON.parse(cachedData) });
       // }
 
-      const [contents, eventMedias] = await Promise.all([
+      const [contents, events, eventMedias] = await Promise.all([
         models.GalleryPageContent.findAll(),
+        models.EventTypes.findAll({
+          where: eventTypeWhere,
+          attributes: ["id", "title", "description", "slug", "cover_image", "image_alt"], // Add desired attributes here
+          order: [["order", "ASC"]],
+        }),
         models.EventTypes.findAndCountAll({
           where: eventTypeWhere,
           order: [["order", "ASC"]],
@@ -1210,17 +1216,15 @@ class WebController {
         })
         .filter((item) => item.thumbnails.length > 0);
 
-      const mainSliderItems = eventMedias?.rows
-        .filter((event) => event.is_slider)
-        .map((event) => {
-          return {
-            title: event.title,
-            description: event.description,
-            gallery: event?.cover_image,
-            alt: event?.image_alt,
-            slug: event.slug,
-          };
-        });
+      const mainSliderItems = events.map((event) => {
+        return {
+          title: event.title,
+          description: event.description,
+          gallery: event?.cover_image,
+          alt: event?.image_alt,
+          slug: event.slug,
+        };
+      });
 
       const data = {
         galleryPageContent: contents[0] || null,
@@ -1307,7 +1311,11 @@ class WebController {
             order: [["order", "ASC"]],
           },
         ],
-        logging: console.log,
+      });
+
+      const currentEvent = await models.EventTypes.findOne({
+        where: { slug },
+        attributes: ["id", "slug", "description"],
       });
 
       const galleryItems = events
@@ -1334,6 +1342,7 @@ class WebController {
 
       const data = {
         galleryItems: galleryItems || [],
+        description: currentEvent?.description,
       };
       console.log("Fetched More gallery data from DB");
       res.status(200).json({ status: "success", data });
