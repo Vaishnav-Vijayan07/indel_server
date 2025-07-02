@@ -47,7 +47,7 @@ class LocationsController {
       const { state_id, district_id } = req.query;
 
       const cacheKey = "locations";
-      const cachedData = await CacheService.get(cacheKey);
+      // const cachedData = await CacheService.get(cacheKey);
 
       if (cachedData) {
         return res.json({ success: true, data: JSON.parse(cachedData) });
