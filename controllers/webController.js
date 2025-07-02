@@ -1564,6 +1564,8 @@ class WebController {
             "button_2_text",
             "apple_dowload_icon",
             "andrioid_download_icon",
+            "apple_download_icon_mobile",
+            "andrioid_download_icon_mobile",
             "apple_dowload_link",
             "andrioid_download_link",
           ],
@@ -1601,11 +1603,11 @@ class WebController {
           link: footerContent[0]?.branch_locator_link,
         },
         {
-          icon: content[0]?.apple_dowload_icon,
+          icon: content[0]?.apple_download_icon_mobile,
           link: content[0]?.apple_dowload_link,
         },
         {
-          icon: content[0]?.andrioid_download_icon,
+          icon: content[0]?.andrioid_download_icon_mobile,
           link: content[0]?.andrioid_download_link,
         },
       ];
