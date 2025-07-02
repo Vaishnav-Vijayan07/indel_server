@@ -28,10 +28,14 @@ module.exports = (sequelize) => {
       },
       image_alt: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: true,
       },
- order: {
+      order: {
         type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      is_active: {
+        type: DataTypes.BOOLEAN,
         allowNull: true,
       },
     },
