@@ -805,7 +805,7 @@ class WebController {
           where: { is_active: true },
           order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
         }),
-        models.HomeLoanStep.findAll(),
+        models.HomeLoanStep.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }),
       ]);
 
       // Group scheme details under their respective schemes
@@ -1166,6 +1166,7 @@ class WebController {
     // Build where conditions for EventTypes
     const eventTypeWhere = {
       is_active: true,
+      is_slider: true,
     };
 
     try {
@@ -1175,8 +1176,13 @@ class WebController {
       //   return res.json({ success: true, data: JSON.parse(cachedData) });
       // }
 
-      const [contents, eventMedias] = await Promise.all([
+      const [contents, events, eventMedias] = await Promise.all([
         models.GalleryPageContent.findAll(),
+        models.EventTypes.findAll({
+          where: eventTypeWhere,
+          attributes: ["id", "title", "description", "slug", "cover_image", "image_alt"], // Add desired attributes here
+          order: [["order", "ASC"]],
+        }),
         models.EventTypes.findAndCountAll({
           where: eventTypeWhere,
           order: [["order", "ASC"]],
@@ -1213,17 +1219,15 @@ class WebController {
         })
         .filter((item) => item.thumbnails.length > 0);
 
-      const mainSliderItems = eventMedias?.rows
-        .filter((event) => event.is_slider)
-        .map((event) => {
-          return {
-            title: event.title,
-            description: event.description,
-            gallery: event?.cover_image,
-            alt: event?.image_alt,
-            slug: event.slug,
-          };
-        });
+      const mainSliderItems = events.map((event) => {
+        return {
+          title: event.title,
+          description: event.description,
+          gallery: event?.cover_image,
+          alt: event?.image_alt,
+          slug: event.slug,
+        };
+      });
 
       const data = {
         galleryPageContent: contents[0] || null,
@@ -1290,6 +1294,60 @@ class WebController {
       };
 
       logger.info("Fetched event gallery data from DB");
+      res.status(200).json({ status: "success", data });
+    } catch (error) {
+      logger.error("Error fetching event gallery data", { error: error.message, stack: error.stack });
+      res.json({ success: false, error: { message: error.message, stack: error.stack } });
+    }
+  }
+
+  static async galleryItems(req, res, next) {
+    const { slug } = req.query;
+    try {
+      const events = await models.EventTypes.findAll({
+        where: { slug: { [Op.ne]: slug } },
+        include: [
+          {
+            model: models.EventGallery,
+            as: "galleryItems",
+            attributes: ["id", "image", "video", "is_video", "order", "image_alt", "video_thumbnail", "thumbnail_alt", "createdAt"],
+            order: [["order", "ASC"]],
+          },
+        ],
+      });
+
+      const currentEvent = await models.EventTypes.findOne({
+        where: { slug },
+        attributes: ["id", "slug", "description"],
+      });
+
+      const galleryItems = events
+        ?.map((eventType) => {
+          const images = (eventType.galleryItems || []).map((gallery) => gallery.image).filter((img) => img);
+
+          const video_thumbs = (eventType.galleryItems || []).map((gallery) => gallery.video_thumbnail).filter((vid) => vid);
+
+          let thumbnails = [...images, ...video_thumbs];
+
+          if (thumbnails.length === 0) {
+            thumbnails = [eventType.cover_image];
+          }
+
+          return {
+            title: eventType.title,
+            description: eventType.description,
+            thumbnails,
+            slug: eventType.slug,
+            alt: eventType.image_alt,
+          };
+        })
+        .filter((item) => item.thumbnails.length > 0);
+
+      const data = {
+        galleryItems: galleryItems || [],
+        description: currentEvent?.description,
+      };
+      console.log("Fetched More gallery data from DB");
       res.status(200).json({ status: "success", data });
     } catch (error) {
       logger.error("Error fetching event gallery data", { error: error.message, stack: error.stack });

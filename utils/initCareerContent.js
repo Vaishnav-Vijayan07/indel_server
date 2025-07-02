@@ -7,14 +7,10 @@ const initCareerContents = async () => {
     const existingContent = await CareerContents.findOne();
 
     if (existingContent) {
-      
       return;
     }
 
     await CareerContents.create({
-      meta_title: "Careers at Our Company",
-      meta_description: "Explore exciting career opportunities and join our dynamic team.",
-      meta_keywords: "careers, jobs, employment, opportunities",
       page_title: "Careers",
       find_job_title: "Find Your Dream Job",
       find_job_button_name: "Browse Jobs",
@@ -35,8 +31,6 @@ const initCareerContents = async () => {
       testimonial_button_name: "Read More",
       testimonial_button_link: "https://example.com/testimonials",
     });
-
-    
   } catch (error) {
     console.error("Failed to initialize Career content:", error.message);
   }

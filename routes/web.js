@@ -39,6 +39,7 @@ router.get("/career", WebController.CareerPage);
 router.get("/career-active-jobs", WebController.ActiveJobs);
 router.get("/event-gallery", WebController.eventGallery);
 router.get("/event", WebController.event);
+router.get("/more-events", WebController.galleryItems);
 router.get("/awards", WebController.Awards);
 router.get("/investors/report", InvestorsController.AnnualReports);
 router.get("/investors/contact", InvestorsController.contact);
