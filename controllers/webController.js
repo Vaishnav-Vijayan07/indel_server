@@ -802,7 +802,7 @@ class WebController {
           where: { is_active: true },
           order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
         }),
-        models.HomeLoanStep.findAll(),
+        models.HomeLoanStep.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }),
       ]);
 
       // Group scheme details under their respective schemes
