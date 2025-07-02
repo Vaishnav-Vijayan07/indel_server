@@ -49,11 +49,27 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      icon_section_link: {
+      branch_locator_text: {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      icon_section_text: {
+      branch_locator_link: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      branch_locator_icon_mobile: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      branch_locator_icon_web: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      toll_free_icon_mobile: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      toll_free_icon_web: {
         type: DataTypes.STRING,
         allowNull: true,
       },

@@ -26,9 +26,9 @@ class FooterContentController {
       const cacheKey = "FooterContent";
       const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
 
       const content = await FooterContent.findOne();
       if (!content) {
@@ -50,15 +50,25 @@ class FooterContentController {
       }
 
       const updateData = { ...req.body };
-      let oldLogo = content.logo;
+      const fieldsToUpdate = ["logo", "branch_locator_icon_mobile", "branch_locator_icon_web", "toll_free_icon_mobile", "toll_free_icon_web"];
 
-      if (req.file) {
-        updateData.logo = `/uploads/footer-content/${req.file.filename}`;
-        Logger.info(`Updated logo for FooterContent: ${updateData.logo}`);
-        if (oldLogo) {
-          await FooterContentController.deleteFile(oldLogo);
+      const oldImages = {
+        logo: content.logo,
+        branch_locator_icon_mobile: content.branch_locator_icon_mobile,
+        branch_locator_icon_web: content.branch_locator_icon_web,
+        toll_free_icon_mobile: content.toll_free_icon_mobile,
+        toll_free_icon_web: content.toll_free_icon_web,
+      };
+
+      fieldsToUpdate.forEach((field) => {
+        if (req.files?.[field]?.[0]?.filename) {
+          updateData[field] = `/uploads/footer-content/${req.files[field][0].filename}`;
+          Logger.info(`Updated ${field} for FooterContent: ${updateData[field]}`);
+          if (oldImages[field]) {
+            FooterContentController.deleteFile(oldImages[field]);
+          }
         }
-      }
+      });
 
       await content.update(updateData);
 

@@ -217,7 +217,6 @@ class WebController {
       const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks, teamMessages, serviceImages, statsData, accolades] = await Promise.all([
         models.AboutBanner.findAll({
           where: {
-
             is_active: true,
           },
           order: [["order", "ASC"]],
@@ -225,7 +224,7 @@ class WebController {
         }),
         models.AboutPageContent.findAll(),
         models.AboutLifeAtIndelGallery.findAll({
-          where: {is_active: true},
+          where: { is_active: true },
           order: [["order", "ASC"]],
         }),
         models.AboutQuickLinks.findAll({
@@ -236,7 +235,7 @@ class WebController {
         }),
         models.AboutServiceGallery.findAll(),
         models.AboutStatistics.findAll({
-          where: {is_active: true},
+          where: { is_active: true },
           order: [["order", "ASC"]],
           limit: 4,
         }),
@@ -1526,7 +1525,7 @@ class WebController {
       const [content, icons] = await Promise.all([
         models.FooterContent.findAll(),
         models.SocialMediaIcons.findAll({
-          where: { is_active: true },
+          where: { is_active: true, icon_type: "web" },
           order: [["order", "ASC"]],
         }),
       ]);
@@ -1554,7 +1553,7 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, footerContent, modes] = await Promise.all([
+      const [content, footerContent, modes, socialMediaLinks] = await Promise.all([
         models.HeaderContents.findAll({
           attributes: [
             "id",
@@ -1570,18 +1569,53 @@ class WebController {
           ],
         }),
         models.FooterContent.findAll({
-          attributes: ["id", "icon_section_link", "icon_section_text", "toll_free_num"],
+          attributes: [
+            "id",
+            "toll_free_num",
+            "branch_locator_link",
+            "branch_locator_icon_mobile",
+            "branch_locator_icon_web",
+            "toll_free_icon_mobile",
+            "toll_free_icon_web",
+          ],
         }),
         models.PaymentModes.findAll({
           attributes: ["id", "is_active", "title", "link"],
           where: { is_active: true },
           order: [["order", "ASC"]],
         }),
+        models.SocialMediaIcons.findAll({
+          attributes: ["id", "link", "title", "icon"],
+          where: { is_active: true, icon_type: "mobile" },
+          order: [["order", "ASC"]],
+        }),
       ]);
+
+      const quickLinks = [
+        {
+          icon: footerContent[0]?.toll_free_icon_mobile,
+          link: `tel:${footerContent[0]?.toll_free_num}`,
+        },
+        {
+          icon: footerContent[0]?.branch_locator_icon_mobile,
+          link: footerContent[0]?.branch_locator_link,
+        },
+        {
+          icon: content[0]?.apple_dowload_icon,
+          link: content[0]?.apple_dowload_link,
+        },
+        {
+          icon: content[0]?.andrioid_download_icon,
+          link: content[0]?.andrioid_download_link,
+        },
+      ];
+
       const data = {
         content: content[0] || null,
         footerContent: footerContent[0] || null,
         modes,
+        socialMediaLinks,
+        quickLinks,
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
