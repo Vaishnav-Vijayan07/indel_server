@@ -37,6 +37,14 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      apple_download_icon_mobile: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      andrioid_download_icon_mobile: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       apple_dowload_link: {
         type: DataTypes.STRING,
         allowNull: true,

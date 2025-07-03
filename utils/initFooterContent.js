@@ -7,7 +7,6 @@ const initFooterContent = async () => {
     const existingContent = await FooterContent.findOne();
 
     if (existingContent) {
-      
       return;
     }
 
@@ -22,12 +21,13 @@ const initFooterContent = async () => {
       button_1_link: "https://indelmoney.com/contact",
       button_2_text: "Learn More",
       button_2_link: "https://indelmoney.com/about",
-      icon_section_link: "https://indelmoney.com/services",
-      icon_section_text: "Explore Our Services",
+      branch_locator_link: "https://indelmoney.com/branch-locator",
+      branch_locator_icon_mobile: null,
+      branch_locator_icon_web: null,
+      toll_free_icon_mobile: null,
+      toll_free_icon_web: null,
       social_media_text: "Follow Us on Social Media",
     });
-
-    
   } catch (error) {
     console.error("Failed to initialize Footer content:", error.message);
   }

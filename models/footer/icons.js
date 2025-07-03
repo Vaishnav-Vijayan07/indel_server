@@ -21,6 +21,11 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      icon_type: {
+        type: DataTypes.ENUM,
+        values: ["mobile", "web"],
+        allowNull: true,
+      },
       is_active: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
