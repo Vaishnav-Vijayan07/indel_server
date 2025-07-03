@@ -785,7 +785,10 @@ class WebController {
           throw err;
         }),
         models.GoldLoanFeatures.findAll(),
-        models.GoldloanBannerFeatures.findAll(),
+        models.GoldloanBannerFeatures.findAll({
+          where: { is_active: true },
+          order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
+        }),
         models.ServiceBenefit.findAll({
           where: { is_active: true, service_id: service?.id },
           order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
