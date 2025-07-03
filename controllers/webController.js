@@ -1373,11 +1373,11 @@ class WebController {
       ]);
 
       const slideItems = awards?.filter((award) => award.is_slide);
-      const nonSlideItems = awards?.filter((award) => !award.is_slide);
+      // const nonSlideItems = awards?.filter((award) => !award.is_slide);
       const data = {
         awardPageContent: awardPageContent[0] || null,
         slideItems,
-        nonSlideItems,
+        nonSlideItems: awards,
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
