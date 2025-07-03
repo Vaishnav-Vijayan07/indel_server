@@ -83,8 +83,6 @@ class WebController {
             throw err;
           }),
           models.Awards.findAll({
-            where: { is_active: true },
-            order: [["order", "ASC"]],
             attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
           }).catch((err) => {
             console.error("Failed to fetch lifeAtIndel:", err.message);
@@ -148,6 +146,9 @@ class WebController {
         services: popupServices,
       };
 
+      const banners = heroBanner?.filter((banner) => banner?.banner_type === "web");
+      const mobileBanners = heroBanner?.filter((banner) => banner?.banner_type === "mobile");
+
       const data = {
         branchLocatorData: branchLocatorData[0] || null,
         smartMoneyDeals,
@@ -156,7 +157,8 @@ class WebController {
         service: !isBanner ? servicePopupData : null,
         lifeAtIndel,
         blogs,
-        heroBanner,
+        heroBanner: banners,
+        mobileBanners,
         faqs,
         loanSteps,
         homeStatistics,
@@ -221,7 +223,7 @@ class WebController {
             is_active: true,
           },
           order: [["order", "ASC"]],
-          attributes: ["id", "title", "super_title", "image", "alt_text", "order", "is_active"],
+          attributes: ["id", "title", "super_title", "image", "alt_text", "order", "is_active", "banner_type"],
         }),
         models.AboutPageContent.findAll(),
         models.AboutLifeAtIndelGallery.findAll({
@@ -243,8 +245,12 @@ class WebController {
         models.AboutAccolades.findAll(),
       ]);
 
+      const banners = aboutBanner?.filter((banner) => banner?.banner_type === "web");
+      const mobileBanners = aboutBanner?.filter((banner) => banner?.banner_type === "mobile");
+
       const data = {
-        aboutBanner,
+        aboutBanner: banners,
+        mobileBanners,
         aboutContent: aboutContent[0] || null,
         lifeAtIndelImages,
         quickLinks,
@@ -1074,9 +1080,13 @@ class WebController {
       const textTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "text");
       const imageTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "video");
 
+      const banners = careerBanners?.filter((banner) => banner?.banner_type === "web");
+      const mobileBanners = careerBanners?.filter((banner) => banner?.banner_type === "mobile");
+
       const data = {
         careersContent: careersContent[0] || null,
-        careerBanners,
+        careerBanners:banners,
+        mobileBanners,
         careerGallery,
         careerStates,
         careerJobs,

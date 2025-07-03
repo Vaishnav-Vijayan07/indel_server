@@ -29,6 +29,11 @@ module.exports = (sequelize) => {
           key: "id",
         },
       },
+      banner_type: {
+        type: DataTypes.ENUM,
+        allowNull: true,
+        values: ["mobile", "web"],
+      },
       image: {
         type: DataTypes.STRING,
         allowNull: false,

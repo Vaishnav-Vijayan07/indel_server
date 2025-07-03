@@ -10,7 +10,7 @@ const States = models.CareerStates;
 class HeroBannerController {
   static async create(req, res, next) {
     try {
-      const { title, button_text, button_link, image_alt_text, is_active, order, state_id } = req.body;
+      const { title, button_text, button_link, image_alt_text, is_active, order, state_id, banner_type } = req.body;
       const image = req.file ? `/uploads/banner/${req.file.filename}` : null;
 
       if (!image) {
@@ -32,6 +32,7 @@ class HeroBannerController {
         image,
         image_alt_text,
         is_active,
+        banner_type,
         order,
       });
 
@@ -93,8 +94,6 @@ class HeroBannerController {
         // limit: Number(limit),
       });
 
-      
-
       await CacheService.set(cacheKey, JSON.stringify(banners), 3600);
       res.json({ success: true, data: banners });
     } catch (error) {
@@ -121,7 +120,7 @@ class HeroBannerController {
         throw new CustomError("HeroBanner not found", 404);
       }
 
-      const { title, button_text, button_link, location, image_alt_text, is_active, order, state_id } = req.body;
+      const { title, button_text, button_link, location, image_alt_text, is_active, order, state_id, banner_type } = req.body;
       const image = req.file ? `/uploads/banner/${req.file.filename}` : heroBanner.image;
 
       if (state_id) {
@@ -139,6 +138,7 @@ class HeroBannerController {
         image,
         image_alt_text,
         is_active,
+        banner_type,
         order,
       });
 
