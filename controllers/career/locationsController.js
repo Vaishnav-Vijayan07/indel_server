@@ -55,7 +55,7 @@ class LocationsController {
           // state_id: state_id,
           district_id: district_id,
         },
-        order: [["order", "ASC"]],
+        // order: [["order", "ASC"]],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(locations), 3600);
