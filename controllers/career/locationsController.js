@@ -24,9 +24,9 @@ class LocationsController {
       const cacheKey = "locations";
       const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
 
       const locations = await Locations.findAll({
         // order: [["order", "ASC"]],
