@@ -52,6 +52,8 @@ class HeaderContentsController {
       const updateData = { ...req.body };
       const oldAppleIcon = content.apple_dowload_icon;
       const oldAndroidIcon = content.andrioid_download_icon;
+      const oldAppleIconMobile = content.apple_dowload_icon_mobile;
+      const oldAndroidIconMobile = content.andrioid_download_icon_mobile;
       const oldLogo = content.logo;
 
       if (req.files?.logo) {
@@ -75,6 +77,22 @@ class HeaderContentsController {
         Logger.info(`Updated Android download icon for HeaderContents: ${updateData.andrioid_download_icon}`);
         if (oldAndroidIcon) {
           await HeaderContentsController.deleteFile(oldAndroidIcon);
+        }
+      }
+
+      if (req.files?.andrioid_download_icon_mobile) {
+        updateData.andrioid_download_icon_mobile = `/uploads/header-contents/${req.files.andrioid_download_icon_mobile[0].filename}`;
+        Logger.info(`Updated Android download icon for HeaderContents: ${updateData.andrioid_download_icon_mobile}`);
+        if (oldAndroidIcon) {
+          await HeaderContentsController.deleteFile(oldAndroidIconMobile);
+        }
+      }
+
+      if (req.files?.apple_download_icon_mobile) {
+        updateData.apple_download_icon_mobile = `/uploads/header-contents/${req.files.apple_download_icon_mobile[0].filename}`;
+        Logger.info(`Updated Android download icon for HeaderContents: ${updateData.apple_download_icon_mobile}`);
+        if (oldAndroidIcon) {
+          await HeaderContentsController.deleteFile(oldAppleIconMobile);
         }
       }
 

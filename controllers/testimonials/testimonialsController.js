@@ -66,7 +66,7 @@ class TestimonialsController {
         order: [[Testimonials.sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
       });
 
-      console.log(testimonials);
+      
 
       await CacheService.set(cacheKey, JSON.stringify(testimonials), 3600);
       res.json({ success: true, data: testimonials });
@@ -107,7 +107,7 @@ class TestimonialsController {
 
       const updateData = { ...req.body };
 
-      console.log(updateData);
+      
 
       const oldAvatar = testimonial.avatar;
       const oldVideo = testimonial.video;

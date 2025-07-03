@@ -73,6 +73,7 @@ class CdLoanContentController {
 
       await CacheService.invalidate("CdLoanContent");
       await CacheService.invalidate("webCDLoan");
+      await CacheService.invalidate("metaData:cdloan");
       res.json({ success: true, data: content, message: "Content updated" });
     } catch (error) {
       next(error);

@@ -18,7 +18,7 @@ cron.schedule(
   "0 0 * * 0",
   async () => {
     try {
-      console.log("Running file expiration check...");
+      
       const sixMonthsAgo = new Date();
       sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
@@ -32,11 +32,11 @@ cron.schedule(
       });
 
       if (!expiredApplicants.length) {
-        console.log("No expired files found.");
+        
         return;
       }
 
-      console.log(`Found ${expiredApplicants.length} expired resumes.`);
+      
       for (const applicant of expiredApplicants) {
         await transporter.sendMail({
           from: process.env.EMAIL_USER,
@@ -53,7 +53,7 @@ cron.schedule(
         });
 
         await applicant.update({ file: null, file_uploaded_at: null });
-        console.log(`Expired resume for ${applicant.email}, notification sent.`);
+        
       }
     } catch (error) {
       console.error("Error processing file expiration:", error);
@@ -64,4 +64,4 @@ cron.schedule(
   }
 );
 
-console.log("File expiration cron job started.");
+

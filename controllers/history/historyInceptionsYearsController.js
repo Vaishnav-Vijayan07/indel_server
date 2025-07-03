@@ -4,6 +4,7 @@ const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
 const fs = require("fs").promises;
 const path = require("path");
+const { Op } = require("sequelize");
 
 const HistoryInceptionsYears = models.HistoryInceptionsYears;
 
@@ -27,6 +28,16 @@ class HistoryInceptionYearsController {
       if (req.file) {
         updateData.image = `/uploads/history-inception-years/${req.file.filename}`;
         Logger.info(`Uploaded icon for HistoryInceptionsYears: ${updateData.image}`);
+      }
+
+      const { year } = updateData;
+
+      const isExisting = await HistoryInceptionsYears.findOne({
+        where: { year },
+      });
+
+      if (isExisting) {
+        throw new CustomError("Details with this year already exists", 400);
       }
 
       const step = await HistoryInceptionsYears.create(updateData);
@@ -75,7 +86,7 @@ class HistoryInceptionYearsController {
       }
 
       await CacheService.set(cacheKey, JSON.stringify(step), 3600);
-      res.json({ success: true, data: step});
+      res.json({ success: true, data: step });
     } catch (error) {
       next(error);
     }
@@ -87,6 +98,14 @@ class HistoryInceptionYearsController {
       const step = await HistoryInceptionsYears.findByPk(id);
       if (!step) {
         throw new CustomError("Year not found", 404);
+      }
+
+      const existingYear = await HistoryInceptionsYears.findOne({
+        where: { year: req.body.year, id: { [Op.ne]: id } },
+      });
+
+      if (existingYear) {
+        throw new CustomError("Details with this year already exists", 400);
       }
 
       const updateData = { ...req.body };
@@ -106,7 +125,7 @@ class HistoryInceptionYearsController {
       await CacheService.invalidate(`HistoryIncYear_${id}`);
       await CacheService.invalidate("webHistoryData");
 
-      res.json({ success: true, data: step,message: "Year updated"});
+      res.json({ success: true, data: step, message: "Year updated" });
     } catch (error) {
       next(error);
     }

@@ -13,7 +13,7 @@ class CareerContentsController {
     try {
       const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
       await fs.unlink(absolutePath);
-      console.log(absolutePath);
+      
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {
       if (error.code !== "ENOENT") {
@@ -53,9 +53,9 @@ class CareerContentsController {
       const updateData = { ...req.body };
 
       if (req.file) {
-        console.log(req.file);
+        
         updateData.make_your_move_image = `/uploads/career-contents/${req.file.filename}`;
-        console.log(content.make_your_move_image);
+        
         await CareerContentsController.deleteFile(content.make_your_move_image);
       }
 

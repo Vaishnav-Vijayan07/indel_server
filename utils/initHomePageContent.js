@@ -7,7 +7,7 @@ const initHomePageContent = async () => {
     const existingContent = await HomePageContent.findOne();
 
     if (existingContent) {
-      console.log("Home Page Content already exists");
+      
       return;
     }
 
@@ -24,8 +24,6 @@ const initHomePageContent = async () => {
       about_button_url: "/about",
       smart_deal_title: "This is <span>Deals</span>",
       step_title: "How It Works",
-      branch_section_title: "Our Branches",
-      branch_section_description: "Visit us at our multiple locations.",
       life_section_title: "Life at Our Company",
       life_section_description: "Join our vibrant community.",
       life_section_button_name_1: "Careers",
@@ -50,7 +48,7 @@ const initHomePageContent = async () => {
       faq_section_super_title: "Got Questions?",
     });
 
-    console.log("Home Page Content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Home Page Content:", error.message);
   }

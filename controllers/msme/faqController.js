@@ -24,7 +24,7 @@ class MsmeLoanFaqsController {
 
   static async getAll(req, res, next) {
     const { stateId } = req.query;
-    console.log("faqs", stateId);
+    
 
     try {
       const cacheKey = "msmeLoanFaqs";
@@ -45,7 +45,7 @@ class MsmeLoanFaqsController {
         order: [["order", "ASC"]],
       });
 
-      console.log("faqs", faqs);
+      
 
       await CacheService.set(cacheKey, JSON.stringify(faqs), 3600);
       res.json({ success: true, data: faqs });

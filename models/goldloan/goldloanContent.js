@@ -45,8 +45,20 @@ module.exports = (sequelize) => {
         type: DataTypes.TEXT,
         allowNull: true,
       },
+      eligibility_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       description: {
         type: DataTypes.STRING,
+        allowNull: true,
+      },
+      documentation_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      documentation_description: {
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       identity_proof_title: {
@@ -54,7 +66,7 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       identity_proof_description: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       address_proof: {
@@ -62,7 +74,7 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       address_proof_description: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       steps_image: {
@@ -81,7 +93,7 @@ module.exports = (sequelize) => {
         type: DataTypes.TEXT,
         allowNull: true,
       },
-       hassle_free_image: {
+      hassle_free_image: {
         type: DataTypes.STRING,
         allowNull: true,
       },

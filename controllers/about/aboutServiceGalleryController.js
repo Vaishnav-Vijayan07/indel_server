@@ -12,7 +12,7 @@ class AboutServiceGalleryController {
     if (!filePath) return;
     try {
       const absolutePath = path.join(__dirname, "..","..", "uploads", filePath.replace("/uploads/", ""));
-      console.log(`Deleting file: ${absolutePath}`);
+      
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {

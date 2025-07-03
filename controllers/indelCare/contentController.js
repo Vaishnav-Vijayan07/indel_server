@@ -19,7 +19,7 @@ class IndelCaresContentController {
                 throw new CustomError("Indel Cares Content not found", 404);
             }
 
-            console.log(content)
+            
 
             await CacheService.set(cacheKey, JSON.stringify(content), 3600);
             res.json({ success: true, data: content });

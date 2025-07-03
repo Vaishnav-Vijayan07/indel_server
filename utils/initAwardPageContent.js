@@ -7,7 +7,7 @@ const initAwardPageContent = async () => {
     const existingContent = await AwardPageContent.findOne();
 
     if (existingContent) {
-      console.log("Award Page Content already exists");
+      
       return;
     }
 
@@ -19,7 +19,7 @@ const initAwardPageContent = async () => {
       all_awards_title: "All Our Achievements",
     });
 
-    console.log("Award Page Content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Award Page Content:", error.message);
   }

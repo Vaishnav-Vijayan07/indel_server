@@ -20,12 +20,7 @@ const { initLoanAgainstPropertyContent } = require("./utils/initLoanAgainstPrope
 
 const { initCdLoanContent } = require("./utils/initCdLoanContent");
 const { initCareerContents } = require("./utils/initCareerContent");
-const {
-  initDebtPartnersContent,
-  initAboutPageContent,
-  initBlogPageContent,
-  initCSRPageContent,
-} = require("./utils/initContents");
+const { initDebtPartnersContent, initAboutPageContent, initBlogPageContent, initCSRPageContent } = require("./utils/initContents");
 const { initGalleryPageContent } = require("./utils/initGalleryContents");
 const { initAwardPageContent } = require("./utils/initAwardPageContent");
 const { initNewsPageContent } = require("./utils/initNewsPageContent");
@@ -46,7 +41,7 @@ const app = express();
 
 app.use(cors({ origin: "*" }));
 app.use(express.json());
-app.use(errorMiddleware);
+
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use(
@@ -79,6 +74,8 @@ app.get("/get-location", (req, res) => {
 app.use("/api", apiRoutes);
 
 const PORT = process.env.PORT || 3000;
+
+app.use(errorMiddleware);
 
 const startServer = async () => {
   try {

@@ -44,12 +44,6 @@ const defineMsmeOfferings = require("./msme/msmeOfferings");
 const defineMsmeTargetAudience = require("./msme/targetAudience");
 const defineMsmeSupportedIndustries = require("./msme/supportedIndustries");
 const defineMsmeLoanTypes = require("./msme/loanTypes");
-const defineLoanAgainstPropertyContent = require("./loanAgainstProperty/loanContent");
-const defineLoanAgaintPropertyFaq = require("./loanAgainstProperty/faq");
-const defineLoanAgaintPropertyOfferings = require("./loanAgainstProperty/LoanPropertyOfferings");
-const defineLoanAgaintPropertyTargetAudience = require("./loanAgainstProperty/targetAudience");
-const defineLoanAgaintPropertySupportedIndustries = require("./loanAgainstProperty/supportedIndustries");
-const defineLoanAgaintPropertyLoanTypes = require("./loanAgainstProperty/loanTypes");
 const defineCdLoanContent = require("./CD/cdContent");
 const defineCdLoanProducts = require("./CD/loanProducts");
 const defineCdLoanBenefits = require("./CD/loanBenefits");
@@ -115,12 +109,14 @@ const definePartnersData = require("./partners/partnersData");
 const defineDirectors = require("./directors/directors");
 const defineDirectorsContent = require("./directors/content");
 const defineMasterPolicies = require("./policies/policies");
-const defineLoanAgainstProperty = require("./policies/policies");
 const defineApplicationStatus = require("./career/application_status");
 const defineGeneralApplications = require("./career/general_application");
 const defineOtp = require("./otp");
 const defineFloatButtons = require("./floatButtons/buttons");
 const defineAnnouncement = require("./homePage/announcement");
+const defineLapContent = require("./Lap/content");
+const defineLapProducts = require("./Lap/products");
+const defineCareerMeta = require("./career/careerMeta");
 
 const models = {
   User: defineUser(sequelize),
@@ -169,13 +165,6 @@ const models = {
   MsmeLoanSupportedIndustries: defineMsmeSupportedIndustries(sequelize),
   MsmeloanTypes: defineMsmeLoanTypes(sequelize),
 
-  LoanAgainstPropertyContent: defineLoanAgainstPropertyContent(sequelize),
-  LoanAgainstPropertyFaq: defineLoanAgaintPropertyFaq(sequelize),
-  LoanAgainstPropertyOfferings: defineLoanAgaintPropertyOfferings(sequelize),
-  LoanAgainstPropertyTargetedAudience: defineLoanAgaintPropertyTargetAudience(sequelize),
-  LoanAgainstPropertySupportedIndustries: defineLoanAgaintPropertySupportedIndustries(sequelize),
-  LoanAgainstPropertyTypes: defineLoanAgaintPropertyLoanTypes(sequelize),
-
   CdLoanContent: defineCdLoanContent(sequelize),
   CdLoanProducts: defineCdLoanProducts(sequelize),
   CdLoanBenefits: defineCdLoanBenefits(sequelize),
@@ -201,7 +190,6 @@ const models = {
   News: defineNews(sequelize),
   EventPageContent: defineEventPageContent(sequelize),
   Events: defineEvents(sequelize),
-  InvestorsPageContent: defineInvestorsPageContent(sequelize),
   InvestorsPageContent: defineInvestorsPageContent(sequelize),
   FiscalYears: defineFiscalYears(sequelize),
   AnnualReport: defineAnnualReport(sequelize),
@@ -242,12 +230,14 @@ const models = {
   Directors: defineDirectors(sequelize),
   DirectorsContent: defineDirectorsContent(sequelize),
   MasterPolicies: defineMasterPolicies(sequelize),
-  LoanAgainstProperty: defineLoanAgainstProperty(sequelize),
   ApplicationStatus: defineApplicationStatus(sequelize),
   GeneralApplications: defineGeneralApplications(sequelize),
   Otp: defineOtp(sequelize),
   FloatButtons: defineFloatButtons(sequelize),
   Announcement: defineAnnouncement(sequelize),
+  LapContent: defineLapContent(sequelize),
+  LapProducts: defineLapProducts(sequelize),
+  CareerMeta: defineCareerMeta(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {

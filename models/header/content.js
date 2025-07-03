@@ -9,18 +9,6 @@ module.exports = (sequelize) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      meta_title: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      meta_description: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      meta_keywords: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
       logo: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -46,6 +34,14 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       andrioid_download_icon: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      apple_download_icon_mobile: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      andrioid_download_icon_mobile: {
         type: DataTypes.STRING,
         allowNull: true,
       },

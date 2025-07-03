@@ -26,6 +26,24 @@ class FiscalYearsController {
       // }
 
       const fiscalYears = await FiscalYears.findAll({
+        order: [["fiscal_year", "DESC"]],
+      });
+      await CacheService.set(cacheKey, JSON.stringify(fiscalYears), 3600);
+      res.json({ success: true, data: fiscalYears });
+    } catch (error) {
+      next(error);
+    }
+  }
+  static async getActiveAll(req, res, next) {
+    try {
+      const cacheKey = "FiscalYears";
+      const cachedData = await CacheService.get(cacheKey);
+
+      if (cachedData) {
+        return res.json({ success: true, data: JSON.parse(cachedData) });
+      }
+
+      const fiscalYears = await FiscalYears.findAll({
         where: { is_active: true },
         order: [["fiscal_year", "DESC"]],
       });
@@ -54,6 +72,7 @@ class FiscalYearsController {
       await CacheService.set(cacheKey, JSON.stringify(fiscalYear), 3600);
       res.json({ success: true, data: fiscalYear });
     } catch (error) {
+      
       next(error);
     }
   }
@@ -80,6 +99,8 @@ class FiscalYearsController {
     try {
       const { id } = req.params;
       const fiscalYear = await FiscalYears.findByPk(id);
+
+      
       if (!fiscalYear) {
         throw new CustomError("Fiscal Year not found", 404);
       }

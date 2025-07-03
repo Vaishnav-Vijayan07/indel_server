@@ -158,6 +158,8 @@ class NewsController {
 
       await CacheService.invalidate("news");
       await CacheService.invalidate(`news_${id}`);
+      await CacheService.invalidate(`metaData:newsItem:${id}`);
+
 
       res.json({ success: true, data: news, message: "News updated" });
     } catch (error) {

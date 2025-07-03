@@ -9,18 +9,6 @@ module.exports = (sequelize) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      meta_title: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      meta_description: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      meta_keywords: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
       title: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -61,11 +49,27 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      icon_section_link: {
+      branch_locator_text: {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      icon_section_text: {
+      branch_locator_link: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      branch_locator_icon_mobile: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      branch_locator_icon_web: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      toll_free_icon_mobile: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      toll_free_icon_web: {
         type: DataTypes.STRING,
         allowNull: true,
       },

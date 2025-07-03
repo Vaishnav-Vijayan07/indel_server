@@ -54,7 +54,7 @@ async function importBranchesFromXlsx(filePath, sequelize) {
       ],
     });
 
-    console.log(`Successfully imported ${branchData.length} branches`);
+    
     return { success: true, count: branchData.length };
   } catch (error) {
     console.error("Error importing branches:", error);

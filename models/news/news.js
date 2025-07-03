@@ -18,7 +18,7 @@ module.exports = (sequelize) => {
         allowNull: true,
         validate: {
           notEmpty: true,
-          is: /^[a-z0-9]+(?:-[a-z0-9]+)*$/, // Kebab-case (e.g., my-blog-post)
+          is: /^[a-z0-9]+(?:-[a-z0-9]+)*$/, // Kebab-case (e.g., my-news-post)
         },
         comment: "URL-friendly identifier for the news post",
       },

@@ -9,7 +9,7 @@ async function getStateFromIp(ip) {
   const cacheKey = `geo_${ip}`;
   const cached = cache.get(cacheKey);
   if (cached) {
-    console.log(`Geolocation cache hit for IP: ${ip}`);
+    
     return cached;
   }
 
@@ -20,7 +20,7 @@ async function getStateFromIp(ip) {
     const response = await axios.get(
       `https://api.ipgeolocation.io/v2/ipgeo?apiKey=${process.env.IPGEOLOCATION_API_KEY}&ip=${queryIp}`
     );
-    console.log("Geolocation API response:", response.data);
+    
 
     const stateName = response.data.location?.state_prov || "Global";
     const state = await models.CareerStates.findOne({

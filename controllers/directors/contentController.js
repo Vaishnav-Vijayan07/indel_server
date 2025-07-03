@@ -37,6 +37,7 @@ class DirectorContentController {
       await content.update(updateData);
 
       await CacheService.invalidate("directorsContent");
+      await CacheService.invalidate("metaData:directors");
       res.json({ success: true, data: content, message: "Director Content updated" });
     } catch (error) {
       next(error);

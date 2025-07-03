@@ -32,6 +32,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      inception_count: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
     {
       tableName: "history_page_content",

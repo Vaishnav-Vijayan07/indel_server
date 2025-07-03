@@ -43,7 +43,7 @@ class AuthController {
     try {
       const { username, password } = req.body;
 
-      console.log("Login attempt with username:", username);
+      
 
       const user = await User.findOne({
         attributes: ["id", "username", "email", "firstName", "lastName", "phone", "role", "password", "isActive"],

@@ -7,7 +7,7 @@ const initGalleryPageContent = async () => {
     const existingContent = await GalleryPageContent.findOne();
 
     if (existingContent) {
-      console.log("Gallery Page Content already exists");
+      
       return;
     }
 
@@ -19,7 +19,7 @@ const initGalleryPageContent = async () => {
       meta_keywords: "gallery, images, content",
     });
 
-    console.log("Gallery Page Content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Gallery Page Content:", error.message);
   }

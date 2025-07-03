@@ -7,14 +7,10 @@ const initFooterContent = async () => {
     const existingContent = await FooterContent.findOne();
 
     if (existingContent) {
-      console.log("Footer content already exists");
       return;
     }
 
     await FooterContent.create({
-      meta_title: "Indel Money - Footer",
-      meta_description: "Contact and connect with Indel Money through our footer links and social media.",
-      meta_keywords: "footer, contact, social media, Indel Money",
       title: "Indel Money",
       logo: null,
       news_letter_title: "Subscribe to Indels Newsletter",
@@ -25,12 +21,13 @@ const initFooterContent = async () => {
       button_1_link: "https://indelmoney.com/contact",
       button_2_text: "Learn More",
       button_2_link: "https://indelmoney.com/about",
-      icon_section_link: "https://indelmoney.com/services",
-      icon_section_text: "Explore Our Services",
+      branch_locator_link: "https://indelmoney.com/branch-locator",
+      branch_locator_icon_mobile: null,
+      branch_locator_icon_web: null,
+      toll_free_icon_mobile: null,
+      toll_free_icon_web: null,
       social_media_text: "Follow Us on Social Media",
     });
-
-    console.log("Footer content initialized with default values");
   } catch (error) {
     console.error("Failed to initialize Footer content:", error.message);
   }

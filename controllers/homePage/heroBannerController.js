@@ -93,7 +93,7 @@ class HeroBannerController {
         // limit: Number(limit),
       });
 
-      console.log("banners", banners);
+      
 
       await CacheService.set(cacheKey, JSON.stringify(banners), 3600);
       res.json({ success: true, data: banners });

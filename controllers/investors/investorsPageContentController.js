@@ -74,6 +74,7 @@ class InvestorsPageContentController {
         "investorsPageContent",
         "webCsrReports",
         "webCorporateGovernence",
+        "webCreditRatings",
         "webInvestorsContact",
         "webNcdReports",
         "webCsrDetails"

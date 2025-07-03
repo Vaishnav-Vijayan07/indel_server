@@ -29,6 +29,10 @@ module.exports = (sequelize) => {
         allowNull: true,
         defaultValue: true,
       },
+      order: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
     },
     {
       tableName: "history_inceptions_years",

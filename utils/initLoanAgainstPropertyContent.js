@@ -1,45 +1,42 @@
 const { models } = require("../models/index");
 
-const LoanAgainstPropertyContent = models.LoanAgainstPropertyContent;
+const LoanAgainstPropertyContent = models.LapContent;
 
 const initLoanAgainstPropertyContent = async () => {
   try {
     const existingContent = await LoanAgainstPropertyContent.findOne();
 
     if (existingContent) {
-      console.log("Loan Against Property Page Content already exists");
+      
       return;
     }
 
     await LoanAgainstPropertyContent.create({
-      meta_title: "Loan Against Property Services - Empowering Businesses",
-      meta_description: "Explore Loan Against Property tailored for small and medium businesses to grow and succeed.",
-      meta_keywords: "Loan Against Property, business loans, small enterprise, financial support",
+      page_title: "Loan Against <span>Property</span>",
+      meta_title: "Loan Against Property - Quick and Reliable",
+      meta_description: "Explore our LAP offerings with attractive terms and fast approval.",
+      meta_keywords: "cd loan, loan against cd, quick loan",
+      loan_offer_title: "Exclusive LAP <span>Loan</span> Offer",
+      loan_offer_description: "Avail loans against your certificate of deposit with ease.",
+      loan_offer_button_text: "Apply Now",
+      loan_offer_button_link: "https://example.com/apply",
+      image: null,
+      title_image_alt: "LAP Loan Services",
+      eligibility_criteria_image_alt: "Eligibility Criteria",
+      covered_products_section_image_alt: "Covered Products",
+      feature_image_alt: "Key Features of CD Loan",
 
-      title: "Empowering Loan Against Property with the Right <span>Financial Support</span>",
-      sub_title: "Tailored loan solutions for your business growth",
-      description: "Our Loan Against Property offerings are designed to help you scale operations, manage working capital, and seize new opportunities.",
-
-      button_text: "Apply Now",
-      button_url: "https://example.com/loan-against-property/apply",
-
-      our_offering_title: "What We Offer",
-      our_offering_description: "Flexible loan amounts, competitive interest rates, and quick disbursement to meet your business needs.",
-
-      why_loan_against_property_title: "Why Choose Our <span>Loan Against Property?</span>",
-      why_loan_against_property_description: "We understand the unique challenges loan against property face and offer personalized support to fuel your journey.",
-      why_loan_against_property_image: null,
-      image_alt: "Why Choose Our Loan Against Property",
-
-      who_do_serve_title: "Who Do We <span>Serve?</span>",
-      about_loan_against_property_title: "About <span>Loan Against Properties</span>",
-      about_loan_against_property_description: "Micro, Small, and Medium Enterprises are the backbone of our economy. Our loans are here to support their mission.",
-
-      loan_against_property_overview_title: "Loan Against Property <span>Overview</span>",
-      loan_against_property_overview_description: "Get a quick insight into eligibility, loan terms, and how we help businesses thrive with our offerings.",
+      covered_products_section_title: "<span>Products</span>",
+      covered_products_section_image: null,
+      eligibility_criteria_icon: null,
+      eligibility_criteria_title: "Eligibility <span>Criteria</span>",
+      eligibility_criteria_description: "Must hold a valid certificate of deposit with our institution.",
+      eligibility_criteria_note: "Terms and conditions apply.",
+      feature_title: "Key Features of <span>CD Loan</span>",
+      feature_image: null,
     });
 
-    console.log("Loan Against Property Content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Loan Against Property Content:", error.message);
   }

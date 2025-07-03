@@ -12,7 +12,7 @@ class AnnouncementController {
     try {
       const { text, state_id, is_active } = req.body;
 
-      console.log("req.body", req.body);
+      
 
       // Validate region if provided
       if (state_id) {
@@ -25,7 +25,7 @@ class AnnouncementController {
         const existing = await Announcement.findOne({
           where: { state_id },
         });
-        console.log("existing", existing);
+        
 
         if (existing) {
           throw new CustomError("Only one announcement allowed per state", 409);

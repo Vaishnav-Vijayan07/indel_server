@@ -14,13 +14,27 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
       event_date: {
-        type: DataTypes.DATE,
+        type: DataTypes.DATEONLY,
         allowNull: true,
       },
       is_slider: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false,
+      },
+      show_on_home: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+      slug: {
+        type: DataTypes.STRING(255), // Max length for URL compatibility
+        allowNull: true,
+        validate: {
+          notEmpty: true,
+          is: /^[a-z0-9]+(?:-[a-z0-9]+)*$/, // Kebab-case (e.g., my-blog-post)
+        },
+        comment: "URL-friendly identifier for the blog post",
       },
       is_active: {
         type: DataTypes.BOOLEAN,

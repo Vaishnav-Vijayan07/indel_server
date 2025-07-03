@@ -7,7 +7,7 @@ const initIndelCaresContent = async () => {
         const existingContent = await IndelCaresContent.findOne();
 
         if (existingContent) {
-            console.log("Indel Cares content already exists");
+            
             return;
         }
 
@@ -16,7 +16,7 @@ const initIndelCaresContent = async () => {
             events_title: "Our Community Initiatives",
         });
 
-        console.log("Indel Cares content initialized with default values");
+        
     } catch (error) {
         console.error("Failed to initialize Indel Cares content:", error.message);
     }

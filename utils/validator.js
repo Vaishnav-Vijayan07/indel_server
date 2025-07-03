@@ -220,8 +220,6 @@ const validateHomePageContentUpdate = [
   check("about_button_name").optional().notEmpty().withMessage("About button name cannot be empty"),
   check("about_button_url").optional().notEmpty().withMessage("About button URL cannot be empty"),
   check("step_title").optional().notEmpty().withMessage("Step title cannot be empty"),
-  check("branch_section_title").optional().notEmpty().withMessage("Branch section title cannot be empty"),
-  check("branch_section_description").optional().notEmpty().withMessage("Branch section description cannot be empty"),
   check("life_section_title").optional().notEmpty().withMessage("Life section title cannot be empty"),
   check("life_section_description").optional().notEmpty().withMessage("Life section description cannot be empty"),
   check("life_section_button_name_1").optional().notEmpty().withMessage("Life section button name 1 cannot be empty"),
@@ -300,8 +298,6 @@ const validateContactContentUpdate = [
   check("toll_free_number").optional().notEmpty().withMessage("Toll free number cannot be empty"),
   check("form_title").optional().notEmpty().withMessage("Form title cannot be empty"),
   check("form_sub_title").optional().notEmpty().withMessage("Form sub-title cannot be empty"),
-  check("branch_locator_title").optional().notEmpty().withMessage("Branch locator title cannot be empty"),
-  check("branch_locator_description").optional().notEmpty().withMessage("Branch locator description cannot be empty"),
   check("faq_super_title").optional().notEmpty().withMessage("FAQ super title cannot be empty"),
   check("faq_title").optional().notEmpty().withMessage("FAQ title cannot be empty"),
 ];
@@ -310,7 +306,6 @@ const validateContactOffices = [
   check("office_name").notEmpty().withMessage("Office name is required"),
   check("address").notEmpty().withMessage("Address is required"),
   check("phone").notEmpty().withMessage("Phone is required"),
-  check("alternative_phone").notEmpty().withMessage("Alternative phone is required"),
   check("email").notEmpty().withMessage("Email is required"),
   check("order").optional().isInt().withMessage("Order must be an integer"),
 ];
@@ -319,7 +314,6 @@ const validateContactOfficesUpdate = [
   check("office_name").optional().notEmpty().withMessage("Office name cannot be empty"),
   check("address").optional().notEmpty().withMessage("Address cannot be empty"),
   check("phone").optional().notEmpty().withMessage("Phone cannot be empty"),
-  check("alternative_phone").optional().notEmpty().withMessage("Alternative phone cannot be empty"),
   check("email").optional().notEmpty().withMessage("Email cannot be empty"),
   check("order").optional().isInt().withMessage("Order must be an integer"),
 ];
@@ -1402,9 +1396,6 @@ const validateIndelCaresContentUpdate = [
 ];
 
 const validateFooterContentUpdate = [
-  check("meta_title").optional().notEmpty().withMessage("Meta Title cannot be empty"),
-  check("meta_description").optional().notEmpty().withMessage("Meta Description cannot be empty"),
-  check("meta_keywords").optional().notEmpty().withMessage("Meta Keywords cannot be empty"),
   check("title").optional().notEmpty().withMessage("Title cannot be empty"),
   check("sub_title").optional().notEmpty().withMessage("Sub Title cannot be empty"),
   check("address").optional().notEmpty().withMessage("Address cannot be empty"),

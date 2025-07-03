@@ -25,7 +25,7 @@ class AboutAccoladesController {
     try {
       const data = { ...req.body };
 
-      console.log(req.files);
+      
 
       if (req.files?.highlight_image) {
         data.highlight_image = `/uploads/about-accolades/${req.files.highlight_image[0]?.filename}`;
@@ -92,7 +92,7 @@ class AboutAccoladesController {
         throw new CustomError("Item not found", 404);
       }
 
-      console.log(req.files);
+      
 
       const updateData = { ...req.body };
       const oldImage = link.image;

@@ -7,7 +7,7 @@ const initDirectorsContent = async () => {
     const existingContent = await DirectorsContent.findOne();
 
     if (existingContent) {
-      console.log("Directors Content already exists");
+      
       return;
     }
 
@@ -16,7 +16,7 @@ const initDirectorsContent = async () => {
       description : "This is new  directors",
     });
 
-    console.log("Directors Content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Directors Content:", error.message);
   }

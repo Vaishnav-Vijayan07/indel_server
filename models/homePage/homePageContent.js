@@ -21,6 +21,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      other_meta: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
       gold_rate_icon: {
         type: DataTypes.STRING,
         allowNull: true, // Allow null since icon is uploaded later
@@ -70,14 +74,6 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       smart_deal_title: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      branch_section_title: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      branch_section_description: {
         type: DataTypes.STRING,
         allowNull: true,
       },

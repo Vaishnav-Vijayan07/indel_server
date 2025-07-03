@@ -10,6 +10,8 @@ const upload = createUploadMiddleware("header-contents");
 const uploadFields = upload.fields([
   { name: "apple_dowload_icon", maxCount: 1 },
   { name: "andrioid_download_icon", maxCount: 1 },
+  { name: "andrioid_download_icon_mobile", maxCount: 1 },
+  { name: "apple_download_icon_mobile", maxCount: 1 },
   { name: "logo", maxCount: 1 },
 ]);
 
