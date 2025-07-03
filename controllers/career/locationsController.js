@@ -41,7 +41,7 @@ class LocationsController {
 
   static async getAllByStateDistrict(req, res, next) {
     try {
-      const { state_id, district_id } = req.query;
+      const { district_id } = req.query;
 
       const cacheKey = "locations";
       const cachedData = await CacheService.get(cacheKey);
@@ -52,7 +52,7 @@ class LocationsController {
 
       const locations = await Locations.findAll({
         where: {
-          state_id: state_id,
+          // state_id: state_id,
           district_id: district_id,
         },
         order: [["order", "ASC"]],
