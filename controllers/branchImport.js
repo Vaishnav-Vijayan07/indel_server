@@ -33,7 +33,7 @@ async function importBranchesFromXlsx(filePath, sequelize) {
 
     // Validate required fields
     for (const branch of branchData) {
-      if (!branch.name || !branch.state || !branch.district || branch.location) {
+      if (!branch.name || !branch.state || !branch.district || !branch.location) {
         throw new Error(`Missing required fields in branch: ${JSON.stringify(branch)}`);
       }
     }
