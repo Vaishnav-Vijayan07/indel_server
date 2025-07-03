@@ -83,7 +83,8 @@ class WebController {
             throw err;
           }),
           models.Awards.findAll({
-            where: { is_slide: true },
+            where: { is_active: true },
+            order: [["order", "ASC"]],
             attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
           }).catch((err) => {
             console.error("Failed to fetch lifeAtIndel:", err.message);
@@ -1057,8 +1058,9 @@ class WebController {
           models.EmployeeBenefits.findAll(),
           models.Awards.findAll({
             where: {
-              is_slide: true,
+              is_active: true,
             },
+            order: [["order", "ASC"]],
           }),
           models.AwardPageContent.findAll({
             attributes: ["id", "mobile_title"],
@@ -1367,6 +1369,8 @@ class WebController {
       const [awardPageContent, awards] = await Promise.all([
         models.AwardPageContent.findAll(),
         models.Awards.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
           attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
         }),
       ]);
