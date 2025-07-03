@@ -41,6 +41,7 @@ async function importBranchesFromXlsx(filePath, sequelize) {
     // Bulk create branches with update on duplicate
     await Branches.bulkCreate(branchData, {
       updateOnDuplicate: [
+        "branch_code",
         "name",
         "state",
         "district",
