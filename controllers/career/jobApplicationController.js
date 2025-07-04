@@ -1,3 +1,4 @@
+const { default: axios } = require("axios");
 const { models } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const { sendOtpEmail } = require("../../services/emailService");
