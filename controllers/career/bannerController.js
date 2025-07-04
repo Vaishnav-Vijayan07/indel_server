@@ -24,9 +24,14 @@ class CareerBannersController {
   static async create(req, res, next) {
     try {
       const updateData = { ...req.body };
-      if (req.file) {
-        updateData.image = `/uploads/career-banners/${req.file.filename}`;
+      if (req.files?.image) {
+        updateData.image = `/uploads/career-banners/${req.files.image[0].filename}`;
         Logger.info(`Uploaded image for CareerBanner: ${updateData.image}`);
+      }
+
+      if (req.files?.image_mobile) {
+        updateData.image_mobile = `/uploads/career-banners/${req.files.image_mobile[0].filename}`;
+        Logger.info(`Uploaded mobile image for CareerBanner: ${updateData.image_mobile}`);
       }
 
       const banner = await CareerBanners.create(updateData);
@@ -91,12 +96,21 @@ class CareerBannersController {
 
       const updateData = { ...req.body };
       let oldImage = banner.image;
+      let oldImageMobile = banner.image_mobile;
 
-      if (req.file) {
-        updateData.image = `/uploads/career-banners/${req.file.filename}`;
+      if (req.files?.image) {
+        updateData.image = `/uploads/career-banners/${req.files.image[0].filename}`;
         Logger.info(`Updated image for CareerBanner ID ${id}: ${updateData.image}`);
         if (oldImage) {
           await CareerBannersController.deleteFile(oldImage);
+        }
+      }
+
+      if (req.files?.image_mobile) {
+        updateData.image_mobile = `/uploads/career-banners/${req.files.image_mobile[0].filename}`;
+        Logger.info(`Updated mobile image for CareerBanner ID ${id}: ${updateData.image_mobile}`);
+        if (oldImageMobile) {
+          await CareerBannersController.deleteFile(oldImageMobile);
         }
       }
 

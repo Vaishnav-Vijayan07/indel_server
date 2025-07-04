@@ -21,10 +21,9 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      banner_type: {
-        type: DataTypes.ENUM,
+      image_mobile: {
+        type: DataTypes.STRING,
         allowNull: true,
-        values: ["mobile", "web"],
       },
       order: {
         type: DataTypes.INTEGER,

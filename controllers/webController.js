@@ -146,9 +146,6 @@ class WebController {
         services: popupServices,
       };
 
-      const banners = heroBanner?.filter((banner) => banner?.banner_type === "web");
-      const mobileBanners = heroBanner?.filter((banner) => banner?.banner_type === "mobile");
-
       const data = {
         branchLocatorData: branchLocatorData[0] || null,
         smartMoneyDeals,
@@ -157,8 +154,7 @@ class WebController {
         service: !isBanner ? servicePopupData : null,
         lifeAtIndel,
         blogs,
-        heroBanner: banners,
-        mobileBanners,
+        heroBanner,
         faqs,
         loanSteps,
         homeStatistics,
@@ -223,7 +219,7 @@ class WebController {
             is_active: true,
           },
           order: [["order", "ASC"]],
-          attributes: ["id", "title", "super_title", "image", "alt_text", "order", "is_active", "banner_type"],
+          attributes: ["id", "title", "super_title", "image","image_mobile", "alt_text", "order", "is_active"],
         }),
         models.AboutPageContent.findAll(),
         models.AboutLifeAtIndelGallery.findAll({
@@ -245,12 +241,8 @@ class WebController {
         models.AboutAccolades.findAll(),
       ]);
 
-      const banners = aboutBanner?.filter((banner) => banner?.banner_type === "web");
-      const mobileBanners = aboutBanner?.filter((banner) => banner?.banner_type === "mobile");
-
       const data = {
-        aboutBanner: banners,
-        mobileBanners,
+        aboutBanner,
         aboutContent: aboutContent[0] || null,
         lifeAtIndelImages,
         quickLinks,
@@ -1085,13 +1077,9 @@ class WebController {
       const textTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "text");
       const imageTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "video");
 
-      const banners = careerBanners?.filter((banner) => banner?.banner_type === "web");
-      const mobileBanners = careerBanners?.filter((banner) => banner?.banner_type === "mobile");
-
       const data = {
         careersContent: careersContent[0] || null,
-        careerBanners: banners,
-        mobileBanners,
+        careerBanners,
         careerGallery,
         careerStates,
         careerJobs,
