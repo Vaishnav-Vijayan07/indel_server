@@ -35,7 +35,7 @@ module.exports = (sequelize) => {
       },
       image_mobile: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       image_alt_text: {
         type: DataTypes.STRING,
