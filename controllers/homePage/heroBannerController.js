@@ -2,16 +2,32 @@ const { Op } = require("sequelize");
 const { models, sequelize } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
+const fs = require("fs").promises;
 const path = require("path");
+const Logger = require("../../services/logger");
 
 const HeroBanner = models.HeroBanner;
 const States = models.CareerStates;
 
 class HeroBannerController {
+  static async deleteFile(filePath) {
+    if (!filePath) return;
+    try {
+      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
+      await fs.unlink(absolutePath);
+      Logger.info(`Deleted file: ${filePath}`);
+    } catch (error) {
+      if (error.code !== "ENOENT") {
+        Logger.error(`Failed to delete file ${filePath}: ${error.message}`);
+      }
+    }
+  }
+
   static async create(req, res, next) {
     try {
       const { title, button_text, button_link, image_alt_text, is_active, order, state_id, banner_type } = req.body;
-      const image = req.file ? `/uploads/banner/${req.file.filename}` : null;
+      const image = req.files?.image ? `/uploads/banner/${req.files.image[0].filename}` : null;
+      const mobileImage = req.files?.image_mobile ? `/uploads/banner/${req.files.image_mobile[0].filename}` : null;
 
       if (!image) {
         throw new CustomError("Image is required", 400);
@@ -30,6 +46,7 @@ class HeroBannerController {
         button_link,
         state_id: state_id || null,
         image,
+        image_mobile: mobileImage,
         image_alt_text,
         is_active,
         banner_type,
@@ -120,8 +137,12 @@ class HeroBannerController {
         throw new CustomError("HeroBanner not found", 404);
       }
 
+      const oldImage = heroBanner.image;
+      const oldImageMobile = heroBanner.image_mobile;
+
       const { title, button_text, button_link, location, image_alt_text, is_active, order, state_id, banner_type } = req.body;
-      const image = req.file ? `/uploads/banner/${req.file.filename}` : heroBanner.image;
+      const image = req.files?.image ? `/uploads/banner/${req.files.image[0].filename}` : heroBanner.image;
+      const mobileImage = req.files?.image_mobile ? `/uploads/banner/${req.files.image_mobile[0].filename}` : heroBanner.image_mobile;
 
       if (state_id) {
         const state = await States.findByPk(state_id);
@@ -130,12 +151,21 @@ class HeroBannerController {
         }
       }
 
+      if (oldImage) {
+        await HeroBannerController.deleteFile(oldImage);
+      }
+      if (oldImageMobile) {
+        await HeroBannerController.deleteFile(oldImageMobile);
+      }
+
       await heroBanner.update({
         title,
         button_text,
         button_link,
         location,
         image,
+        image_mobile: mobileImage,
+        state_id: state_id || null,
         image_alt_text,
         is_active,
         banner_type,
