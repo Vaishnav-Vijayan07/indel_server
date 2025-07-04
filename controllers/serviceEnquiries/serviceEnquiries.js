@@ -23,6 +23,10 @@ class ServiceEnquiriesController {
     try {
       const { recaptcha, ...data } = req.body;
 
+      console.log("data:", data);
+      console.log("recaptcha:", recaptcha);
+      
+
       // Validate reCAPTCHA token
       if (!recaptcha) {
         return res.status(400).json({ success: false, message: "reCAPTCHA token is missing" });
