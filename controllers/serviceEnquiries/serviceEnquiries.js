@@ -2,23 +2,60 @@ const { models } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
+const { default: axios } = require("axios");
 
 const ServiceEnquiries = models.ServiceEnquiries;
 
 class ServiceEnquiriesController {
+  // static async create(req, res, next) {
+  //   try {
+  //     const data = { ...req.body };
+  //     const enquiry = await ServiceEnquiries.create(data);
+  //     await CacheService.invalidate("ServiceEnquiries");
+
+  //     Logger.info("New Service Enquiry created");
+  //     res.status(201).json({ success: true, data: enquiry, message: "Service Enquiry created" });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
   static async create(req, res, next) {
     try {
-      const data = { ...req.body };
-      const enquiry = await ServiceEnquiries.create(data);
+      const { recaptcha, ...data } = req.body;
+
+      // Validate reCAPTCHA token
+      if (!recaptcha) {
+        return res.status(400).json({ success: false, message: "reCAPTCHA token is missing" });
+      }
+
+      const recaptchaResponse = await axios.post("https://www.google.com/recaptcha/api/siteverify", null, {
+        params: {
+          secret: process.env.RECAPTCHA_SECRET_KEY,
+          response: recaptcha,
+        },
+      });
+
+      const { success, score } = recaptchaResponse.data;
+
+      if (!success || score < 0.5) {
+        // Adjust score threshold as needed (0.5 is a common threshold for v3)
+        return res.status(400).json({
+          success: false,
+          message: "reCAPTCHA verification failed. Please try again.",
+        });
+      }
+
+      // Proceed with creating the service enquiry
+      const enquiry = await ServiceEnquiries.create(data); // Use data without recaptcha
       await CacheService.invalidate("ServiceEnquiries");
 
       Logger.info("New Service Enquiry created");
       res.status(201).json({ success: true, data: enquiry, message: "Service Enquiry created" });
     } catch (error) {
+      console.error("Error in ServiceEnquiries.create:", error.message || error);
       next(error);
     }
   }
-
   static async getAll(req, res, next) {
     try {
       const cacheKey = "ServiceEnquiries";
