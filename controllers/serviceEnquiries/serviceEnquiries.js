@@ -24,26 +24,29 @@ class ServiceEnquiriesController {
       const { recaptcha, ...data } = req.body;
 
       console.log("req.body:", req.body);
-      
 
       console.log("data:", data);
       console.log("recaptcha:", recaptcha);
-      
 
       // Validate reCAPTCHA token
       if (!recaptcha) {
         return res.status(400).json({ success: false, message: "reCAPTCHA token is missing" });
       }
 
-      const recaptchaResponse = await axios.post("https://www.google.com/recaptcha/api/siteverify", {
-        params: {
+      const recaptchaResponse = await axios.post(
+        "https://www.google.com/recaptcha/api/siteverify",
+        new URLSearchParams({
           secret: process.env.RECAPTCHA_SECRET_KEY,
           response: recaptcha,
-        },
-      });
+        }).toString(),
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
 
       console.log("recaptchaResponse.data:", recaptchaResponse.data);
-      
 
       const { success, score } = recaptchaResponse.data;
 
