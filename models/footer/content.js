@@ -13,6 +13,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      address_title_2: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       logo: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -22,6 +26,10 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       address: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      address_second: {
         type: DataTypes.STRING,
         allowNull: true,
       },
