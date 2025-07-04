@@ -2,7 +2,7 @@ const { models } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
-const { default: axios } = require("axios");
+const axios = require("axios");
 
 const ServiceEnquiries = models.ServiceEnquiries;
 
