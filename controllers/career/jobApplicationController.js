@@ -67,14 +67,10 @@ class JobApplicationSubmissionController {
       let modifiedData = null;
 
       if (applicant) {
-        
-
         const preferred_role = await models.GeneralApplications.findOne({
           where: { applicant_id: applicant?.id },
           attributes: ["role_id"],
         });
-
-        
 
         modifiedData = { ...applicant?.toJSON(), preferred_role: preferred_role?.role_id };
       }
@@ -90,16 +86,16 @@ class JobApplicationSubmissionController {
   }
   // static async submitApplication(req, res, next) {
   //   try {
-  //     
+  //
 
   //     const { applicant, job_application } = req.body;
   //     const file = req.file;
 
-  //     
+  //
 
   //     // Validate foreign key reference for preferred location
   //     const location = await models.CareerLocations.findByPk(applicant?.preferred_location);
-  //     
+  //
   //     if (!location) {
   //       throw new CustomError("Preferred location not found", 404);
   //     }
@@ -179,8 +175,38 @@ class JobApplicationSubmissionController {
 
   static async submitApplication(req, res, next) {
     try {
-      const { applicant, job_application } = req.body;
+      const { applicant, job_application, recaptcha } = req.body;
       const file = req.file;
+
+      // Validate reCAPTCHA token
+      if (!recaptcha) {
+        return res.status(400).json({ success: false, message: "reCAPTCHA token is missing" });
+      }
+
+      const recaptchaResponse = await axios.post(
+        "https://www.google.com/recaptcha/api/siteverify",
+        new URLSearchParams({
+          secret: process.env.RECAPTCHA_SECRET_KEY,
+          response: recaptcha,
+        }).toString(),
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
+
+      console.log("recaptchaResponse.data:", recaptchaResponse.data);
+
+      const { success, score } = recaptchaResponse.data;
+
+      if (!success || score < 0.5) {
+        // Adjust score threshold as needed (0.5 is a common threshold for v3)
+        return res.status(400).json({
+          success: false,
+          message: "reCAPTCHA verification failed. Please try again.",
+        });
+      }
 
       // Validate preferred location
       const location = await models.CareerLocations.findByPk(applicant?.preferred_location);
@@ -417,7 +443,7 @@ class JobApplicationSubmissionController {
   //         where: { applicant_id: applicantRecord?.id },
   //       });
 
-  //       
+  //
 
   //       // Prepare updated data
   //       const updatedData = {
@@ -473,8 +499,38 @@ class JobApplicationSubmissionController {
 
   static async submitGeneralApplication(req, res, next) {
     try {
-      const { applicant, general_application } = req.body;
+      const { applicant, general_application, recaptcha } = req.body;
       const file = req?.file;
+
+      // Validate reCAPTCHA token
+      if (!recaptcha) {
+        return res.status(400).json({ success: false, message: "reCAPTCHA token is missing" });
+      }
+
+      const recaptchaResponse = await axios.post(
+        "https://www.google.com/recaptcha/api/siteverify",
+        new URLSearchParams({
+          secret: process.env.RECAPTCHA_SECRET_KEY,
+          response: recaptcha,
+        }).toString(),
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
+
+      console.log("recaptchaResponse.data:", recaptchaResponse.data);
+
+      const { success, score } = recaptchaResponse.data;
+
+      if (!success || score < 0.5) {
+        // Adjust score threshold as needed (0.5 is a common threshold for v3)
+        return res.status(400).json({
+          success: false,
+          message: "reCAPTCHA verification failed. Please try again.",
+        });
+      }
 
       // Validate preferred location
       const location = await models.CareerLocations.findByPk(applicant.preferred_location);
@@ -707,7 +763,7 @@ class JobApplicationSubmissionController {
     }
   }
 
-    static async changeStatusGeneral(req, res, next) {
+  static async changeStatusGeneral(req, res, next) {
     try {
       const { id } = req.params;
       const { status_id } = req.body;
