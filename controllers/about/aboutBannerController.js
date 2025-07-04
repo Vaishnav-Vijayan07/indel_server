@@ -96,16 +96,16 @@ class AboutBannerController {
 
       if (req.files?.image) {
         data.image = `/uploads/about-banners/${req.files.image[0].filename}`;
-        if (oldImage) {
-          await AboutBannerController.deleteFile(oldImage);
-        }
+        // if (oldImage) {
+        //   await AboutBannerController.deleteFile(oldImage);
+        // }
       }
 
       if (req.files?.image_mobile) {
         data.image_mobile = `/uploads/about-banners/${req.files.image_mobile[0].filename}`;
-        if (oldImageMobile) {
-          await AboutBannerController.deleteFile(oldImageMobile);
-        }
+        // if (oldImageMobile) {
+        //   await AboutBannerController.deleteFile(oldImageMobile);
+        // }
       }
 
       await banner.update(data);
@@ -129,9 +129,9 @@ class AboutBannerController {
       const oldImage = banner.image;
       await banner.destroy();
 
-      if (oldImage) {
-        await AboutBannerController.deleteFile(oldImage);
-      }
+      // if (oldImage) {
+      //   await AboutBannerController.deleteFile(oldImage);
+      // }
 
       await CacheService.invalidate("aboutBanners");
       await CacheService.invalidate(`aboutBanner_${id}`);

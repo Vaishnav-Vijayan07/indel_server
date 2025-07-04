@@ -94,9 +94,9 @@ class JobApplicationsController {
             if (req.file) {
                 updateData.resume = `/uploads/job-applications/${req.file.filename}`;
                 Logger.info(`Updated resume for JobApplication ID ${id}: ${updateData.resume}`);
-                if (oldResume) {
-                    await JobApplicationsController.deleteFile(oldResume);
-                }
+                // if (oldResume) {
+                //     await JobApplicationsController.deleteFile(oldResume);
+                // }
             }
 
             await application.update(updateData);
@@ -120,9 +120,9 @@ class JobApplicationsController {
             const oldResume = application.resume;
             await application.destroy();
 
-            if (oldResume) {
-                await JobApplicationsController.deleteFile(oldResume);
-            }
+            // if (oldResume) {
+            //     await JobApplicationsController.deleteFile(oldResume);
+            // }
 
             await CacheService.invalidate("jobApplications");
             await CacheService.invalidate(`jobApplication_${id}`);

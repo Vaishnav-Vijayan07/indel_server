@@ -92,9 +92,9 @@ class AboutLifeAtIndelGalleryController {
       if (req.file) {
         data.image = `/uploads/about-life-at-indel-gallery/${req.file.filename}`;
         Logger.info(`Updated image for AboutLifeAtIndelGallery ID ${id}: ${data.image}`);
-        if (oldImage) {
-          await AboutLifeAtIndelGalleryController.deleteFile(oldImage);
-        }
+        // if (oldImage) {
+        //   await AboutLifeAtIndelGalleryController.deleteFile(oldImage);
+        // }
       }
 
       await item.update(data);
@@ -118,9 +118,9 @@ class AboutLifeAtIndelGalleryController {
       const oldImage = item.image;
       await item.destroy();
 
-      if (oldImage) {
-        await AboutLifeAtIndelGalleryController.deleteFile(oldImage);
-      }
+      // if (oldImage) {
+      //   await AboutLifeAtIndelGalleryController.deleteFile(oldImage);
+      // }
 
       await CacheService.invalidate("aboutLifeAtIndelGallery");
       await CacheService.invalidate(`aboutLifeAtIndelGallery_${id}`);
