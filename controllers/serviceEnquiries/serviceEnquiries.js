@@ -42,6 +42,9 @@ class ServiceEnquiriesController {
         },
       });
 
+      console.log("recaptchaResponse.data:", recaptchaResponse);
+      
+
       const { success, score } = recaptchaResponse.data;
 
       if (!success || score < 0.5) {
