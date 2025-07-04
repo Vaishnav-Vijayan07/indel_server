@@ -42,7 +42,7 @@ class ServiceEnquiriesController {
         },
       });
 
-      console.log("recaptchaResponse.data:", recaptchaResponse);
+      console.log("recaptchaResponse.data:", recaptchaResponse.data);
       
 
       const { success, score } = recaptchaResponse.data;
