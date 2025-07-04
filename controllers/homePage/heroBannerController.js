@@ -151,12 +151,15 @@ class HeroBannerController {
         }
       }
 
-      if (oldImage) {
-        await HeroBannerController.deleteFile(oldImage);
-      }
-      if (oldImageMobile) {
-        await HeroBannerController.deleteFile(oldImageMobile);
-      }
+      console.log(oldImage)
+      console.log(oldImageMobile)
+
+      // if (oldImage) {
+      //   await HeroBannerController.deleteFile(oldImage);
+      // }
+      // if (oldImageMobile) {
+      //   await HeroBannerController.deleteFile(oldImageMobile);
+      // }
 
       await heroBanner.update({
         title,
