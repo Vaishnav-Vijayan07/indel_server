@@ -27,19 +27,16 @@ const getStorage = (subfolder) => {
 const createUploadMiddleware = (subfolder) => {
   return multer({
     storage: getStorage(subfolder),
-    fileFilter: (req, file, cb) => {
-      const filetypes = /jpeg|jpg|png|svg|webp|mp4|mov|avi|pdf|xlsx/;
+    // fileFilter: (req, file, cb) => {
+    //   const filetypes = /jpeg|jpg|png|svg|webp|mp4|mov|avi|pdf|xlsx/;
 
-      const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-      const mimetype = filetypes.test(file.mimetype);
-      if (extname && mimetype) {
-        logger.info(`File uploaded: ${file}`);
-        logger.info(`File uploaded: ${file.originalname} - ${file.mimetype} - ${file.size} bytes`);
-        return cb(null, true);
-      }
-      logger.warn(`File rejected: ${file.originalname} - ${file.mimetype} - ${file.size} bytes`);
-      cb(new CustomError("Images only (jpeg, jpg, png)", 400));
-    },
+    //   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    //   const mimetype = filetypes.test(file.mimetype);
+    //   if (extname && mimetype) {
+    //     return cb(null, true);
+    //   }
+    //   cb(new CustomError("Images only (jpeg, jpg, png)", 400));
+    // },
   });
 };
 

@@ -19,6 +19,7 @@ async function importBranchesFromXlsx(filePath, sequelize) {
       branch_code: row["Branch Code"]?.toString(),
       name: row["Name of the Branch"],
       state: parseInt(row["State"]),
+      location: parseInt(row["Location ID"]),
       district: parseInt(row["DISTRICT"]),
       address_1: row["Address1"],
       address_2: row["Address2"],
@@ -32,7 +33,7 @@ async function importBranchesFromXlsx(filePath, sequelize) {
 
     // Validate required fields
     for (const branch of branchData) {
-      if (!branch.name || !branch.state || !branch.district) {
+      if (!branch.name || !branch.state || !branch.district || !branch.location) {
         throw new Error(`Missing required fields in branch: ${JSON.stringify(branch)}`);
       }
     }
@@ -40,9 +41,11 @@ async function importBranchesFromXlsx(filePath, sequelize) {
     // Bulk create branches with update on duplicate
     await Branches.bulkCreate(branchData, {
       updateOnDuplicate: [
+        "branch_code",
         "name",
         "state",
         "district",
+        "location",
         "address_1",
         "address_2",
         "address_3",

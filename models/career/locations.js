@@ -13,14 +13,6 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      state_id: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-        references: {
-          model: "states",
-          key: "id",
-        },
-      },
       district_id: {
         type: DataTypes.INTEGER,
         allowNull: true,
@@ -33,10 +25,6 @@ module.exports = (sequelize) => {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: true,
-      },
-      order: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
       },
     },
     {
