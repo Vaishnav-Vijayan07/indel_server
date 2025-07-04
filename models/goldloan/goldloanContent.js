@@ -29,6 +29,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      banner_image_mobile: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       banner_alt: {
         type: DataTypes.STRING,
         allowNull: true,

@@ -66,6 +66,11 @@ class GoldLoanContentController {
           Logger.info(`Uploaded icon for GoldLoanContent: ${updateData.hassle_free_image}`);
           await GoldLoanContentController.deleteFile(content.hassle_free_image);
         }
+        if (req.files.banner_image_mobile) {
+          updateData.banner_image_mobile = `/uploads/gold-loan-content/${req.files.banner_image_mobile[0].filename}`;
+          Logger.info(`Uploaded icon for GoldLoanContent: ${updateData.banner_image_mobile}`);
+          await GoldLoanContentController.deleteFile(content.banner_image_mobile);
+        }
       }
 
       await content.update(updateData);

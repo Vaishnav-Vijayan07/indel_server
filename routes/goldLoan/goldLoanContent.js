@@ -11,6 +11,7 @@ const uploadFields = upload.fields([
   { name: "banner_image", maxCount: 1 },
   { name: "steps_image", maxCount: 1 },
   { name: "hassle_free_image", maxCount: 1 },
+  { name: "banner_image_mobile", maxCount: 1 },
 ]);
 
 router.get("/", GoldLoanContentController.get);
