@@ -618,7 +618,7 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [indelValueContent, indelValues, approachPropositions] = await Promise.all([
+      const [indelValueContent, indelValues, approachPropositions, mobileBanners] = await Promise.all([
         models.IndelValueContent.findAll(),
         models.IndelValues.findAll({
           where: { is_active: true },
@@ -629,12 +629,17 @@ class WebController {
             is_active: true,
           },
         }),
+        models.ValuesBannerMobile.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
       ]);
 
       const data = {
         indelValueContent: indelValueContent[0] || null,
         indelValues,
         approachPropositions,
+        mobileBanners,
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
@@ -1085,7 +1090,7 @@ class WebController {
 
       const data = {
         careersContent: careersContent[0] || null,
-        careerBanners:banners,
+        careerBanners: banners,
         mobileBanners,
         careerGallery,
         careerStates,

@@ -26,6 +26,7 @@ const defineHistoryImages = require("./history/historyImages");
 const defineHistoryInceptionsYears = require("./history/historyInceptionsYears");
 const defineIndelValuesContent = require("./indelValues/indelValueContent");
 const defineIndelValues = require("./indelValues/indelValues");
+const defineValuesBannerMobile = require("./indelValues/mobileBanners");
 const defineApproachPropositions = require("./indelValues/approachProposition");
 const defineShadesOfIndelContent = require("./shadesOfIndel/shadesOfIndelContent");
 const defineDifferentShades = require("./shadesOfIndel/differentShades");
@@ -146,6 +147,8 @@ const models = {
   HistoryInceptionsYears: defineHistoryInceptionsYears(sequelize),
   IndelValueContent: defineIndelValuesContent(sequelize),
   IndelValues: defineIndelValues(sequelize),
+  ValuesBannerMobile: defineValuesBannerMobile(sequelize),
+
   ApproachPropositions: defineApproachPropositions(sequelize),
   ShadesOfIndelContent: defineShadesOfIndelContent(sequelize),
   DifferentShades: defineDifferentShades(sequelize),
