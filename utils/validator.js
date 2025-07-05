@@ -653,7 +653,7 @@ const validateCdLoanContentUpdate = [
   check("loan_offer_title").optional().notEmpty().withMessage("Loan Offer Title cannot be empty"),
   check("loan_offer_description").optional().notEmpty().withMessage("Loan Offer Description cannot be empty"),
   check("loan_offer_button_text").optional().notEmpty().withMessage("Loan Offer Button Text cannot be empty"),
-  check("loan_offer_button_link").optional().isURL().withMessage("Loan Offer Button Link must be a valid URL"),
+  // check("loan_offer_button_link").optional().isURL().withMessage("Loan Offer Button Link must be a valid URL"),
   check("covered_products_section_title").optional().notEmpty().withMessage("Covered Products Section Title cannot be empty"),
   check("eligibility_criteria_title").optional().notEmpty().withMessage("Eligibility Criteria Title cannot be empty"),
   check("eligibility_criteria_description").optional().notEmpty().withMessage("Eligibility Criteria Description cannot be empty"),
@@ -1481,12 +1481,12 @@ const validateHeaderContentsUpdate = [
   check("quick_pay_title").optional().notEmpty().withMessage("Quick Pay Title cannot be empty"),
   check("button_1_text").optional().notEmpty().withMessage("Button 1 Text cannot be empty"),
   check("button_1_inner_title").optional().notEmpty().withMessage("Button 1 Inner Title cannot be empty"),
-  check("button_2_link").optional().isURL().withMessage("Button 2 Link must be a valid URL"),
+  // check("button_2_link").optional().isURL().withMessage("Button 2 Link must be a valid URL"),
   check("button_2_text").optional().notEmpty().withMessage("Button 2 Text cannot be empty"),
   // check("apple_dowload_icon").optional().isURL().withMessage("Apple Download Icon must be a valid URL"),
   // check("andrioid_download_icon").optional().isURL().withMessage("Android Download Icon must be a valid URL"),
-  check("apple_dowload_link").optional().isURL().withMessage("Apple Download Link must be a valid URL"),
-  check("andrioid_download_link").optional().isURL().withMessage("Android Download Link must be a valid URL"),
+  // check("apple_dowload_link").optional().isURL().withMessage("Apple Download Link must be a valid URL"),
+  // check("andrioid_download_link").optional().isURL().withMessage("Android Download Link must be a valid URL"),
 ];
 
 const validatePaymentModesUpdate = [
@@ -1519,7 +1519,7 @@ const validatePopupServicesUpdate = [
   check("image_alt").optional().notEmpty().withMessage("Image Alt cannot be empty"),
   check("title").optional().notEmpty().withMessage("Title is required"),
   check("description").optional().notEmpty().withMessage("Description cannot be empty"),
-  check("button_link").optional().isURL().withMessage("Button Link must be a valid URL"),
+  // check("button_link").optional().isURL().withMessage("Button Link must be a valid URL"),
   check("button_text").optional().notEmpty().withMessage("Button Text cannot be empty"),
   // check("image").optional().isURL().withMessage("Image must be a valid URL"),
   check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
