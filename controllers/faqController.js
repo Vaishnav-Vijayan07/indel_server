@@ -57,11 +57,11 @@ class FaqController {
       const cacheKey = `web${modelName}_${stateId || "null"}`;
 
       // 5. Check cache
-      const cachedData = await CacheService.get(cacheKey);
-      if (cachedData) {
-        logger.info(`Cache hit for ${cacheKey}`);
-        return res.json({ status: "success", faqs: JSON.parse(cachedData) });
-      }
+      // const cachedData = await CacheService.get(cacheKey);
+      // if (cachedData) {
+      //   logger.info(`Cache hit for ${cacheKey}`);
+      //   return res.json({ status: "success", faqs: JSON.parse(cachedData) });
+      // }
 
       // 6. Fetch FAQs based on location and type
       const faqs = await faqModel.findAll({
