@@ -1740,19 +1740,9 @@ class WebController {
           order: [["order", "ASC"]],
         }),
         models.IndelCares.findAndCountAll({
-          attributes: [
-            "id",
-            "title",
-            "description",
-            "image",
-            "event_date",
-            "image_alt",
-            "is_slider",
-            "is_active",
-            "order",
-            "slug",
-          ],
-          where: { is_active: true, is_slider: false },
+
+          attributes: ["id", "title", "description", "image", "event_date", "image_alt", "is_slider", "is_active", "order", "slug"],
+          where: { is_active: true},
           order: [["order", "ASC"]],
           limit,
           offset,

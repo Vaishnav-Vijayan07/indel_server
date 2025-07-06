@@ -7,12 +7,14 @@ const InvestorsController = require("../controllers/investorsController");
 const { validateJobApplicationSubmission } = require("../utils/validator");
 const JobApplicationSubmissionController = require("../controllers/career/jobApplicationController");
 const MetaDataController = require("../controllers/meta/metaDataController");
+const GoldRateController = require("../controllers/general/goldRateController");
 
 const upload = createUploadMiddleware("job-applications");
 const uploadField = upload.single("file");
 const uploadApplicantFile = upload.single("applicant[file]");
 
 router.get("/meta", MetaDataController.getMetaData);
+router.get("/gold-rate", GoldRateController.fetchGoldRate);
 router.get("/meta-slug", MetaDataController.getMetaForSlug);
 router.get("/home", WebController.getHomeData);
 router.get("/float-buttons", WebController.floatButtons);
