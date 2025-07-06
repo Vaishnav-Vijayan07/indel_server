@@ -21,41 +21,43 @@ class ServiceEnquiriesController {
   // }
   static async create(req, res, next) {
     try {
-      const { recaptcha, ...data } = req.body;
+      const { recaptcha, enquiry_type, ...rest } = req.body;
+      const data = { ...rest, enquiry_type };
 
       console.log("req.body:", req.body);
 
       console.log("data:", data);
       console.log("recaptcha:", recaptcha);
-
       // Validate reCAPTCHA token
-      if (!recaptcha) {
-        return res.status(400).json({ success: false, message: "reCAPTCHA token is missing" });
-      }
-
-      const recaptchaResponse = await axios.post(
-        "https://www.google.com/recaptcha/api/siteverify",
-        new URLSearchParams({
-          secret: process.env.RECAPTCHA_SECRET_KEY,
-          response: recaptcha,
-        }).toString(),
-        {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
+      if (enquiry_type === "contact") {
+        if (!recaptcha) {
+          return res.status(400).json({ success: false, message: "reCAPTCHA token is missing" });
         }
-      );
 
-      console.log("recaptchaResponse.data:", recaptchaResponse.data);
+        const recaptchaResponse = await axios.post(
+          "https://www.google.com/recaptcha/api/siteverify",
+          new URLSearchParams({
+            secret: process.env.RECAPTCHA_SECRET_KEY,
+            response: recaptcha,
+          }).toString(),
+          {
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          }
+        );
 
-      const { success, score } = recaptchaResponse.data;
+        console.log("recaptchaResponse.data:", recaptchaResponse.data);
 
-      if (!success || score < 0.5) {
-        // Adjust score threshold as needed (0.5 is a common threshold for v3)
-        return res.status(400).json({
-          success: false,
-          message: "reCAPTCHA verification failed. Please try again.",
-        });
+        const { success, score } = recaptchaResponse.data;
+
+        if (!success || score < 0.5) {
+          // Adjust score threshold as needed (0.5 is a common threshold for v3)
+          return res.status(400).json({
+            success: false,
+            message: "reCAPTCHA verification failed. Please try again.",
+          });
+        }
       }
 
       // Proceed with creating the service enquiry
