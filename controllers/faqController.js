@@ -9,12 +9,14 @@ class FaqController {
   static async getFaqData(req, res, next) {
     // Get type from query parameters or body
     const type = req.query.type || req.body.type || "home";
-
+    
     // 1. Try to get stateId and stateName from session
     let stateId = req.session?.stateId || null;
     let stateName = req.session?.stateName || "Global";
 
     console.log("Ip address ===>", stateId, stateName);
+    console.log("Request headers ===>", req.ip);
+    
 
     // 2. If not in session, call geolocation API and store in session
     if (!stateId) {
