@@ -218,7 +218,7 @@ const validateHomePageContentUpdate = [
   check("about_sub_title").optional().notEmpty().withMessage("About sub title cannot be empty"),
   check("about_description").optional().notEmpty().withMessage("About description cannot be empty"),
   check("about_button_name").optional().notEmpty().withMessage("About button name cannot be empty"),
-  check("about_button_url").optional().notEmpty().withMessage("About button URL cannot be empty"),
+  // check("about_button_url").optional().notEmpty().withMessage("About button URL cannot be empty"),
   check("step_title").optional().notEmpty().withMessage("Step title cannot be empty"),
   check("life_section_title").optional().notEmpty().withMessage("Life section title cannot be empty"),
   check("life_section_description").optional().notEmpty().withMessage("Life section description cannot be empty"),
@@ -421,7 +421,7 @@ const validateServicesPageContentUpdate = [
   check("remit_section_title").optional().notEmpty().withMessage("Remit Section Title cannot be empty"),
   check("remit_section_description").optional().notEmpty().withMessage("Remit Section Description cannot be empty"),
   check("remit_section_button_title").optional().notEmpty().withMessage("Remit Section Button Title cannot be empty"),
-  check("remit_section_button_link").optional().isURL().withMessage("Remit Section Button Link must be a valid URL"),
+  // check("remit_section_button_link").optional().isURL().withMessage("Remit Section Button Link must be a valid URL"),
 ];
 
 const validateServiceBenefits = [
@@ -680,7 +680,7 @@ const validateCareerContentsUpdate = [
   check("page_title").optional().notEmpty().withMessage("Page Title cannot be empty"),
   check("find_job_title").optional().notEmpty().withMessage("Find Job Title cannot be empty"),
   check("find_job_button_name").optional().notEmpty().withMessage("Find Job Button Name cannot be empty"),
-  check("find_job_button_link").optional().isURL().withMessage("Find Job Button Link must be a valid URL"),
+  // check("find_job_button_link").optional().isURL().withMessage("Find Job Button Link must be a valid URL"),
   check("make_your_move_title").optional().notEmpty().withMessage("Make Your Move Title cannot be empty"),
   check("make_your_move_description").optional().notEmpty().withMessage("Make Your Move Description cannot be empty"),
   check("make_your_move_").optional().notEmpty().withMessage("Make Your Move cannot be empty"),
@@ -688,13 +688,13 @@ const validateCareerContentsUpdate = [
   check("gallery_sub_title").optional().notEmpty().withMessage("Gallery Sub Title cannot be empty"),
   check("gallery_description").optional().notEmpty().withMessage("Gallery Description cannot be empty"),
   check("gallery_button_text").optional().notEmpty().withMessage("Gallery Button Text cannot be empty"),
-  check("gallery_button_link").optional().isURL().withMessage("Gallery Button Link must be a valid URL"),
+  // check("gallery_button_link").optional().isURL().withMessage("Gallery Button Link must be a valid URL"),
   check("benefits_title").optional().notEmpty().withMessage("Benefits Title cannot be empty"),
   check("awards_title").optional().notEmpty().withMessage("Awards Title cannot be empty"),
   check("testimonial_title").optional().notEmpty().withMessage("Testimonial Title cannot be empty"),
   check("testimonial_description").optional().notEmpty().withMessage("Testimonial Description cannot be empty"),
   check("testimonial_button_name").optional().notEmpty().withMessage("Testimonial Button Name cannot be empty"),
-  check("testimonial_button_link").optional().isURL().withMessage("Testimonial Button Link must be a valid URL"),
+  // check("testimonial_button_link").optional().isURL().withMessage("Testimonial Button Link must be a valid URL"),
 ];
 
 const validateCareerBannersUpdate = [
@@ -798,7 +798,7 @@ const validateBlogPageContentUpdate = [
   check("title").optional().notEmpty().withMessage("Title cannot be empty"),
   check("slider_title").optional().notEmpty().withMessage("Slider Title cannot be empty"),
   check("slider_button_text").optional().notEmpty().withMessage("Slider Button Text cannot be empty"),
-  check("slider_button_link").optional().isURL().withMessage("Slider Button Link must be a valid URL"),
+  // check("slider_button_link").optional().isURL().withMessage("Slider Button Link must be a valid URL"),
   check("all_blogs_title").optional().notEmpty().withMessage("All Blogs Title cannot be empty"),
 ];
 
@@ -841,7 +841,7 @@ const validateCSRPageContentUpdate = [
   check("title").optional().notEmpty().withMessage("Title cannot be empty"),
   check("slider_title").optional().notEmpty().withMessage("Slider Title cannot be empty"),
   check("slider_button_text").optional().notEmpty().withMessage("Slider Button Text cannot be empty"),
-  check("slider_button_link").optional().isURL().withMessage("Slider Button Link must be a valid URL"),
+  // check("slider_button_link").optional().isURL().withMessage("Slider Button Link must be a valid URL"),
   check("all_csr_title").optional().notEmpty().withMessage("All CSR Title cannot be empty"),
 ];
 
@@ -1405,24 +1405,24 @@ const validateFooterContentUpdate = [
     .withMessage("Toll Free Number must be in format: 1800 4253 990 or 10-15 digits"),
   check("email").optional().isEmail().withMessage("Email must be valid"),
   check("button_1_text").optional().notEmpty().withMessage("Button 1 Text cannot be empty"),
-  check("button_1_link").optional().isURL().withMessage("Button 1 Link must be a valid URL"),
+  // check("button_1_link").optional().isURL().withMessage("Button 1 Link must be a valid URL"),
   check("button_2_text").optional().notEmpty().withMessage("Button 2 Text cannot be empty"),
-  check("button_2_link").optional().isURL().withMessage("Button 2 Link must be a valid URL"),
-  check("icon_section_link").optional().isURL().withMessage("Icon Section Link must be a valid URL"),
+  // check("button_2_link").optional().isURL().withMessage("Button 2 Link must be a valid URL"),
+  // check("icon_section_link").optional().isURL().withMessage("Icon Section Link must be a valid URL"),
   check("icon_section_text").optional().notEmpty().withMessage("Icon Section Text cannot be empty"),
   check("social_media_text").optional().notEmpty().withMessage("Social Media Text cannot be empty"),
 ];
 
 const validateSocialMediaIconsUpdate = [
   check("title").optional().notEmpty().withMessage("Title is required"),
-  check("link").optional().notEmpty().isURL().withMessage("Link must be a valid URL"),
+  // check("link").optional().notEmpty().isURL().withMessage("Link must be a valid URL"),
   check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
   check("order").optional().isInt().withMessage("Order must be an integer"),
 ];
 
 const validateSocialMediaIcons = [
   check("title").notEmpty().withMessage("Title is required"),
-  check("link").notEmpty().isURL().withMessage("Link must be a valid URL"),
+  // check("link").notEmpty().isURL().withMessage("Link must be a valid URL"),
   check("is_active").isBoolean().withMessage("Is active must be a boolean"),
   check("order").isInt().withMessage("Order must be an integer"),
 ];
@@ -1491,14 +1491,14 @@ const validateHeaderContentsUpdate = [
 
 const validatePaymentModesUpdate = [
   check("title").optional().notEmpty().withMessage("Title is required"),
-  check("link").optional().notEmpty().isURL().withMessage("Link must be a valid URL"),
+  // check("link").optional().notEmpty().isURL().withMessage("Link must be a valid URL"),
   check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
   check("order").optional().isInt().withMessage("Order must be an integer"),
 ];
 
 const validatePaymentModes = [
   check("title").notEmpty().withMessage("Title is required"),
-  check("link").notEmpty().isURL().withMessage("Link must be a valid URL"),
+  // check("link").notEmpty().isURL().withMessage("Link must be a valid URL"),
   check("is_active").isBoolean().withMessage("Is active must be a boolean"),
   check("order").isInt().withMessage("Order must be an integer"),
 ];
@@ -1529,7 +1529,7 @@ const validatePopupServices = [
   check("image_alt").notEmpty().withMessage("Image Alt cannot be empty"),
   check("title").notEmpty().withMessage("Title is required"),
   check("description").notEmpty().withMessage("Description cannot be empty"),
-  check("button_link").isURL().withMessage("Button Link must be a valid URL"),
+  // check("button_link").isURL().withMessage("Button Link must be a valid URL"),
   check("button_text").notEmpty().withMessage("Button Text cannot be empty"),
   // check("image").isURL().withMessage("Image must be a valid URL"),
   check("is_active").isBoolean().withMessage("Is active must be a boolean"),
@@ -1541,7 +1541,7 @@ const validateLoanTypesUpdate = [
   check("image_alt").optional().notEmpty().withMessage("Image Alt is required"),
   check("sub_title").optional().notEmpty().withMessage("Sub Title cannot be empty"),
   check("description").optional().notEmpty().withMessage("Description cannot be empty"),
-  check("link").optional().isURL().withMessage("Link must be a valid URL"),
+  // check("link").optional().isURL().withMessage("Link must be a valid URL"),
   check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
   check("order").optional().isInt().withMessage("Order must be an integer"),
 ];
@@ -1550,7 +1550,7 @@ const validateLoanTypes = [
   check("image_alt").notEmpty().withMessage("Image Alt is required"),
   check("sub_title").notEmpty().withMessage("Sub Title cannot be empty"),
   check("description").notEmpty().withMessage("Description cannot be empty"),
-  check("link").isURL().withMessage("Link must be a valid URL"),
+  // check("link").isURL().withMessage("Link must be a valid URL"),
   check("is_active").isBoolean().withMessage("Is active must be a boolean"),
   check("order").isInt().withMessage("Order must be an integer"),
 ];
