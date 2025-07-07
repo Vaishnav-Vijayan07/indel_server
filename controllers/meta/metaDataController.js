@@ -23,6 +23,8 @@ const typeToDbMap = {
   gallery: models.GalleryPageContent,
   blog: models.BlogPageContent,
   blogItem: models.Blogs,
+  csrItem: models.IndelCares,
+  indelcares: models.IndelCaresContent,
   newsItem: models.News,
   news: models.NewsPageContent,
   branchlocator: models.BranchLocatorPageContents,
@@ -89,7 +91,9 @@ class MetaDataController {
       const metaData = await typeToDbMap[page].findOne({
         attributes: ["id", "meta_title", "meta_description", "meta_keywords", "image", "image_alt", "slug"],
         where: { slug },
+        logging: console.log,
       });
+
       if (!metaData) {
         return res.status(404).json({ error: "Meta data not found" });
       }

@@ -25,6 +25,11 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      recent_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: "Recent Events",
+      },
       slider_title: {
         type: DataTypes.STRING,
         allowNull: true,

@@ -29,7 +29,7 @@ router.get("/csr", WebController.CsrData);
 router.get("/csr/:slug", WebController.csrDetails);
 router.get("/news", WebController.allNews);
 router.get("/news-latest", WebController.newsDataLatest);
-router.get("/news/:slug", WebController.newsDetails);
+router.get("/news/:id", WebController.newsDetails);
 router.get("/indel-values", WebController.IndelValuesData);
 router.get("/shades-of-indel", WebController.ShadesOfIndel);
 router.get("/our-services", WebController.OurServices);
