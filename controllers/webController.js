@@ -12,6 +12,8 @@ class WebController {
     let stateId = req.session?.stateId || null;
     let stateName = req.session?.stateName || "Global";
 
+    console.log("Ip address ===>",stateId, stateName);
+    
     // 2. If not in session, call geolocation API and store in session
     if (!stateId) {
       const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
