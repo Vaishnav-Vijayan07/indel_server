@@ -226,34 +226,33 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks, teamMessages, serviceImages, statsData, accolades] =
-        await Promise.all([
-          models.AboutBanner.findAll({
-            where: {
-              is_active: true,
-            },
-            order: [["order", "ASC"]],
-            attributes: ["id", "title", "super_title", "image", "image_mobile", "alt_text", "order", "is_active"],
-          }),
-          models.AboutPageContent.findAll(),
-          models.AboutLifeAtIndelGallery.findAll({
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }),
-          models.AboutQuickLinks.findAll({
-            order: [["order", "ASC"]],
-          }),
-          models.AboutMessageFromTeam.findAll({
-            where: { is_active: true },
-          }),
-          models.AboutServiceGallery.findAll(),
-          models.AboutStatistics.findAll({
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-            limit: 4,
-          }),
-          models.AboutAccolades.findAll(),
-        ]);
+      const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks, teamMessages, serviceImages, statsData, accolades] = await Promise.all([
+        models.AboutBanner.findAll({
+          where: {
+            is_active: true,
+          },
+          order: [["order", "ASC"]],
+          attributes: ["id", "title", "super_title", "image", "image_mobile", "alt_text", "order", "is_active"],
+        }),
+        models.AboutPageContent.findAll(),
+        models.AboutLifeAtIndelGallery.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.AboutQuickLinks.findAll({
+          order: [["order", "ASC"]],
+        }),
+        models.AboutMessageFromTeam.findAll({
+          where: { is_active: true },
+        }),
+        models.AboutServiceGallery.findAll(),
+        models.AboutStatistics.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+          limit: 4,
+        }),
+        models.AboutAccolades.findAll(),
+      ]);
 
       const data = {
         aboutBanner,
@@ -543,9 +542,14 @@ class WebController {
         limit: 2,
       });
 
+      const blogPageContent = await models.BlogPageContent.findOne({
+        attributes: ["recent_title", "id"],
+      });
+
       const data = {
         blog,
         recentBlogs,
+        title: blogPageContent?.recent_title || "Recent Blogs",
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
@@ -1505,18 +1509,7 @@ class WebController {
           order: [["order", "ASC"]],
         }),
         models.IndelCares.findAndCountAll({
-          attributes: [
-            "id",
-            "title",
-            "description",
-            "image",
-            "event_date",
-            "image_alt",
-            "is_slider",
-            "is_active",
-            "order",
-            "slug",
-          ],
+          attributes: ["id", "title", "description", "image", "event_date", "image_alt", "is_slider", "is_active", "order", "slug"],
           where: { is_active: true },
           order: [["order", "ASC"]],
           limit,
@@ -1571,9 +1564,14 @@ class WebController {
         limit: 2,
       });
 
+      const eventPageContent = await models?.IndelCaresContent?.findOne({
+        attributes: ["id", "recent_title"],
+      });
+
       const data = {
         event,
         recentEvents,
+        title: eventPageContent?.recent_title || "Recent Events",
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
@@ -2010,11 +2008,11 @@ class WebController {
   }
 
   static async newsDetails(req, res, next) {
-    const { slug } = req.params;
-    const cacheKey = `webNewsData_${slug}`;
+    const { id } = req.params;
+    const cacheKey = `webNewsData_${id}`;
 
     try {
-      await CacheService.invalidate(`webNewsData_${slug}`);
+      await CacheService.invalidate(`webNewsData_${id}`);
       const cachedData = await CacheService.get(cacheKey);
       // if (cachedData) {
       //   logger.info("Serving blog details from cache");
@@ -2022,7 +2020,7 @@ class WebController {
       // }
 
       const news = await models.News.findOne({
-        where: { slug },
+        where: { id },
       });
 
       const newsId = news?.id;
@@ -2047,9 +2045,14 @@ class WebController {
         limit: 2,
       });
 
+      const newsPageContent = await models.NewsPageContent.findOne({
+        attributes: ["id", "recent_title"],
+      });
+
       const data = {
         news,
         recentNews,
+        title: newsPageContent?.recent_title || "Recent News",
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
