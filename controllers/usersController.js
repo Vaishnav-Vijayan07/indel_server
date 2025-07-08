@@ -3,16 +3,50 @@ const CustomError = require("../utils/customError");
 const Logger = require("../services/logger");
 const CacheService = require("../services/cacheService"); // optional
 const User = models.User;
+const bcrypt = require("bcrypt");
 
 class UsersController {
-  // Create a new user
   static async create(req, res, next) {
     try {
-      const userData = { ...req.body };
+      const { username, password, email, firstName, lastName, phone, isActive, role } = req.body;
+
+      // Manual validation
+      if (!username || !password) {
+        return res.status(400).json({ success: false, message: "Username and password are required." });
+      }
+      if (role && !["admin", "user", "hr", "manager", "hr_assistant"].includes(role)) {
+        return res.status(400).json({ success: false, message: "Invalid role." });
+      }
+      // Optional: Validate email format
+      if (email && !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+        return res.status(400).json({ success: false, message: "Invalid email format." });
+      }
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const userData = {
+        username,
+        password: hashedPassword,
+        email,
+        firstName,
+        lastName,
+        phone,
+        isActive,
+        role,
+      };
+
       const user = await User.create(userData);
       Logger.info(`User created: ${user.username}`);
       res.status(201).json({ success: true, data: user, message: "User created successfully" });
     } catch (error) {
+      // Handle unique constraint errors gracefully
+      if (error.name === "SequelizeUniqueConstraintError") {
+        return res.status(400).json({ success: false, message: "Username or email already exists." });
+      }
+      // Handle validation errors
+      if (error.name === "SequelizeValidationError") {
+        return res.status(400).json({ success: false, message: error.errors[0].message });
+      }
       next(error);
     }
   }
