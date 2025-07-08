@@ -1140,10 +1140,10 @@ class WebController {
 
     try {
       const cachedData = await CacheService.get(cacheKey);
-      if (cachedData) {
-        logger.info("Serving Career Page from cache");
-        return res.json({ status: "success", data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   logger.info("Serving Career Page from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
 
       const jobs = await models.CareerJobs.findAll({
         where: whereClause,
