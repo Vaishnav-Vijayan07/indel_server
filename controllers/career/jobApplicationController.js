@@ -457,6 +457,7 @@ class JobApplicationSubmissionController {
         applicant_id: applicantRecord.id,
         status_id: pendingStatus.id,
         role_id: general_application?.role_id,
+        preferred_role_name: general_application?.preferred_role_name,
       });
 
       // Invalidate caches
