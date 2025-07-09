@@ -766,7 +766,6 @@ const validateCareerRoles = [
 // ];
 
 const validateJobsUpdate = [
-  check("role_id").optional().isInt({ min: 1 }).withMessage("Role ID must be a positive integer"),
   check("location_id").optional().isInt({ min: 1 }).withMessage("Location ID must be a positive integer"),
   check("state_id").optional().isInt({ min: 1 }).withMessage("State ID must be a positive integer"),
   check("job_title").optional().trim().isLength({ max: 255 }).withMessage("Job title must not exceed 255 characters"),
@@ -778,7 +777,6 @@ const validateJobsUpdate = [
 ];
 
 const validateJobs = [
-  check("role_id").exists().isInt({ min: 1 }).withMessage("Role ID is required and must be a positive integer"),
   check("location_id").exists().isInt({ min: 1 }).withMessage("Location ID is required and must be a positive integer"),
   check("state_id").exists().isInt({ min: 1 }).withMessage("State ID is required and must be a positive integer"),
   check("job_title").optional().trim().isLength({ max: 255 }).withMessage("Job title must not exceed 255 characters"),
