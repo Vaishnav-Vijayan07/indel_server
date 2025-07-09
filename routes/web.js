@@ -74,6 +74,7 @@ router.get("/career/resume", uploadField, JobApplicationsController.getAll);
 router.post("/careers/job_application", validateJobApplicationSubmission, uploadApplicantFile, JobApplicationSubmissionController.submitApplication);
 
 router.get("/careers/job_applications", JobApplicationSubmissionController.listApplications);
+router.get("/careers/export_job_applications", JobApplicationSubmissionController.exportApplicationsToExcel);
 
 router.post(
   "/careers/general_application",
