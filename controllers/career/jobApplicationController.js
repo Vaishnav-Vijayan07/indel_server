@@ -787,6 +787,146 @@ class JobApplicationSubmissionController {
       next(error);
     }
   }
+
+  static async exportGeneralApplicationsToExcel(req, res, next) {
+    try {
+      const { role_id, location_id, status_id, from_date, to_date } = req.query;
+
+      // Build filter conditions (same as listGeneralApplications)
+      const whereConditions = {};
+      const applicantWhere = {};
+
+      if (status_id) {
+        whereConditions.status_id = parseInt(status_id);
+      }
+
+      if (role_id) {
+        whereConditions.role_id = parseInt(role_id);
+      }
+
+      if (location_id) {
+        applicantWhere.preferred_location = parseInt(location_id);
+      }
+
+      if (from_date && to_date) {
+        whereConditions.application_date = {
+          [models.Sequelize.Op.between]: [new Date(from_date), new Date(to_date)],
+        };
+      } else if (from_date) {
+        whereConditions.application_date = {
+          [models.Sequelize.Op.gte]: new Date(from_date),
+        };
+      } else if (to_date) {
+        whereConditions.application_date = {
+          [models.Sequelize.Op.lte]: new Date(to_date),
+        };
+      }
+
+      // Fetch all general applications without pagination for export
+      const { rows: applications } = await models.GeneralApplications.findAndCountAll({
+        where: whereConditions,
+        include: [
+          {
+            model: models.Applicants,
+            as: "applicant",
+            attributes: ["id", "name", "email", "phone", "file"],
+            where: applicantWhere,
+            include: [
+              {
+                model: models.CareerLocations,
+                as: "location",
+                attributes: ["id", "location_name"],
+              },
+            ],
+          },
+          {
+            model: models.CareerRoles,
+            as: "role",
+            attributes: ["id", "role_name"],
+          },
+          {
+            model: models.ApplicationStatus,
+            as: "status",
+            attributes: ["id", "status_name"],
+          },
+        ],
+        order: [["application_date", "DESC"]],
+      });
+
+      // Create Excel workbook
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("General Applications");
+
+      // Define columns
+      worksheet.columns = [
+        { header: "Application ID", key: "applicationId", width: 15 },
+        { header: "Applicant Name", key: "applicantName", width: 20 },
+        { header: "Email", key: "email", width: 25 },
+        { header: "Phone", key: "phone", width: 15 },
+        { header: "Role", key: "role", width: 20 },
+        { header: "Preferred Location", key: "preferredLocation", width: 20 },
+        { header: "Status", key: "status", width: 15 },
+        { header: "Application Date", key: "applicationDate", width: 20 },
+        { header: "Resume", key: "resume", width: 30 },
+      ];
+
+      // Style the header row
+      worksheet.getRow(1).font = { bold: true };
+      worksheet.getRow(1).fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFE0E0E0" },
+      };
+
+      // Add data rows
+      applications.forEach((app) => {
+        const row = worksheet.addRow({
+          applicationId: app.id,
+          applicantName: app.applicant?.name || "N/A",
+          email: app.applicant?.email || "N/A",
+          phone: app.applicant?.phone || "N/A",
+          role: app.role?.role_name || "N/A",
+          preferredLocation: app.applicant?.location?.location_name || "N/A",
+          status: app.status?.status_name || "N/A",
+          applicationDate: app.application_date ? new Date(app.application_date).toLocaleDateString() : "N/A",
+          resume: app.applicant?.file ? `Resume_${app.applicant.name}_${app.id}` : "No Resume",
+        });
+
+        // Add hyperlink for resume if file exists
+        if (app.applicant?.file) {
+          const resumeCell = row.getCell("resume");
+
+          // Construct the full URL for the resume
+          const baseUrl = process.env.BASE_URL || req.protocol + "://" + req.get("host");
+          const resumeUrl = `${baseUrl}/${app.applicant.file}`;
+
+          // Add hyperlink
+          resumeCell.value = {
+            text: `Resume_${app.applicant.name}_${app.id}`,
+            hyperlink: resumeUrl,
+          };
+
+          // Style the hyperlink
+          resumeCell.font = {
+            color: { argb: "FF0000FF" },
+            underline: true,
+          };
+        }
+      });
+
+      // Set response headers for Excel download
+      const filename = `general_applications_${new Date().toISOString().split("T")[0]}.xlsx`;
+
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+
+      // Write to response
+      await workbook.xlsx.write(res);
+      res.end();
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = JobApplicationSubmissionController;
