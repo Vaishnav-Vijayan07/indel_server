@@ -5,6 +5,7 @@ const { sendOtpEmail } = require("../../services/emailService");
 const CustomError = require("../../utils/customError");
 const crypto = require("crypto");
 const ExcelJS = require("exceljs");
+const { Op } = require("sequelize");
 
 class JobApplicationSubmissionController {
   // Generate and send OTP
@@ -202,7 +203,17 @@ class JobApplicationSubmissionController {
 
   static async listApplications(req, res, next) {
     try {
-      const { role_id, location_id, state_id, status_id, applicant_location_id, limit = "10", offset = "0" } = req.query;
+      const {
+        role_id,
+        location_id,
+        state_id,
+        status_id,
+        applicant_location_id,
+        limit = "10",
+        offset = "0",
+        from_date,
+        to_date,
+      } = req.query;
 
       const parsedLimit = Math.max(1, parseInt(limit, 10) || 10); // Ensure limit >= 1
       const parsedOffset = Math.max(0, parseInt(offset, 10) || 0); // Ensure offset >= 0
@@ -243,6 +254,20 @@ class JobApplicationSubmissionController {
 
       if (applicant_location_id) {
         applicantWhere.preferred_location = parseInt(applicant_location_id);
+      }
+
+      if (from_date && to_date) {
+        whereConditions.application_date = {
+          [Op.between]: [new Date(from_date), new Date(to_date)],
+        };
+      } else if (from_date) {
+        whereConditions.application_date = {
+          [Op.gte]: new Date(from_date),
+        };
+      } else if (to_date) {
+        whereConditions.application_date = {
+          [Op.lte]: new Date(to_date),
+        };
       }
 
       const { rows: applications, count: total } = await models.JobApplications.findAndCountAll({
@@ -290,7 +315,7 @@ class JobApplicationSubmissionController {
             attributes: ["id", "status_name"],
           },
         ],
-        order: [["created_at", "DESC"]],
+        order: [["application_date", "DESC"]],
         // attributes: ["id", "application_date", "order", "is_active"],
         limit: parsedLimit,
         offset: parsedOffset,
@@ -452,7 +477,7 @@ class JobApplicationSubmissionController {
 
   static async listGeneralApplications(req, res, next) {
     try {
-      const { role_id, location_id, status_id, limit = "10", offset = "0" } = req.query;
+      const { role_id, location_id, status_id, from_date, to_date, limit = "10", offset = "0" } = req.query;
 
       const parsedLimit = Math.max(1, parseInt(limit, 10) || 10); // Ensure limit >= 1
       const parsedOffset = Math.max(0, parseInt(offset, 10) || 0); // Ensure offset >= 0
@@ -484,6 +509,20 @@ class JobApplicationSubmissionController {
 
       if (location_id) {
         applicantWhere.preferred_location = parseInt(location_id);
+      }
+
+      if (from_date && to_date) {
+        whereConditions.application_date = {
+          [Op.between]: [new Date(from_date), new Date(to_date)],
+        };
+      } else if (from_date) {
+        whereConditions.application_date = {
+          [Op.gte]: new Date(from_date),
+        };
+      } else if (to_date) {
+        whereConditions.application_date = {
+          [Op.lte]: new Date(to_date),
+        };
       }
 
       const { rows: applications, count: total } = await models.GeneralApplications.findAndCountAll({
@@ -631,8 +670,8 @@ class JobApplicationSubmissionController {
 
   static async exportApplicationsToExcel(req, res, next) {
     try {
-      const { role_id, location_id, state_id, status_id, applicant_location_id } = req.query;
-
+      const { role_id, location_id, state_id, status_id, applicant_location_id, from_date, to_date } = req.query;
+      
       // Build filter conditions (same as your listing API)
       const whereConditions = {};
       const jobWhere = {};
@@ -656,6 +695,20 @@ class JobApplicationSubmissionController {
 
       if (applicant_location_id) {
         applicantWhere.preferred_location = parseInt(applicant_location_id);
+      }
+
+      if (from_date && to_date) {
+        whereConditions.application_date = {
+          [Op.between]: [new Date(from_date), new Date(to_date)],
+        };
+      } else if (from_date) {
+        whereConditions.application_date = {
+          [Op.gte]: new Date(from_date),
+        };
+      } else if (to_date) {
+        whereConditions.application_date = {
+          [Op.lte]: new Date(to_date),
+        };
       }
 
       // Fetch all applications without pagination for export
@@ -704,7 +757,7 @@ class JobApplicationSubmissionController {
             attributes: ["id", "status_name"],
           },
         ],
-        order: [["created_at", "DESC"]],
+        order: [["application_date", "DESC"]],
       });
 
       // Create Excel workbook
@@ -810,15 +863,15 @@ class JobApplicationSubmissionController {
 
       if (from_date && to_date) {
         whereConditions.application_date = {
-          [models.Sequelize.Op.between]: [new Date(from_date), new Date(to_date)],
+          [Op.between]: [new Date(from_date), new Date(to_date)],
         };
       } else if (from_date) {
         whereConditions.application_date = {
-          [models.Sequelize.Op.gte]: new Date(from_date),
+          [Op.gte]: new Date(from_date),
         };
       } else if (to_date) {
         whereConditions.application_date = {
-          [models.Sequelize.Op.lte]: new Date(to_date),
+          [Op.lte]: new Date(to_date),
         };
       }
 
