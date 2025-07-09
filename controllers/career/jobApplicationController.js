@@ -671,7 +671,7 @@ class JobApplicationSubmissionController {
   static async exportApplicationsToExcel(req, res, next) {
     try {
       const { role_id, location_id, state_id, status_id, applicant_location_id, from_date, to_date } = req.query;
-      
+
       // Build filter conditions (same as your listing API)
       const whereConditions = {};
       const jobWhere = {};
@@ -801,7 +801,7 @@ class JobApplicationSubmissionController {
           state: app.job?.state?.state_name || "N/A",
           // applicantLocation: app.applicant?.location?.location_name || "N/A",
           status: app.status?.status_name || "N/A",
-          applicationDate: app.application_date ? new Date(app.application_date).toLocaleDateString() : "N/A",
+          applicationDate: app.application_date ? new Date(app.application_date).toLocaleDateString("en-GB") : "N/A",
           resume: app.applicant?.file ? `Resume_${app.applicant.name}_${app.id}` : "No Resume",
         });
 
@@ -941,7 +941,7 @@ class JobApplicationSubmissionController {
           role: app.role?.role_name || "N/A",
           preferredLocation: app.applicant?.location?.location_name || "N/A",
           status: app.status?.status_name || "N/A",
-          applicationDate: app.application_date ? new Date(app.application_date).toLocaleDateString() : "N/A",
+          applicationDate: app.application_date ? new Date(app.application_date).toLocaleDateString("en-GB") : "N/A",
           resume: app.applicant?.file ? `Resume_${app.applicant.name}_${app.id}` : "No Resume",
         });
 
