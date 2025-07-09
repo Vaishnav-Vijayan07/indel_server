@@ -33,6 +33,10 @@ const GeneralApplications = (sequelize) => {
           key: "id",
         },
       },
+      preferred_role: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       application_date: {
         type: DataTypes.DATE,
         allowNull: false,
