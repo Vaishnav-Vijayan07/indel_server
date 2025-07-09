@@ -8,6 +8,7 @@ const { validateJobApplicationSubmission } = require("../utils/validator");
 const JobApplicationSubmissionController = require("../controllers/career/jobApplicationController");
 const MetaDataController = require("../controllers/meta/metaDataController");
 const GoldRateController = require("../controllers/general/goldRateController");
+const FaqController = require("../controllers/faqController");
 
 const upload = createUploadMiddleware("job-applications");
 const uploadField = upload.single("file");
@@ -15,6 +16,7 @@ const uploadApplicantFile = upload.single("applicant[file]");
 
 router.get("/meta", MetaDataController.getMetaData);
 router.get("/gold-rate", GoldRateController.fetchGoldRate);
+router.get("/faq", FaqController.getFaqData);
 router.get("/meta-slug", MetaDataController.getMetaForSlug);
 router.get("/home", WebController.getHomeData);
 router.get("/float-buttons", WebController.floatButtons);
@@ -29,7 +31,7 @@ router.get("/csr", WebController.CsrData);
 router.get("/csr/:slug", WebController.csrDetails);
 router.get("/news", WebController.allNews);
 router.get("/news-latest", WebController.newsDataLatest);
-router.get("/news/:slug", WebController.newsDetails);
+router.get("/news/:id", WebController.newsDetails);
 router.get("/indel-values", WebController.IndelValuesData);
 router.get("/shades-of-indel", WebController.ShadesOfIndel);
 router.get("/our-services", WebController.OurServices);
@@ -69,9 +71,16 @@ router.get("/branch-locator", WebController.branchLocator);
 router.post("/career/resume", uploadField, JobApplicationsController.create);
 router.get("/career/resume", uploadField, JobApplicationsController.getAll);
 
-router.post("/careers/job_application", validateJobApplicationSubmission, uploadApplicantFile, JobApplicationSubmissionController.submitApplication);
+router.post(
+  "/careers/job_application",
+  validateJobApplicationSubmission,
+  uploadApplicantFile,
+  JobApplicationSubmissionController.submitApplication
+);
 
 router.get("/careers/job_applications", JobApplicationSubmissionController.listApplications);
+router.get("/careers/export_job_applications", JobApplicationSubmissionController.exportApplicationsToExcel);
+router.get("/careers/export_general_applications", JobApplicationSubmissionController.exportGeneralApplicationsToExcel);
 
 router.post(
   "/careers/general_application",

@@ -12,6 +12,8 @@ class WebController {
     let stateId = req.session?.stateId || null;
     let stateName = req.session?.stateName || "Global";
 
+    console.log("Ip address ===>", stateId, stateName);
+
     // 2. If not in session, call geolocation API and store in session
     if (!stateId) {
       const ip =
@@ -57,20 +59,9 @@ class WebController {
             is_active: true,
             [Op.or]: [{ state_id: stateId || null }, { state_id: null }],
           },
-          include: [
-            {
-              model: models.CareerStates,
-              attributes: ["state_name"],
-              as: "state",
-            },
-          ],
+          include: [{ model: models.CareerStates, attributes: ["state_name"], as: "state" }],
           order: [
-            [
-              sequelize.literal(
-                `state_id ${stateId ? "= " + stateId : "IS NULL"}`
-              ),
-              "DESC",
-            ],
+            [sequelize.literal(`state_id ${stateId ? "= " + stateId : "IS NULL"}`), "DESC"],
             ["order", "ASC"],
             ["createdAt", "DESC"],
           ],
@@ -89,19 +80,13 @@ class WebController {
           throw err;
         }),
         models.HomeFaq.findAll({
-          where: {
-            is_active: true,
-            [Op.or]: [{ state_id: stateId || null }, { state_id: null }],
-          },
+          where: { is_active: true, [Op.or]: [{ state_id: stateId || null }, { state_id: null }] },
           order: [["order", "ASC"]],
         }).catch((err) => {
           console.error("Failed to fetch faqs:", err.message);
           throw err;
         }),
-        models.HomeLoanStep.findAll({
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }).catch((err) => {
+        models.HomeLoanStep.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }).catch((err) => {
           console.error("Failed to fetch loanSteps:", err.message);
           throw err;
         }),
@@ -114,30 +99,13 @@ class WebController {
           throw err;
         }),
         models.Awards.findAll({
-          attributes: [
-            "id",
-            "title",
-            "description",
-            "image",
-            "year",
-            "image_alt",
-            "is_slide",
-          ],
+          attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
         }).catch((err) => {
           console.error("Failed to fetch lifeAtIndel:", err.message);
           throw err;
         }),
         models.IndelCares.findAll({
-          attributes: [
-            "id",
-            "title",
-            "show_on_home",
-            "description",
-            "image",
-            "image_alt",
-            "event_date",
-            "slug",
-          ],
+          attributes: ["id", "title", "show_on_home", "description", "image", "image_alt", "event_date", "slug"],
           where: { is_active: true, show_on_home: true },
           order: [["order", "ASC"]],
         }).catch((err) => {
@@ -289,7 +257,7 @@ class WebController {
             is_active: true,
           },
           order: [["order", "ASC"]],
-          attributes: ["id", "title", "super_title", "image","image_mobile", "alt_text", "order", "is_active"],
+          attributes: ["id", "title", "super_title", "image", "image_mobile", "alt_text", "order", "is_active"],
         }),
         models.AboutPageContent.findAll(),
         models.AboutLifeAtIndelGallery.findAll({
@@ -639,9 +607,14 @@ class WebController {
         limit: 2,
       });
 
+      const blogPageContent = await models.BlogPageContent.findOne({
+        attributes: ["recent_title", "id"],
+      });
+
       const data = {
         blog,
         recentBlogs,
+        title: blogPageContent?.recent_title || "Recent Blogs",
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
@@ -1069,42 +1042,36 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [
-        msmeLoanContent,
-        msmeLoanSupportedIndustries,
-        msmeOfferings,
-        msmeTargetedAudience,
-        msmeLoanFaq,
-        msmeLoanTypes,
-      ] = await Promise.all([
-        models.MsmeLoanContent.findAll(),
-        models.MsmeLoanSupportedIndustries.findAll({
-          // attributes: ["id", "image", "title", "description", "is_active", "order"],
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-        models.MsmeOfferings.findAll({
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-        models.MsmeTargetedAudience.findAll({
-          // attributes: ["id", "icon", "title", "description", "is_active", "order"],
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-        models.MsmeLoanFaq.findAll({
-          where: {
-            // is_active: true,
-            state_id: stateId || null,
-          },
-          order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
-        }),
-        models.MsmeloanTypes.findAll({
-          // attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-      ]);
+      const [msmeLoanContent, msmeLoanSupportedIndustries, msmeOfferings, msmeTargetedAudience, msmeLoanFaq, msmeLoanTypes] =
+        await Promise.all([
+          models.MsmeLoanContent.findAll(),
+          models.MsmeLoanSupportedIndustries.findAll({
+            // attributes: ["id", "image", "title", "description", "is_active", "order"],
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.MsmeOfferings.findAll({
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.MsmeTargetedAudience.findAll({
+            // attributes: ["id", "icon", "title", "description", "is_active", "order"],
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.MsmeLoanFaq.findAll({
+            where: {
+              // is_active: true,
+              state_id: stateId || null,
+            },
+            order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
+          }),
+          models.MsmeloanTypes.findAll({
+            // attributes: ["id", "image", "image_alt", "title", "sub_title", "description", "link", "is_active", "order"],
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+        ]);
 
       const data = {
         msmeLoanContent: msmeLoanContent[0] || null,
@@ -1242,21 +1209,9 @@ class WebController {
         models.CareerJobs.findAll({
           // attributes: ["id", "role_id", "location_id", "state_id", "job_title", "job_description", "key_responsibilities", "is_active"],
           include: [
-            {
-              model: models.CareerRoles,
-              as: "role",
-              attributes: ["role_name"],
-            },
-            {
-              model: models.CareerLocations,
-              as: "location",
-              attributes: ["location_name"],
-            },
-            {
-              model: models.CareerStates,
-              as: "state",
-              attributes: ["state_name"],
-            },
+            { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
+            { model: models.CareerLocations, as: "location", attributes: ["location_name"] },
+            { model: models.CareerStates, as: "state", attributes: ["state_name"] },
           ],
           order: [["id", "ASC"]],
         }),
@@ -1311,6 +1266,7 @@ class WebController {
 
     const whereClause = {
       is_active: true,
+      is_approved: true,
     };
 
     if (state) whereClause.state_id = state;
@@ -1319,10 +1275,10 @@ class WebController {
 
     try {
       const cachedData = await CacheService.get(cacheKey);
-      if (cachedData) {
-        logger.info("Serving Career Page from cache");
-        return res.json({ status: "success", data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   logger.info("Serving Career Page from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
 
       const jobs = await models.CareerJobs.findAll({
         where: whereClause,
@@ -1335,6 +1291,7 @@ class WebController {
           "detailed_description",
           "experience",
           "is_active",
+          "is_approved",
         ],
         include: [
           { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
@@ -1742,7 +1699,7 @@ class WebController {
         models.IndelCares.findAndCountAll({
 
           attributes: ["id", "title", "description", "image", "event_date", "image_alt", "is_slider", "is_active", "order", "slug"],
-          where: { is_active: true},
+          where: { is_active: true },
           order: [["order", "ASC"]],
           limit,
           offset,
@@ -1799,9 +1756,14 @@ class WebController {
         limit: 2,
       });
 
+      const eventPageContent = await models?.IndelCaresContent?.findOne({
+        attributes: ["id", "recent_title"],
+      });
+
       const data = {
         event,
         recentEvents,
+        title: eventPageContent?.recent_title || "Recent Events",
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
@@ -2314,11 +2276,11 @@ class WebController {
   }
 
   static async newsDetails(req, res, next) {
-    const { slug } = req.params;
-    const cacheKey = `webNewsData_${slug}`;
+    const { id } = req.params;
+    const cacheKey = `webNewsData_${id}`;
 
     try {
-      await CacheService.invalidate(`webNewsData_${slug}`);
+      await CacheService.invalidate(`webNewsData_${id}`);
       const cachedData = await CacheService.get(cacheKey);
       // if (cachedData) {
       //   logger.info("Serving blog details from cache");
@@ -2326,7 +2288,7 @@ class WebController {
       // }
 
       const news = await models.News.findOne({
-        where: { slug },
+        where: { id },
       });
 
       const newsId = news?.id;
@@ -2351,9 +2313,14 @@ class WebController {
         limit: 2,
       });
 
+      const newsPageContent = await models.NewsPageContent.findOne({
+        attributes: ["id", "recent_title"],
+      });
+
       const data = {
         news,
         recentNews,
+        title: newsPageContent?.recent_title || "Recent News",
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
