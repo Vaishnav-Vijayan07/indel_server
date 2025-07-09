@@ -52,17 +52,39 @@ class UsersController {
   }
 
   // Get all users
+  // static async getAll(req, res, next) {
+  //   try {
+  //     // Optional: implement caching
+  //     const cacheKey = "Users_all";
+  //     const cachedData = await CacheService.get?.(cacheKey);
+  //     if (cachedData) {
+  //       return res.json({ success: true, data: JSON.parse(cachedData) });
+  //     }
+  //     const users = await User.findAll({ order: [["id", "ASC"]] });
+  //     await CacheService.set?.(cacheKey, JSON.stringify(users), 3600);
+  //     res.json({ success: true, data: users });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
+
   static async getAll(req, res, next) {
     try {
-      // Optional: implement caching
       const cacheKey = "Users_all";
       const cachedData = await CacheService.get?.(cacheKey);
       if (cachedData) {
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
       const users = await User.findAll({ order: [["id", "ASC"]] });
-      await CacheService.set?.(cacheKey, JSON.stringify(users), 3600);
-      res.json({ success: true, data: users });
+
+      // Set password to null
+      const usersWithoutPassword = users.map((user) => {
+        const obj = typeof user.toJSON === "function" ? user.toJSON() : user;
+        return { ...obj, password: null };
+      });
+
+      await CacheService.set?.(cacheKey, JSON.stringify(usersWithoutPassword), 3600);
+      res.json({ success: true, data: usersWithoutPassword });
     } catch (error) {
       next(error);
     }
@@ -87,13 +109,39 @@ class UsersController {
   }
 
   // Update user by ID
+  // static async update(req, res, next) {
+  //   try {
+  //     const { id } = req.params;
+  //     const user = await User.findByPk(id);
+  //     if (!user) throw new CustomError("User not found", 404);
+  //     await user.update(req.body);
+  //     await CacheService.invalidate?.("Users_all");
+  //     await CacheService.invalidate?.(`User_${id}`);
+  //     res.json({ success: true, data: user, message: "User updated successfully" });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
+
   static async update(req, res, next) {
     try {
       const { id } = req.params;
       const user = await User.findByPk(id);
       if (!user) throw new CustomError("User not found", 404);
-      await user.update(req.body);
+
+      const updateData = { ...req.body };
+
+      // If password is null, undefined, or empty string, remove it from updateData
+      if (updateData.password === null || updateData.password === undefined || updateData.password === "") {
+        delete updateData.password;
+      } else if (updateData.password) {
+        // If password is provided and not empty, hash it
+        updateData.password = await bcrypt.hash(updateData.password, 10);
+      }
+
+      await user.update(updateData);
       await CacheService.invalidate?.("Users_all");
+      await CacheService.invalidate?.(`User_${id}`);
       res.json({ success: true, data: user, message: "User updated successfully" });
     } catch (error) {
       next(error);
@@ -108,6 +156,7 @@ class UsersController {
       if (!user) throw new CustomError("User not found", 404);
       await user.destroy();
       await CacheService.invalidate?.("Users_all");
+      await CacheService.invalidate?.(`User_${id}`);
       res.json({ success: true, message: "User deleted", data: id });
     } catch (error) {
       next(error);
