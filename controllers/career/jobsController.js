@@ -19,7 +19,7 @@ class JobsController {
         models.CareerStates.findByPk(state_id),
       ]);
 
-      if (!role) throw new CustomError("Role not found", 404);
+      // if (!role) throw new CustomError("Role not found", 404);
       if (!location) throw new CustomError("Location not found", 404);
       if (!state) throw new CustomError("State not found", 404);
 
@@ -33,7 +33,7 @@ class JobsController {
           throw new CustomError("Invalid end_date format", 400);
         }
       }
-
+ 
       const job = await Jobs.create(updateData);
 
       // Invalidate caches after creation
