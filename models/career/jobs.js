@@ -41,10 +41,6 @@ module.exports = (sequelize) => {
         type: DataTypes.TEXT,
         allowNull: true,
       },
-      key_responsibility: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-      },
       experience: {
         type: DataTypes.STRING,
         allowNull: true,
