@@ -46,7 +46,7 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       experience: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: true,
       },
       is_active: {
