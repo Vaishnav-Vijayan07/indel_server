@@ -36,6 +36,8 @@ class UsersController {
       };
 
       const user = await User.create(userData);
+      // Invalidate cache if needed
+      await CacheService.invalidate?.("Users_all");
       Logger.info(`User created: ${user.username}`);
       res.status(201).json({ success: true, data: user, message: "User created successfully" });
     } catch (error) {
