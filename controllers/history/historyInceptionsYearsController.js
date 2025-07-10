@@ -60,7 +60,7 @@ class HistoryInceptionYearsController {
       }
 
       const steps = await HistoryInceptionsYears.findAll({
-        order: [["createdAt", "ASC"]],
+        order: [["order", "ASC"]],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(steps), 3600);
@@ -99,9 +99,8 @@ class HistoryInceptionYearsController {
       if (!step) {
         throw new CustomError("Year not found", 404);
       }
-
       const existingYear = await HistoryInceptionsYears.findOne({
-        where: { year: req.body.year, id: { [Op.ne]: id } },
+        where: { year: step.year, id: { [Op.ne]: id } },
       });
 
       if (existingYear) {

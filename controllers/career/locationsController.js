@@ -29,7 +29,7 @@ class LocationsController {
       // }
 
       const locations = await Locations.findAll({
-        // order: [["order", "ASC"]],
+        order: [["order", "ASC"]],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(locations), 3600);

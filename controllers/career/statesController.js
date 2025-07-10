@@ -29,6 +29,15 @@ class StatesController {
         Logger.info(`Uploaded image for State: ${updateData.image}`);
       }
 
+      const existState = await States.findOne({
+        where: { state_name: updateData.state_name }
+      })
+
+
+      if (existState) {
+        throw new CustomError(`${existState?.state_name} is already exists`, 400);
+      }
+
       const state = await States.create(updateData);
 
       await CacheService.invalidate("states");

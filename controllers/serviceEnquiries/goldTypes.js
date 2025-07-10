@@ -29,7 +29,7 @@ class GoldTypesController {
       }
 
       const goldTypes = await GoldTypes.findAll({
-        order: [["gold_type_name", "ASC"]],
+        order: [["order", "ASC"]],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(goldTypes), 3600);

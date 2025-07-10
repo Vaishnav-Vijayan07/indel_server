@@ -39,7 +39,12 @@ module.exports = (sequelize) => {
       },
       order: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
+      },
+      is_active: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+        allowNull: true,
       },
     },
     {

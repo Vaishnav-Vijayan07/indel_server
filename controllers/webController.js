@@ -16,7 +16,10 @@ class WebController {
 
     // 2. If not in session, call geolocation API and store in session
     if (!stateId) {
-      const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
+      const ip =
+        req.headers["x-forwarded-for"]?.split(",")[0].trim() ||
+        req.socket.remoteAddress ||
+        "127.0.0.1";
       try {
         const geo = await getStateFromIp(ip);
         stateId = geo.stateId;
@@ -145,7 +148,17 @@ class WebController {
       let popupServices = null;
       if (!isBanner) {
         popupServices = await models.PopupServices.findAll({
-          attributes: ["id", "image", "image_alt", "title", "description", "button_link", "button_text", "order", "is_active"],
+          attributes: [
+            "id",
+            "image",
+            "image_alt",
+            "title",
+            "description",
+            "button_link",
+            "button_text",
+            "order",
+            "is_active",
+          ],
           where: { is_active: true },
           order: [["order", "ASC"]],
         });
@@ -211,7 +224,10 @@ class WebController {
       logger.info("Fetched buttons from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching buttons", { error: error.message, stack: error.stack });
+      logger.error("Error fetching buttons", {
+        error: error.message,
+        stack: error.stack,
+      });
       next(new CustomError("Failed to fetch buttons", 500, error.message));
     }
   }
@@ -226,13 +242,31 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks, teamMessages, serviceImages, statsData, accolades] = await Promise.all([
+      const [
+        aboutBanner,
+        aboutContent,
+        lifeAtIndelImages,
+        quickLinks,
+        teamMessages,
+        serviceImages,
+        statsData,
+        accolades,
+      ] = await Promise.all([
         models.AboutBanner.findAll({
           where: {
             is_active: true,
           },
           order: [["order", "ASC"]],
-          attributes: ["id", "title", "super_title", "image", "image_mobile", "alt_text", "order", "is_active"],
+          attributes: [
+            "id",
+            "title",
+            "super_title",
+            "image",
+            "image_mobile",
+            "alt_text",
+            "order",
+            "is_active",
+          ],
         }),
         models.AboutPageContent.findAll(),
         models.AboutLifeAtIndelGallery.findAll({
@@ -240,18 +274,25 @@ class WebController {
           order: [["order", "ASC"]],
         }),
         models.AboutQuickLinks.findAll({
+          where: { is_active: true },
           order: [["order", "ASC"]],
         }),
         models.AboutMessageFromTeam.findAll({
           where: { is_active: true },
+          order: [["order", "ASC"]],
         }),
-        models.AboutServiceGallery.findAll(),
+        models.AboutServiceGallery.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
         models.AboutStatistics.findAll({
           where: { is_active: true },
           order: [["order", "ASC"]],
-          limit: 4,
         }),
-        models.AboutAccolades.findAll(),
+        models.AboutAccolades.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
       ]);
 
       const data = {
@@ -269,7 +310,10 @@ class WebController {
       logger.info("Fetched about data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching about data", { error: error.message, stack: error.stack });
+      logger.error("Error fetching about data", {
+        error: error.message,
+        stack: error.stack,
+      });
       next(new CustomError("Failed to fetch about data", 500, error.message));
     }
   }
@@ -302,8 +346,13 @@ class WebController {
       logger.info("Fetched management data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching management data", { error: error.message, stack: error.stack });
-      next(new CustomError("Failed to fetch management data", 500, error.message));
+      logger.error("Error fetching management data", {
+        error: error.message,
+        stack: error.stack,
+      });
+      next(
+        new CustomError("Failed to fetch management data", 500, error.message)
+      );
     }
   }
 
@@ -318,7 +367,10 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, debtPartners] = await Promise.all([models.DebtPartnersContent.findAll(), models.DeptPartners.findAll()]);
+      const [content, debtPartners] = await Promise.all([
+        models.DebtPartnersContent.findAll(),
+        models.DeptPartners.findAll(),
+      ]);
 
       const data = {
         content: content[0] || null,
@@ -332,8 +384,13 @@ class WebController {
       logger.info("Fetched partners data from DB");
       res.json({ status: "success", data, partnersData });
     } catch (error) {
-      logger.error("Error fetching partners data", { error: error.message, stack: error.stack });
-      next(new CustomError("Failed to fetch partners data", 500, error.message));
+      logger.error("Error fetching partners data", {
+        error: error.message,
+        stack: error.stack,
+      });
+      next(
+        new CustomError("Failed to fetch partners data", 500, error.message)
+      );
     }
   }
 
@@ -343,7 +400,10 @@ class WebController {
     let stateId = req.session?.stateId || null;
     let stateName = req.session?.stateName || "Global";
     if (!stateId) {
-      const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
+      const ip =
+        req.headers["x-forwarded-for"]?.split(",")[0].trim() ||
+        req.socket.remoteAddress ||
+        "127.0.0.1";
       try {
         const geo = await getStateFromIp(ip);
         stateId = geo.stateId;
@@ -364,20 +424,24 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, faqs, officeContacts, branchLocatorData] = await Promise.all([
-        models.ContactContent.findAll(),
-        models.ContactFaq.findAll({
-          where: {
-            is_active: true,
-            state_id: stateId || null,
-          },
-          order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
-        }),
-        models.ContactOffice.findAll(),
-        models.BranchLocatorPageContents.findAll({
-          attributes: ["id", "title", "description"],
-        }),
-      ]);
+      const [content, faqs, officeContacts, branchLocatorData] =
+        await Promise.all([
+          models.ContactContent.findAll(),
+          models.ContactFaq.findAll({
+            where: {
+              is_active: true,
+              state_id: stateId || null,
+            },
+            order: [["order", "ASC"]],
+          }),
+          models.ContactOffice.findAll({
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.BranchLocatorPageContents.findAll({
+            attributes: ["id", "title", "description"],
+          }),
+        ]);
 
       const data = {
         content: content[0] || null,
@@ -390,7 +454,10 @@ class WebController {
       logger.info("Fetched contact data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching contact data", { error: error.message, stack: error.stack });
+      logger.error("Error fetching contact data", {
+        error: error.message,
+        stack: error.stack,
+      });
       next(new CustomError("Failed to fetch contact data", 500, error.message));
     }
   }
@@ -413,9 +480,18 @@ class WebController {
           order: [["order", "ASC"]],
         }),
         models.HistoryInceptionsYears.findAll({
-          attributes: ["id", "image", "image_alt", "year", "title", "description", "is_active", "order"],
+          attributes: [
+            "id",
+            "image",
+            "image_alt",
+            "year",
+            "title",
+            "description",
+            "is_active",
+            "order",
+          ],
           where: { is_active: true },
-          order: [[Sequelize.literal('CAST("year" AS INTEGER)'), "ASC"]],
+          order: [["order", "ASC"]],
         }),
       ]);
 
@@ -429,7 +505,10 @@ class WebController {
       logger.info("Fetched history data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching history data", { error: error.message, stack: error.stack });
+      logger.error("Error fetching history data", {
+        error: error.message,
+        stack: error.stack,
+      });
       next(new CustomError("Failed to fetch history data", 500, error.message));
     }
   }
@@ -462,7 +541,10 @@ class WebController {
       logger.info("Fetched blog data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching blog data", { error: error.message, stack: error.stack });
+      logger.error("Error fetching blog data", {
+        error: error.message,
+        stack: error.stack,
+      });
       next(new CustomError("Failed to fetch blog data", 500, error.message));
     }
   }
@@ -499,7 +581,10 @@ class WebController {
 
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching blog data", { error: error.message, stack: error.stack });
+      logger.error("Error fetching blog data", {
+        error: error.message,
+        stack: error.stack,
+      });
       next(new CustomError("Failed to fetch blog data", 500, error.message));
     }
   }
@@ -556,7 +641,10 @@ class WebController {
       logger.info("Fetched blog details from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching blog details", { error: error.message, stack: error.stack });
+      logger.error("Error fetching blog details", {
+        error: error.message,
+        stack: error.stack,
+      });
       next(new CustomError("Failed to fetch blog details", 500, error.message));
     }
   }
@@ -574,7 +662,10 @@ class WebController {
 
       const [content, csr] = await Promise.all([
         models.CsrPageContent.findAll(),
-        models.Csr.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }),
+        models.Csr.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
       ]);
 
       const sliderItems = csr.filter((csr) => csr.is_slider);
@@ -589,7 +680,10 @@ class WebController {
       logger.info("Fetched CSR data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching CSR data", { error: error.message, stack: error.stack });
+      logger.error("Error fetching CSR data", {
+        error: error.message,
+        stack: error.stack,
+      });
       next(new CustomError("Failed to fetch CSR data", 500, error.message));
     }
   }
@@ -613,7 +707,10 @@ class WebController {
       logger.info("Fetched csr details from DB");
       res.json({ status: "success", data: csr });
     } catch (error) {
-      logger.error("Error fetching CSR details", { error: error.message, stack: error.stack });
+      logger.error("Error fetching CSR details", {
+        error: error.message,
+        stack: error.stack,
+      });
       next(new CustomError("Failed to fetch CSR details", 500, error.message));
     }
   }
@@ -628,7 +725,12 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [indelValueContent, indelValues, approachPropositions, mobileBanners] = await Promise.all([
+      const [
+        indelValueContent,
+        indelValues,
+        approachPropositions,
+        mobileBanners,
+      ] = await Promise.all([
         models.IndelValueContent.findAll(),
         models.IndelValues.findAll({
           where: { is_active: true },
@@ -656,8 +758,13 @@ class WebController {
       logger.info("Fetched Indel values data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching Indel values data", { error: error.message, stack: error.stack });
-      next(new CustomError("Failed to fetch Indel values data", 500, error.message));
+      logger.error("Error fetching Indel values data", {
+        error: error.message,
+        stack: error.stack,
+      });
+      next(
+        new CustomError("Failed to fetch Indel values data", 500, error.message)
+      );
     }
   }
 
@@ -706,8 +813,17 @@ class WebController {
       logger.info("Fetched Diffrent Shades of Indel data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching Diffrent Shades of Indel data", { error: error.message, stack: error.stack });
-      next(new CustomError("Failed to fetch Diffrent Shades of Indel data", 500, error.message));
+      logger.error("Error fetching Diffrent Shades of Indel data", {
+        error: error.message,
+        stack: error.stack,
+      });
+      next(
+        new CustomError(
+          "Failed to fetch Diffrent Shades of Indel data",
+          500,
+          error.message
+        )
+      );
     }
   }
 
@@ -728,14 +844,19 @@ class WebController {
       const [serviceContent, serviceBenefit, servicesRaw] = await Promise.all([
         models.ServiceContent.findAll(),
         models.ServiceBenefit.findAll({
-          where: { service_id: GoldService.id },
+          where: { service_id: GoldService },
           order: [["order", "ASC"]],
         }),
-        models.Services.findAll(),
+        models.Services.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
       ]);
 
       // Filter out the item with slug 'gold-loan'
-      const services = servicesRaw.filter((service) => service.slug !== "gold-loan");
+      const services = servicesRaw.filter(
+        (service) => service.slug !== "gold-loan"
+      );
 
       const data = {
         serviceContent: serviceContent[0] || null,
@@ -747,8 +868,13 @@ class WebController {
       logger.info("Fetched Our Services data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching Our Services data", { error: error.message, stack: error.stack });
-      next(new CustomError("Failed to fetch Our Services data", 500, error.message));
+      logger.error("Error fetching Our Services data", {
+        error: error.message,
+        stack: error.stack,
+      });
+      next(
+        new CustomError("Failed to fetch Our Services data", 500, error.message)
+      );
     }
   }
 
@@ -759,7 +885,10 @@ class WebController {
 
     // 2. If not in session, call geolocation API and store in session
     if (!stateId) {
-      const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
+      const ip =
+        req.headers["x-forwarded-for"]?.split(",")[0].trim() ||
+        req.socket.remoteAddress ||
+        "127.0.0.1";
       try {
         const geo = await getStateFromIp(ip);
         stateId = geo.stateId;
@@ -783,6 +912,8 @@ class WebController {
         where: { slug: "gold-loan", is_active: true },
         attributes: ["id"],
       });
+
+      console.log(service);
 
       const [
         goldloanContent,
@@ -808,7 +939,7 @@ class WebController {
         models.GoldLoanFeatures.findAll(),
         models.GoldloanBannerFeatures.findAll({
           where: { is_active: true },
-          order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
+          order: [["order", "ASC"]],
         }),
         models.ServiceBenefit.findAll({
           where: { is_active: true, service_id: service?.id },
@@ -829,7 +960,10 @@ class WebController {
           where: { is_active: true },
           order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
         }),
-        models.HomeLoanStep.findAll({ where: { is_active: true }, order: [["order", "ASC"]] }),
+        models.HomeLoanStep.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
       ]);
 
       // Group scheme details under their respective schemes
@@ -861,8 +995,10 @@ class WebController {
       );
 
       const centerItem = goldLoanFeatures?.find((item) => item.is_center);
-      const nonCenterItems = goldLoanFeatures?.filter((item) => !item.is_center);
-
+      const nonCenterItems = goldLoanFeatures?.filter(
+        (item) => !item.is_center
+      );
+      ``;
       // Step 1: Group non-center items into pairs
       const grouped = [];
       for (let i = 0; i < nonCenterItems.length; i += 2) {
@@ -899,8 +1035,13 @@ class WebController {
       res.json({ status: "success", data });
     } catch (error) {
       logger.error("Error fetching gold loan data", { error });
-      logger.error("Error fetching gold loan data", { error: error.message, stack: error.stack });
-      next(new CustomError("Failed to fetch gold loan data", 500, error.message));
+      logger.error("Error fetching gold loan data", {
+        error: error.message,
+        stack: error.stack,
+      });
+      next(
+        new CustomError("Failed to fetch gold loan data", 500, error.message)
+      );
     }
   }
 
@@ -909,7 +1050,10 @@ class WebController {
     let stateId = req.session?.stateId || null;
     let stateName = req.session?.stateName || "Global";
     if (!stateId) {
-      const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
+      const ip =
+        req.headers["x-forwarded-for"]?.split(",")[0].trim() ||
+        req.socket.remoteAddress ||
+        "127.0.0.1";
       try {
         const geo = await getStateFromIp(ip);
         stateId = geo.stateId;
@@ -973,7 +1117,9 @@ class WebController {
       res.json({ status: "success", data });
     } catch (error) {
       logger.error("Error fetching MSME Loan data", { error: error.message });
-      next(new CustomError("Failed to fetch MSME Loan data", 500, error.message));
+      next(
+        new CustomError("Failed to fetch MSME Loan data", 500, error.message)
+      );
     }
   }
 
@@ -987,17 +1133,19 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [cdLoanContent, cdLoanBenefits, cdLoanProducts] = await Promise.all([
-        models.CdLoanContent.findAll(),
-        models.CdLoanBenefits.findAll({
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-        models.CdLoanProducts.findAll({
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-      ]);
+      const [cdLoanContent, cdLoanBenefits, cdLoanProducts] = await Promise.all(
+        [
+          models.CdLoanContent.findAll(),
+          models.CdLoanBenefits.findAll({
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.CdLoanProducts.findAll({
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+        ]
+      );
 
       const data = {
         cdLoanContent: cdLoanContent[0] || null,
@@ -1009,7 +1157,10 @@ class WebController {
       logger.info("Fetched CD Loan data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching CD Loan data", { error: error.message, stack: error.stack });
+      logger.error("Error fetching CD Loan data", {
+        error: error.message,
+        stack: error.stack,
+      });
       next(new CustomError("Failed to fetch CD Loan data", 500, error.message));
     }
   }
@@ -1028,17 +1179,19 @@ class WebController {
         attributes: ["id"],
       });
 
-      const [cdLoanContent, cdLoanBenefits, cdLoanProducts] = await Promise.all([
-        models.LapContent.findAll(),
-        models.ServiceBenefit.findAll({
-          where: { is_active: true, service_id: service?.id },
-          order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
-        }),
-        models.LapProducts.findAll({
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-      ]);
+      const [cdLoanContent, cdLoanBenefits, cdLoanProducts] = await Promise.all(
+        [
+          models.LapContent.findAll(),
+          models.ServiceBenefit.findAll({
+            where: { is_active: true, service_id: service?.id },
+            order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
+          }),
+          models.LapProducts.findAll({
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+        ]
+      );
 
       const data = {
         cdLoanContent: cdLoanContent[0] || null,
@@ -1050,7 +1203,10 @@ class WebController {
       logger.info("Fetched CD Loan data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching CD Loan data", { error: error.message, stack: error.stack });
+      logger.error("Error fetching CD Loan data", {
+        error: error.message,
+        stack: error.stack,
+      });
       next(new CustomError("Failed to fetch CD Loan data", 500, error.message));
     }
   }
@@ -1077,9 +1233,18 @@ class WebController {
         testimoinials,
       ] = await Promise.all([
         models.CareersContent.findAll(),
-        models.CareerBanners.findAll(),
-        models.CareerGallery.findAll(),
-        models.CareerStates.findAll({ where: { is_active: true } }),
+        models.CareerBanners.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.CareerGallery.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.CareerStates.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
         models.CareerJobs.findAll({
           // attributes: ["id", "role_id", "location_id", "state_id", "job_title", "job_description", "key_responsibilities", "is_active"],
           include: [
@@ -1089,7 +1254,10 @@ class WebController {
           ],
           order: [["id", "ASC"]],
         }),
-        models.EmployeeBenefits.findAll(),
+        models.EmployeeBenefits.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
         models.Awards.findAll({
           where: {
             is_active: true,
@@ -1102,8 +1270,12 @@ class WebController {
         models.Testimonials.findAll(),
       ]);
 
-      const textTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "text");
-      const imageTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "video");
+      const textTestimonials = testimoinials.filter(
+        (testimoinial) => testimoinial.type === "text"
+      );
+      const imageTestimonials = testimoinials.filter(
+        (testimoinial) => testimoinial.type === "video"
+      );
 
       const data = {
         careersContent: careersContent[0] || null,
@@ -1124,8 +1296,13 @@ class WebController {
       logger.info("Fetched Career Page data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching Career Page data", { error: error.message, stack: error.stack });
-      next(new CustomError("Failed to fetch Career Page data", 500, error.message));
+      logger.error("Error fetching Career Page data", {
+        error: error.message,
+        stack: error.stack,
+      });
+      next(
+        new CustomError("Failed to fetch Career Page data", 500, error.message)
+      );
     }
   }
 
@@ -1164,8 +1341,16 @@ class WebController {
         ],
         include: [
           { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
-          { model: models.CareerLocations, as: "location", attributes: ["location_name"] },
-          { model: models.CareerStates, as: "state", attributes: ["state_name"] },
+          {
+            model: models.CareerLocations,
+            as: "location",
+            attributes: ["location_name"],
+          },
+          {
+            model: models.CareerStates,
+            as: "state",
+            attributes: ["state_name"],
+          },
         ],
         order: [["id", "ASC"]],
       });
@@ -1178,8 +1363,13 @@ class WebController {
       logger.info("Fetched Career Page data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching Career Page data", { error: error.message, stack: error.stack });
-      next(new CustomError("Failed to fetch Career Page data", 500, error.message));
+      logger.error("Error fetching Career Page data", {
+        error: error.message,
+        stack: error.stack,
+      });
+      next(
+        new CustomError("Failed to fetch Career Page data", 500, error.message)
+      );
     }
   }
   static async eventGallery(req, res, next) {
@@ -1226,7 +1416,14 @@ class WebController {
         models.GalleryPageContent.findAll(),
         models.EventTypes.findAll({
           where: eventTypeWhere,
-          attributes: ["id", "title", "description", "slug", "cover_image", "image_alt"], // Add desired attributes here
+          attributes: [
+            "id",
+            "title",
+            "description",
+            "slug",
+            "cover_image",
+            "image_alt",
+          ],
           order: [["order", "ASC"]],
         }),
         models.EventTypes.findAndCountAll({
@@ -1260,9 +1457,13 @@ class WebController {
 
       const galleryItems = eventMedias?.rows
         .map((eventType) => {
-          const images = (eventType.galleryItems || []).map((gallery) => gallery.image).filter((img) => img);
+          const images = (eventType.galleryItems || [])
+            .map((gallery) => gallery.image)
+            .filter((img) => img);
 
-          const video_thumbs = (eventType.galleryItems || []).map((gallery) => gallery.video_thumbnail).filter((vid) => vid);
+          const video_thumbs = (eventType.galleryItems || [])
+            .map((gallery) => gallery.video_thumbnail)
+            .filter((vid) => vid);
 
           const thumbnails = [...images, ...video_thumbs];
 
@@ -1301,8 +1502,14 @@ class WebController {
       logger.info("Fetched event gallery data from DB");
       res.status(200).json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching event gallery data", { error: error.message, stack: error.stack });
-      res.json({ success: false, error: { message: error.message, stack: error.stack } });
+      logger.error("Error fetching event gallery data", {
+        error: error.message,
+        stack: error.stack,
+      });
+      res.json({
+        success: false,
+        error: { message: error.message, stack: error.stack },
+      });
     }
   }
 
@@ -1363,8 +1570,14 @@ class WebController {
       logger.info("Fetched event gallery data from DB");
       res.status(200).json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching event gallery data", { error: error.message, stack: error.stack });
-      res.json({ success: false, error: { message: error.message, stack: error.stack } });
+      logger.error("Error fetching event gallery data", {
+        error: error.message,
+        stack: error.stack,
+      });
+      res.json({
+        success: false,
+        error: { message: error.message, stack: error.stack },
+      });
     }
   }
 
@@ -1400,9 +1613,13 @@ class WebController {
 
       const galleryItems = events
         ?.map((eventType) => {
-          const images = (eventType.galleryItems || []).map((gallery) => gallery.image).filter((img) => img);
+          const images = (eventType.galleryItems || [])
+            .map((gallery) => gallery.image)
+            .filter((img) => img);
 
-          const video_thumbs = (eventType.galleryItems || []).map((gallery) => gallery.video_thumbnail).filter((vid) => vid);
+          const video_thumbs = (eventType.galleryItems || [])
+            .map((gallery) => gallery.video_thumbnail)
+            .filter((vid) => vid);
 
           let thumbnails = [...images, ...video_thumbs];
 
@@ -1427,8 +1644,14 @@ class WebController {
       console.log("Fetched More gallery data from DB");
       res.status(200).json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching event gallery data", { error: error.message, stack: error.stack });
-      res.json({ success: false, error: { message: error.message, stack: error.stack } });
+      logger.error("Error fetching event gallery data", {
+        error: error.message,
+        stack: error.stack,
+      });
+      res.json({
+        success: false,
+        error: { message: error.message, stack: error.stack },
+      });
     }
   }
 
@@ -1447,7 +1670,15 @@ class WebController {
         models.Awards.findAll({
           where: { is_active: true },
           order: [["order", "ASC"]],
-          attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
+          attributes: [
+            "id",
+            "title",
+            "description",
+            "image",
+            "year",
+            "image_alt",
+            "is_slide",
+          ],
         }),
       ]);
 
@@ -1463,7 +1694,10 @@ class WebController {
       logger.info("Fetched Awards data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching Awards data", { error: error.message, stack: error.stack });
+      logger.error("Error fetching Awards data", {
+        error: error.message,
+        stack: error.stack,
+      });
       next(new CustomError("Failed to fetch Awards data", 500, error.message));
     }
   }
@@ -1509,7 +1743,18 @@ class WebController {
           order: [["order", "ASC"]],
         }),
         models.IndelCares.findAndCountAll({
-          attributes: ["id", "title", "description", "image", "event_date", "image_alt", "is_slider", "is_active", "order", "slug"],
+          attributes: [
+            "id",
+            "title",
+            "description",
+            "image",
+            "event_date",
+            "image_alt",
+            "is_slider",
+            "is_active",
+            "order",
+            "slug",
+          ],
           where: { is_active: true },
           order: [["order", "ASC"]],
           limit,
@@ -1535,7 +1780,10 @@ class WebController {
       logger.info("Fetched Awards data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching Awards data", { error: error.message, stack: error.stack });
+      logger.error("Error fetching Awards data", {
+        error: error.message,
+        stack: error.stack,
+      });
       next(new CustomError("Failed to fetch Awards data", 500, error.message));
     }
   }
@@ -1578,8 +1826,17 @@ class WebController {
       logger.info("Fetched indel cares details from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching indel cares details", { error: error.message, stack: error.stack });
-      next(new CustomError("Failed to fetch indel cares details", 500, error.message));
+      logger.error("Error fetching indel cares details", {
+        error: error.message,
+        stack: error.stack,
+      });
+      next(
+        new CustomError(
+          "Failed to fetch indel cares details",
+          500,
+          error.message
+        )
+      );
     }
   }
 
@@ -1603,8 +1860,17 @@ class WebController {
       logger.info("Fetched ombudsman files data from DB");
       res.json({ status: "success", files });
     } catch (error) {
-      logger.error("Error fetching ombudsman files data", { error: error.message, stack: error.stack });
-      next(new CustomError("Failed to fetch ombudsman files data", 500, error.message));
+      logger.error("Error fetching ombudsman files data", {
+        error: error.message,
+        stack: error.stack,
+      });
+      next(
+        new CustomError(
+          "Failed to fetch ombudsman files data",
+          500,
+          error.message
+        )
+      );
     }
   }
 
@@ -1634,7 +1900,10 @@ class WebController {
       logger.info("Fetched footer content data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching content data", { error: error.message, stack: error.stack });
+      logger.error("Error fetching content data", {
+        error: error.message,
+        stack: error.stack,
+      });
       next(new CustomError("Failed to fetch content data", 500, error.message));
     }
   }
@@ -1649,45 +1918,46 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, footerContent, modes, socialMediaLinks] = await Promise.all([
-        models.HeaderContents.findAll({
-          attributes: [
-            "id",
-            "logo",
-            "button_1_text",
-            "button_1_inner_title",
-            "button_2_link",
-            "button_2_text",
-            "apple_dowload_icon",
-            "andrioid_download_icon",
-            "apple_download_icon_mobile",
-            "andrioid_download_icon_mobile",
-            "apple_dowload_link",
-            "andrioid_download_link",
-          ],
-        }),
-        models.FooterContent.findAll({
-          attributes: [
-            "id",
-            "toll_free_num",
-            "branch_locator_link",
-            "branch_locator_icon_mobile",
-            "branch_locator_icon_web",
-            "toll_free_icon_mobile",
-            "toll_free_icon_web",
-          ],
-        }),
-        models.PaymentModes.findAll({
-          attributes: ["id", "is_active", "title", "link"],
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-        models.SocialMediaIcons.findAll({
-          attributes: ["id", "link", "title", "icon"],
-          where: { is_active: true, icon_type: "mobile" },
-          order: [["order", "ASC"]],
-        }),
-      ]);
+      const [content, footerContent, modes, socialMediaLinks] =
+        await Promise.all([
+          models.HeaderContents.findAll({
+            attributes: [
+              "id",
+              "logo",
+              "button_1_text",
+              "button_1_inner_title",
+              "button_2_link",
+              "button_2_text",
+              "apple_dowload_icon",
+              "andrioid_download_icon",
+              "apple_download_icon_mobile",
+              "andrioid_download_icon_mobile",
+              "apple_dowload_link",
+              "andrioid_download_link",
+            ],
+          }),
+          models.FooterContent.findAll({
+            attributes: [
+              "id",
+              "toll_free_num",
+              "branch_locator_link",
+              "branch_locator_icon_mobile",
+              "branch_locator_icon_web",
+              "toll_free_icon_mobile",
+              "toll_free_icon_web",
+            ],
+          }),
+          models.PaymentModes.findAll({
+            attributes: ["id", "is_active", "title", "link"],
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.SocialMediaIcons.findAll({
+            attributes: ["id", "link", "title", "icon"],
+            where: { is_active: true, icon_type: "mobile" },
+            order: [["order", "ASC"]],
+          }),
+        ]);
 
       const quickLinks = [
         {
@@ -1720,7 +1990,10 @@ class WebController {
       logger.info("Fetched header data data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching content data", { error: error.message, stack: error.stack });
+      logger.error("Error fetching content data", {
+        error: error.message,
+        stack: error.stack,
+      });
       next(new CustomError("Failed to fetch content data", 500, error.message));
     }
   }
@@ -1741,8 +2014,10 @@ class WebController {
       const isBanner = settings?.is_banner || false;
 
       const bannerPopupData = {
-        banner_popup_disappear_time: settings?.banner_popup_disappear_time || null,
-        banner_popup_appearence_time: settings?.banner_popup_appearence_time || null,
+        banner_popup_disappear_time:
+          settings?.banner_popup_disappear_time || null,
+        banner_popup_appearence_time:
+          settings?.banner_popup_appearence_time || null,
         banner_popup_image: settings?.banner_popup_image || null,
         sub_title: settings?.sub_title || null,
         title: settings?.title || null,
@@ -1764,7 +2039,10 @@ class WebController {
       logger.info("Fetched popUp data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching content data", { error: error.message, stack: error.stack });
+      logger.error("Error fetching content data", {
+        error: error.message,
+        stack: error.stack,
+      });
       next(new CustomError("Failed to fetch content data", 500, error.message));
     }
   }
@@ -1823,8 +2101,13 @@ class WebController {
       logger.info("Fetched testimonials from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error getting testimoinials data", { error: error.message, stack: error.stack });
-      next(new CustomError("Failed to get testimoinials data", 500, error.message));
+      logger.error("Error getting testimoinials data", {
+        error: error.message,
+        stack: error.stack,
+      });
+      next(
+        new CustomError("Failed to get testimoinials data", 500, error.message)
+      );
     }
   }
 
@@ -1848,8 +2131,17 @@ class WebController {
       logger.info("Fetched partners for web from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error getting partners data for web", { error: error.message, stack: error.stack });
-      next(new CustomError("Failed to get partners data for web", 500, error.message));
+      logger.error("Error getting partners data for web", {
+        error: error.message,
+        stack: error.stack,
+      });
+      next(
+        new CustomError(
+          "Failed to get partners data for web",
+          500,
+          error.message
+        )
+      );
     }
   }
 
@@ -1867,14 +2159,30 @@ class WebController {
           is_active: true,
         },
         order: [["order", "ASC"]],
-        attributes: ["id", "partner_type_id", "logo", "logo_alt", "is_active", "order"],
+        attributes: [
+          "id",
+          "partner_type_id",
+          "logo",
+          "logo_alt",
+          "is_active",
+          "order",
+        ],
       });
 
       logger.info("Fetched partner for web from DB");
       res.json({ status: "success", partnerData });
     } catch (error) {
-      logger.error("Error getting partner data for web", { error: error.message, stack: error.stack });
-      next(new CustomError("Failed to get partner data for web", 500, error.message));
+      logger.error("Error getting partner data for web", {
+        error: error.message,
+        stack: error.stack,
+      });
+      next(
+        new CustomError(
+          "Failed to get partner data for web",
+          500,
+          error.message
+        )
+      );
     }
   }
 
@@ -1906,8 +2214,13 @@ class WebController {
       logger.info("Fetched management data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching management data", { error: error.message, stack: error.stack });
-      next(new CustomError("Failed to fetch management data", 500, error.message));
+      logger.error("Error fetching management data", {
+        error: error.message,
+        stack: error.stack,
+      });
+      next(
+        new CustomError("Failed to fetch management data", 500, error.message)
+      );
     }
   }
 
@@ -1932,8 +2245,13 @@ class WebController {
       logger.info(`Fetched ${type} policy from DB`);
       res.json({ status: "success", policy: policy || [] });
     } catch (error) {
-      logger.error(`Error fetching ${type} policy`, { error: error.message, stack: error.stack });
-      next(new CustomError(`Failed to fetch ${type} policy`, 500, error.message));
+      logger.error(`Error fetching ${type} policy`, {
+        error: error.message,
+        stack: error.stack,
+      });
+      next(
+        new CustomError(`Failed to fetch ${type} policy`, 500, error.message)
+      );
     }
   }
 
@@ -1964,7 +2282,10 @@ class WebController {
       logger.info("Fetched news data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching news data", { error: error.message, stack: error.stack });
+      logger.error("Error fetching news data", {
+        error: error.message,
+        stack: error.stack,
+      });
       next(new CustomError("Failed to fetch news data", 500, error.message));
     }
   }
@@ -2002,7 +2323,10 @@ class WebController {
 
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching news data", { error: error.message, stack: error.stack });
+      logger.error("Error fetching news data", {
+        error: error.message,
+        stack: error.stack,
+      });
       next(new CustomError("Failed to fetch news data", 500, error.message));
     }
   }
@@ -2059,7 +2383,10 @@ class WebController {
       logger.info("Fetched news details from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching news details", { error: error.message, stack: error.stack });
+      logger.error("Error fetching news details", {
+        error: error.message,
+        stack: error.stack,
+      });
       next(new CustomError("Failed to fetch news details", 500, error.message));
     }
   }
@@ -2086,8 +2413,17 @@ class WebController {
       logger.info("Fetched branch locator data from DB");
       res.json({ status: "success", data });
     } catch (error) {
-      logger.error("Error fetching branch locator data", { error: error.message, stack: error.stack });
-      next(new CustomError("Failed to fetch branch locator data", 500, error.message));
+      logger.error("Error fetching branch locator data", {
+        error: error.message,
+        stack: error.stack,
+      });
+      next(
+        new CustomError(
+          "Failed to fetch branch locator data",
+          500,
+          error.message
+        )
+      );
     }
   }
 }
