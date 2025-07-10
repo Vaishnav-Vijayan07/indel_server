@@ -21,6 +21,10 @@ module.exports = (sequelize) => {
           key: "id",
         },
       },
+      order:{
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
       is_active: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

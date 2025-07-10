@@ -257,7 +257,16 @@ class WebController {
             is_active: true,
           },
           order: [["order", "ASC"]],
-          attributes: ["id", "title", "super_title", "image", "image_mobile", "alt_text", "order", "is_active"],
+          attributes: [
+            "id",
+            "title",
+            "super_title",
+            "image",
+            "image_mobile",
+            "alt_text",
+            "order",
+            "is_active",
+          ],
         }),
         models.AboutPageContent.findAll(),
         models.AboutLifeAtIndelGallery.findAll({
@@ -265,17 +274,25 @@ class WebController {
           order: [["order", "ASC"]],
         }),
         models.AboutQuickLinks.findAll({
+          where: { is_active: true },
           order: [["order", "ASC"]],
         }),
         models.AboutMessageFromTeam.findAll({
           where: { is_active: true },
+          order: [["order", "ASC"]],
         }),
-        models.AboutServiceGallery.findAll({}),
+        models.AboutServiceGallery.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
         models.AboutStatistics.findAll({
           where: { is_active: true },
           order: [["order", "ASC"]],
         }),
-        models.AboutAccolades.findAll(),
+        models.AboutAccolades.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
       ]);
 
       const data = {
@@ -415,9 +432,12 @@ class WebController {
               is_active: true,
               state_id: stateId || null,
             },
-            order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
+            order: [["order", "ASC"]],
           }),
-          models.ContactOffice.findAll(),
+          models.ContactOffice.findAll({
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
           models.BranchLocatorPageContents.findAll({
             attributes: ["id", "title", "description"],
           }),
@@ -471,7 +491,7 @@ class WebController {
             "order",
           ],
           where: { is_active: true },
-          order: [[Sequelize.literal('CAST("year" AS INTEGER)'), "ASC"]],
+          order: [["order", "ASC"]],
         }),
       ]);
 
@@ -705,7 +725,12 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [indelValueContent, indelValues, approachPropositions, mobileBanners] = await Promise.all([
+      const [
+        indelValueContent,
+        indelValues,
+        approachPropositions,
+        mobileBanners,
+      ] = await Promise.all([
         models.IndelValueContent.findAll(),
         models.IndelValues.findAll({
           where: { is_active: true },
@@ -819,10 +844,13 @@ class WebController {
       const [serviceContent, serviceBenefit, servicesRaw] = await Promise.all([
         models.ServiceContent.findAll(),
         models.ServiceBenefit.findAll({
-          where: { service_id: GoldService.id },
+          where: { service_id: GoldService },
           order: [["order", "ASC"]],
         }),
-        models.Services.findAll(),
+        models.Services.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
       ]);
 
       // Filter out the item with slug 'gold-loan'
@@ -885,6 +913,8 @@ class WebController {
         attributes: ["id"],
       });
 
+      console.log(service);
+
       const [
         goldloanContent,
         announcement,
@@ -909,7 +939,7 @@ class WebController {
         models.GoldLoanFeatures.findAll(),
         models.GoldloanBannerFeatures.findAll({
           where: { is_active: true },
-          order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
+          order: [["order", "ASC"]],
         }),
         models.ServiceBenefit.findAll({
           where: { is_active: true, service_id: service?.id },
@@ -968,7 +998,7 @@ class WebController {
       const nonCenterItems = goldLoanFeatures?.filter(
         (item) => !item.is_center
       );
-
+      ``;
       // Step 1: Group non-center items into pairs
       const grouped = [];
       for (let i = 0; i < nonCenterItems.length; i += 2) {
@@ -1203,9 +1233,18 @@ class WebController {
         testimoinials,
       ] = await Promise.all([
         models.CareersContent.findAll(),
-        models.CareerBanners.findAll(),
-        models.CareerGallery.findAll(),
-        models.CareerStates.findAll({ where: { is_active: true } }),
+        models.CareerBanners.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.CareerGallery.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.CareerStates.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
         models.CareerJobs.findAll({
           // attributes: ["id", "role_id", "location_id", "state_id", "job_title", "job_description", "key_responsibilities", "is_active"],
           include: [
@@ -1215,7 +1254,10 @@ class WebController {
           ],
           order: [["id", "ASC"]],
         }),
-        models.EmployeeBenefits.findAll(),
+        models.EmployeeBenefits.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
         models.Awards.findAll({
           where: {
             is_active: true,
@@ -1228,8 +1270,12 @@ class WebController {
         models.Testimonials.findAll(),
       ]);
 
-      const textTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "text");
-      const imageTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "video");
+      const textTestimonials = testimoinials.filter(
+        (testimoinial) => testimoinial.type === "text"
+      );
+      const imageTestimonials = testimoinials.filter(
+        (testimoinial) => testimoinial.type === "video"
+      );
 
       const data = {
         careersContent: careersContent[0] || null,
@@ -1377,7 +1423,7 @@ class WebController {
             "slug",
             "cover_image",
             "image_alt",
-          ], // Add desired attributes here
+          ],
           order: [["order", "ASC"]],
         }),
         models.EventTypes.findAndCountAll({
@@ -1697,8 +1743,18 @@ class WebController {
           order: [["order", "ASC"]],
         }),
         models.IndelCares.findAndCountAll({
-
-          attributes: ["id", "title", "description", "image", "event_date", "image_alt", "is_slider", "is_active", "order", "slug"],
+          attributes: [
+            "id",
+            "title",
+            "description",
+            "image",
+            "event_date",
+            "image_alt",
+            "is_slider",
+            "is_active",
+            "order",
+            "slug",
+          ],
           where: { is_active: true },
           order: [["order", "ASC"]],
           limit,

@@ -29,7 +29,7 @@ class GoldCaratTypesController {
       }
 
       const goldCaratTypes = await GoldCaratTypes.findAll({
-        order: [["name", "ASC"]],
+        order: [["order", "ASC"]],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(goldCaratTypes), 3600);

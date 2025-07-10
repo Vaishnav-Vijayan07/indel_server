@@ -29,7 +29,7 @@ class ServiceTypesController {
       }
 
       const serviceTypes = await ServiceTypes.findAll({
-        order: [["type_name", "ASC"]],
+        order: [["order", "ASC"]],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(serviceTypes), 3600);
