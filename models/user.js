@@ -19,6 +19,7 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
       email: {
+      searchable: true,
         type: DataTypes.STRING,
         allowNull: true,
         unique: true,
