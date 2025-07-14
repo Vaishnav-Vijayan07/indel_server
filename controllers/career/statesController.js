@@ -1,10 +1,10 @@
 const { models } = require("../../models/index");
+const { fn, col, where } = require("sequelize");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
 const fs = require("fs").promises;
 const path = require("path");
-
 const States = models.CareerStates;
 
 class StatesController {
@@ -28,10 +28,12 @@ class StatesController {
         updateData.image = `/uploads/career-states/${req.file.filename}`;
         Logger.info(`Uploaded image for State: ${updateData.image}`);
       }
-
-      const existState = await States.findOne({
-        where: { state_name: updateData.state_name }
-      })
+    const existState = await States.findOne({
+      where: where(
+        fn('LOWER', col('state_name')),
+        updateData.state_name.toLowerCase()
+      )
+    });
 
 
       if (existState) {
