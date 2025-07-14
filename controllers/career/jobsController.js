@@ -33,7 +33,7 @@ class JobsController {
           throw new CustomError("Invalid end_date format", 400);
         }
       }
- 
+
       const job = await Jobs.create(updateData);
 
       // Invalidate caches after creation
@@ -90,12 +90,53 @@ class JobsController {
     }
   }
 
+  static async getAllFiltered(req, res, next) {
+    try {
+      const { state_id, location_id, role_id } = req.query;
+
+      // Build where conditions
+      const whereConditions = { is_active: true };
+      if (role_id) whereConditions.role_id = parseInt(role_id);
+      if (location_id) whereConditions.location_id = parseInt(location_id);
+      if (state_id) whereConditions.state_id = parseInt(state_id);
+
+      const jobs = await Jobs.findAll({
+        where: whereConditions,
+        attributes: {
+          include: [
+            [
+              sequelize.literal(`(
+          SELECT COUNT(*)
+          FROM job_applications AS ja
+          WHERE ja.job_id = "Jobs"."id"
+        )`),
+              "application_count",
+            ],
+          ],
+        },
+
+        include: [
+          { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
+          { model: models.CareerLocations, as: "location", attributes: ["location_name"] },
+          { model: models.CareerStates, as: "state", attributes: ["state_name"] },
+        ],
+        order: [
+          ["order", "ASC"],
+          ["id", "ASC"],
+        ],
+      });
+      res.json({ success: true, data: jobs });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async getAll(req, res, next) {
     try {
       const { state_id, location_id, role_id } = req.query;
 
       // Build where conditions
-      const whereConditions = {  };
+      const whereConditions = {};
       if (role_id) whereConditions.role_id = parseInt(role_id);
       if (location_id) whereConditions.location_id = parseInt(location_id);
       if (state_id) whereConditions.state_id = parseInt(state_id);
