@@ -33,7 +33,7 @@ class JobsController {
           throw new CustomError("Invalid end_date format", 400);
         }
       }
- 
+
       const job = await Jobs.create(updateData);
 
       // Invalidate caches after creation
@@ -95,7 +95,6 @@ class JobsController {
       const { state_id, location_id, role_id } = req.query;
 
       // Build where conditions
-      const whereConditions = { is_active: true };
       if (role_id) whereConditions.role_id = parseInt(role_id);
       if (location_id) whereConditions.location_id = parseInt(location_id);
       if (state_id) whereConditions.state_id = parseInt(state_id);
