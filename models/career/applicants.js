@@ -21,6 +21,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING(20),
         allowNull: true,
       },
+      current_location: {
+        type: DataTypes.STRING(200),
+        allowNull: true,
+      },
       preferred_location: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -28,6 +32,11 @@ module.exports = (sequelize) => {
           model: "locations",
           key: "id",
         },
+      },
+      notice_period: {
+        type: DataTypes.ENUM,
+        values: ["Less than 15 days", "15 to 30 days", "30 days", "60 to 90 days", "More than 90 days"],
+        allowNull: true,
       },
       referred_employee_name: {
         type: DataTypes.STRING(200),
@@ -53,8 +62,8 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING(255),
         allowNull: true,
       },
-      file_uploaded_at: { 
-        type: DataTypes.DATE, 
+      file_uploaded_at: {
+        type: DataTypes.DATE,
         allowNull: true, // Null if no resume
         defaultValue: null,
       },
