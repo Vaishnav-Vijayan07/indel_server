@@ -118,6 +118,7 @@ const defineAnnouncement = require("./homePage/announcement");
 const defineLapContent = require("./Lap/content");
 const defineLapProducts = require("./Lap/products");
 const defineCareerMeta = require("./career/careerMeta");
+const defineFileShare = require("./fileShare");
 
 const models = {
   User: defineUser(sequelize),
@@ -241,6 +242,7 @@ const models = {
   LapContent: defineLapContent(sequelize),
   LapProducts: defineLapProducts(sequelize),
   CareerMeta: defineCareerMeta(sequelize),
+  FileShare: defineFileShare(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {
