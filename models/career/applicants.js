@@ -28,6 +28,8 @@ module.exports = (sequelize) => {
           model: "locations",
           key: "id",
         },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
       },
       referred_employee_name: {
         type: DataTypes.STRING(200),

@@ -32,6 +32,8 @@ module.exports = (sequelize) => {
           model: "districts",
           key: "id",
         },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
       },
       location: {
         type: DataTypes.INTEGER,
@@ -40,6 +42,9 @@ module.exports = (sequelize) => {
           model: "locations",
           key: "id",
         },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+        
       },
       latitude: {
         type: DataTypes.DECIMAL(10, 8),
