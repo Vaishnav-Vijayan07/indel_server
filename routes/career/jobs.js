@@ -7,6 +7,7 @@ const JobsController = require("../../controllers/career/jobsController");
 
 router.get("/dropdowns", JobsController.getDropdowns);
 router.get("/", JobsController.getAll);
+router.get("/filtered", JobsController.getAllFiltered);
 router.get("/:id", JobsController.getById);
 router.put("/order", JobsController.updateOrder);
 
