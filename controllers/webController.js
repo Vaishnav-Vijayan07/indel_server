@@ -1225,7 +1225,7 @@ class WebController {
 
     const whereClause = {
       is_active: true,
-      // is_approved: true,
+      is_approved: true,
       end_date: {
         [Op.gte]: today,
       },
@@ -1324,7 +1324,7 @@ class WebController {
 
     const whereClause = {
       is_active: true,
-      // is_approved: true,
+      is_approved: true,
       end_date: {
         [Op.gte]: today,
       },
