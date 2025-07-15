@@ -1,4 +1,5 @@
 const { models } = require("../../models/index");
+const { fn, col, where, Op } = require("sequelize");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
@@ -8,165 +9,196 @@ const path = require("path");
 const Districts = models.Districts;
 
 class DistrictsController {
-    static async deleteFile(filePath) {
-        if (!filePath) return;
-        try {
-            const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
-            await fs.unlink(absolutePath);
-            Logger.info(`Deleted file: ${filePath}`);
-        } catch (error) {
-            if (error.code !== "ENOENT") {
-                Logger.error(`Failed to delete file ${filePath}: ${error.message}`);
-            }
-        }
+  static async deleteFile(filePath) {
+    if (!filePath) return;
+    try {
+      const absolutePath = path.join(
+        __dirname,
+        "..",
+        "..",
+        "uploads",
+        filePath.replace("/uploads/", "")
+      );
+      await fs.unlink(absolutePath);
+      Logger.info(`Deleted file: ${filePath}`);
+    } catch (error) {
+      if (error.code !== "ENOENT") {
+        Logger.error(`Failed to delete file ${filePath}: ${error.message}`);
+      }
     }
+  }
 
-    static async create(req, res, next) {
-        try {
-            const updateData = { ...req.body };
-            if (req.file) {
-                updateData.image = `/uploads/career-districts/${req.file.filename}`;
-                Logger.info(`Uploaded image for District: ${updateData.image}`);
-            }
+  static async create(req, res, next) {
+    try {
+      const updateData = { ...req.body };
+      if (req.file) {
+        updateData.image = `/uploads/career-districts/${req.file.filename}`;
+        Logger.info(`Uploaded image for District: ${updateData.image}`);
+      }
 
-            const district = await Districts.create(updateData);
+      const existDistrict = await Districts.findOne({
+        where: where(
+          fn("LOWER", col("district_name")),
+          updateData.district_name.toLowerCase()
+        ),
+      });
+      if (existDistrict) {
+     throw new CustomError(`${existDistrict?.district_name} is already exists`, 400);
+      }
+      const district = await Districts.create(updateData);
 
-            await CacheService.invalidate("districts");
-            await CacheService.invalidate("webCareerPage");
+      await CacheService.invalidate("districts");
+      await CacheService.invalidate("webCareerPage");
 
-            res.status(201).json({ success: true, data: district, message: "District created" });
-        } catch (error) {
-            next(error);
-        }
+      res
+        .status(201)
+        .json({ success: true, data: district, message: "District created" });
+    } catch (error) {
+      next(error);
     }
+  }
 
-    static async getAll(req, res, next) {
-        try {
-            const cacheKey = "districts";
-            const cachedData = await CacheService.get(cacheKey);
+  static async getAll(req, res, next) {
+    try {
+      const cacheKey = "districts";
+      const cachedData = await CacheService.get(cacheKey);
 
-            if (cachedData) {
-                return res.json({ success: true, data: JSON.parse(cachedData) });
-            }
+      if (cachedData) {
+        return res.json({ success: true, data: JSON.parse(cachedData) });
+      }
 
-            const districts = await Districts.findAll({
-                order: [["order", "ASC"]],
-                include: [{ model: models.CareerStates, as: "state", attributes: ["state_name"] }] // Assuming association
-            });
+      const districts = await Districts.findAll({
+        order: [["order", "ASC"]],
+        include: [
+          {
+            model: models.CareerStates,
+            as: "state",
+            attributes: ["state_name"],
+          },
+        ], // Assuming association
+      });
 
-            await CacheService.set(cacheKey, JSON.stringify(districts), 3600);
-            res.json({ success: true, data: districts });
-        } catch (error) {
-            next(error);
-        }
+      await CacheService.set(cacheKey, JSON.stringify(districts), 3600);
+      res.json({ success: true, data: districts });
+    } catch (error) {
+      next(error);
     }
+  }
 
-    static async getDistrictsByStateId(req, res, next) {
-        try {
-            const { id } = req.params;
+  static async getDistrictsByStateId(req, res, next) {
+    try {
+      const { id } = req.params;
 
-            if (!id) {
-                return res.status(400).json({ success: false, message: "state_id parameter is required." });
-            }
+      if (!id) {
+        return res
+          .status(400)
+          .json({ success: false, message: "state_id parameter is required." });
+      }
 
-            const cacheKey = `districts_state_${id}`;
-            const cachedData = await CacheService.get(cacheKey);
+      const cacheKey = `districts_state_${id}`;
+      const cachedData = await CacheService.get(cacheKey);
 
-            if (cachedData) {
-                return res.json({ success: true, data: JSON.parse(cachedData) });
-            }
+      if (cachedData) {
+        return res.json({ success: true, data: JSON.parse(cachedData) });
+      }
 
-            const districts = await Districts.findAll({
-                where: { state_id: id }, // filter by state_id
-                order: [["order", "ASC"]],
-                include: [{ model: models.CareerStates, as: "state", attributes: ["state_name"] }]
-            });
+      const districts = await Districts.findAll({
+        where: { state_id: id }, // filter by state_id
+        order: [["order", "ASC"]],
+        include: [
+          {
+            model: models.CareerStates,
+            as: "state",
+            attributes: ["state_name"],
+          },
+        ],
+      });
 
-            await CacheService.set(cacheKey, JSON.stringify(districts), 3600);
+      await CacheService.set(cacheKey, JSON.stringify(districts), 3600);
 
-            res.json({ success: true, data: districts });
-        } catch (error) {
-            next(error);
-        }
+      res.json({ success: true, data: districts });
+    } catch (error) {
+      next(error);
     }
+  }
 
-    static async getById(req, res, next) {
-        try {
-            const { id } = req.params;
-            const cacheKey = `district_${id}`;
-            const cachedData = await CacheService.get(cacheKey);
+  static async getById(req, res, next) {
+    try {
+      const { id } = req.params;
+      const cacheKey = `district_${id}`;
+      const cachedData = await CacheService.get(cacheKey);
 
-            if (cachedData) {
-                return res.json({ success: true, data: JSON.parse(cachedData) });
-            }
+      if (cachedData) {
+        return res.json({ success: true, data: JSON.parse(cachedData) });
+      }
 
-            const district = await Districts.findByPk(id, {
-                include: [{ model: models.CareerStates, as: "state" }] // Assuming association
-            });
-            if (!district) {
-                throw new CustomError("District not found", 404);
-            }
+      const district = await Districts.findByPk(id, {
+        include: [{ model: models.CareerStates, as: "state" }], // Assuming association
+      });
+      if (!district) {
+        throw new CustomError("District not found", 404);
+      }
 
-            await CacheService.set(cacheKey, JSON.stringify(district), 3600);
-            res.json({ success: true, data: district });
-        } catch (error) {
-            next(error);
-        }
+      await CacheService.set(cacheKey, JSON.stringify(district), 3600);
+      res.json({ success: true, data: district });
+    } catch (error) {
+      next(error);
     }
+  }
 
-    static async update(req, res, next) {
-        try {
-            const { id } = req.params;
-            const district = await Districts.findByPk(id);
-            if (!district) {
-                throw new CustomError("District not found", 404);
-            }
+  static async update(req, res, next) {
+    try {
+      const { id } = req.params;
+      const district = await Districts.findByPk(id);
+      if (!district) {
+        throw new CustomError("District not found", 404);
+      }
 
-            const updateData = { ...req.body };
-            let oldImage = district.image;
+      const updateData = { ...req.body };
+      let oldImage = district.image;
 
-            if (req.file) {
-                updateData.image = `/uploads/career-districts/${req.file.filename}`;
-                Logger.info(`Updated image for District ID ${id}: ${updateData.image}`);
-                if (oldImage) {
-                    await DistrictsController.deleteFile(oldImage);
-                }
-            }
-
-            await district.update(updateData);
-
-            await CacheService.invalidate("districts");
-            await CacheService.invalidate("webCareerPage");
-            await CacheService.invalidate(`district_${id}`);
-            res.json({ success: true, data: district, message: "District updated" });
-        } catch (error) {
-            next(error);
+      if (req.file) {
+        updateData.image = `/uploads/career-districts/${req.file.filename}`;
+        Logger.info(`Updated image for District ID ${id}: ${updateData.image}`);
+        if (oldImage) {
+          await DistrictsController.deleteFile(oldImage);
         }
+      }
+
+      await district.update(updateData);
+
+      await CacheService.invalidate("districts");
+      await CacheService.invalidate("webCareerPage");
+      await CacheService.invalidate(`district_${id}`);
+      res.json({ success: true, data: district, message: "District updated" });
+    } catch (error) {
+      next(error);
     }
+  }
 
-    static async delete(req, res, next) {
-        try {
-            const { id } = req.params;
-            const district = await Districts.findByPk(id);
-            if (!district) {
-                throw new CustomError("District not found", 404);
-            }
+  static async delete(req, res, next) {
+    try {
+      const { id } = req.params;
+      const district = await Districts.findByPk(id);
+      if (!district) {
+        throw new CustomError("District not found", 404);
+      }
 
-            const oldImage = district.image;
-            await district.destroy();
+      const oldImage = district.image;
+      await district.destroy();
 
-            if (oldImage) {
-                await DistrictsController.deleteFile(oldImage);
-            }
+      if (oldImage) {
+        await DistrictsController.deleteFile(oldImage);
+      }
 
-            await CacheService.invalidate("districts");
-            await CacheService.invalidate("webCareerPage");
-            await CacheService.invalidate(`district_${id}`);
-            res.json({ success: true, message: "District deleted", data: id });
-        } catch (error) {
-            next(error);
-        }
+      await CacheService.invalidate("districts");
+      await CacheService.invalidate("webCareerPage");
+      await CacheService.invalidate(`district_${id}`);
+      res.json({ success: true, message: "District deleted", data: id });
+    } catch (error) {
+      next(error);
     }
+  }
 }
 
 module.exports = DistrictsController;

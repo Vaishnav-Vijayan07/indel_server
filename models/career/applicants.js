@@ -32,6 +32,8 @@ module.exports = (sequelize) => {
           model: "locations",
           key: "id",
         },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
       },
       notice_period: {
         type: DataTypes.ENUM,

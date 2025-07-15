@@ -1,6 +1,7 @@
 const { models } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
+const { fn, col, where } = require("sequelize");
 
 const Roles = models.CareerRoles;
 
@@ -8,6 +9,19 @@ class RolesController {
   static async create(req, res, next) {
     try {
       const updateData = { ...req.body };
+
+
+    // Check for existing role (case-insensitive)
+    const existRole = await Roles.findOne({
+      where: where(
+        fn("LOWER", col("role_name")),
+        updateData.role_name.toLowerCase()
+      ),
+    });
+
+    if (existRole) {
+      throw new CustomError(`${updateData?.role_name} is already exists`, 400);
+    }
 
       const role = await Roles.create(updateData);
 

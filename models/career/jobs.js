@@ -28,6 +28,8 @@ module.exports = (sequelize) => {
           model: "locations",
           key: "id",
         },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
       },
       state_id: {
         type: DataTypes.INTEGER,
