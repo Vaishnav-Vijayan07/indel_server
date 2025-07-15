@@ -1220,7 +1220,16 @@ class WebController {
       //   logger.info("Serving Career Page from cache");
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
+ const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
+    const whereClause = {
+      is_active: true,
+      // is_approved: true,
+      end_date: {
+        [Op.gte]: today,
+      },
+    };
       const [
         careersContent,
         careerBanners,
@@ -1246,6 +1255,7 @@ class WebController {
           order: [["order", "ASC"]],
         }),
         models.CareerJobs.findAll({
+          where: whereClause,
           // attributes: ["id", "role_id", "location_id", "state_id", "job_title", "job_description", "key_responsibilities", "is_active"],
           include: [
             { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
@@ -1309,10 +1319,15 @@ class WebController {
   static async ActiveJobs(req, res, next) {
     const cacheKey = "webCareerPage";
     const { state, location, role } = req.query;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     const whereClause = {
       is_active: true,
-      is_approved: true,
+      // is_approved: true,
+      end_date: {
+        [Op.gte]: today,
+      },
     };
 
     if (state) whereClause.state_id = state;
@@ -1333,8 +1348,7 @@ class WebController {
           "role_id",
           "location_id",
           "state_id",
-          "short_description",
-          "detailed_description",
+          "job_description",
           "experience",
           "is_active",
           "is_approved",
@@ -1361,7 +1375,7 @@ class WebController {
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
       logger.info("Fetched Career Page data from DB");
-      res.json({ status: "success", data });
+      res.json({ success: true, data });
     } catch (error) {
       logger.error("Error fetching Career Page data", {
         error: error.message,
