@@ -1225,7 +1225,7 @@ class WebController {
 
     const whereClause = {
       is_active: true,
-      is_approved: true,
+      // is_approved: true,
       end_date: {
         [Op.gte]: today,
       },
@@ -1321,10 +1321,10 @@ class WebController {
     const { state, location, role } = req.query;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
+console.log("Requested Filters", { state, role, location });
     const whereClause = {
       is_active: true,
-      is_approved: true,
+      // is_approved: true,
       end_date: {
         [Op.gte]: today,
       },
