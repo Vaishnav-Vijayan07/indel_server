@@ -16,10 +16,7 @@ class WebController {
 
     // 2. If not in session, call geolocation API and store in session
     if (!stateId) {
-      const ip =
-        req.headers["x-forwarded-for"]?.split(",")[0].trim() ||
-        req.socket.remoteAddress ||
-        "127.0.0.1";
+      const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
       try {
         const geo = await getStateFromIp(ip);
         stateId = geo.stateId;
@@ -148,17 +145,7 @@ class WebController {
       let popupServices = null;
       if (!isBanner) {
         popupServices = await models.PopupServices.findAll({
-          attributes: [
-            "id",
-            "image",
-            "image_alt",
-            "title",
-            "description",
-            "button_link",
-            "button_text",
-            "order",
-            "is_active",
-          ],
+          attributes: ["id", "image", "image_alt", "title", "description", "button_link", "button_text", "order", "is_active"],
           where: { is_active: true },
           order: [["order", "ASC"]],
         });
@@ -242,58 +229,41 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [
-        aboutBanner,
-        aboutContent,
-        lifeAtIndelImages,
-        quickLinks,
-        teamMessages,
-        serviceImages,
-        statsData,
-        accolades,
-      ] = await Promise.all([
-        models.AboutBanner.findAll({
-          where: {
-            is_active: true,
-          },
-          order: [["order", "ASC"]],
-          attributes: [
-            "id",
-            "title",
-            "super_title",
-            "image",
-            "image_mobile",
-            "alt_text",
-            "order",
-            "is_active",
-          ],
-        }),
-        models.AboutPageContent.findAll(),
-        models.AboutLifeAtIndelGallery.findAll({
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-        models.AboutQuickLinks.findAll({
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-        models.AboutMessageFromTeam.findAll({
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-        models.AboutServiceGallery.findAll({
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-        models.AboutStatistics.findAll({
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-        models.AboutAccolades.findAll({
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-      ]);
+      const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks, teamMessages, serviceImages, statsData, accolades] =
+        await Promise.all([
+          models.AboutBanner.findAll({
+            where: {
+              is_active: true,
+            },
+            order: [["order", "ASC"]],
+            attributes: ["id", "title", "super_title", "image", "image_mobile", "alt_text", "order", "is_active"],
+          }),
+          models.AboutPageContent.findAll(),
+          models.AboutLifeAtIndelGallery.findAll({
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.AboutQuickLinks.findAll({
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.AboutMessageFromTeam.findAll({
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.AboutServiceGallery.findAll({
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.AboutStatistics.findAll({
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.AboutAccolades.findAll({
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+        ]);
 
       const data = {
         aboutBanner,
@@ -350,9 +320,7 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError("Failed to fetch management data", 500, error.message)
-      );
+      next(new CustomError("Failed to fetch management data", 500, error.message));
     }
   }
 
@@ -367,10 +335,7 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, debtPartners] = await Promise.all([
-        models.DebtPartnersContent.findAll(),
-        models.DeptPartners.findAll(),
-      ]);
+      const [content, debtPartners] = await Promise.all([models.DebtPartnersContent.findAll(), models.DeptPartners.findAll()]);
 
       const data = {
         content: content[0] || null,
@@ -388,9 +353,7 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError("Failed to fetch partners data", 500, error.message)
-      );
+      next(new CustomError("Failed to fetch partners data", 500, error.message));
     }
   }
 
@@ -400,10 +363,7 @@ class WebController {
     let stateId = req.session?.stateId || null;
     let stateName = req.session?.stateName || "Global";
     if (!stateId) {
-      const ip =
-        req.headers["x-forwarded-for"]?.split(",")[0].trim() ||
-        req.socket.remoteAddress ||
-        "127.0.0.1";
+      const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
       try {
         const geo = await getStateFromIp(ip);
         stateId = geo.stateId;
@@ -424,24 +384,23 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, faqs, officeContacts, branchLocatorData] =
-        await Promise.all([
-          models.ContactContent.findAll(),
-          models.ContactFaq.findAll({
-            where: {
-              is_active: true,
-              state_id: stateId || null,
-            },
-            order: [["order", "ASC"]],
-          }),
-          models.ContactOffice.findAll({
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }),
-          models.BranchLocatorPageContents.findAll({
-            attributes: ["id", "title", "description"],
-          }),
-        ]);
+      const [content, faqs, officeContacts, branchLocatorData] = await Promise.all([
+        models.ContactContent.findAll(),
+        models.ContactFaq.findAll({
+          where: {
+            is_active: true,
+            state_id: stateId || null,
+          },
+          order: [["order", "ASC"]],
+        }),
+        models.ContactOffice.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.BranchLocatorPageContents.findAll({
+          attributes: ["id", "title", "description"],
+        }),
+      ]);
 
       const data = {
         content: content[0] || null,
@@ -480,16 +439,7 @@ class WebController {
           order: [["order", "ASC"]],
         }),
         models.HistoryInceptionsYears.findAll({
-          attributes: [
-            "id",
-            "image",
-            "image_alt",
-            "year",
-            "title",
-            "description",
-            "is_active",
-            "order",
-          ],
+          attributes: ["id", "image", "image_alt", "year", "title", "description", "is_active", "order"],
           where: { is_active: true },
           order: [["order", "ASC"]],
         }),
@@ -725,12 +675,7 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [
-        indelValueContent,
-        indelValues,
-        approachPropositions,
-        mobileBanners,
-      ] = await Promise.all([
+      const [indelValueContent, indelValues, approachPropositions, mobileBanners] = await Promise.all([
         models.IndelValueContent.findAll(),
         models.IndelValues.findAll({
           where: { is_active: true },
@@ -762,9 +707,7 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError("Failed to fetch Indel values data", 500, error.message)
-      );
+      next(new CustomError("Failed to fetch Indel values data", 500, error.message));
     }
   }
 
@@ -817,13 +760,7 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError(
-          "Failed to fetch Diffrent Shades of Indel data",
-          500,
-          error.message
-        )
-      );
+      next(new CustomError("Failed to fetch Diffrent Shades of Indel data", 500, error.message));
     }
   }
 
@@ -844,7 +781,7 @@ class WebController {
       const [serviceContent, serviceBenefit, servicesRaw] = await Promise.all([
         models.ServiceContent.findAll(),
         models.ServiceBenefit.findAll({
-          where: { service_id: GoldService },
+          where: { service_id: GoldService.id },
           order: [["order", "ASC"]],
         }),
         models.Services.findAll({
@@ -854,9 +791,7 @@ class WebController {
       ]);
 
       // Filter out the item with slug 'gold-loan'
-      const services = servicesRaw.filter(
-        (service) => service.slug !== "gold-loan"
-      );
+      const services = servicesRaw.filter((service) => service.slug !== "gold-loan");
 
       const data = {
         serviceContent: serviceContent[0] || null,
@@ -872,9 +807,7 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError("Failed to fetch Our Services data", 500, error.message)
-      );
+      next(new CustomError("Failed to fetch Our Services data", 500, error.message));
     }
   }
 
@@ -885,10 +818,7 @@ class WebController {
 
     // 2. If not in session, call geolocation API and store in session
     if (!stateId) {
-      const ip =
-        req.headers["x-forwarded-for"]?.split(",")[0].trim() ||
-        req.socket.remoteAddress ||
-        "127.0.0.1";
+      const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
       try {
         const geo = await getStateFromIp(ip);
         stateId = geo.stateId;
@@ -995,9 +925,7 @@ class WebController {
       );
 
       const centerItem = goldLoanFeatures?.find((item) => item.is_center);
-      const nonCenterItems = goldLoanFeatures?.filter(
-        (item) => !item.is_center
-      );
+      const nonCenterItems = goldLoanFeatures?.filter((item) => !item.is_center);
       ``;
       // Step 1: Group non-center items into pairs
       const grouped = [];
@@ -1039,9 +967,7 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError("Failed to fetch gold loan data", 500, error.message)
-      );
+      next(new CustomError("Failed to fetch gold loan data", 500, error.message));
     }
   }
 
@@ -1050,10 +976,7 @@ class WebController {
     let stateId = req.session?.stateId || null;
     let stateName = req.session?.stateName || "Global";
     if (!stateId) {
-      const ip =
-        req.headers["x-forwarded-for"]?.split(",")[0].trim() ||
-        req.socket.remoteAddress ||
-        "127.0.0.1";
+      const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
       try {
         const geo = await getStateFromIp(ip);
         stateId = geo.stateId;
@@ -1117,9 +1040,7 @@ class WebController {
       res.json({ status: "success", data });
     } catch (error) {
       logger.error("Error fetching MSME Loan data", { error: error.message });
-      next(
-        new CustomError("Failed to fetch MSME Loan data", 500, error.message)
-      );
+      next(new CustomError("Failed to fetch MSME Loan data", 500, error.message));
     }
   }
 
@@ -1133,19 +1054,17 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [cdLoanContent, cdLoanBenefits, cdLoanProducts] = await Promise.all(
-        [
-          models.CdLoanContent.findAll(),
-          models.CdLoanBenefits.findAll({
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }),
-          models.CdLoanProducts.findAll({
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }),
-        ]
-      );
+      const [cdLoanContent, cdLoanBenefits, cdLoanProducts] = await Promise.all([
+        models.CdLoanContent.findAll(),
+        models.CdLoanBenefits.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.CdLoanProducts.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+      ]);
 
       const data = {
         cdLoanContent: cdLoanContent[0] || null,
@@ -1179,19 +1098,17 @@ class WebController {
         attributes: ["id"],
       });
 
-      const [cdLoanContent, cdLoanBenefits, cdLoanProducts] = await Promise.all(
-        [
-          models.LapContent.findAll(),
-          models.ServiceBenefit.findAll({
-            where: { is_active: true, service_id: service?.id },
-            order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
-          }),
-          models.LapProducts.findAll({
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }),
-        ]
-      );
+      const [cdLoanContent, cdLoanBenefits, cdLoanProducts] = await Promise.all([
+        models.LapContent.findAll(),
+        models.ServiceBenefit.findAll({
+          where: { is_active: true, service_id: service?.id },
+          order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
+        }),
+        models.LapProducts.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+      ]);
 
       const data = {
         cdLoanContent: cdLoanContent[0] || null,
@@ -1280,12 +1197,8 @@ class WebController {
         models.Testimonials.findAll(),
       ]);
 
-      const textTestimonials = testimoinials.filter(
-        (testimoinial) => testimoinial.type === "text"
-      );
-      const imageTestimonials = testimoinials.filter(
-        (testimoinial) => testimoinial.type === "video"
-      );
+      const textTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "text");
+      const imageTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "video");
 
       const data = {
         careersContent: careersContent[0] || null,
@@ -1310,9 +1223,7 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError("Failed to fetch Career Page data", 500, error.message)
-      );
+      next(new CustomError("Failed to fetch Career Page data", 500, error.message));
     }
   }
 
@@ -1381,9 +1292,7 @@ console.log("Requested Filters", { state, role, location });
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError("Failed to fetch Career Page data", 500, error.message)
-      );
+      next(new CustomError("Failed to fetch Career Page data", 500, error.message));
     }
   }
   static async eventGallery(req, res, next) {
@@ -1430,14 +1339,7 @@ console.log("Requested Filters", { state, role, location });
         models.GalleryPageContent.findAll(),
         models.EventTypes.findAll({
           where: eventTypeWhere,
-          attributes: [
-            "id",
-            "title",
-            "description",
-            "slug",
-            "cover_image",
-            "image_alt",
-          ],
+          attributes: ["id", "title", "description", "slug", "cover_image", "image_alt"],
           order: [["order", "ASC"]],
         }),
         models.EventTypes.findAndCountAll({
@@ -1471,13 +1373,9 @@ console.log("Requested Filters", { state, role, location });
 
       const galleryItems = eventMedias?.rows
         .map((eventType) => {
-          const images = (eventType.galleryItems || [])
-            .map((gallery) => gallery.image)
-            .filter((img) => img);
+          const images = (eventType.galleryItems || []).map((gallery) => gallery.image).filter((img) => img);
 
-          const video_thumbs = (eventType.galleryItems || [])
-            .map((gallery) => gallery.video_thumbnail)
-            .filter((vid) => vid);
+          const video_thumbs = (eventType.galleryItems || []).map((gallery) => gallery.video_thumbnail).filter((vid) => vid);
 
           const thumbnails = [...images, ...video_thumbs];
 
@@ -1627,13 +1525,9 @@ console.log("Requested Filters", { state, role, location });
 
       const galleryItems = events
         ?.map((eventType) => {
-          const images = (eventType.galleryItems || [])
-            .map((gallery) => gallery.image)
-            .filter((img) => img);
+          const images = (eventType.galleryItems || []).map((gallery) => gallery.image).filter((img) => img);
 
-          const video_thumbs = (eventType.galleryItems || [])
-            .map((gallery) => gallery.video_thumbnail)
-            .filter((vid) => vid);
+          const video_thumbs = (eventType.galleryItems || []).map((gallery) => gallery.video_thumbnail).filter((vid) => vid);
 
           let thumbnails = [...images, ...video_thumbs];
 
@@ -1684,15 +1578,7 @@ console.log("Requested Filters", { state, role, location });
         models.Awards.findAll({
           where: { is_active: true },
           order: [["order", "ASC"]],
-          attributes: [
-            "id",
-            "title",
-            "description",
-            "image",
-            "year",
-            "image_alt",
-            "is_slide",
-          ],
+          attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
         }),
       ]);
 
@@ -1844,13 +1730,7 @@ console.log("Requested Filters", { state, role, location });
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError(
-          "Failed to fetch indel cares details",
-          500,
-          error.message
-        )
-      );
+      next(new CustomError("Failed to fetch indel cares details", 500, error.message));
     }
   }
 
@@ -1878,13 +1758,7 @@ console.log("Requested Filters", { state, role, location });
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError(
-          "Failed to fetch ombudsman files data",
-          500,
-          error.message
-        )
-      );
+      next(new CustomError("Failed to fetch ombudsman files data", 500, error.message));
     }
   }
 
@@ -1932,46 +1806,45 @@ console.log("Requested Filters", { state, role, location });
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, footerContent, modes, socialMediaLinks] =
-        await Promise.all([
-          models.HeaderContents.findAll({
-            attributes: [
-              "id",
-              "logo",
-              "button_1_text",
-              "button_1_inner_title",
-              "button_2_link",
-              "button_2_text",
-              "apple_dowload_icon",
-              "andrioid_download_icon",
-              "apple_download_icon_mobile",
-              "andrioid_download_icon_mobile",
-              "apple_dowload_link",
-              "andrioid_download_link",
-            ],
-          }),
-          models.FooterContent.findAll({
-            attributes: [
-              "id",
-              "toll_free_num",
-              "branch_locator_link",
-              "branch_locator_icon_mobile",
-              "branch_locator_icon_web",
-              "toll_free_icon_mobile",
-              "toll_free_icon_web",
-            ],
-          }),
-          models.PaymentModes.findAll({
-            attributes: ["id", "is_active", "title", "link"],
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }),
-          models.SocialMediaIcons.findAll({
-            attributes: ["id", "link", "title", "icon"],
-            where: { is_active: true, icon_type: "mobile" },
-            order: [["order", "ASC"]],
-          }),
-        ]);
+      const [content, footerContent, modes, socialMediaLinks] = await Promise.all([
+        models.HeaderContents.findAll({
+          attributes: [
+            "id",
+            "logo",
+            "button_1_text",
+            "button_1_inner_title",
+            "button_2_link",
+            "button_2_text",
+            "apple_dowload_icon",
+            "andrioid_download_icon",
+            "apple_download_icon_mobile",
+            "andrioid_download_icon_mobile",
+            "apple_dowload_link",
+            "andrioid_download_link",
+          ],
+        }),
+        models.FooterContent.findAll({
+          attributes: [
+            "id",
+            "toll_free_num",
+            "branch_locator_link",
+            "branch_locator_icon_mobile",
+            "branch_locator_icon_web",
+            "toll_free_icon_mobile",
+            "toll_free_icon_web",
+          ],
+        }),
+        models.PaymentModes.findAll({
+          attributes: ["id", "is_active", "title", "link"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.SocialMediaIcons.findAll({
+          attributes: ["id", "link", "title", "icon"],
+          where: { is_active: true, icon_type: "mobile" },
+          order: [["order", "ASC"]],
+        }),
+      ]);
 
       const quickLinks = [
         {
@@ -2028,10 +1901,8 @@ console.log("Requested Filters", { state, role, location });
       const isBanner = settings?.is_banner || false;
 
       const bannerPopupData = {
-        banner_popup_disappear_time:
-          settings?.banner_popup_disappear_time || null,
-        banner_popup_appearence_time:
-          settings?.banner_popup_appearence_time || null,
+        banner_popup_disappear_time: settings?.banner_popup_disappear_time || null,
+        banner_popup_appearence_time: settings?.banner_popup_appearence_time || null,
         banner_popup_image: settings?.banner_popup_image || null,
         sub_title: settings?.sub_title || null,
         title: settings?.title || null,
@@ -2119,9 +1990,7 @@ console.log("Requested Filters", { state, role, location });
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError("Failed to get testimoinials data", 500, error.message)
-      );
+      next(new CustomError("Failed to get testimoinials data", 500, error.message));
     }
   }
 
@@ -2149,13 +2018,7 @@ console.log("Requested Filters", { state, role, location });
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError(
-          "Failed to get partners data for web",
-          500,
-          error.message
-        )
-      );
+      next(new CustomError("Failed to get partners data for web", 500, error.message));
     }
   }
 
@@ -2173,14 +2036,7 @@ console.log("Requested Filters", { state, role, location });
           is_active: true,
         },
         order: [["order", "ASC"]],
-        attributes: [
-          "id",
-          "partner_type_id",
-          "logo",
-          "logo_alt",
-          "is_active",
-          "order",
-        ],
+        attributes: ["id", "partner_type_id", "logo", "logo_alt", "is_active", "order"],
       });
 
       logger.info("Fetched partner for web from DB");
@@ -2190,13 +2046,7 @@ console.log("Requested Filters", { state, role, location });
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError(
-          "Failed to get partner data for web",
-          500,
-          error.message
-        )
-      );
+      next(new CustomError("Failed to get partner data for web", 500, error.message));
     }
   }
 
@@ -2232,9 +2082,7 @@ console.log("Requested Filters", { state, role, location });
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError("Failed to fetch management data", 500, error.message)
-      );
+      next(new CustomError("Failed to fetch management data", 500, error.message));
     }
   }
 
@@ -2263,9 +2111,7 @@ console.log("Requested Filters", { state, role, location });
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError(`Failed to fetch ${type} policy`, 500, error.message)
-      );
+      next(new CustomError(`Failed to fetch ${type} policy`, 500, error.message));
     }
   }
 
@@ -2431,13 +2277,7 @@ console.log("Requested Filters", { state, role, location });
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError(
-          "Failed to fetch branch locator data",
-          500,
-          error.message
-        )
-      );
+      next(new CustomError("Failed to fetch branch locator data", 500, error.message));
     }
   }
 }
