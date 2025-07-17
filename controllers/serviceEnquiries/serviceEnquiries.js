@@ -3,6 +3,7 @@ const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
 const axios = require("axios");
+const { enquiryMail } = require("../../services/emailService");
 
 const ServiceEnquiries = models.ServiceEnquiries;
 
@@ -63,6 +64,13 @@ class ServiceEnquiriesController {
       // Proceed with creating the service enquiry
       const enquiry = await ServiceEnquiries.create(data); // Use data without recaptcha
       await CacheService.invalidate("ServiceEnquiries");
+
+
+
+      // This line should be added
+      // enquiryMail(data.email, data.name)
+
+
 
       Logger.info("New Service Enquiry created");
       res.status(201).json({ success: true, data: enquiry, message: "Service Enquiry created" });
