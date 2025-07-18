@@ -67,8 +67,7 @@ class ServiceEnquiriesController {
 
 
 
-      // This line should be added
-      // enquiryMail(data.email, data.name)
+      enquiryMail(data.email, data.name)
 
 
 

@@ -13,19 +13,16 @@ class NewsLetterSubsController {
       const existEmail = await NewsLetterSubs.findOne(
         {where: {email: updateData.email}}
       )
-
       if(existEmail) {
         return res.status(400).json({
         success: false,
         message: "Your enquiry already received"
       })}
-
-      // newsLetterConfirmation(updateData.email)
-
+      newsLetterConfirmation(updateData.email)
       const log = await NewsLetterSubs.create(updateData);
       
       await CacheService.invalidate("NewsLetterSubss");
-      res.status(201).json({ success: true, data: log, message: "User Activity Log created" });
+      res.status(201).json({ success: true, data: log, message: "Thank you for subscribing to Indel Money’s newsletter!" });
     } catch (error) {
       next(error.message);
     }
