@@ -64,5 +64,32 @@ www.indelmoney.com
 };
 
 
+const careerMail = async (email, name) => {
+  console.log("📨 Sending career mail to:", email, name);
 
-module.exports = { sendOtpEmail, newsLetterConfirmation, enquiryMail };
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Thank You for Applying to Indel Money!",
+    text: `
+Hi ${name},
+
+Thank you for submitting your application to Indel Money!
+
+We’ve successfully received your career form and our HR team will review your application shortly. If your profile matches our requirements, we will get in touch with you for the next steps.
+
+We appreciate your interest in joining Indel Money and wish you all the best in your career.
+
+Warm regards,  
+HR Team  
+Indel Money  
+www.indelmoney.com
+    `,
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
+
+
+module.exports = { sendOtpEmail, newsLetterConfirmation, enquiryMail, careerMail };

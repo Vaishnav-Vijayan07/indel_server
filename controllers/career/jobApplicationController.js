@@ -1,7 +1,7 @@
 const { default: axios } = require("axios");
 const { models } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
-const { sendOtpEmail } = require("../../services/emailService");
+const { sendOtpEmail, careerMail } = require("../../services/emailService");
 const CustomError = require("../../utils/customError");
 const crypto = require("crypto");
 const ExcelJS = require("exceljs");
@@ -185,6 +185,7 @@ class JobApplicationSubmissionController {
       };
       const newApplication = await models.JobApplications.create(applicationData);
 
+      careerMail(applicantRecord.email, applicantRecord.name);
       // Invalidate caches
       await Promise.all([CacheService.invalidate("applicants"), CacheService.invalidate("job_applications")]);
 
@@ -349,7 +350,6 @@ class JobApplicationSubmissionController {
     try {
       const { applicant, general_application, recaptcha } = req.body;
       const file = req?.file;
-
       // Validate reCAPTCHA token
       if (!recaptcha) {
         return res.status(400).json({ success: false, message: "reCAPTCHA token is missing" });
@@ -459,6 +459,8 @@ class JobApplicationSubmissionController {
         role_id: general_application?.role_id,
         preferred_role_name: general_application?.preferred_role_name,
       });
+
+      careerMail(applicant.email, applicant.name);
 
       // Invalidate caches
       await Promise.all([CacheService.invalidate("applicants"), CacheService.invalidate("general_applications")]);

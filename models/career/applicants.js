@@ -50,7 +50,7 @@ module.exports = (sequelize) => {
       },
       age: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
       current_salary: {
         type: DataTypes.FLOAT,
