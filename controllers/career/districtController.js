@@ -104,7 +104,7 @@ class DistrictsController {
 
       const districts = await Districts.findAll({
         where: { state_id: id }, // filter by state_id
-        order: [["order", "ASC"]],
+        order: [["district_name", "ASC"]],
         include: [
           {
             model: models.CareerStates,

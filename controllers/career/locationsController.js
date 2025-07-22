@@ -70,7 +70,7 @@ throw new CustomError(`${existLocation?.location_name} is already exists`, 400);
           // state_id: state_id,
           district_id: district_id,
         },
-        // order: [["order", "ASC"]],
+        order: [["location_name", "ASC"]],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(locations), 3600);
