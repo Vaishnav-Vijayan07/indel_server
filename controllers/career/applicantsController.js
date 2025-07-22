@@ -73,10 +73,9 @@ class ApplicantsController {
       const { id } = req.params;
       const cacheKey = `applicant_${id}`;
       const cachedData = await CacheService.get(cacheKey);
-
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
 
       const applicant = await models.Applicants.findByPk(id, {
         include: [{ model: models.CareerLocations, as: "location", attributes: ["location_name"] }],
@@ -85,8 +84,54 @@ class ApplicantsController {
         throw new CustomError("Applicant not found", 404);
       }
 
-      await CacheService.set(cacheKey, JSON.stringify(applicant), 3600);
-      res.json({ success: true, data: applicant });
+
+    // Fetch applied jobs with related job, role, and status details
+    const appliedJobs = await models.JobApplications.findAll({
+      where: { applicant_id: id },
+      include: [
+        {
+          model: models.CareerJobs,
+          as: 'job',
+          attributes: ['id', 'job_title'],
+          include: [
+            {
+              model: models.CareerRoles,
+              as: 'role',
+              attributes: ['role_name'],
+            },
+          ],
+        },
+        {
+          model: models.ApplicationStatus,
+          as: 'status',
+          attributes: ['status_name'],
+        },
+      ],
+      order: [['application_date', 'ASC']],
+    });
+
+
+    // Format response
+    const response = {
+      applicant: {
+        id: applicant.id,
+        name: applicant.name,
+        email: applicant.email,
+        phone: applicant.phone,
+        location: applicant.location ? applicant.location.location_name : applicant.current_location || null,
+        resume: applicant.file,
+      },
+      appliedJobs: appliedJobs.map((job) => ({
+        id: job.id,
+        jobTitle: job.job ? job.job.job_title : null,
+        department: job.job && job.job.role ? job.job.role.role_name : null,
+        status: job.status ? job.status.status_name : null,
+        appliedDate: job.application_date ? job.application_date.toISOString().split('T')[0] : null,
+      })),
+    };
+
+      await CacheService.set(cacheKey, JSON.stringify(applicant, appliedJobs), 3600);
+      res.json({ success: true, data: response, message: "Applicant details fetched" });
     } catch (error) {
       next(error);
     }

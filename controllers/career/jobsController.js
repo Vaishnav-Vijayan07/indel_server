@@ -307,6 +307,8 @@ class JobsController {
       next(error);
     }
   }
+
+
 }
 
 module.exports = JobsController;
