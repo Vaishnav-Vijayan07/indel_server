@@ -65,6 +65,17 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
+      reapply_period_months: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: 6,
+        comment:
+          "Number of months a candidate must wait before reapplying for this job",
+        validate: {
+          min: 1,
+          max: 24,
+        },
+      },
     },
     {
       tableName: "jobs",
