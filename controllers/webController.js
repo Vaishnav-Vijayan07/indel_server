@@ -441,7 +441,7 @@ class WebController {
         models.HistoryInceptionsYears.findAll({
           attributes: ["id", "image", "image_alt", "year", "title", "description", "is_active", "order"],
           where: { is_active: true },
-          order: [["order", "ASC"]],
+          order: [["year", "DESC"]],
         }),
       ]);
 
