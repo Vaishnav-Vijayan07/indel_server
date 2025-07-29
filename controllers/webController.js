@@ -1142,7 +1142,7 @@ class WebController {
 
     const whereClause = {
       is_active: true,
-      // is_approved: true,
+      is_approved: true,
       end_date: {
         [Op.gte]: today,
       },
@@ -1168,7 +1168,6 @@ class WebController {
           order: [["order", "ASC"]],
         }),
         models.CareerStates.findAll({
-          where: { is_active: true },
           order: [["order", "ASC"]],
         }),
         models.CareerJobs.findAll({
@@ -1235,7 +1234,7 @@ class WebController {
 console.log("Requested Filters", { state, role, location });
     const whereClause = {
       is_active: true,
-      // is_approved: true,
+      is_approved: true,
       end_date: {
         [Op.gte]: today,
       },
