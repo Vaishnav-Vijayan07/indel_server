@@ -246,7 +246,7 @@ class JobsController {
             model: models.CareerLocations,
             as: "locations",
             through: { attributes: [] },
-            attributes: ["id", "location_name"],
+            attributes: ["id", "location_name", "district_id"],
           },
           {
             model: models.CareerStates,
