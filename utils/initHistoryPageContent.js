@@ -7,7 +7,7 @@ const initHistoryPageContent = async () => {
     const existingContent = await HistoryPageContent.findOne();
 
     if (existingContent) {
-      console.log("History Page Content already exists");
+      
       return;
     }
 
@@ -18,7 +18,7 @@ const initHistoryPageContent = async () => {
       inception_title: "Inception Era",
     });
 
-    console.log("History Page Content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize History Page Content:", error.message);
   }

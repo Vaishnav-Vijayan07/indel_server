@@ -11,7 +11,7 @@ class EmployeeBenefitsController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(__dirname, "..", "..", "Uploads", filePath.replace("/uploads/", ""));
+      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {
@@ -32,6 +32,7 @@ class EmployeeBenefitsController {
       const benefit = await EmployeeBenefits.create(updateData);
 
       await CacheService.invalidate("employeeBenefits");
+       await CacheService.invalidate("webCareerPage");
       res.status(201).json({ success: true, data: benefit, message: "Employee Benefit created" });
     } catch (error) {
       next(error);
@@ -102,6 +103,7 @@ class EmployeeBenefitsController {
       await benefit.update(updateData);
 
       await CacheService.invalidate("employeeBenefits");
+       await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`employeeBenefit_${id}`);
       res.json({ success: true, data: benefit, message: "Employee Benefit updated" });
     } catch (error) {
@@ -125,6 +127,7 @@ class EmployeeBenefitsController {
       }
 
       await CacheService.invalidate("employeeBenefits");
+       await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`employeeBenefit_${id}`);
       res.json({ success: true, message: "Employee Benefit deleted", data: id });
     } catch (error) {

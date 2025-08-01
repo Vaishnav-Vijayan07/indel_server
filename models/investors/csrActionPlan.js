@@ -10,8 +10,12 @@ module.exports = (sequelize) => {
         autoIncrement: true,
       },
       fiscal_year: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+          model: "fiscal_years",
+          key: "id",
+        },
       },
       report: {
         type: DataTypes.STRING,
@@ -32,6 +36,10 @@ module.exports = (sequelize) => {
       timestamps: true,
     }
   );
+
+  CsrActionPlan.associate = (models) => {
+    CsrActionPlan.belongsTo(models.FiscalYears, { foreignKey: "fiscal_year", as: "fiscalYear" });
+  };
 
   return CsrActionPlan;
 };

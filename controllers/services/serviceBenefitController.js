@@ -11,7 +11,7 @@ class ServiceBenefitsController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(__dirname, "..", "..", "Uploads", filePath.replace("/uploads/", ""));
+      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
       await fs.unlink(absolutePath);
       Logger.info(`Deleted icon file: ${filePath}`);
     } catch (error) {
@@ -53,7 +53,7 @@ class ServiceBenefitsController {
       const cachedData = await CacheService.get(cacheKey);
 
       if (cachedData) {
-        console.log("From cache - Service Benefits");
+        
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
 
@@ -145,6 +145,82 @@ class ServiceBenefitsController {
 
       res.json({ success: true, message: "Service benefit deleted", data: id });
     } catch (error) {
+      next(error);
+    }
+  }
+
+  static async getByServiceSlug(req, res, next) {
+    try {
+      const { slug } = req.params;
+
+      const service = await models.Services.findOne({
+        where: { slug, is_active: true },
+        attributes: ["id", "title", "slug"],
+      });
+
+      if (!service) {
+        throw new CustomError("Service not found", 404);
+      }
+
+      const benefits = await ServiceBenefit.findAll({
+        where: {
+          service_id: service.id,
+          // is_active: true,
+        },
+        attributes: ["id", "icon", "image_alt", "title", "order", "is_active"],
+        order: [["order", "ASC"]],
+      });
+
+      const responseData = {
+        service: {
+          id: service.id,
+          title: service.title,
+          slug: service.slug,
+        },
+        benefits,
+      };
+
+      Logger.info(`Fetched and cached service benefits for slug: ${slug}`);
+
+      res.json({ success: true, data: responseData });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async createByServiceSlug(req, res, next) {
+    try {
+      const { slug } = req.params;
+      const updateData = { ...req.body };
+
+      const service = await models.Services.findOne({
+        where: { slug, is_active: true },
+        attributes: ["id", "slug"],
+      });
+      if (!service) {
+        throw new CustomError("Service not found", 404);
+      }
+
+      updateData.service_id = service.id; // Set service_id from found service
+
+      if (req.file) {
+        updateData.icon = `/Uploads/service-benefits/${req.file.filename}`;
+        Logger.info(`Uploaded icon for Benefit: ${updateData.icon}`);
+      }
+
+      const benefit = await ServiceBenefit.create(updateData);
+      await CacheService.invalidate(`ServiceBenefits_${service.id}`);
+      await CacheService.invalidate(`ServiceBenefits_Slug_${slug}`);
+      await CacheService.invalidate("ServiceBenefits_all");
+
+      Logger.info(`Created service benefit for service slug: ${slug}`);
+
+      res.status(201).json({ success: true, data: benefit, message: "Service benefit created successfully" });
+    } catch (error) {
+      if (req.file) {
+        // Cleanup uploaded file on error
+        await ServiceBenefitsController.deleteFile(`/Uploads/service-benefits/${req.file.filename}`);
+      }
       next(error);
     }
   }

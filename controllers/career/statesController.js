@@ -1,17 +1,17 @@
 const { models } = require("../../models/index");
+const { fn, col, where } = require("sequelize");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
 const fs = require("fs").promises;
 const path = require("path");
-
 const States = models.CareerStates;
 
 class StatesController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(__dirname, "..", "..", "Uploads", filePath.replace("/uploads/", ""));
+      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {
@@ -28,10 +28,23 @@ class StatesController {
         updateData.image = `/uploads/career-states/${req.file.filename}`;
         Logger.info(`Uploaded image for State: ${updateData.image}`);
       }
+    const existState = await States.findOne({
+      where: where(
+        fn('LOWER', col('state_name')),
+        updateData.state_name.toLowerCase()
+      )
+    });
+
+
+      if (existState) {
+        throw new CustomError(`${existState?.state_name} is already exists`, 400);
+      }
 
       const state = await States.create(updateData);
 
       await CacheService.invalidate("states");
+      await CacheService.invalidate("webCareerPage");
+
       res.status(201).json({ success: true, data: state, message: "State created" });
     } catch (error) {
       next(error);
@@ -102,6 +115,7 @@ class StatesController {
       await state.update(updateData);
 
       await CacheService.invalidate("states");
+      await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`state_${id}`);
       res.json({ success: true, data: state, message: "State updated" });
     } catch (error) {
@@ -125,6 +139,7 @@ class StatesController {
       }
 
       await CacheService.invalidate("states");
+      await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`state_${id}`);
       res.json({ success: true, message: "State deleted", data: id });
     } catch (error) {

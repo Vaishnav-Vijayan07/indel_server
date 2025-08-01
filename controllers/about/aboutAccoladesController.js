@@ -25,7 +25,7 @@ class AboutAccoladesController {
     try {
       const data = { ...req.body };
 
-      console.log(req.files);
+      
 
       if (req.files?.highlight_image) {
         data.highlight_image = `/uploads/about-accolades/${req.files.highlight_image[0]?.filename}`;
@@ -92,7 +92,7 @@ class AboutAccoladesController {
         throw new CustomError("Item not found", 404);
       }
 
-      console.log(req.files);
+      
 
       const updateData = { ...req.body };
       const oldImage = link.image;
@@ -101,17 +101,17 @@ class AboutAccoladesController {
       if (req.files?.image) {
         updateData.image = `/uploads/about-accolades/${req.files.image[0].filename}`;
         Logger.info(`Updated image for AboutAccolade ID ${id}: ${updateData.image}`);
-        if (oldImage) {
-          await AboutAccoladesController.deleteFile(oldImage);
-        }
+        // if (oldImage) {
+        //   await AboutAccoladesController.deleteFile(oldImage);
+        // }
       }
 
       if (req.files?.highlight_image) {
         updateData.highlight_image = `/uploads/about-accolades/${req.files.highlight_image[0].filename}`;
         Logger.info(`Updated highlight image for AboutAccolade ID ${id}: ${updateData.highlight_image}`);
-        if (oldHighlightImage) {
-          await AboutAccoladesController.deleteFile(oldHighlightImage);
-        }
+        // if (oldHighlightImage) {
+        //   await AboutAccoladesController.deleteFile(oldHighlightImage);
+        // }
       }
 
       await link.update(updateData);
@@ -135,13 +135,13 @@ class AboutAccoladesController {
       const oldHighlightImage = link.highlight_image;
       await link.destroy();
 
-      if (oldImage) {
-        await AboutAccoladesController.deleteFile(oldImage);
-      }
+      // if (oldImage) {
+      //   await AboutAccoladesController.deleteFile(oldImage);
+      // }
 
-      if (oldHighlightImage) {
-        await AboutAccoladesController.deleteFile(oldHighlightImage);
-      }
+      // if (oldHighlightImage) {
+      //   await AboutAccoladesController.deleteFile(oldHighlightImage);
+      // }
 
       await CacheService.invalidate("aboutAccolade");
       await CacheService.invalidate(`aboutAccolade_${id}`);

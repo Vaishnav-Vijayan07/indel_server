@@ -9,6 +9,7 @@ const { validateTestimonial, validateTestimonialUpdate } = require("../../utils/
 const upload = createUploadMiddleware("investors/testimonials");
 const uploadFields = upload.fields([
   { name: "avatar", maxCount: 1 },
+  { name: "thumbnail", maxCount: 1 },
   { name: "video", maxCount: 1 },
 ]);
 

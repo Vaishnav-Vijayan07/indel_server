@@ -5,6 +5,7 @@ const validateMiddleware = require("../../middlewares/validateMiddleware");
 const LocationsController = require("../../controllers/career/locationsController");
 const { validateCareerLocations, validateCareerLocationsUpdate } = require("../../utils/validator");
 
+router.get("/by_district_state/", LocationsController.getAllByStateDistrict);
 router.get("/", LocationsController.getAll);
 router.get("/:id", LocationsController.getById);
 

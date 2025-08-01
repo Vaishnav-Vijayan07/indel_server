@@ -13,11 +13,27 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      mobile_icon: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      mobile_icon_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       banner_image: {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      banner_image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       brand_icon: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      brand_icon_alt: {
         type: DataTypes.STRING,
         allowNull: true,
       },
@@ -33,13 +49,26 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       second_image: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      second_image_alt: {
         type: DataTypes.STRING,
         allowNull: true,
       },
       sort_order: {
         type: DataTypes.INTEGER,
         allowNull: true,
+      },
+      is_active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: true,
       },
     },
     {

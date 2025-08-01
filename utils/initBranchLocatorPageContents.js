@@ -7,7 +7,7 @@ const initBranchLocatorPageContents = async () => {
     const existingContent = await BranchLocatorPageContents.findOne();
 
     if (existingContent) {
-      console.log("Branch Locator Page Contents already exists");
+      
       return;
     }
 
@@ -21,7 +21,7 @@ const initBranchLocatorPageContents = async () => {
         "Use our branch locator to discover Indel Money branches across various locations, offering convenient financial services.",
     });
 
-    console.log("Branch Locator Page Contents initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Branch Locator Page Contents:", error.message);
   }

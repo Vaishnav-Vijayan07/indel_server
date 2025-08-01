@@ -41,20 +41,16 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       form_title: {
         type: DataTypes.STRING,
         allowNull: true,
       },
       form_sub_title: {
         type: DataTypes.STRING,
-        allowNull: true,
-      },
-      branch_locator_title: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      branch_locator_description: {
-        type: DataTypes.TEXT,
         allowNull: true,
       },
       faq_super_title: {

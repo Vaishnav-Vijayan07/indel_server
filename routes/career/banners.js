@@ -7,7 +7,10 @@ const createUploadMiddleware = require("../../middlewares/multerMiddleware");
 const CareerBannersController = require("../../controllers/career/bannerController");
 
 const upload = createUploadMiddleware("career-banners");
-const uploadField = upload.single("image");
+const uploadField = upload.fields([
+  { name: "image", maxCount: 1 },
+  { name: "image_mobile", maxCount: 1 },
+]);
 
 router.get("/", CareerBannersController.getAll);
 router.get("/:id", CareerBannersController.getById);

@@ -7,7 +7,7 @@ const initGoldLoanContent = async () => {
     const existingContent = await GoldLoanContent.findOne();
 
     if (existingContent) {
-      console.log("Gold Loan content already exists");
+      
       return;
     }
 
@@ -24,14 +24,14 @@ const initGoldLoanContent = async () => {
       identity_proof_description: "Aadhaar Card, PAN Card, or Passport",
       address_proof: "Required Address Proof",
       address_proof_description: "Utility Bill, Aadhaar Card, or Rental Agreement",
-      steps_image: "https://example.com/gold-loan-steps.jpg",
+      steps_image: null,
       gold_loan_title: "Gold Loan Benefits",
       gold_loan_description: "Flexible repayment options and competitive interest rates.",
       scheme_title: "Our Gold Loan Schemes",
       faq_title: "Frequently Asked Questions",
     });
 
-    console.log("Gold Loan content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Gold Loan content:", error.message);
   }

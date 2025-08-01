@@ -11,7 +11,7 @@ class AnnualReportController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(__dirname, "..", "..", "Uploads", filePath.replace("/uploads/", ""));
+      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {
@@ -32,6 +32,7 @@ class AnnualReportController {
 
       const annualReport = await AnnualReport.create(data);
       await CacheService.invalidate("AnnualReport");
+      await CacheService.invalidate("webCsrReports");
       res.status(201).json({ success: true, data: annualReport, message: "Annual Report created" });
     } catch (error) {
       if (req.file) {
@@ -51,10 +52,10 @@ class AnnualReportController {
       }
 
       const annualReports = await AnnualReport.findAll({
-        include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
+        include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year", "is_active"] }],
         order: [["order", "ASC"]],
       });
-      await CacheService.set(cacheKey, JSON.stringify(annualReports), 3600);
+      // await CacheService.set(cacheKey, JSON.stringify(annualReports), 3600);
       res.json({ success: true, data: annualReports });
     } catch (error) {
       next(error);
@@ -72,7 +73,7 @@ class AnnualReportController {
       }
 
       const annualReport = await AnnualReport.findByPk(id, {
-        include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
+        include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year", "is_active"] }],
       });
       if (!annualReport) {
         throw new CustomError("Annual Report not found", 404);
@@ -106,6 +107,7 @@ class AnnualReportController {
 
       await annualReport.update(updateData);
       await CacheService.invalidate("AnnualReport");
+      await CacheService.invalidate("webCsrReports");
       await CacheService.invalidate(`annualReport_${id}`);
       res.json({ success: true, data: annualReport, message: "Annual Report updated" });
     } catch (error) {
@@ -132,6 +134,7 @@ class AnnualReportController {
       }
 
       await CacheService.invalidate("AnnualReport");
+      await CacheService.invalidate("webCsrReports");
       await CacheService.invalidate(`annualReport_${id}`);
       res.json({ success: true, message: "Annual Report deleted", data: id });
     } catch (error) {

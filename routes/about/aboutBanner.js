@@ -7,7 +7,10 @@ const createUploadMiddleware = require("../../middlewares/multerMiddleware");
 const AboutBannerController = require("../../controllers/about/aboutBannerController");
 
 const upload = createUploadMiddleware("about-banners");
-const uploadField = upload.single("image")
+const uploadField = upload.fields([
+  { name: "image", maxCount: 1 },
+  { name: "image_mobile", maxCount: 1 },
+]);
 
 router.get("/", AboutBannerController.getAll);
 router.get("/:id", AboutBannerController.getById);

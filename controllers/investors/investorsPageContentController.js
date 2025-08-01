@@ -11,7 +11,7 @@ class InvestorsPageContentController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(__dirname, "..", "..", "Uploads", filePath.replace("/uploads/", ""));
+      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {
@@ -70,7 +70,15 @@ class InvestorsPageContentController {
       }
 
       await content.update(updateData);
-      await CacheService.invalidate("investorsPageContent");
+      await CacheService.invalidate([
+        "investorsPageContent",
+        "webCsrReports",
+        "webCorporateGovernence",
+        "webCreditRatings",
+        "webInvestorsContact",
+        "webNcdReports",
+        "webCsrDetails"
+      ]);
       res.json({ success: true, data: content, message: "Investors Page Content updated" });
     } catch (error) {
       if (req.file) {

@@ -21,10 +21,22 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      order:{
+      image_mobile: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      alt_text: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      order: {
         type: DataTypes.INTEGER,
         allowNull: false,
-      }
+      },
+      is_active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+      },
     },
     {
       tableName: "about_banners",

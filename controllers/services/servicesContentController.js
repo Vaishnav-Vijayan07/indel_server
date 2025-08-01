@@ -50,15 +50,29 @@ class ServicesPageContentController {
 
       const updateData = { ...req.body };
 
-      if (req.file) {
-        updateData.image = `/uploads/service-page-content/${req.file.filename}`;
-        Logger.info(`Uploaded icon for ServicesPageContent: ${updateData.image}`);
-        await ServicesPageContentController.deleteFile(content.image);
+      if (req.files) {
+        if (req.files.image) {
+          updateData.image = `/uploads/service-page-content/${req.files.image[0].filename}`;
+          Logger.info(`Uploaded icon for GoldLoanContent: ${updateData.image}`);
+          await ServicesPageContentController.deleteFile(content.image);
+        }
+        if (req.files.banner_image) {
+          updateData.banner_image = `/uploads/service-page-content/${req.files.banner_image[0].filename}`;
+          Logger.info(`Uploaded icon for GoldLoanContent: ${updateData.banner_image}`);
+          await ServicesPageContentController.deleteFile(content.banner_image);
+        }
+        if (req.files.gold_loan_image) {
+          updateData.gold_loan_image = `/uploads/service-page-content/${req.files.gold_loan_image[0].filename}`;
+          Logger.info(`Uploaded icon for GoldLoanContent: ${updateData.gold_loan_image}`);
+          await ServicesPageContentController.deleteFile(content.gold_loan_image);
+        }
       }
 
       await content.update(updateData);
 
       await CacheService.invalidate("ServicesPageContent");
+      await CacheService.invalidate("webOurServices");
+      await CacheService.invalidate("metaData:services");
       res.json({ success: true, data: content, message: "Content updated" });
     } catch (error) {
       next(error);

@@ -29,6 +29,14 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+     order: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      is_active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+      },
       is_slide: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

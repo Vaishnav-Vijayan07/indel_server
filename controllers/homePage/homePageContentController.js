@@ -38,6 +38,15 @@ class HomePageContentController {
         if (req.files.gold_rate_icon) {
           updateData.gold_rate_icon = `/uploads/home-page-content/${req.files.gold_rate_icon[0].filename}`;
         }
+        if (req.files.life_section_image1) {
+          updateData.life_section_image1 = `/uploads/home-page-content/${req.files.life_section_image1[0].filename}`;
+        }
+        if (req.files.life_section_image2) {
+          updateData.life_section_image2 = `/uploads/home-page-content/${req.files.life_section_image2[0].filename}`;
+        }
+        if (req.files.life_section_image3) {
+          updateData.life_section_image3 = `/uploads/home-page-content/${req.files.life_section_image3[0].filename}`;
+        }
         if (req.files.about_image) {
           updateData.about_image_url = `/uploads/home-page-content/${req.files.about_image[0].filename}`;
         }
@@ -56,8 +65,9 @@ class HomePageContentController {
 
       await CacheService.invalidate("homePageContent");
       await CacheService.invalidate("webHomeData");
+      await CacheService.invalidate("metaData:home");
 
-      res.json({ success: true, data: content });
+      res.json({ success: true, data: content, message: "Content updated" });
     } catch (error) {
       next(error);
     }

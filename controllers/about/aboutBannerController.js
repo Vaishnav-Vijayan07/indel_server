@@ -11,7 +11,7 @@ class AboutBannerController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(__dirname, "..","..", "uploads", filePath.replace("/uploads/", ""));
+      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {
@@ -24,15 +24,19 @@ class AboutBannerController {
   static async create(req, res, next) {
     try {
       const data = { ...req.body };
-      if (req.file) {
-        data.image = `/uploads/about-banners/${req.file.filename}`;
-        Logger.info(`Uploaded image for AboutBanner: ${data.image}`);
+
+      if (req.files?.image) {
+        data.image = `/uploads/about-banners/${req.files.image[0].filename}`;
+      }
+
+      if (req.files?.image_mobile) {
+        data.image_mobile = `/uploads/about-banners/${req.files.image_mobile[0].filename}`;
       }
 
       const banner = await AboutBanner.create(data);
 
       await CacheService.invalidate("aboutBanners");
-      res.status(201).json({ success: true, data: banner,message: "About Banner created successfully" });
+      res.status(201).json({ success: true, data: banner, message: "About Banner created successfully" });
     } catch (error) {
       next(error);
     }
@@ -88,13 +92,20 @@ class AboutBannerController {
 
       const data = { ...req.body };
       const oldImage = banner.image;
+      const oldImageMobile = banner.image_mobile;
 
-      if (req.file) {
-        data.image = `/uploads/about-banners/${req.file.filename}`;
-        Logger.info(`Updated image for AboutBanner ID ${id}: ${data.image}`);
-        if (oldImage) {
-          await AboutBannerController.deleteFile(oldImage);
-        }
+      if (req.files?.image) {
+        data.image = `/uploads/about-banners/${req.files.image[0].filename}`;
+        // if (oldImage) {
+        //   await AboutBannerController.deleteFile(oldImage);
+        // }
+      }
+
+      if (req.files?.image_mobile) {
+        data.image_mobile = `/uploads/about-banners/${req.files.image_mobile[0].filename}`;
+        // if (oldImageMobile) {
+        //   await AboutBannerController.deleteFile(oldImageMobile);
+        // }
       }
 
       await banner.update(data);
@@ -118,9 +129,9 @@ class AboutBannerController {
       const oldImage = banner.image;
       await banner.destroy();
 
-      if (oldImage) {
-        await AboutBannerController.deleteFile(oldImage);
-      }
+      // if (oldImage) {
+      //   await AboutBannerController.deleteFile(oldImage);
+      // }
 
       await CacheService.invalidate("aboutBanners");
       await CacheService.invalidate(`aboutBanner_${id}`);

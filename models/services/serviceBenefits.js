@@ -23,6 +23,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       title: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -30,6 +34,11 @@ module.exports = (sequelize) => {
       order: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
+      },
+      is_active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
       },
     },
     {

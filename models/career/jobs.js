@@ -11,11 +11,15 @@ module.exports = (sequelize) => {
       },
       role_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: "roles",
           key: "id",
         },
+      },
+      job_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
       },
       location_id: {
         type: DataTypes.INTEGER,
@@ -33,22 +37,31 @@ module.exports = (sequelize) => {
           key: "id",
         },
       },
-      short_description: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-      },
-      detailed_description: {
+      job_description: {
         type: DataTypes.TEXT,
         allowNull: true,
       },
       experience: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: true,
       },
       is_active: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: true,
+      },
+      is_approved: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+      end_date: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      order: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
     },
     {

@@ -12,6 +12,7 @@ class LocationsController {
       const location = await Locations.create(updateData);
 
       await CacheService.invalidate("locations");
+      await CacheService.invalidate("webCareerPage");
       res.status(201).json({ success: true, data: location, message: "Location created" });
     } catch (error) {
       next(error);
@@ -23,12 +24,38 @@ class LocationsController {
       const cacheKey = "locations";
       const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
 
       const locations = await Locations.findAll({
         order: [["order", "ASC"]],
+      });
+
+      await CacheService.set(cacheKey, JSON.stringify(locations), 3600);
+      res.json({ success: true, data: locations });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async getAllByStateDistrict(req, res, next) {
+    try {
+      const { district_id } = req.query;
+
+      const cacheKey = "locations";
+      const cachedData = await CacheService.get(cacheKey);
+
+      // if (cachedData) {
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
+
+      const locations = await Locations.findAll({
+        where: {
+          // state_id: state_id,
+          district_id: district_id,
+        },
+        // order: [["order", "ASC"]],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(locations), 3600);
@@ -73,6 +100,7 @@ class LocationsController {
       await location.update(updateData);
 
       await CacheService.invalidate("locations");
+      await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`location_${id}`);
       res.json({ success: true, data: location, message: "Location updated" });
     } catch (error) {
@@ -91,6 +119,7 @@ class LocationsController {
       await location.destroy();
 
       await CacheService.invalidate("locations");
+      await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`location_${id}`);
       res.json({ success: true, message: "Location deleted", data: id });
     } catch (error) {

@@ -14,12 +14,21 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
       description: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       icon: {
         type: DataTypes.STRING,
         allowNull: true,
+      },
+      image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      is_center: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: false,
       },
       order: {
         type: DataTypes.INTEGER,

@@ -50,10 +50,27 @@ class GoldLoanContentController {
 
       const updateData = { ...req.body };
 
-      if (req.file) {
-        updateData.steps_image = `/uploads/gold-loan-content/${req.file.filename}`;
-        Logger.info(`Uploaded icon for GoldLoanContent: ${updateData.steps_image}`);
-        await GoldLoanContentController.deleteFile(content.steps_image);
+      if (req.files) {
+        if (req.files.steps_image) {
+          updateData.steps_image = `/uploads/gold-loan-content/${req.files.steps_image[0].filename}`;
+          Logger.info(`Uploaded icon for GoldLoanContent: ${updateData.steps_image}`);
+          await GoldLoanContentController.deleteFile(content.steps_image);
+        }
+        if (req.files.banner_image) {
+          updateData.banner_image = `/uploads/gold-loan-content/${req.files.banner_image[0].filename}`;
+          Logger.info(`Uploaded icon for GoldLoanContent: ${updateData.banner_image}`);
+          await GoldLoanContentController.deleteFile(content.banner_image);
+        }
+        if (req.files.hassle_free_image) {
+          updateData.hassle_free_image = `/uploads/gold-loan-content/${req.files.hassle_free_image[0].filename}`;
+          Logger.info(`Uploaded icon for GoldLoanContent: ${updateData.hassle_free_image}`);
+          await GoldLoanContentController.deleteFile(content.hassle_free_image);
+        }
+        if (req.files.banner_image_mobile) {
+          updateData.banner_image_mobile = `/uploads/gold-loan-content/${req.files.banner_image_mobile[0].filename}`;
+          Logger.info(`Uploaded icon for GoldLoanContent: ${updateData.banner_image_mobile}`);
+          await GoldLoanContentController.deleteFile(content.banner_image_mobile);
+        }
       }
 
       await content.update(updateData);

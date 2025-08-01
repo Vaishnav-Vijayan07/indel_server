@@ -7,14 +7,18 @@ const EventGalleryController = require("../../controllers/gallery/eventGalleryCo
 const { validateEventGallery, validateEventGalleryUpdate } = require("../../utils/validator");
 
 const upload = createUploadMiddleware("event-gallery");
-const uploadField = upload.single("image");
+const uploadFields = upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "video", maxCount: 1 },
+    { name: "video_thumbnail", maxCount: 1 },
+]);
 
 router.get("/", EventGalleryController.getAll);
 router.get("/:id", EventGalleryController.getById);
 
 router.use(authMiddleware(["admin"]));
-router.post("/", uploadField, validateEventGallery, validateMiddleware, EventGalleryController.create);
-router.put("/:id", uploadField, validateEventGalleryUpdate, validateMiddleware, EventGalleryController.update);
+router.post("/", uploadFields, validateEventGallery, validateMiddleware, EventGalleryController.create);
+router.put("/:id", uploadFields, validateEventGalleryUpdate, validateMiddleware, EventGalleryController.update);
 router.delete("/:id", EventGalleryController.delete);
 
 module.exports = router;

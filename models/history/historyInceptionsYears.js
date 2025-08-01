@@ -8,6 +8,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       year: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -23,7 +27,10 @@ module.exports = (sequelize) => {
       is_active: {
         type: DataTypes.BOOLEAN,
         allowNull: true,
-        defaultValue: true,
+      },
+      order: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
     },
     {

@@ -17,6 +17,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       order: {
         type: DataTypes.INTEGER,
         allowNull: true,
@@ -37,6 +41,10 @@ module.exports = (sequelize) => {
     States.hasMany(models.CareerJobs, {
       foreignKey: "state_id",
       as: "job_states",
+    });
+    States.hasMany(models.HeroBanner, {
+      foreignKey: "state_id",
+      as: "banners",
     });
   };
 

@@ -31,10 +31,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
       },
       overview_sub_title: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING,
       },
       overview_description: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
       },
       service_title: {
         type: DataTypes.STRING,
@@ -60,8 +60,16 @@ module.exports = (sequelize) => {
       investors_image_1: {
         type: DataTypes.STRING,
       },
+      image_1_alt: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
       investors_image_2: {
         type: DataTypes.STRING,
+      },
+      image_2_alt: {
+        type: DataTypes.STRING,
+        allowNull: true
       },
       investors_card1_title: {
         type: DataTypes.STRING,
@@ -85,7 +93,7 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
       },
       life_at_indel_description: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
       },
       life_at_indel_button_text: {
         type: DataTypes.STRING,

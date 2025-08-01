@@ -11,7 +11,7 @@ class AnnualReturnsController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(__dirname, "..", "..", "Uploads", filePath.replace("/uploads/", ""));
+      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {
@@ -32,6 +32,7 @@ class AnnualReturnsController {
 
       const annualReturns = await AnnualReturns.create(data);
       await CacheService.invalidate("AnnualReturns");
+      await CacheService.invalidate("webCsrReports");
       res.status(201).json({ success: true, data: annualReturns, message: "Annual Returns created" });
     } catch (error) {
       if (req.file) {
@@ -106,6 +107,7 @@ class AnnualReturnsController {
 
       await annualReturns.update(updateData);
       await CacheService.invalidate("AnnualReturns");
+      await CacheService.invalidate("webCsrReports");
       await CacheService.invalidate(`annualReturns_${id}`);
       res.json({ success: true, data: annualReturns, message: "Annual Returns updated" });
     } catch (error) {
@@ -132,6 +134,7 @@ class AnnualReturnsController {
       }
 
       await CacheService.invalidate("AnnualReturns");
+      await CacheService.invalidate("webCsrReports");
       await CacheService.invalidate(`annualReturns_${id}`);
       res.json({ success: true, message: "Annual Returns deleted", data: id });
     } catch (error) {

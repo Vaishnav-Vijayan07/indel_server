@@ -41,6 +41,10 @@ class DifferentShadesController {
         data.second_image = `/uploads/different-shades/${req.files.second_image[0]?.filename}`;
       }
 
+      if (req.files?.mobile_icon) {
+        data.mobile_icon = `/uploads/different-shades/${req.files.mobile_icon[0]?.filename}`;
+      }
+
       const item = await DifferentShades.create(data);
       await CacheService.invalidate("differentShades");
       await CacheService.invalidate("webShadesOfIndel");
@@ -118,6 +122,11 @@ class DifferentShadesController {
         await DifferentShadesController.deleteFile(item.second_image);
       }
 
+      if (req.files?.mobile_icon) {
+        updateData.mobile_icon = `/uploads/different-shades/${req.files.mobile_icon[0].filename}`;
+        await DifferentShadesController.deleteFile(item.mobile_icon);
+      }
+
       await item.update(updateData);
       await CacheService.invalidate("differentShades");
       await CacheService.invalidate(`differentShades_${id}`);
@@ -137,12 +146,17 @@ class DifferentShadesController {
         throw new CustomError("Item not found", 404);
       }
 
+      const oldBannerImage = item.banner_image;
+      const oldBrandIcon = item.brand_icon;
+      const oldImage = item.image;
+      const oldSecondImage = item.second_image;
+
       await item.destroy();
 
-      await DifferentShadesController.deleteFile(item.banner_image);
-      await DifferentShadesController.deleteFile(item.brand_icon);
-      await DifferentShadesController.deleteFile(item.image);
-      await DifferentShadesController.deleteFile(item.second_image);
+      await DifferentShadesController.deleteFile(oldBannerImage);
+      await DifferentShadesController.deleteFile(oldBrandIcon);
+      await DifferentShadesController.deleteFile(oldImage);
+      await DifferentShadesController.deleteFile(oldSecondImage);
 
       await CacheService.invalidate("differentShades");
       await CacheService.invalidate(`differentShades_${id}`);

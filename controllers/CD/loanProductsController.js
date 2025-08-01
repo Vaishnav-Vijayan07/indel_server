@@ -11,7 +11,7 @@ class CdLoanProductsController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(__dirname, "..", "..", "Uploads", filePath.replace("/uploads/", ""));
+      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {
@@ -32,6 +32,7 @@ class CdLoanProductsController {
       const product = await CdLoanProducts.create(updateData);
 
       await CacheService.invalidate("cdLoanProducts");
+      await CacheService.invalidate("webCDLoan");
       res.status(201).json({ success: true, data: product, message: "CD Loan Product created" });
     } catch (error) {
       next(error);
@@ -102,6 +103,7 @@ class CdLoanProductsController {
       await product.update(updateData);
 
       await CacheService.invalidate("cdLoanProducts");
+      await CacheService.invalidate("webCDLoan");
       await CacheService.invalidate(`cdLoanProduct_${id}`);
       res.json({ success: true, data: product, message: "CD Loan Product updated" });
     } catch (error) {
@@ -125,6 +127,7 @@ class CdLoanProductsController {
       }
 
       await CacheService.invalidate("cdLoanProducts");
+      await CacheService.invalidate("webCDLoan");
       await CacheService.invalidate(`cdLoanProduct_${id}`);
       res.json({ success: true, message: "CD Loan Product deleted", data: id });
     } catch (error) {

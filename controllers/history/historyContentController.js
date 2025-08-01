@@ -38,6 +38,7 @@ class HistoryContentController {
       await content.update(updateData);
 
       await CacheService.invalidate("HistoryPageContent");
+         await CacheService.invalidate("metaData:history");
       res.json({ success: true, data: content,message:"Content updated" });
     } catch (error) {
       next(error);

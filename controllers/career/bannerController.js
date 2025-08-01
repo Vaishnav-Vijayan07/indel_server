@@ -11,7 +11,7 @@ class CareerBannersController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(__dirname, "..", "..", "Uploads", filePath.replace("/uploads/", ""));
+      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {
@@ -24,14 +24,20 @@ class CareerBannersController {
   static async create(req, res, next) {
     try {
       const updateData = { ...req.body };
-      if (req.file) {
-        updateData.image = `/uploads/career-banners/${req.file.filename}`;
+      if (req.files?.image) {
+        updateData.image = `/uploads/career-banners/${req.files.image[0].filename}`;
         Logger.info(`Uploaded image for CareerBanner: ${updateData.image}`);
+      }
+
+      if (req.files?.image_mobile) {
+        updateData.image_mobile = `/uploads/career-banners/${req.files.image_mobile[0].filename}`;
+        Logger.info(`Uploaded mobile image for CareerBanner: ${updateData.image_mobile}`);
       }
 
       const banner = await CareerBanners.create(updateData);
 
       await CacheService.invalidate("careerBanners");
+      await CacheService.invalidate("webCareerPage");
       res.status(201).json({ success: true, data: banner, message: "Career Banner created" });
     } catch (error) {
       next(error);
@@ -90,18 +96,28 @@ class CareerBannersController {
 
       const updateData = { ...req.body };
       let oldImage = banner.image;
+      let oldImageMobile = banner.image_mobile;
 
-      if (req.file) {
-        updateData.image = `/uploads/career-banners/${req.file.filename}`;
+      if (req.files?.image) {
+        updateData.image = `/uploads/career-banners/${req.files.image[0].filename}`;
         Logger.info(`Updated image for CareerBanner ID ${id}: ${updateData.image}`);
         if (oldImage) {
           await CareerBannersController.deleteFile(oldImage);
         }
       }
 
+      if (req.files?.image_mobile) {
+        updateData.image_mobile = `/uploads/career-banners/${req.files.image_mobile[0].filename}`;
+        Logger.info(`Updated mobile image for CareerBanner ID ${id}: ${updateData.image_mobile}`);
+        if (oldImageMobile) {
+          await CareerBannersController.deleteFile(oldImageMobile);
+        }
+      }
+
       await banner.update(updateData);
 
       await CacheService.invalidate("careerBanners");
+      await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`careerBanner_${id}`);
       res.json({ success: true, data: banner, message: "Career Banner updated" });
     } catch (error) {
@@ -125,6 +141,7 @@ class CareerBannersController {
       }
 
       await CacheService.invalidate("careerBanners");
+      await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`careerBanner_${id}`);
       res.json({ success: true, message: "Career Banner deleted", data: id });
     } catch (error) {

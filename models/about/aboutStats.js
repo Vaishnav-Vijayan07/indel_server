@@ -9,7 +9,7 @@ module.exports = (sequelize) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      value:{
+      value: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
@@ -21,9 +21,22 @@ module.exports = (sequelize) => {
         type: DataTypes.TEXT,
         allowNull: false,
       },
+
       icon: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
+      },
+      image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      order: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      is_active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
       },
     },
     {

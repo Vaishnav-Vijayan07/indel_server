@@ -21,41 +21,73 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      banner_image: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      banner_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       page_super_title: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       page_title: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       deals_title: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       deals_description: {
         type: DataTypes.TEXT,
-        allowNull: false,
+        allowNull: true,
+      },
+      gold_loan_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      gold_title_description: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      gold_loan_image: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      gold_loan_image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      benfits_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
       },
       remit_section_title: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       remit_section_description: {
         type: DataTypes.TEXT,
-        allowNull: false,
+        allowNull: true,
       },
       image: {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       remit_section_button_title: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       remit_section_button_link: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
     },
     {

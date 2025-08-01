@@ -90,9 +90,9 @@ class AboutMessageTeamController {
       if (req.file) {
         updateData.image = `/uploads/about-message-teams/${req.file.filename}`;
         Logger.info(`Updated image for AboutMessageTeam ID ${id}: ${updateData.image}`);
-        if (oldImage) {
-          await AboutMessageTeamController.deleteFile(oldImage);
-        }
+        // if (oldImage) {
+        //   await AboutMessageTeamController.deleteFile(oldImage);
+        // }
       }
 
       await link.update(updateData);
@@ -115,9 +115,9 @@ class AboutMessageTeamController {
       const oldImage = link.image;
       await link.destroy();
 
-      if (oldImage) {
-        await AboutMessageTeamController.deleteFile(oldImage);
-      }
+      // if (oldImage) {
+      //   await AboutMessageTeamController.deleteFile(oldImage);
+      // }
 
       await CacheService.invalidate("aboutMessageTeam");
       await CacheService.invalidate(`aboutMessageTeam_${id}`);

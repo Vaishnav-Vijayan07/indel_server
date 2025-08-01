@@ -11,7 +11,7 @@ class CareerGalleryController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(__dirname, "..", "..", "Uploads", filePath.replace("/uploads/", ""));
+      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {
@@ -32,6 +32,7 @@ class CareerGalleryController {
       const gallery = await CareerGallery.create(updateData);
 
       await CacheService.invalidate("careerGallery");
+       await CacheService.invalidate("webCareerPage");
       res.status(201).json({ success: true, data: gallery, message: "Career Gallery item created" });
     } catch (error) {
       next(error);
@@ -102,6 +103,7 @@ class CareerGalleryController {
       await gallery.update(updateData);
 
       await CacheService.invalidate("careerGallery");
+       await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`careerGallery_${id}`);
       res.json({ success: true, data: gallery, message: "Career Gallery item updated" });
     } catch (error) {
@@ -125,6 +127,7 @@ class CareerGalleryController {
       }
 
       await CacheService.invalidate("careerGallery");
+       await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`careerGallery_${id}`);
       res.json({ success: true, message: "Career Gallery item deleted", data: id });
     } catch (error) {

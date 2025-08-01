@@ -8,7 +8,7 @@ const createDemoAdmin = async () => {
     const existingAdmin = await User.findOne({ where: { username: "admin" } });
 
     if (existingAdmin) {
-      console.log("Demo admin user already exists");
+      
       return;
     }
 
@@ -20,7 +20,7 @@ const createDemoAdmin = async () => {
       role: "admin",
     });
 
-    console.log("Demo admin user created: username=admin, password=admin123");
+    
   } catch (error) {
     console.error("Failed to create demo admin user:", error.message);
   }

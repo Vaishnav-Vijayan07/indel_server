@@ -26,6 +26,7 @@ const defineHistoryImages = require("./history/historyImages");
 const defineHistoryInceptionsYears = require("./history/historyInceptionsYears");
 const defineIndelValuesContent = require("./indelValues/indelValueContent");
 const defineIndelValues = require("./indelValues/indelValues");
+const defineValuesBannerMobile = require("./indelValues/mobileBanners");
 const defineApproachPropositions = require("./indelValues/approachProposition");
 const defineShadesOfIndelContent = require("./shadesOfIndel/shadesOfIndelContent");
 const defineDifferentShades = require("./shadesOfIndel/differentShades");
@@ -43,6 +44,7 @@ const defineMsmeFaq = require("./msme/faq");
 const defineMsmeOfferings = require("./msme/msmeOfferings");
 const defineMsmeTargetAudience = require("./msme/targetAudience");
 const defineMsmeSupportedIndustries = require("./msme/supportedIndustries");
+const defineMsmeLoanTypes = require("./msme/loanTypes");
 const defineCdLoanContent = require("./CD/cdContent");
 const defineCdLoanProducts = require("./CD/loanProducts");
 const defineCdLoanBenefits = require("./CD/loanBenefits");
@@ -54,8 +56,11 @@ const defineCareerRoles = require("./career/roles");
 const defineCareerJobs = require("./career/jobs");
 const defineCareerGallery = require("./career/gallery");
 const defineCareerBenfs = require("./career/employeeBenfs");
+const defineApplicants = require("./career/applicants");
 const defineBlogContent = require("./blog/content");
 const defineBlogs = require("./blog/blogs");
+const defineCsrContent = require("./csr/content");
+const defineCsr = require("./csr/csr");
 const defineGalleryPageContent = require("./gallery/galleryPageContent");
 const defineEventTypes = require("./gallery/eventTypes");
 const defineEventGallery = require("./gallery/eventGallery");
@@ -80,6 +85,40 @@ const defineTestimonialPageContent = require("./testimonials/testimonialPageCont
 const defineTestimonials = require("./testimonials/testimonials");
 const defineBranchLocatorPageContents = require("./branch/branchLocatorPageContentsModel");
 const defineBranches = require("./branch/branches");
+const defineJobApplications = require("./career/job_applications");
+const defineCorporateGovernance = require("./investors/corporateGovernance");
+const defineNcdReports = require("./investors/ncdReports");
+const defineQuarterlyReports = require("./investors/quarterlyReports");
+const defineCreditRatings = require("./investors/creditRatings");
+const defineIndelCares = require("./indelCare/indelCares");
+const defineIndelCaresContent = require("./indelCare/indelCaresContents");
+const defineOmbudsmanFiles = require("./ombudsman/ombudsmanFiles");
+const defineFooterContent = require("./footer/content");
+const defineFooterIcons = require("./footer/icons");
+const defineServiceEnquiries = require("./serviceEnquiries/serviceEnquiries");
+const defineServiceTypes = require("./serviceEnquiries/serviceTypes");
+const defindGoldCaratTypes = require("./serviceEnquiries/goldCaratTypes");
+const defindGoldTypes = require("./serviceEnquiries/goldTypes");
+const defineNewsLetterSubs = require("./footer/newsLetterSubs");
+const defineHeaderContent = require("./header/content");
+const definePaymentModes = require("./header/payment_modes");
+const definePopUpSettings = require("./popup/settings");
+const definePopUpServices = require("./popup/services");
+const defineDistricts = require("./career/districts");
+const definePartners = require("./partners/partners");
+const definePartnersData = require("./partners/partnersData");
+const defineDirectors = require("./directors/directors");
+const defineDirectorsContent = require("./directors/content");
+const defineMasterPolicies = require("./policies/policies");
+const defineApplicationStatus = require("./career/application_status");
+const defineGeneralApplications = require("./career/general_application");
+const defineOtp = require("./otp");
+const defineFloatButtons = require("./floatButtons/buttons");
+const defineAnnouncement = require("./homePage/announcement");
+const defineLapContent = require("./Lap/content");
+const defineLapProducts = require("./Lap/products");
+const defineCareerMeta = require("./career/careerMeta");
+const defineFileShare = require("./fileShare");
 
 const models = {
   User: defineUser(sequelize),
@@ -109,6 +148,8 @@ const models = {
   HistoryInceptionsYears: defineHistoryInceptionsYears(sequelize),
   IndelValueContent: defineIndelValuesContent(sequelize),
   IndelValues: defineIndelValues(sequelize),
+  ValuesBannerMobile: defineValuesBannerMobile(sequelize),
+
   ApproachPropositions: defineApproachPropositions(sequelize),
   ShadesOfIndelContent: defineShadesOfIndelContent(sequelize),
   DifferentShades: defineDifferentShades(sequelize),
@@ -126,6 +167,8 @@ const models = {
   MsmeOfferings: defineMsmeOfferings(sequelize),
   MsmeTargetedAudience: defineMsmeTargetAudience(sequelize),
   MsmeLoanSupportedIndustries: defineMsmeSupportedIndustries(sequelize),
+  MsmeloanTypes: defineMsmeLoanTypes(sequelize),
+
   CdLoanContent: defineCdLoanContent(sequelize),
   CdLoanProducts: defineCdLoanProducts(sequelize),
   CdLoanBenefits: defineCdLoanBenefits(sequelize),
@@ -136,9 +179,12 @@ const models = {
   CareerRoles: defineCareerRoles(sequelize),
   CareerJobs: defineCareerJobs(sequelize),
   CareerGallery: defineCareerGallery(sequelize),
+  Applicants: defineApplicants(sequelize),
   EmployeeBenefits: defineCareerBenfs(sequelize),
   BlogPageContent: defineBlogContent(sequelize),
   Blogs: defineBlogs(sequelize),
+  CsrPageContent: defineCsrContent(sequelize),
+  Csr: defineCsr(sequelize),
   GalleryPageContent: defineGalleryPageContent(sequelize),
   EventTypes: defineEventTypes(sequelize),
   EventGallery: defineEventGallery(sequelize),
@@ -148,7 +194,6 @@ const models = {
   News: defineNews(sequelize),
   EventPageContent: defineEventPageContent(sequelize),
   Events: defineEvents(sequelize),
-  InvestorsPageContent: defineInvestorsPageContent(sequelize),
   InvestorsPageContent: defineInvestorsPageContent(sequelize),
   FiscalYears: defineFiscalYears(sequelize),
   AnnualReport: defineAnnualReport(sequelize),
@@ -164,6 +209,40 @@ const models = {
   Testimonials: defineTestimonials(sequelize),
   BranchLocatorPageContents: defineBranchLocatorPageContents(sequelize),
   Branches: defineBranches(sequelize),
+  JobApplications: defineJobApplications(sequelize),
+  CorporateGovernance: defineCorporateGovernance(sequelize),
+  NcdReports: defineNcdReports(sequelize),
+  QuarterlyReports: defineQuarterlyReports(sequelize),
+  CreditRatings: defineCreditRatings(sequelize),
+  IndelCares: defineIndelCares(sequelize),
+  IndelCaresContent: defineIndelCaresContent(sequelize),
+  OmbudsmanFiles: defineOmbudsmanFiles(sequelize),
+  FooterContent: defineFooterContent(sequelize),
+  SocialMediaIcons: defineFooterIcons(sequelize),
+  ServiceEnquiries: defineServiceEnquiries(sequelize),
+  ServiceTypes: defineServiceTypes(sequelize),
+  GoldCaratTypes: defindGoldCaratTypes(sequelize),
+  GoldTypes: defindGoldTypes(sequelize),
+  NewsLetterSubs: defineNewsLetterSubs(sequelize),
+  HeaderContents: defineHeaderContent(sequelize),
+  PaymentModes: definePaymentModes(sequelize),
+  PopupSettings: definePopUpSettings(sequelize),
+  PopupServices: definePopUpServices(sequelize),
+  Districts: defineDistricts(sequelize),
+  PartnersTypes: definePartners(sequelize),
+  Partners: definePartnersData(sequelize),
+  Directors: defineDirectors(sequelize),
+  DirectorsContent: defineDirectorsContent(sequelize),
+  MasterPolicies: defineMasterPolicies(sequelize),
+  ApplicationStatus: defineApplicationStatus(sequelize),
+  GeneralApplications: defineGeneralApplications(sequelize),
+  Otp: defineOtp(sequelize),
+  FloatButtons: defineFloatButtons(sequelize),
+  Announcement: defineAnnouncement(sequelize),
+  LapContent: defineLapContent(sequelize),
+  LapProducts: defineLapProducts(sequelize),
+  CareerMeta: defineCareerMeta(sequelize),
+  FileShare: defineFileShare(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {

@@ -25,9 +25,9 @@ class CdLoanContentController {
       const cacheKey = "CdLoanContent";
       const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
 
       const content = await CdLoanContent.findOne();
       if (!content) {
@@ -51,6 +51,10 @@ class CdLoanContentController {
       const updateData = { ...req.body };
 
       if (req.files) {
+        if (req.files.image) {
+          updateData.image = `/uploads/cd-content/${req.files.image[0].filename}`;
+          await CdLoanContentController.deleteFile(content.image);
+        }
         if (req.files.covered_products_section_image) {
           updateData.covered_products_section_image = `/uploads/cd-content/${req.files.covered_products_section_image[0].filename}`;
           await CdLoanContentController.deleteFile(content.covered_products_section_image);
@@ -68,6 +72,8 @@ class CdLoanContentController {
       await content.update(updateData);
 
       await CacheService.invalidate("CdLoanContent");
+      await CacheService.invalidate("webCDLoan");
+      await CacheService.invalidate("metaData:cdloan");
       res.json({ success: true, data: content, message: "Content updated" });
     } catch (error) {
       next(error);

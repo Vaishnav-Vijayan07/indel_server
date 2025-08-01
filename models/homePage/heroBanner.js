@@ -21,17 +21,33 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      location: {
-        type: DataTypes.STRING,
-        allowNull: false,
+      state_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: "states",
+          key: "id",
+        },
       },
       image: {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      image_mobile: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       image_alt_text: {
         type: DataTypes.STRING,
         allowNull: false,
+      },
+      is_active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+      },
+      order: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
     },
     {
@@ -39,6 +55,13 @@ module.exports = (sequelize) => {
       timestamps: true,
     }
   );
+
+  HeroBanner.associate = (models) => {
+    HeroBanner.belongsTo(models.CareerStates, {
+      foreignKey: "state_id",
+      as: "state",
+    });
+  };
 
   return HeroBanner;
 };

@@ -21,6 +21,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      other_meta: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
       gold_rate_icon: {
         type: DataTypes.STRING,
         allowNull: true, // Allow null since icon is uploaded later
@@ -53,6 +57,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      about_image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       about_button_name: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -65,11 +73,7 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      branch_section_title: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      branch_section_description: {
+      smart_deal_title: {
         type: DataTypes.STRING,
         allowNull: true,
       },
@@ -97,6 +101,26 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      life_section_image1: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      life_section_image2: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      life_section_image3: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      life_section_mob_description: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      awards_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       updates_section_title: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -110,6 +134,10 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       investment_image_url: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      investment_image_alt: {
         type: DataTypes.STRING,
         allowNull: true,
       },
@@ -137,6 +165,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      mobile_app_image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       ios_download_link: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -154,6 +186,10 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       faq_section_image: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      faq_section_image_alt: {
         type: DataTypes.STRING,
         allowNull: true,
       },

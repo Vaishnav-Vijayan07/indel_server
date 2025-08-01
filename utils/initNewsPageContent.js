@@ -7,7 +7,7 @@ const initNewsPageContent = async () => {
     const existingContent = await NewsPageContent.findOne();
 
     if (existingContent) {
-      console.log("News Page Content already exists");
+      
       return;
     }
 
@@ -22,7 +22,7 @@ const initNewsPageContent = async () => {
       all_news_title: "All Our News",
     });
 
-    console.log("News Page Content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize News Page Content:", error.message);
   }

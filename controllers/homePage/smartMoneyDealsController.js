@@ -32,6 +32,7 @@ class SmartMoneyDealsController {
       const deal = await SmartMoneyDeals.create(updateData);
 
       await CacheService.invalidate("smartMoneyDeals");
+      await CacheService.invalidate("webHomeData");
       res.status(201).json({ success: true, data: deal,message: "Smart Money Deal created" });
     } catch (error) {
       next(error);
@@ -102,6 +103,7 @@ class SmartMoneyDealsController {
       await deal.update(updateData);
 
       await CacheService.invalidate("smartMoneyDeals");
+      await CacheService.invalidate("webHomeData");
       await CacheService.invalidate(`smartMoneyDeal_${id}`);
       res.json({ success: true, data: deal, message: "Smart Money Deal updated" });
     } catch (error) {
@@ -125,6 +127,7 @@ class SmartMoneyDealsController {
       }
 
       await CacheService.invalidate("smartMoneyDeals");
+      await CacheService.invalidate("webHomeData");
       await CacheService.invalidate(`smartMoneyDeal_${id}`);
       res.json({ success: true, message: "Smart Money Deal deleted", data: id });
     } catch (error) {

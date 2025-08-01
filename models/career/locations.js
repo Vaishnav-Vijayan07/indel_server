@@ -13,14 +13,22 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      district_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: "districts",
+          key: "id",
+        },
+      },
+      order:{
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
       is_active: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: true,
-      },
-      order: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
       },
     },
     {
@@ -33,6 +41,13 @@ module.exports = (sequelize) => {
     Locations.hasMany(models.CareerJobs, {
       foreignKey: "location_id",
       as: "job_locations",
+    });
+  };
+
+  Locations.associate = (models) => {
+    Locations.hasMany(models.JobApplications, {
+      foreignKey: "location",
+      as: "job_applications",
     });
   };
 

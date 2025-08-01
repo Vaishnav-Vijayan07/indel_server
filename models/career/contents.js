@@ -9,18 +9,7 @@ module.exports = (sequelize) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      meta_title: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      meta_description: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-      },
-      meta_keywords: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
+
       page_title: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -46,6 +35,10 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       make_your_move_image: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      image_alt: {
         type: DataTypes.STRING,
         allowNull: true,
       },
@@ -78,6 +71,10 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       awards_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      awards_description: {
         type: DataTypes.STRING,
         allowNull: true,
       },

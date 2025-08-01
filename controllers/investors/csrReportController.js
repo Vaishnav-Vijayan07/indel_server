@@ -11,7 +11,7 @@ class CsrReportController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(__dirname, "..", "..", "Uploads", filePath.replace("/uploads/", ""));
+      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {
@@ -32,6 +32,7 @@ class CsrReportController {
 
       const csrReport = await CsrReport.create(data);
       await CacheService.invalidate("CsrReport");
+      await CacheService.invalidate("webCsrDetails");
       res.status(201).json({ success: true, data: csrReport, message: "CSR Report created" });
     } catch (error) {
       if (req.file) {
@@ -50,7 +51,10 @@ class CsrReportController {
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
 
-      const csrReports = await CsrReport.findAll({ order: [["order", "ASC"]] });
+      const csrReports = await CsrReport.findAll({
+        include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
+        order: [[{ model: models.FiscalYears, as: "fiscalYear" }, "fiscal_year", "DESC"]],
+      });
       await CacheService.set(cacheKey, JSON.stringify(csrReports), 3600);
       res.json({ success: true, data: csrReports });
     } catch (error) {
@@ -101,6 +105,7 @@ class CsrReportController {
 
       await csrReport.update(updateData);
       await CacheService.invalidate("CsrReport");
+      await CacheService.invalidate("webCsrDetails");
       await CacheService.invalidate(`csrReport_${id}`);
       res.json({ success: true, data: csrReport, message: "CSR Report updated" });
     } catch (error) {
@@ -127,6 +132,7 @@ class CsrReportController {
       }
 
       await CacheService.invalidate("CsrReport");
+      await CacheService.invalidate("webCsrDetails");
       await CacheService.invalidate(`csrReport_${id}`);
       res.json({ success: true, message: "CSR Report deleted", data: id });
     } catch (error) {

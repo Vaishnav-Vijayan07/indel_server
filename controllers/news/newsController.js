@@ -4,14 +4,39 @@ const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
 const fs = require("fs").promises;
 const path = require("path");
+const slugify = require("../../utils/slugify"); // Import the slugify utility
+const { Sequelize, where } = require("sequelize");
 
 const News = models.News;
 
 class NewsController {
+  // Utility to generate unique slug
+  static async generateUniqueSlug(title, excludeId = null) {
+    let slug = slugify(title);
+    if (!slug) {
+      slug = "news-post"; // Fallback slug if title is empty
+    }
+
+    let count = 0;
+    let uniqueSlug = slug;
+
+    // Check for existing slugs
+    while (
+      await News.findOne({
+        where: { slug: uniqueSlug, id: { [Sequelize.Op.ne]: excludeId } },
+      })
+    ) {
+      count++;
+      uniqueSlug = `${slug}-${count}`;
+    }
+
+    return uniqueSlug;
+  }
+
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(__dirname, "..", "..", "Uploads", filePath.replace("/uploads/", ""));
+      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {
@@ -23,45 +48,47 @@ class NewsController {
 
   static async create(req, res, next) {
     try {
-      const data = { ...req.body };
-      if (!req.files || !req.files.image) {
-        throw new CustomError("Image is required", 400);
-      }
-      data.image = `/uploads/news/${req.files.image[0].filename}`;
-      Logger.info(`Uploaded image for News: ${data.image}`);
-      if (req.files.second_image) {
-        data.second_image = `/uploads/news/${req.files.second_image[0].filename}`;
-        Logger.info(`Uploaded second image for News: ${data.second_image}`);
+      const updateData = { ...req.body };
+
+      // Generate slug from title if not provided
+      if (!updateData.slug && updateData.title) {
+        updateData.slug = await NewsController.generateUniqueSlug(updateData.title);
+        Logger.info(`Generated slug for new news: ${updateData.slug}`);
       }
 
-      const news = await News.create(data);
-      await CacheService.invalidate("News");
+      if (req.files?.image) {
+        updateData.image = `/uploads/news/${req.files.image[0].filename}`;
+        Logger.info(`Uploaded image for News: ${updateData.image}`);
+      }
+      if (req.files?.second_image) {
+        updateData.second_image = `/uploads/news/${req.files.second_image[0].filename}`;
+        Logger.info(`Uploaded second image for News: ${updateData.second_image}`);
+      }
+
+      const news = await News.create(updateData);
+
+      await CacheService.invalidate("news");
       res.status(201).json({ success: true, data: news, message: "News created" });
     } catch (error) {
-      if (req.files) {
-        if (req.files.image) {
-          await NewsController.deleteFile(`/uploads/news/${req.files.image[0].filename}`);
-        }
-        if (req.files.second_image) {
-          await NewsController.deleteFile(`/uploads/news/${req.files.second_image[0].filename}`);
-        }
-      }
       next(error);
     }
   }
 
   static async getAll(req, res, next) {
     try {
-      const cacheKey = "News";
+      const cacheKey = "news";
       const cachedData = await CacheService.get(cacheKey);
 
       if (cachedData) {
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
 
-      const news = await News.findAll({ order: [["order", "ASC"]] });
-      await CacheService.set(cacheKey, JSON.stringify(news), 3600);
-      res.json({ success: true, data: news });
+      const newsItems = await News.findAll({
+        order: [["order", "ASC"]],
+      });
+
+      await CacheService.set(cacheKey, JSON.stringify(newsItems), 3600);
+      res.json({ success: true, data: newsItems });
     } catch (error) {
       next(error);
     }
@@ -69,15 +96,15 @@ class NewsController {
 
   static async getById(req, res, next) {
     try {
-      const { id } = req.params;
-      const cacheKey = `news_${id}`;
+      const { slug } = req.params;
+      const cacheKey = `news_${slug}`;
       const cachedData = await CacheService.get(cacheKey);
 
       if (cachedData) {
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
 
-      const news = await News.findByPk(id);
+      const news = await News.findOne({ where: { slug } });
       if (!news) {
         throw new CustomError("News not found", 404);
       }
@@ -97,18 +124,29 @@ class NewsController {
         throw new CustomError("News not found", 404);
       }
 
-      const updateData = { ...req.body };
-      const oldImage = news.image;
-      const oldSecondImage = news.second_image;
+      let updateData = { ...req.body };
+      let oldImage = news.image;
+      let oldSecondImage = news.second_image;
 
-      if (req.files && req.files.image) {
+      // Remove any `null` values from the updateData object
+      updateData = Object.fromEntries(Object.entries(updateData).filter(([_, value]) => value !== null));
+
+      // Generate slug if title is updated and no slug is provided
+      if (updateData.title && !updateData.slug) {
+        updateData.slug = await NewsController.generateUniqueSlug(updateData.title, id);
+        Logger.info(`Generated slug for updated news ID ${id}: ${updateData.slug}`);
+      }
+
+      // Handle image uploads
+      if (req.files?.image) {
         updateData.image = `/uploads/news/${req.files.image[0].filename}`;
         Logger.info(`Updated image for News ID ${id}: ${updateData.image}`);
         if (oldImage) {
           await NewsController.deleteFile(oldImage);
         }
       }
-      if (req.files && req.files.second_image) {
+
+      if (req.files?.second_image) {
         updateData.second_image = `/uploads/news/${req.files.second_image[0].filename}`;
         Logger.info(`Updated second image for News ID ${id}: ${updateData.second_image}`);
         if (oldSecondImage) {
@@ -117,18 +155,14 @@ class NewsController {
       }
 
       await news.update(updateData);
-      await CacheService.invalidate("News");
+
+      await CacheService.invalidate("news");
       await CacheService.invalidate(`news_${id}`);
+      await CacheService.invalidate(`metaData:newsItem:${id}`);
+
+
       res.json({ success: true, data: news, message: "News updated" });
     } catch (error) {
-      if (req.files) {
-        if (req.files.image) {
-          await NewsController.deleteFile(`/uploads/news/${req.files.image[0].filename}`);
-        }
-        if (req.files.second_image) {
-          await NewsController.deleteFile(`/uploads/news/${req.files.second_image[0].filename}`);
-        }
-      }
       next(error);
     }
   }
@@ -152,7 +186,7 @@ class NewsController {
         await NewsController.deleteFile(oldSecondImage);
       }
 
-      await CacheService.invalidate("News");
+      await CacheService.invalidate("news");
       await CacheService.invalidate(`news_${id}`);
       res.json({ success: true, message: "News deleted", data: id });
     } catch (error) {

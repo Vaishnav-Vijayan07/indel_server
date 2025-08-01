@@ -24,7 +24,7 @@ class AboutStatisticsController {
   static async create(req, res, next) {
     try {
       const data = { ...req.body };
-      console.log(req.file)
+      
       if (req.file) {
         data.icon = `/uploads/about-statistics/${req.file.filename}`;
         Logger.info(`Uploaded image for AboutStatistics: ${data.icon}`);

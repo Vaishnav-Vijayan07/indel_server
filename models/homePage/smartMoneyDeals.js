@@ -15,11 +15,23 @@ module.exports = (sequelize) => {
       },
       icon: {
         type: DataTypes.STRING,
-        allowNull: true, 
+        allowNull: true,
+      },
+      link: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      alt_text: {
+        type: DataTypes.STRING,
+        allowNull: true,
       },
       order: {
         type: DataTypes.INTEGER,
         allowNull: false,
+      },
+      is_active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
       },
     },
     {

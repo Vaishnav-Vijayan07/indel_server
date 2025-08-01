@@ -21,12 +21,31 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      is_active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+      },
+      state_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: "states",
+          key: "id",
+        },
+      },
     },
     {
       tableName: "home_faqs",
       timestamps: true,
     }
   );
+
+  HomeFaq.associate = (models) => {
+    HomeFaq.belongsTo(models.CareerStates, {
+      foreignKey: "state_id",
+      as: "state",
+    });
+  };
 
   return HomeFaq;
 };

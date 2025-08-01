@@ -7,7 +7,7 @@ const initHomePageContent = async () => {
     const existingContent = await HomePageContent.findOne();
 
     if (existingContent) {
-      console.log("Home Page Content already exists");
+      
       return;
     }
 
@@ -22,15 +22,16 @@ const initHomePageContent = async () => {
       about_image_url: null,
       about_button_name: "Learn More",
       about_button_url: "/about",
+      smart_deal_title: "This is <span>Deals</span>",
       step_title: "How It Works",
-      branch_section_title: "Our Branches",
-      branch_section_description: "Visit us at our multiple locations.",
       life_section_title: "Life at Our Company",
       life_section_description: "Join our vibrant community.",
       life_section_button_name_1: "Careers",
       life_section_button_link_1: "/careers",
       life_section_button_name_2: "Contact Us",
       life_section_button_link_2: "/contact",
+      awards_title: "Our Awards",
+      life_section_mob_description: "Join our vibrant community.",
       updates_section_title: "Latest Updates",
       investment_title: "Investment Opportunities",
       investment_description: "Explore our investment plans.",
@@ -47,7 +48,7 @@ const initHomePageContent = async () => {
       faq_section_super_title: "Got Questions?",
     });
 
-    console.log("Home Page Content initialized with default values");
+    
   } catch (error) {
     console.error("Failed to initialize Home Page Content:", error.message);
   }

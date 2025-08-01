@@ -11,7 +11,7 @@ class TestimonialsController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(__dirname, "..", "..", "Uploads", filePath.replace("/uploads/", ""));
+      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {
@@ -33,6 +33,10 @@ class TestimonialsController {
           data.video = `/uploads/investors/testimonials/${req.files.video[0].filename}`;
           Logger.info(`Uploaded video: ${data.video}`);
         }
+        if (req.files.thumbnail) {
+          data.thumbnail = `/uploads/investors/testimonials/${req.files.thumbnail[0].filename}`;
+          Logger.info(`Uploaded thumbnail: ${data.thumbnail}`);
+        }
       }
 
       const testimonial = await Testimonials.create(data);
@@ -40,10 +44,9 @@ class TestimonialsController {
       res.status(201).json({ success: true, data: testimonial, message: "Testimonial created" });
     } catch (error) {
       if (req.files) {
-        if (req.files.avatar)
-          await TestimonialsController.deleteFile(`/uploads/investors/testimonials/${req.files.avatar[0].filename}`);
-        if (req.files.video)
-          await TestimonialsController.deleteFile(`/uploads/investors/testimonials/${req.files.video[0].filename}`);
+        if (req.files.avatar) await TestimonialsController.deleteFile(`/uploads/investors/testimonials/${req.files.avatar[0].filename}`);
+        if (req.files.video) await TestimonialsController.deleteFile(`/uploads/investors/testimonials/${req.files.video[0].filename}`);
+        if (req.files.thumbnail) await TestimonialsController.deleteFile(`/uploads/investors/testimonials/${req.files.thumbnail[0].filename}`);
       }
       next(error);
     }
@@ -52,16 +55,19 @@ class TestimonialsController {
   static async getAll(req, res, next) {
     try {
       const cacheKey = "Testimonials";
-      const cachedData = await CacheService.get(cacheKey);
+      // const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
 
       const testimonials = await Testimonials.findAll({
-        where: { is_active: true },
+        // where: { is_active: true },
         order: [[Testimonials.sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
       });
+
+      
+
       await CacheService.set(cacheKey, JSON.stringify(testimonials), 3600);
       res.json({ success: true, data: testimonials });
     } catch (error) {
@@ -100,8 +106,12 @@ class TestimonialsController {
       }
 
       const updateData = { ...req.body };
+
+      
+
       const oldAvatar = testimonial.avatar;
       const oldVideo = testimonial.video;
+      const oldThumbnail = testimonial.thumbnail;
 
       if (req.files) {
         if (req.files.avatar) {
@@ -114,6 +124,11 @@ class TestimonialsController {
           Logger.info(`Updated video for testimonial ID ${id}: ${updateData.video}`);
           if (oldVideo) await TestimonialsController.deleteFile(oldVideo);
         }
+        if (req.files.thumbnail) {
+          updateData.thumbnail = `/uploads/investors/testimonials/${req.files.thumbnail[0].filename}`;
+          Logger.info(`Updated thumbnail for testimonial ID ${id}: ${updateData.thumbnail}`);
+          if (oldThumbnail) await TestimonialsController.deleteFile(oldThumbnail);
+        }
       }
 
       await testimonial.update(updateData);
@@ -122,10 +137,9 @@ class TestimonialsController {
       res.json({ success: true, data: testimonial, message: "Testimonial updated" });
     } catch (error) {
       if (req.files) {
-        if (req.files.avatar)
-          await TestimonialsController.deleteFile(`/uploads/investors/testimonials/${req.files.avatar[0].filename}`);
-        if (req.files.video)
-          await TestimonialsController.deleteFile(`/uploads/investors/testimonials/${req.files.video[0].filename}`);
+        if (req.files.avatar) await TestimonialsController.deleteFile(`/uploads/investors/testimonials/${req.files.avatar[0].filename}`);
+        if (req.files.video) await TestimonialsController.deleteFile(`/uploads/investors/testimonials/${req.files.video[0].filename}`);
+        if (req.files.thumbnail) await TestimonialsController.deleteFile(`/uploads/investors/testimonials/${req.files.thumbnail[0].filename}`);
       }
       next(error);
     }
@@ -141,10 +155,12 @@ class TestimonialsController {
 
       const oldAvatar = testimonial.avatar;
       const oldVideo = testimonial.video;
+      const oldThumbnail = testimonial.thumbnail;
       await testimonial.destroy();
 
       if (oldAvatar) await TestimonialsController.deleteFile(oldAvatar);
       if (oldVideo) await TestimonialsController.deleteFile(oldVideo);
+      if (oldThumbnail) await TestimonialsController.deleteFile(oldThumbnail);
 
       await CacheService.invalidate("Testimonials");
       await CacheService.invalidate(`testimonial_${id}`);
