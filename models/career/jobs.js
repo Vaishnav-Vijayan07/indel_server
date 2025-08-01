@@ -21,22 +21,6 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      location_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: "locations",
-          key: "id",
-        },
-      },
-      state_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: "states",
-          key: "id",
-        },
-      },
       job_description: {
         type: DataTypes.TEXT,
         allowNull: true,
@@ -75,13 +59,19 @@ module.exports = (sequelize) => {
       foreignKey: "role_id",
       as: "role",
     });
-    Jobs.belongsTo(models.CareerLocations, {
-      foreignKey: "location_id",
-      as: "location",
+    
+    // Add many-to-many associations
+    Jobs.belongsToMany(models.CareerLocations, {
+      through: models.JobLocations,
+      foreignKey: "job_id",
+      otherKey: "location_id",
+      as: "locations",
     });
-    Jobs.belongsTo(models.CareerStates, {
-      foreignKey: "state_id",
-      as: "state",
+    Jobs.belongsToMany(models.CareerStates, {
+      through: models.JobStates,
+      foreignKey: "job_id",
+      otherKey: "state_id",
+      as: "states",
     });
   };
 

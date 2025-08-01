@@ -119,6 +119,8 @@ const defineLapContent = require("./Lap/content");
 const defineLapProducts = require("./Lap/products");
 const defineCareerMeta = require("./career/careerMeta");
 const defineFileShare = require("./fileShare");
+const defineJobLocations = require("./career/job_locations");
+const defineJobStates = require("./career/job_states");
 
 const models = {
   User: defineUser(sequelize),
@@ -243,6 +245,8 @@ const models = {
   LapProducts: defineLapProducts(sequelize),
   CareerMeta: defineCareerMeta(sequelize),
   FileShare: defineFileShare(sequelize),
+  JobLocations: defineJobLocations(sequelize),
+  JobStates: defineJobStates(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {
@@ -251,5 +255,10 @@ Object.keys(models).forEach((modelName) => {
     models[modelName].associate(models);
   }
 });
+
+// Override CareerJobs associations to use many-to-many relationships
+if (models.CareerJobs && models.CareerJobs.associate) {
+  models.CareerJobs.associate(models);
+}
 
 module.exports = { sequelize, models };
