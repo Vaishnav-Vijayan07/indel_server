@@ -42,6 +42,10 @@ module.exports = (sequelize) => {
   Locations.associate = (models) => {
     // Removed: Locations.hasMany(models.CareerJobs, { foreignKey: "location_id", as: "job_locations", });
     // Removed: Locations.hasMany(models.JobApplications, { foreignKey: "location", as: "job_applications", });
+    Locations.belongsTo(models.Districts, {
+      foreignKey: "district_id",
+      as: "district",
+    });
 
     // New many-to-many association with CareerJobs through JobLocation
     Locations.belongsToMany(models.CareerJobs, {
