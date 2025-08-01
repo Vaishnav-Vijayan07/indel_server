@@ -1,4 +1,4 @@
-const { literal } = require("sequelize");
+const { literal,Op } = require("sequelize");
 const { models, sequelize } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
@@ -64,7 +64,7 @@ class JobsController {
           order: [["location_name", "ASC"]],
         }),
         models.CareerStates.findAll({
-          where: { is_active: true },
+          where: { is_active: true},
           attributes: [
             ["id", "value"],
             ["state_name", "label"],
@@ -93,9 +93,18 @@ class JobsController {
   static async getAllFiltered(req, res, next) {
     try {
       const { state_id, location_id, role_id } = req.query;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
       // Build where conditions
-      const whereConditions = { is_active: true };
+      const whereConditions = { 
+        is_active: true,
+        is_approved: true,
+        end_date: {
+        [Op.gte]: today,
+      },
+
+       };
       if (role_id) whereConditions.role_id = parseInt(role_id);
       if (location_id) whereConditions.location_id = parseInt(location_id);
       if (state_id) whereConditions.state_id = parseInt(state_id);
@@ -298,6 +307,8 @@ class JobsController {
       next(error);
     }
   }
+
+
 }
 
 module.exports = JobsController;

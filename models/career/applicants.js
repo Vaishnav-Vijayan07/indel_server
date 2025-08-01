@@ -32,6 +32,8 @@ module.exports = (sequelize) => {
           model: "locations",
           key: "id",
         },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
       },
       notice_period: {
         type: DataTypes.ENUM,
@@ -48,7 +50,7 @@ module.exports = (sequelize) => {
       },
       age: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
       current_salary: {
         type: DataTypes.FLOAT,

@@ -20,6 +20,8 @@ module.exports = (sequelize) => {
           model: "districts",
           key: "id",
         },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
       },
       order:{
         type: DataTypes.INTEGER,

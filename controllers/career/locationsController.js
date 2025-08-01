@@ -1,6 +1,7 @@
 const { models } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
+const { fn, col, where } = require("sequelize");
 
 const Locations = models.CareerLocations;
 
@@ -9,11 +10,25 @@ class LocationsController {
     try {
       const updateData = { ...req.body };
 
+      // Check if location already exists (case-insensitive)
+      const existLocation = await Locations.findOne({
+        where: where(
+          fn("LOWER", col("location_name")),
+          updateData.location_name.toLowerCase()
+        ),
+      });
+
+      if (existLocation) {
+throw new CustomError(`${existLocation?.location_name} is already exists`, 400);
+      }
+
       const location = await Locations.create(updateData);
 
       await CacheService.invalidate("locations");
       await CacheService.invalidate("webCareerPage");
-      res.status(201).json({ success: true, data: location, message: "Location created" });
+      res
+        .status(201)
+        .json({ success: true, data: location, message: "Location created" });
     } catch (error) {
       next(error);
     }
@@ -55,7 +70,7 @@ class LocationsController {
           // state_id: state_id,
           district_id: district_id,
         },
-        // order: [["order", "ASC"]],
+        order: [["location_name", "ASC"]],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(locations), 3600);
