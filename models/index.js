@@ -119,6 +119,9 @@ const defineLapContent = require("./Lap/content");
 const defineLapProducts = require("./Lap/products");
 const defineCareerMeta = require("./career/careerMeta");
 const defineFileShare = require("./fileShare");
+const defineJobLocation = require("./career/jobLocation"); // New import
+const defineJobState = require("./career/jobState");     // New import
+
 
 const models = {
   User: defineUser(sequelize),
@@ -243,6 +246,8 @@ const models = {
   LapProducts: defineLapProducts(sequelize),
   CareerMeta: defineCareerMeta(sequelize),
   FileShare: defineFileShare(sequelize),
+  JobLocation: defineJobLocation(sequelize), // New model
+  JobState: defineJobState(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {
