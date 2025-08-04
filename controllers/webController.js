@@ -1137,16 +1137,16 @@ class WebController {
       //   logger.info("Serving Career Page from cache");
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
- const today = new Date();
-    today.setHours(0, 0, 0, 0);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-    const whereClause = {
-      is_active: true,
-      is_approved: true,
-      end_date: {
-        [Op.gte]: today,
-      },
-    };
+      const whereClause = {
+        is_active: true,
+        is_approved: true,
+        end_date: {
+          [Op.gte]: today,
+        },
+      };
       const [
         careersContent,
         careerBanners,
@@ -1175,8 +1175,18 @@ class WebController {
           // attributes: ["id", "role_id", "location_id", "state_id", "job_title", "job_description", "key_responsibilities", "is_active"],
           include: [
             { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
-            { model: models.CareerLocations, as: "location", attributes: ["location_name"] },
-            { model: models.CareerStates, as: "state", attributes: ["state_name"] },
+            {
+              model: models.CareerLocations,
+              as: "locations",
+              attributes: ["location_name"],
+              through: { attributes: [], required: false },
+            },
+            {
+              model: models.CareerStates,
+              as: "states",
+              attributes: ["state_name"],
+              through: { attributes: [], required: false },
+            },
           ],
           order: [["id", "ASC"]],
         }),
@@ -1231,7 +1241,7 @@ class WebController {
     const { state, location, role } = req.query;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-console.log("Requested Filters", { state, role, location });
+    console.log("Requested Filters", { state, role, location });
     const whereClause = {
       is_active: true,
       is_approved: true,
@@ -1253,27 +1263,24 @@ console.log("Requested Filters", { state, role, location });
 
       const jobs = await models.CareerJobs.findAll({
         where: whereClause,
-        attributes: [
-          "id",
-          "role_id",
-          "location_id",
-          "state_id",
-          "job_description",
-          "experience",
-          "is_active",
-          "is_approved",
-        ],
+        attributes: ["id", "role_id", "location_id", "state_id", "job_description", "experience", "is_active", "is_approved"],
         include: [
           { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
           {
             model: models.CareerLocations,
-            as: "location",
-            attributes: ["location_name"],
+            as: "locations",
+            attributes: ["id", "location_name", "district_id"],
+            through: { attributes: [] }, // Exclude join table attributes
+            required: location ? true : false, // Make required if filtering by location
+            where: location ? { id: parseInt(location) } : {},
           },
           {
             model: models.CareerStates,
-            as: "state",
-            attributes: ["state_name"],
+            as: "states",
+            attributes: ["id", "state_name"],
+            through: { attributes: [] }, // Exclude join table attributes
+            required: state ? true : false, // Make required if filtering by state
+            where: state ? { id: parseInt(state) } : {},
           },
         ],
         order: [["id", "ASC"]],
