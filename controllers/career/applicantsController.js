@@ -45,7 +45,7 @@ class ApplicantsController {
 
       const { rows: applicants, count: total } = await models.Applicants.findAndCountAll({
         where: whereConditions,
-        include: [{ model: models.CareerLocations, as: "location", attributes: ["location_name"] }],
+        include: [{ model: models.CareerLocations, as: "applicantLocation", attributes: ["location_name"] }],
         order: [["created_at", "DESC"]],
         limit: parsedLimit,
         offset: parsedOffset,
@@ -78,7 +78,7 @@ class ApplicantsController {
       // }
 
       const applicant = await models.Applicants.findByPk(id, {
-        include: [{ model: models.CareerLocations, as: "location", attributes: ["location_name"] }],
+        include: [{ model: models.CareerLocations, as: "applicantLocation", attributes: ["location_name"] }],
       });
       if (!applicant) {
         throw new CustomError("Applicant not found", 404);

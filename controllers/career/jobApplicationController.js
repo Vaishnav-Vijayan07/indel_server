@@ -854,12 +854,6 @@ class JobApplicationSubmissionController {
         };
       }
 
-      // Log filter conditions for debugging
-      console.log("Filter Conditions:", {
-        whereConditions,
-        applicantWhere,
-      });
-
       const { rows: applications, count: total } = await models.GeneralApplications.findAndCountAll({
         where: whereConditions,
         include: [
