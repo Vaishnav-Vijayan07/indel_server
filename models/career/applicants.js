@@ -96,7 +96,7 @@ module.exports = (sequelize) => {
   Applicants.associate = (models) => {
     Applicants.belongsTo(models.CareerLocations, {
       foreignKey: "preferred_location",
-      as: "location",
+      as: "applicantLocation", // Updated alias
     });
   };
 
