@@ -2,10 +2,80 @@ const { literal, Op } = require("sequelize");
 const { models, sequelize } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
+const { sendMailToHRs } = require("../../services/emailService"); // We'll create this helper
+
+const User = models.User
 
 const Jobs = models.CareerJobs;
 
 class JobsController {
+  // static async create(req, res, next) {
+  //   try {
+  //     const {
+  //       role_id,
+  //       job_title,
+  //       job_description,
+  //       experience,
+  //       is_active,
+  //       is_approved,
+  //       end_date,
+  //       order,
+  //       reapply_period_months,
+  //       location_ids,
+  //       state_ids,
+  //       is_display_full_locations,
+  //     } = req.body;
+
+  //     // Validate existence of locations and states
+  //     if (!Array.isArray(location_ids) || location_ids.length === 0) {
+  //       throw new CustomError("At least one location is required", 400);
+  //     }
+  //     if (!Array.isArray(state_ids) || state_ids.length === 0) {
+  //       throw new CustomError("At least one state is required", 400);
+  //     }
+
+  //     const existingLocations = await models.CareerLocations.findAll({ where: { id: location_ids } });
+  //     if (existingLocations.length !== location_ids.length) {
+  //       throw new CustomError("One or more locations not found", 404);
+  //     }
+
+  //     const existingStates = await models.CareerStates.findAll({ where: { id: state_ids } });
+  //     if (existingStates.length !== state_ids.length) {
+  //       throw new CustomError("One or more states not found", 404);
+  //     }
+
+  //     // Ensure is_active and end_date are handled correctly
+  //     const jobData = {
+  //       role_id,
+  //       job_title,
+  //       job_description,
+  //       experience,
+  //       is_active: is_active ?? true,
+  //       is_approved: is_approved ?? false,
+  //       end_date: end_date ? new Date(end_date) : null,
+  //       order,
+  //       reapply_period_months,
+  //       is_display_full_locations,
+  //     };
+
+  //     if (jobData.end_date && isNaN(jobData.end_date.getTime())) {
+  //       throw new CustomError("Invalid end_date format", 400);
+  //     }
+
+  //     const job = await Jobs.create(jobData);
+
+  //     // Add associations
+  //     await job.addLocations(location_ids);
+  //     await job.addStates(state_ids);
+
+  //     // Invalidate caches after creation
+  //     await Promise.all([CacheService.invalidate("jobs"), CacheService.invalidate("webCareerPage")]);
+  //     res.status(201).json({ success: true, data: job, message: "Job created" });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
+
   static async create(req, res, next) {
     try {
       const {
@@ -23,25 +93,20 @@ class JobsController {
         is_display_full_locations,
       } = req.body;
 
-      // Validate existence of locations and states
-      if (!Array.isArray(location_ids) || location_ids.length === 0) {
+      if (!Array.isArray(location_ids) || location_ids.length === 0)
         throw new CustomError("At least one location is required", 400);
-      }
-      if (!Array.isArray(state_ids) || state_ids.length === 0) {
-        throw new CustomError("At least one state is required", 400);
-      }
+      if (!Array.isArray(state_ids) || state_ids.length === 0) throw new CustomError("At least one state is required", 400);
 
-      const existingLocations = await models.CareerLocations.findAll({ where: { id: location_ids } });
-      if (existingLocations.length !== location_ids.length) {
-        throw new CustomError("One or more locations not found", 404);
-      }
+      const existingLocations = await models.CareerLocations.findAll({
+        where: { id: location_ids },
+      });
+      if (existingLocations.length !== location_ids.length) throw new CustomError("One or more locations not found", 404);
 
-      const existingStates = await models.CareerStates.findAll({ where: { id: state_ids } });
-      if (existingStates.length !== state_ids.length) {
-        throw new CustomError("One or more states not found", 404);
-      }
+      const existingStates = await models.CareerStates.findAll({
+        where: { id: state_ids },
+      });
+      if (existingStates.length !== state_ids.length) throw new CustomError("One or more states not found", 404);
 
-      // Ensure is_active and end_date are handled correctly
       const jobData = {
         role_id,
         job_title,
@@ -55,18 +120,24 @@ class JobsController {
         is_display_full_locations,
       };
 
-      if (jobData.end_date && isNaN(jobData.end_date.getTime())) {
-        throw new CustomError("Invalid end_date format", 400);
-      }
+      if (jobData.end_date && isNaN(jobData.end_date.getTime())) throw new CustomError("Invalid end_date format", 400);
 
       const job = await Jobs.create(jobData);
 
-      // Add associations
       await job.addLocations(location_ids);
       await job.addStates(state_ids);
 
-      // Invalidate caches after creation
+      // Send notification email to all HR users
+      const hrUsers = await User.findAll({ where: { role: "hr", isActive: true } });
+
+      const hrEmails = hrUsers.map((user) => user.email).filter((email) => !!email); // Ensure email exists
+
+      if (hrEmails.length > 0) {
+        await sendMailToHRs(hrEmails, job_title);
+      }
+
       await Promise.all([CacheService.invalidate("jobs"), CacheService.invalidate("webCareerPage")]);
+
       res.status(201).json({ success: true, data: job, message: "Job created" });
     } catch (error) {
       next(error);

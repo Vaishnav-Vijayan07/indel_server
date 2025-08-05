@@ -63,7 +63,6 @@ www.indelmoney.com
   await transporter.sendMail(mailOptions);
 };
 
-
 const careerMail = async (email, name) => {
   console.log("📨 Sending career mail to:", email, name);
 
@@ -90,6 +89,22 @@ www.indelmoney.com
   await transporter.sendMail(mailOptions);
 };
 
+const sendMailToHRs = async (emails, jobTitle) => {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: emails, // can be array of addresses
+    subject: "New Job Created Pending Approval",
+    text: `Dear HR Team,
 
+A new job titled "${jobTitle}" has been created and is pending your approval.
 
-module.exports = { sendOtpEmail, newsLetterConfirmation, enquiryMail, careerMail };
+Please log in to the admin panel to review and approve the job posting.
+
+Best regards,
+Your Team`,
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
+module.exports = { sendOtpEmail, newsLetterConfirmation, enquiryMail, careerMail, sendMailToHRs };
