@@ -422,9 +422,72 @@ class JobsController {
     }
   }
 
+  // static async getAll(req, res, next) {
+  //   try {
+  //     const { state_id, location_id, role_id } = req.query;
+
+  //     // Build where conditions for the Job model
+  //     const jobWhereConditions = {};
+
+  //     // Build include options for associations
+  //     const includeOptions = [
+  //       { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
+  //       {
+  //         model: models.CareerLocations,
+  //         as: "locations",
+  //         attributes: ["id", "location_name", "district_id"],
+  //         through: { attributes: [] }, // Exclude join table attributes
+  //         required: location_id ? true : false, // Make required if filtering by location
+  //         where: location_id ? { id: parseInt(location_id) } : {},
+  //       },
+  //       {
+  //         model: models.CareerStates,
+  //         as: "states",
+  //         attributes: ["id", "state_name"],
+  //         through: { attributes: [] }, // Exclude join table attributes
+  //         required: state_id ? true : false, // Make required if filtering by state
+  //         where: state_id ? { id: parseInt(state_id) } : {},
+  //       },
+  //     ];
+
+  //     if (role_id) {
+  //       jobWhereConditions.role_id = parseInt(role_id);
+  //     }
+
+  //     const jobs = await Jobs.findAll({
+  //       where: jobWhereConditions,
+  //       attributes: {
+  //         include: [
+  //           [
+  //             sequelize.literal(`(
+  //               SELECT COUNT(*)
+  //               FROM job_applications AS ja
+  //               WHERE ja.job_id = "Jobs"."id"
+  //             )`),
+  //             "application_count",
+  //           ],
+  //         ],
+  //       },
+  //       include: includeOptions,
+  //       order: [
+  //         ["order", "ASC"],
+  //         ["id", "ASC"],
+  //       ],
+  //     });
+  //     res.json({ success: true, data: jobs });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
+
   static async getAll(req, res, next) {
     try {
-      const { state_id, location_id, role_id } = req.query;
+      const { state_id, location_id, role_id, page = 1, limit = 10 } = req.query;
+
+      // Parse page and limit to integers
+      const pageNum = Math.max(1, parseInt(page, 10)); // Ensure at least page 1
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10))); // Limit between 1 and 100
+      const offset = (pageNum - 1) * limitNum;
 
       // Build where conditions for the Job model
       const jobWhereConditions = {};
@@ -436,16 +499,16 @@ class JobsController {
           model: models.CareerLocations,
           as: "locations",
           attributes: ["id", "location_name", "district_id"],
-          through: { attributes: [] }, // Exclude join table attributes
-          required: location_id ? true : false, // Make required if filtering by location
+          through: { attributes: [] },
+          required: !!location_id,
           where: location_id ? { id: parseInt(location_id) } : {},
         },
         {
           model: models.CareerStates,
           as: "states",
           attributes: ["id", "state_name"],
-          through: { attributes: [] }, // Exclude join table attributes
-          required: state_id ? true : false, // Make required if filtering by state
+          through: { attributes: [] },
+          required: !!state_id,
           where: state_id ? { id: parseInt(state_id) } : {},
         },
       ];
@@ -454,16 +517,17 @@ class JobsController {
         jobWhereConditions.role_id = parseInt(role_id);
       }
 
-      const jobs = await Jobs.findAll({
+      // Fetch paginated jobs with total count
+      const { rows: jobs, count: totalItems } = await Jobs.findAndCountAll({
         where: jobWhereConditions,
         attributes: {
           include: [
             [
               sequelize.literal(`(
-                SELECT COUNT(*)
-                FROM job_applications AS ja
-                WHERE ja.job_id = "Jobs"."id"
-              )`),
+              SELECT COUNT(*)
+              FROM job_applications AS ja
+              WHERE ja.job_id = "Jobs"."id"
+            )`),
               "application_count",
             ],
           ],
@@ -473,50 +537,30 @@ class JobsController {
           ["order", "ASC"],
           ["id", "ASC"],
         ],
+        limit: limitNum,
+        offset,
       });
-      res.json({ success: true, data: jobs });
+
+      const totalPages = Math.ceil(totalItems / limitNum);
+      const hasNextPage = pageNum < totalPages;
+      const hasPrevPage = pageNum > 1;
+
+      res.json({
+        success: true,
+        data: jobs,
+        pagination: {
+          currentPage: pageNum,
+          totalPages,
+          totalItems,
+          itemsPerPage: limitNum,
+          hasNextPage,
+          hasPrevPage,
+        },
+      });
     } catch (error) {
       next(error);
     }
   }
-
-  // static async getById(req, res, next) {
-  //   try {
-  //     const { id } = req.params;
-  //     const cacheKey = `job_${id}`;
-  //     const cachedData = await CacheService.get(cacheKey);
-
-  //     // if (cachedData) {
-  //     //   return res.json({ success: true, data: JSON.parse(cachedData) });
-  //     // }
-
-  //     const job = await Jobs.findByPk(id, {
-  //       include: [
-  //         { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
-  //         {
-  //           model: models.CareerLocations,
-  //           as: "locations",
-  //           attributes: ["id", "location_name", "district_id"],
-  //           through: { attributes: [] },
-  //         },
-  //         {
-  //           model: models.CareerStates,
-  //           as: "states",
-  //           attributes: ["id", "state_name"],
-  //           through: { attributes: [] },
-  //         },
-  //       ],
-  //     });
-  //     if (!job) {
-  //       throw new CustomError("Job not found", 404);
-  //     }
-
-  //     await CacheService.set(cacheKey, JSON.stringify(job), 3600);
-  //     res.json({ success: true, data: job });
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // }
 
   static async getById(req, res, next) {
     // Helper function to capitalize first letter of each word
