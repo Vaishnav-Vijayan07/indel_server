@@ -8,7 +8,7 @@ const typeToDbMap = {
   goldloan: models.GoldloanContent,
   msme: models.MsmeLoanContent,
   cdloan: models.CdLoanContent,
-  lap: models.LoanAgainstPropertyContent,
+  lap: models.LapContent,
   gallery: models.GalleryPageContent,
   testimonials: models.TestimonialPageContent,
   management: models.ManagementTeamContent,
@@ -34,6 +34,8 @@ class MetaDataController {
   static async getMetaData(req, res, next) {
     const { page } = req.query;
 
+    console.log(`Fetching meta data for page: ${page}`, typeToDbMap[page]);
+    
     if (!typeToDbMap[page] && page !== "career" && page !== "listings") {
       return res.status(404).json({ error: "Page type not found" });
     }
