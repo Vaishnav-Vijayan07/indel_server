@@ -1131,12 +1131,20 @@ class WebController {
   static async CareerPage(req, res, next) {
     const cacheKey = "webCareerPage";
 
+    // Helper function to capitalize first letter of each word
+    const capitalizeWords = (str) => {
+      if (!str) return str;
+      return str
+        .toLowerCase()
+        .split(/(\s+|-)/)
+        .map((word, index, arr) => {
+          if (word.match(/^\s+|-/)) return word;
+          return word.charAt(0).toUpperCase() + word.slice(1);
+        })
+        .join("");
+    };
+
     try {
-      // const cachedData = await CacheService.get(cacheKey);
-      // if (cachedData) {
-      //   logger.info("Serving Career Page from cache");
-      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
-      // }
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
@@ -1147,6 +1155,7 @@ class WebController {
           [Op.gte]: today,
         },
       };
+
       const [
         careersContent,
         careerBanners,
@@ -1172,7 +1181,6 @@ class WebController {
         }),
         models.CareerJobs.findAll({
           where: whereClause,
-          // attributes: ["id", "role_id", "location_id", "state_id", "job_title", "job_description", "key_responsibilities", "is_active"],
           include: [
             { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
             {
@@ -1180,11 +1188,27 @@ class WebController {
               as: "locations",
               attributes: ["location_name"],
               through: { attributes: [], required: false },
+              include: [
+                {
+                  model: models.Districts,
+                  as: "district",
+                  attributes: ["state_id"],
+                  where: { is_active: true },
+                  required: true,
+                  include: [
+                    {
+                      model: models.CareerStates,
+                      as: "state",
+                      attributes: ["id", "state_name"],
+                    },
+                  ],
+                },
+              ],
             },
             {
               model: models.CareerStates,
               as: "states",
-              attributes: ["state_name"],
+              attributes: ["id", "state_name"],
               through: { attributes: [], required: false },
             },
           ],
@@ -1195,9 +1219,7 @@ class WebController {
           order: [["order", "ASC"]],
         }),
         models.Awards.findAll({
-          where: {
-            is_active: true,
-          },
+          where: { is_active: true },
           order: [["order", "ASC"]],
         }),
         models.AwardPageContent.findAll({
@@ -1205,6 +1227,56 @@ class WebController {
         }),
         models.Testimonials.findAll(),
       ]);
+
+      // Process careerJobs to format locations for multiple states
+      const formattedCareerJobs = careerJobs.map((job) => {
+        let locationDisplay = "";
+
+        if (job.states && job.states.length > 0) {
+          // Map locations to their respective states
+          const stateLocationMap = job.states.map((state) => {
+            // Filter locations for this state via district.state_id
+            const stateLocations = job.locations
+              .filter((loc) => loc.district && loc.district.state_id === state.id)
+              .map((loc) => capitalizeWords(loc.location_name))
+              .filter(Boolean);
+
+            if (job.is_display_full_locations) {
+              // Format: "Kerala: Calicut, Balussery and Chandra Nagar" or with ", etc."
+              if (stateLocations.length > 0) {
+                const lastLocation = stateLocations.pop();
+                const locationString =
+                  stateLocations.length > 0 ? `${stateLocations.join(", ")} and ${lastLocation}` : lastLocation;
+                return `${capitalizeWords(state.state_name)}: ${locationString}${stateLocations.length + 1 > 3 ? ", etc." : ""}`;
+              }
+              return `${capitalizeWords(state.state_name)}: No Specific Locations`;
+            } else {
+              // Show "Multiple Locations" or "No Specific Locations"
+              return stateLocations.length > 0
+                ? `${capitalizeWords(state.state_name)}: Multiple Locations`
+                : `${capitalizeWords(state.state_name)}: No Specific Locations`;
+            }
+          });
+
+          // Join state-location strings with semicolons
+          locationDisplay = stateLocationMap.join("; ");
+        } else {
+          // Fallback if no states are associated
+          if (job.is_display_full_locations && job.locations.length > 0) {
+            const locations = job.locations.map((loc) => capitalizeWords(loc.location_name)).filter(Boolean);
+            const lastLocation = locations.pop();
+            const locationString = locations.length > 0 ? `${locations.join(", ")} and ${lastLocation}` : lastLocation;
+            locationDisplay = `Unknown State: ${locationString}${locations.length + 1 > 3 ? ", etc." : ""}`;
+          } else {
+            locationDisplay = `Unknown State: ${job.locations.length > 0 ? "Multiple Locations" : "No Specific Locations"}`;
+          }
+        }
+
+        return {
+          ...job.toJSON(), // Convert Sequelize instance to plain object
+          locationDisplay, // Add formatted location string
+        };
+      });
 
       const textTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "text");
       const imageTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "video");
@@ -1214,7 +1286,7 @@ class WebController {
         careerBanners,
         careerGallery,
         careerStates,
-        careerJobs,
+        careerJobs: formattedCareerJobs,
         empBenefits,
         awards,
         awardContent: awardContent[0] || null,
@@ -1224,7 +1296,6 @@ class WebController {
         },
       };
 
-      // await CacheService.set(cacheKey, JSON.stringify(data), 3600);
       logger.info("Fetched Career Page data from DB");
       res.json({ status: "success", data });
     } catch (error) {
@@ -1235,6 +1306,280 @@ class WebController {
       next(new CustomError("Failed to fetch Career Page data", 500, error.message));
     }
   }
+
+  // static async CareerPage(req, res, next) {
+  //   const cacheKey = "webCareerPage";
+
+  //   try {
+  //     const today = new Date();
+  //     today.setHours(0, 0, 0, 0);
+
+  //     const whereClause = {
+  //       is_active: true,
+  //       is_approved: true,
+  //       end_date: {
+  //         [Op.gte]: today,
+  //       },
+  //     };
+
+  //     const [
+  //       careersContent,
+  //       careerBanners,
+  //       careerGallery,
+  //       careerStates,
+  //       careerJobs,
+  //       empBenefits,
+  //       awards,
+  //       awardContent,
+  //       testimoinials,
+  //     ] = await Promise.all([
+  //       models.CareersContent.findAll(),
+  //       models.CareerBanners.findAll({
+  //         where: { is_active: true },
+  //         order: [["order", "ASC"]],
+  //       }),
+  //       models.CareerGallery.findAll({
+  //         where: { is_active: true },
+  //         order: [["order", "ASC"]],
+  //       }),
+  //       models.CareerStates.findAll({
+  //         order: [["order", "ASC"]],
+  //       }),
+  //       models.CareerJobs.findAll({
+  //         where: whereClause,
+  //         include: [
+  //           { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
+  //           {
+  //             model: models.CareerLocations,
+  //             as: "locations",
+  //             attributes: ["location_name"],
+  //             through: { attributes: [], required: false },
+  //             include: [
+  //               {
+  //                 model: models.Districts,
+  //                 as: "district",
+  //                 attributes: ["state_id"],
+  //                 where: { is_active: true },
+  //                 required: true,
+  //                 include: [
+  //                   {
+  //                     model: models.CareerStates,
+  //                     as: "state",
+  //                     attributes: ["id", "state_name"],
+  //                   },
+  //                 ],
+  //               },
+  //             ],
+  //           },
+  //           {
+  //             model: models.CareerStates,
+  //             as: "states",
+  //             attributes: ["id", "state_name"],
+  //             through: { attributes: [], required: false },
+  //           },
+  //         ],
+  //         order: [["id", "ASC"]],
+  //       }),
+  //       models.EmployeeBenefits.findAll({
+  //         where: { is_active: true },
+  //         order: [["order", "ASC"]],
+  //       }),
+  //       models.Awards.findAll({
+  //         where: { is_active: true },
+  //         order: [["order", "ASC"]],
+  //       }),
+  //       models.AwardPageContent.findAll({
+  //         attributes: ["id", "mobile_title"],
+  //       }),
+  //       models.Testimonials.findAll(),
+  //     ]);
+
+  //     // Process careerJobs to format locations for multiple states
+  //     const formattedCareerJobs = careerJobs.map((job) => {
+  //       let locationDisplay = "";
+
+  //       if (job.states && job.states.length > 0) {
+  //         // Map locations to their respective states
+  //         const stateLocationMap = job.states.map((state) => {
+  //           // Filter locations for this state via district.state_id
+  //           const stateLocations = job.locations
+  //             .filter((loc) => loc.district && loc.district.state_id === state.id)
+  //             .map((loc) => loc.location_name)
+  //             .filter(Boolean);
+
+  //           if (job.is_display_full_locations) {
+  //             // Format: "Kerala: Aluva, Kalamassery and Cherthala" or with ", etc."
+  //             if (stateLocations.length > 0) {
+  //               const lastLocation = stateLocations.pop();
+  //               const locationString =
+  //                 stateLocations.length > 0 ? `${stateLocations.join(", ")} and ${lastLocation}` : lastLocation;
+  //               return `${state.state_name}: ${locationString}${stateLocations.length + 1 > 3 ? ", etc." : ""}`;
+  //             }
+  //             return `${state.state_name}: No specific locations`;
+  //           } else {
+  //             // Show "Multiple locations" or "No specific locations"
+  //             return stateLocations.length > 0
+  //               ? `${state.state_name}: Multiple locations`
+  //               : `${state.state_name}: No specific locations`;
+  //           }
+  //         });
+
+  //         // Join state-location strings with semicolons
+  //         locationDisplay = stateLocationMap.join("; ");
+  //       } else {
+  //         // Fallback if no states are associated
+  //         if (job.is_display_full_locations && job.locations.length > 0) {
+  //           const locations = job.locations.map((loc) => loc.location_name).filter(Boolean);
+  //           const lastLocation = locations.pop();
+  //           const locationString = locations.length > 0 ? `${locations.join(", ")} and ${lastLocation}` : lastLocation;
+  //           locationDisplay = `Unknown State: ${locationString}${locations.length + 1 > 3 ? ", etc." : ""}`;
+  //         } else {
+  //           locationDisplay = `Unknown State: ${job.locations.length > 0 ? "Multiple locations" : "No specific locations"}`;
+  //         }
+  //       }
+
+  //       return {
+  //         ...job.toJSON(), // Convert Sequelize instance to plain object
+  //         locationDisplay, // Add formatted location string
+  //       };
+  //     });
+
+  //     const textTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "text");
+  //     const imageTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "video");
+
+  //     const data = {
+  //       careersContent: careersContent[0] || null,
+  //       careerBanners,
+  //       careerGallery,
+  //       careerStates,
+  //       careerJobs: formattedCareerJobs,
+  //       empBenefits,
+  //       awards,
+  //       awardContent: awardContent[0] || null,
+  //       testimoinials: {
+  //         textTestimonials,
+  //         imageTestimonials,
+  //       },
+  //     };
+
+  //     logger.info("Fetched Career Page data from DB");
+  //     res.json({ status: "success", data });
+  //   } catch (error) {
+  //     logger.error("Error fetching Career Page data", {
+  //       error: error.message,
+  //       stack: error.stack,
+  //     });
+  //     next(new CustomError("Failed to fetch Career Page data", 500, error.message));
+  //   }
+  // }
+
+  // static async CareerPage(req, res, next) {
+  //   const cacheKey = "webCareerPage";
+
+  //   try {
+  //     // const cachedData = await CacheService.get(cacheKey);
+  //     // if (cachedData) {
+  //     //   logger.info("Serving Career Page from cache");
+  //     //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+  //     // }
+  //     const today = new Date();
+  //     today.setHours(0, 0, 0, 0);
+
+  //     const whereClause = {
+  //       is_active: true,
+  //       is_approved: true,
+  //       end_date: {
+  //         [Op.gte]: today,
+  //       },
+  //     };
+  //     const [
+  //       careersContent,
+  //       careerBanners,
+  //       careerGallery,
+  //       careerStates,
+  //       careerJobs,
+  //       empBenefits,
+  //       awards,
+  //       awardContent,
+  //       testimoinials,
+  //     ] = await Promise.all([
+  //       models.CareersContent.findAll(),
+  //       models.CareerBanners.findAll({
+  //         where: { is_active: true },
+  //         order: [["order", "ASC"]],
+  //       }),
+  //       models.CareerGallery.findAll({
+  //         where: { is_active: true },
+  //         order: [["order", "ASC"]],
+  //       }),
+  //       models.CareerStates.findAll({
+  //         order: [["order", "ASC"]],
+  //       }),
+  //       models.CareerJobs.findAll({
+  //         where: whereClause,
+  //         // attributes: ["id", "role_id", "location_id", "state_id", "job_title", "job_description", "key_responsibilities", "is_active"],
+  //         include: [
+  //           { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
+  //           {
+  //             model: models.CareerLocations,
+  //             as: "locations",
+  //             attributes: ["location_name"],
+  //             through: { attributes: [], required: false },
+  //           },
+  //           {
+  //             model: models.CareerStates,
+  //             as: "states",
+  //             attributes: ["state_name"],
+  //             through: { attributes: [], required: false },
+  //           },
+  //         ],
+  //         order: [["id", "ASC"]],
+  //       }),
+  //       models.EmployeeBenefits.findAll({
+  //         where: { is_active: true },
+  //         order: [["order", "ASC"]],
+  //       }),
+  //       models.Awards.findAll({
+  //         where: {
+  //           is_active: true,
+  //         },
+  //         order: [["order", "ASC"]],
+  //       }),
+  //       models.AwardPageContent.findAll({
+  //         attributes: ["id", "mobile_title"],
+  //       }),
+  //       models.Testimonials.findAll(),
+  //     ]);
+
+  //     const textTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "text");
+  //     const imageTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "video");
+
+  //     const data = {
+  //       careersContent: careersContent[0] || null,
+  //       careerBanners,
+  //       careerGallery,
+  //       careerStates,
+  //       careerJobs,
+  //       empBenefits,
+  //       awards,
+  //       awardContent: awardContent[0] || null,
+  //       testimoinials: {
+  //         textTestimonials,
+  //         imageTestimonials,
+  //       },
+  //     };
+
+  //     // await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+  //     logger.info("Fetched Career Page data from DB");
+  //     res.json({ status: "success", data });
+  //   } catch (error) {
+  //     logger.error("Error fetching Career Page data", {
+  //       error: error.message,
+  //       stack: error.stack,
+  //     });
+  //     next(new CustomError("Failed to fetch Career Page data", 500, error.message));
+  //   }
+  // }
 
   static async ActiveJobs(req, res, next) {
     const cacheKey = "webCareerPage";

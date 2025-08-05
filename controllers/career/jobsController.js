@@ -20,6 +20,7 @@ class JobsController {
         reapply_period_months,
         location_ids,
         state_ids,
+        is_display_full_locations,
       } = req.body;
 
       // Validate existence of locations and states
@@ -51,6 +52,7 @@ class JobsController {
         end_date: end_date ? new Date(end_date) : null,
         order,
         reapply_period_months,
+        is_display_full_locations,
       };
 
       if (jobData.end_date && isNaN(jobData.end_date.getTime())) {
@@ -117,71 +119,308 @@ class JobsController {
     }
   }
 
-  static async getAllFiltered(req, res, next) {
-    try {
-      const { state_id, location_id, role_id } = req.query;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+  // static async getAllFiltered(req, res, next) {
+  //   try {
+  //     const { state_id, location_id, role_id } = req.query;
+  //     const today = new Date();
+  //     today.setHours(0, 0, 0, 0);
 
-      // Build where conditions for the Job model
-      const jobWhereConditions = {
-        is_active: true,
-        is_approved: true,
-        end_date: {
-          [Op.gte]: today,
-        },
+  //     // Build where conditions for the Job model
+  //     const jobWhereConditions = {
+  //       is_active: true,
+  //       is_approved: true,
+  //       end_date: {
+  //         [Op.gte]: today,
+  //       },
+  //     };
+
+  //     // Build include options for associations
+  //     const includeOptions = [
+  //       { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
+  //       {
+  //         model: models.CareerLocations,
+  //         as: "locations",
+  //         attributes: ["location_name"],
+  //         through: { attributes: [] }, // Exclude join table attributes
+  //         required: location_id ? true : false, // Make required if filtering by location
+  //         where: location_id ? { id: parseInt(location_id) } : {},
+  //       },
+  //       {
+  //         model: models.CareerStates,
+  //         as: "states",
+  //         attributes: ["state_name"],
+  //         through: { attributes: [] }, // Exclude join table attributes
+  //         required: state_id ? true : false, // Make required if filtering by state
+  //         where: state_id ? { id: parseInt(state_id) } : {},
+  //       },
+  //     ];
+
+  //     if (role_id) {
+  //       jobWhereConditions.role_id = parseInt(role_id);
+  //     }
+
+  //     const jobs = await Jobs.findAll({
+  //       where: jobWhereConditions,
+  //       attributes: {
+  //         include: [
+  //           [
+  //             sequelize.literal(`(
+  //               SELECT COUNT(*)
+  //               FROM job_applications AS ja
+  //               WHERE ja.job_id = "Jobs"."id"
+  //             )`),
+  //             "application_count",
+  //           ],
+  //         ],
+  //       },
+  //       include: includeOptions,
+  //       order: [
+  //         ["order", "ASC"],
+  //         ["id", "ASC"],
+  //       ],
+  //     });
+  //     res.json({ success: true, data: jobs });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
+
+static async getAllFiltered(req, res, next) {
+  // Helper function to capitalize first letter of each word
+  const capitalizeWords = (str) => {
+    if (!str) return str;
+    return str
+      .toLowerCase()
+      .split(/(\s+|-)/)
+      .map((word, index, arr) => {
+        if (word.match(/^\s+|-/)) return word;
+        return word.charAt(0).toUpperCase() + word.slice(1);
+      })
+      .join("");
+  };
+
+  try {
+    const { state_id, location_id, role_id, page = 1, limit = 10 } = req.query;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Pagination setup
+    const pageNumber = parseInt(page) || 1;
+    const pageSize = parseInt(limit) || 10;
+    const offset = (pageNumber - 1) * pageSize;
+
+    // Build where conditions for the Job model
+    const jobWhereConditions = {
+      is_active: true,
+      is_approved: true,
+      end_date: {
+        [Op.gte]: today,
+      },
+    };
+
+    if (role_id) {
+      jobWhereConditions.role_id = parseInt(role_id);
+    }
+
+    // Build include options - simplified to avoid complex filtering
+    const includeOptions = [
+      { 
+        model: models.CareerRoles, 
+        as: "role", 
+        attributes: ["role_name"] 
+      },
+      {
+        model: models.CareerLocations,
+        as: "locations",
+        attributes: ["location_name"],
+        through: { attributes: [] },
+        include: [
+          {
+            model: models.Districts,
+            as: "district",
+            attributes: ["state_id"],
+            where: { is_active: true },
+            include: [
+              {
+                model: models.CareerStates,
+                as: "state",
+                attributes: ["id", "state_name"],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        model: models.CareerStates,
+        as: "states",
+        attributes: ["id", "state_name"],
+        through: { attributes: [] },
+      },
+    ];
+
+    // Handle filtering by adding WHERE conditions to the main query
+    let additionalWhereConditions = {};
+
+    // Filter by location if provided
+    if (location_id) {
+      additionalWhereConditions = {
+        ...additionalWhereConditions,
+        [Op.and]: [
+          ...(additionalWhereConditions[Op.and] || []),
+          sequelize.literal(`EXISTS (
+            SELECT 1 FROM job_locations jl 
+            WHERE jl.job_id = "Jobs"."id" 
+            AND jl.location_id = ${parseInt(location_id)}
+          )`)
+        ]
       };
+    }
 
-      // Build include options for associations
-      const includeOptions = [
-        { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
-        {
-          model: models.CareerLocations,
-          as: "locations",
-          attributes: ["location_name"],
-          through: { attributes: [] }, // Exclude join table attributes
-          required: location_id ? true : false, // Make required if filtering by location
-          where: location_id ? { id: parseInt(location_id) } : {},
-        },
-        {
-          model: models.CareerStates,
-          as: "states",
-          attributes: ["state_name"],
-          through: { attributes: [] }, // Exclude join table attributes
-          required: state_id ? true : false, // Make required if filtering by state
-          where: state_id ? { id: parseInt(state_id) } : {},
-        },
-      ];
+    // Filter by state if provided
+    if (state_id) {
+      additionalWhereConditions = {
+        ...additionalWhereConditions,
+        [Op.and]: [
+          ...(additionalWhereConditions[Op.and] || []),
+          sequelize.literal(`EXISTS (
+            SELECT 1 FROM job_states js 
+            WHERE js.job_id = "Jobs"."id" 
+            AND js.state_id = ${parseInt(state_id)}
+          )`)
+        ]
+      };
+    }
 
-      if (role_id) {
-        jobWhereConditions.role_id = parseInt(role_id);
+    // Combine where conditions
+    const finalWhereConditions = {
+      ...jobWhereConditions,
+      ...additionalWhereConditions
+    };
+
+    const jobs = await Jobs.findAll({
+      where: finalWhereConditions,
+      attributes: {
+        include: [
+          [
+            sequelize.literal(`(
+              SELECT COUNT(*)
+              FROM job_applications AS ja
+              WHERE ja.job_id = "Jobs"."id"
+            )`),
+            "application_count",
+          ],
+        ],
+      },
+      include: includeOptions,
+      order: [
+        ["order", "ASC"],
+        ["id", "ASC"],
+      ],
+      limit: pageSize,
+      offset: offset,
+    });
+
+    // Get total count for pagination info - simplified count query
+    let countWhereConditions = { ...jobWhereConditions };
+    
+    if (location_id) {
+      countWhereConditions = {
+        ...countWhereConditions,
+        [Op.and]: [
+          ...(countWhereConditions[Op.and] || []),
+          sequelize.literal(`EXISTS (
+            SELECT 1 FROM job_locations jl 
+            WHERE jl.job_id = "Jobs"."id" 
+            AND jl.location_id = ${parseInt(location_id)}
+          )`)
+        ]
+      };
+    }
+
+    if (state_id) {
+      countWhereConditions = {
+        ...countWhereConditions,
+        [Op.and]: [
+          ...(countWhereConditions[Op.and] || []),
+          sequelize.literal(`EXISTS (
+            SELECT 1 FROM job_states js 
+            WHERE js.job_id = "Jobs"."id" 
+            AND js.state_id = ${parseInt(state_id)}
+          )`)
+        ]
+      };
+    }
+
+    const totalCount = await Jobs.count({
+      where: countWhereConditions,
+    });
+
+    // Process jobs to format locations for multiple states (same logic as CareerPage)
+    const formattedJobs = jobs.map((job) => {
+      let locationDisplay = "";
+
+      if (job.states && job.states.length > 0) {
+        // Map locations to their respective states
+        const stateLocationMap = job.states.map((state) => {
+          // Filter locations for this state via district.state_id
+          const stateLocations = job.locations
+            .filter((loc) => loc.district && loc.district.state_id === state.id)
+            .map((loc) => capitalizeWords(loc.location_name))
+            .filter(Boolean);
+
+          if (job.is_display_full_locations) {
+            // Format: "Kerala: Calicut, Balussery and Chandra Nagar" or with ", etc."
+            if (stateLocations.length > 0) {
+              const lastLocation = stateLocations.pop();
+              const locationString =
+                stateLocations.length > 0 ? `${stateLocations.join(", ")} and ${lastLocation}` : lastLocation;
+              return `${capitalizeWords(state.state_name)}: ${locationString}${stateLocations.length + 1 > 3 ? ", etc." : ""}`;
+            }
+            return `${capitalizeWords(state.state_name)}: No Specific Locations`;
+          } else {
+            // Show "Multiple Locations" or "No Specific Locations"
+            return stateLocations.length > 0
+              ? `${capitalizeWords(state.state_name)}: Multiple Locations`
+              : `${capitalizeWords(state.state_name)}: No Specific Locations`;
+          }
+        });
+
+        // Join state-location strings with semicolons
+        locationDisplay = stateLocationMap.join("; ");
+      } else {
+        // Fallback if no states are associated
+        if (job.is_display_full_locations && job.locations.length > 0) {
+          const locations = job.locations.map((loc) => capitalizeWords(loc.location_name)).filter(Boolean);
+          const lastLocation = locations.pop();
+          const locationString = locations.length > 0 ? `${locations.join(", ")} and ${lastLocation}` : lastLocation;
+          locationDisplay = `Unknown State: ${locationString}${locations.length + 1 > 3 ? ", etc." : ""}`;
+        } else {
+          locationDisplay = `Unknown State: ${job.locations.length > 0 ? "Multiple Locations" : "No Specific Locations"}`;
+        }
       }
 
-      const jobs = await Jobs.findAll({
-        where: jobWhereConditions,
-        attributes: {
-          include: [
-            [
-              sequelize.literal(`(
-                SELECT COUNT(*)
-                FROM job_applications AS ja
-                WHERE ja.job_id = "Jobs"."id"
-              )`),
-              "application_count",
-            ],
-          ],
-        },
-        include: includeOptions,
-        order: [
-          ["order", "ASC"],
-          ["id", "ASC"],
-        ],
-      });
-      res.json({ success: true, data: jobs });
-    } catch (error) {
-      next(error);
-    }
+      return {
+        ...job.toJSON(), // Convert Sequelize instance to plain object
+        locationDisplay, // Add formatted location string
+      };
+    });
+
+    res.json({ 
+      success: true, 
+      data: formattedJobs,
+      pagination: {
+        currentPage: pageNumber,
+        totalPages: Math.ceil(totalCount / pageSize),
+        totalItems: totalCount,
+        itemsPerPage: pageSize,
+        hasNextPage: pageNumber < Math.ceil(totalCount / pageSize),
+        hasPrevPage: pageNumber > 1,
+      }
+    });
+  } catch (error) {
+    next(error);
   }
+}
 
   static async getAll(req, res, next) {
     try {
@@ -299,6 +538,7 @@ class JobsController {
         reapply_period_months,
         location_ids,
         state_ids,
+        is_display_full_locations,
       } = req.body;
 
       // Validate existence of locations and states if provided
@@ -331,6 +571,7 @@ class JobsController {
         end_date: end_date ? new Date(end_date) : null,
         order,
         reapply_period_months,
+        is_display_full_locations,
       };
 
       if (updateData.end_date && isNaN(updateData.end_date.getTime())) {

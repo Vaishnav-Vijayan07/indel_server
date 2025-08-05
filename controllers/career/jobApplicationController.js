@@ -37,8 +37,7 @@ class JobApplicationSubmissionController {
   static async verifyOtp(req, res, next) {
     try {
       const { email, otp } = req.body;
-      if (!email || !otp)
-        throw new CustomError("Email and OTP are required", 400);
+      if (!email || !otp) throw new CustomError("Email and OTP are required", 400);
 
       const otpRecord = await models.Otp.findOne({ where: { email, otp } });
       if (!otpRecord) throw new CustomError("Invalid OTP", 400);
@@ -85,9 +84,7 @@ class JobApplicationSubmissionController {
       res.status(200).json({
         success: true,
         data: modifiedData || null,
-        message: modifiedData
-          ? "Applicant data retrieved"
-          : "No applicant data found",
+        message: modifiedData ? "Applicant data retrieved" : "No applicant data found",
       });
     } catch (error) {
       next(error);
@@ -101,9 +98,7 @@ class JobApplicationSubmissionController {
 
       // Validate reCAPTCHA token
       if (!recaptcha) {
-        return res
-          .status(400)
-          .json({ success: false, message: "reCAPTCHA token is missing" });
+        return res.status(400).json({ success: false, message: "reCAPTCHA token is missing" });
       }
 
       const recaptchaResponse = await axios.post(
@@ -132,9 +127,7 @@ class JobApplicationSubmissionController {
       }
 
       // Validate preferred location
-      const location = await models.CareerLocations.findByPk(
-        applicant?.preferred_location
-      );
+      const location = await models.CareerLocations.findByPk(applicant?.preferred_location);
       if (!location) throw new CustomError("Preferred location not found", 404);
 
       // Validate job
@@ -145,8 +138,7 @@ class JobApplicationSubmissionController {
       const pendingStatus = await models.ApplicationStatus.findOne({
         where: { status_name: "Pending" },
       });
-      if (!pendingStatus)
-        throw new CustomError("Pending status not found", 500);
+      if (!pendingStatus) throw new CustomError("Pending status not found", 500);
 
       // Check if applicant with this email already exists
       let existingApplicant = await models.Applicants.findOne({
@@ -161,9 +153,7 @@ class JobApplicationSubmissionController {
         // Get reapplication period from job, default to 6 months if not set
         const reapplyPeriodMonths = job.reapply_period_months ?? 6;
         const reapplyThreshold = new Date();
-        reapplyThreshold.setMonth(
-          reapplyThreshold.getMonth() - reapplyPeriodMonths
-        );
+        reapplyThreshold.setMonth(reapplyThreshold.getMonth() - reapplyPeriodMonths);
 
         // Check for existing application for this job within reapply period
         const existingApplication = await models.JobApplications.findOne({
@@ -177,65 +167,62 @@ class JobApplicationSubmissionController {
         });
 
         // Optimized version - minimal calculations and conversions
-      // Optimized version - returns remaining time in months
-if (existingApplication) {
-  // Get current IST date string in YYYY-MM-DD format
-  const todayISTString = new Date().toLocaleDateString('en-CA', { 
-    timeZone: 'Asia/Kolkata' 
-  });
-  
-  // Convert created_at to IST date string in YYYY-MM-DD format
-  const createdAtISTString = existingApplication.created_at.toLocaleDateString('en-CA', { 
-    timeZone: 'Asia/Kolkata' 
-  });
-  
-  // Parse to Date objects (automatically at midnight)
-  const todayIST = new Date(todayISTString);
-  const createdAtIST = new Date(createdAtISTString);
-  
-  // Add months directly to created date
-  const reapplyDate = new Date(createdAtIST);
-  reapplyDate.setMonth(reapplyDate.getMonth() + reapplyPeriodMonths);
-  
-  // Simple comparison
-  if (todayIST < reapplyDate) {
-    // Calculate remaining months and days
-    const yearDiff = reapplyDate.getFullYear() - todayIST.getFullYear();
-    const monthDiff = reapplyDate.getMonth() - todayIST.getMonth();
-    const dayDiff = reapplyDate.getDate() - todayIST.getDate();
-    
-    let remainingMonths = yearDiff * 12 + monthDiff;
-    
-    // If we haven't reached the day yet in the current month, subtract 1
-    if (dayDiff < 0) {
-      remainingMonths--;
-    }
-    
-    // Format message based on remaining time
-    let waitMessage;
-    if (remainingMonths > 0) {
-      const remainingDays = Math.ceil((reapplyDate - todayIST) / 86400000);
-      const daysInCurrentMonth = remainingDays - (remainingMonths * 30); // approximate
-      
-      if (remainingMonths === 1 && daysInCurrentMonth <= 7) {
-        waitMessage = `about 1 month`;
-      } else if (remainingMonths > 1) {
-        waitMessage = `${remainingMonths} months`;
-      } else {
-        waitMessage = `about 1 month`;
-      }
-    } else {
-      // Less than a month remaining - show in days
-      const daysRemaining = Math.ceil((reapplyDate - todayIST) / 86400000);
-      waitMessage = `${daysRemaining} days`;
-    }
-    
-    throw new CustomError(
-      `Already submitted. Please wait ${waitMessage} before reapplying.`,
-      409
-    );
-  }
-}
+        // Optimized version - returns remaining time in months
+        if (existingApplication) {
+          // Get current IST date string in YYYY-MM-DD format
+          const todayISTString = new Date().toLocaleDateString("en-CA", {
+            timeZone: "Asia/Kolkata",
+          });
+
+          // Convert created_at to IST date string in YYYY-MM-DD format
+          const createdAtISTString = existingApplication.created_at.toLocaleDateString("en-CA", {
+            timeZone: "Asia/Kolkata",
+          });
+
+          // Parse to Date objects (automatically at midnight)
+          const todayIST = new Date(todayISTString);
+          const createdAtIST = new Date(createdAtISTString);
+
+          // Add months directly to created date
+          const reapplyDate = new Date(createdAtIST);
+          reapplyDate.setMonth(reapplyDate.getMonth() + reapplyPeriodMonths);
+
+          // Simple comparison
+          if (todayIST < reapplyDate) {
+            // Calculate remaining months and days
+            const yearDiff = reapplyDate.getFullYear() - todayIST.getFullYear();
+            const monthDiff = reapplyDate.getMonth() - todayIST.getMonth();
+            const dayDiff = reapplyDate.getDate() - todayIST.getDate();
+
+            let remainingMonths = yearDiff * 12 + monthDiff;
+
+            // If we haven't reached the day yet in the current month, subtract 1
+            if (dayDiff < 0) {
+              remainingMonths--;
+            }
+
+            // Format message based on remaining time
+            let waitMessage;
+            if (remainingMonths > 0) {
+              const remainingDays = Math.ceil((reapplyDate - todayIST) / 86400000);
+              const daysInCurrentMonth = remainingDays - remainingMonths * 30; // approximate
+
+              if (remainingMonths === 1 && daysInCurrentMonth <= 7) {
+                waitMessage = `about 1 month`;
+              } else if (remainingMonths > 1) {
+                waitMessage = `${remainingMonths} months`;
+              } else {
+                waitMessage = `about 1 month`;
+              }
+            } else {
+              // Less than a month remaining - show in days
+              const daysRemaining = Math.ceil((reapplyDate - todayIST) / 86400000);
+              waitMessage = `${daysRemaining} days`;
+            }
+
+            throw new CustomError(`Already submitted. Please wait ${waitMessage} before reapplying.`, 409);
+          }
+        }
         // Prepare update data
         const updateData = { ...applicant };
         if (file) {
@@ -263,16 +250,11 @@ if (existingApplication) {
         is_active: job_application?.is_active ?? true,
         order: job_application?.order ?? 1,
       };
-      const newApplication = await models.JobApplications.create(
-        applicationData
-      );
+      const newApplication = await models.JobApplications.create(applicationData);
 
       careerMail(applicantRecord.email, applicantRecord.name);
       // Invalidate caches
-      await Promise.all([
-        CacheService.invalidate("applicants"),
-        CacheService.invalidate("job_applications"),
-      ]);
+      await Promise.all([CacheService.invalidate("applicants"), CacheService.invalidate("job_applications")]);
 
       res.status(201).json({
         success: true,
@@ -286,6 +268,155 @@ if (existingApplication) {
       next(error);
     }
   }
+
+  // static async listApplications(req, res, next) {
+  //   try {
+  //     const {
+  //       role_id,
+  //       location_id,
+  //       state_id,
+  //       status_id,
+  //       applicant_location_id,
+  //       limit = "10",
+  //       offset = "0",
+  //       from_date,
+  //       to_date,
+  //     } = req.query;
+
+  //     const parsedLimit = Math.max(1, parseInt(limit, 10) || 10); // Ensure limit >= 1
+  //     const parsedOffset = Math.max(0, parseInt(offset, 10) || 0); // Ensure offset >= 0
+
+  //     // Build cache key based on query parameters
+  //     const cacheKey = `job_applications_all_${role_id || "all"}_${
+  //       location_id || "all"
+  //     }_${state_id || "all"}_${status_id || "all"}_${
+  //       applicant_location_id || "all"
+  //     }_${parsedLimit}_${parsedOffset}`;
+  //     const cachedData = await CacheService.get(cacheKey);
+
+  //     // if (cachedData) {
+  //     //   return res.json({
+  //     //     success: true,
+  //     //     data: JSON.parse(cachedData),
+  //     //   });
+  //     // }
+
+  //     // Build filter conditions
+  //     const whereConditions = {}; // Only active applications
+  //     const jobWhere = {};
+  //     const applicantWhere = {};
+
+  //     if (status_id) {
+  //       whereConditions.status_id = parseInt(status_id);
+  //     }
+
+  //     if (role_id) {
+  //       jobWhere.role_id = parseInt(role_id);
+  //     }
+
+  //     if (location_id) {
+  //       jobWhere.location_id = parseInt(location_id);
+  //     }
+
+  //     if (state_id) {
+  //       jobWhere.state_id = parseInt(state_id);
+  //     }
+
+  //     if (applicant_location_id) {
+  //       applicantWhere.preferred_location = parseInt(applicant_location_id);
+  //     }
+
+  //     if (from_date && to_date) {
+  //       whereConditions.application_date = {
+  //         [Op.between]: [new Date(from_date), new Date(to_date)],
+  //       };
+  //     } else if (from_date) {
+  //       whereConditions.application_date = {
+  //         [Op.gte]: new Date(from_date),
+  //       };
+  //     } else if (to_date) {
+  //       whereConditions.application_date = {
+  //         [Op.lte]: new Date(to_date),
+  //       };
+  //     }
+
+  //     const { rows: applications, count: total } =
+  //       await models.JobApplications.findAndCountAll({
+  //         where: whereConditions,
+  //         include: [
+  //           {
+  //             model: models.Applicants,
+  //             as: "applicant",
+  //             attributes: ["id", "name", "email", "phone", "file"],
+  //             where: applicantWhere,
+  //             include: [
+  //               {
+  //                 model: models.CareerLocations,
+  //                 as: "location",
+  //                 attributes: ["id", "location_name"],
+  //               },
+  //             ],
+  //           },
+  //           {
+  //             model: models.CareerJobs,
+  //             as: "job",
+  //             attributes: ["id", "job_title"],
+  //             where: jobWhere,
+  //             include: [
+  //               {
+  //                 model: models.CareerRoles,
+  //                 as: "role",
+  //                 attributes: ["id", "role_name"],
+  //               },
+  //               {
+  //                 model: models.CareerLocations,
+  //                 as: "locations",
+  //                 attributes: ["id", "location_name"],
+  //               },
+  //               {
+  //                 model: models.CareerStates,
+  //                 as: "states",
+  //                 attributes: ["id", "state_name"],
+  //               },
+  //             ],
+  //           },
+  //           {
+  //             model: models.ApplicationStatus,
+  //             as: "status",
+  //             attributes: ["id", "status_name"],
+  //           },
+  //         ],
+  //         order: [["application_date", "DESC"]],
+  //         // attributes: ["id", "application_date", "order", "is_active"],
+  //         limit: parsedLimit,
+  //         offset: parsedOffset,
+  //       });
+
+  //     const response = {
+  //       success: true,
+  //       data: applications,
+  //       total,
+  //       meta: {
+  //         page: Math.floor(parsedOffset / parsedLimit) + 1,
+  //         totalPages: Math.ceil(total / parsedLimit),
+  //         limit: parsedLimit,
+  //         offset: parsedOffset,
+  //       },
+  //     };
+
+  //     // Store in cache for 1 hour
+  //     await CacheService.set(cacheKey, JSON.stringify(response), 3600); // Cache for 1 hour
+
+  //     res.status(200).json({
+  //       status: "success",
+  //       data: response,
+  //     });
+  //   } catch (error) {
+  //     console.log("Error in listApplications:", error);
+
+  //     next(error);
+  //   }
+  // }
 
   static async listApplications(req, res, next) {
     try {
@@ -305,11 +436,9 @@ if (existingApplication) {
       const parsedOffset = Math.max(0, parseInt(offset, 10) || 0); // Ensure offset >= 0
 
       // Build cache key based on query parameters
-      const cacheKey = `job_applications_all_${role_id || "all"}_${
-        location_id || "all"
-      }_${state_id || "all"}_${status_id || "all"}_${
-        applicant_location_id || "all"
-      }_${parsedLimit}_${parsedOffset}`;
+      const cacheKey = `job_applications_all_${role_id || "all"}_${location_id || "all"}_${state_id || "all"}_${
+        status_id || "all"
+      }_${applicant_location_id || "all"}_${parsedLimit}_${parsedOffset}`;
       const cachedData = await CacheService.get(cacheKey);
 
       // if (cachedData) {
@@ -358,57 +487,58 @@ if (existingApplication) {
         };
       }
 
-      const { rows: applications, count: total } =
-        await models.JobApplications.findAndCountAll({
-          where: whereConditions,
-          include: [
-            {
-              model: models.Applicants,
-              as: "applicant",
-              attributes: ["id", "name", "email", "phone", "file"],
-              where: applicantWhere,
-              include: [
-                {
-                  model: models.CareerLocations,
-                  as: "location",
-                  attributes: ["id", "location_name"],
-                },
-              ],
-            },
-            {
-              model: models.CareerJobs,
-              as: "job",
-              attributes: ["id", "job_title"],
-              where: jobWhere,
-              include: [
-                {
-                  model: models.CareerRoles,
-                  as: "role",
-                  attributes: ["id", "role_name"],
-                },
-                {
-                  model: models.CareerLocations,
-                  as: "location",
-                  attributes: ["id", "location_name"],
-                },
-                {
-                  model: models.CareerStates,
-                  as: "state",
-                  attributes: ["id", "state_name"],
-                },
-              ],
-            },
-            {
-              model: models.ApplicationStatus,
-              as: "status",
-              attributes: ["id", "status_name"],
-            },
-          ],
-          order: [["application_date", "DESC"]],
-          // attributes: ["id", "application_date", "order", "is_active"],
-          limit: parsedLimit,
-          offset: parsedOffset,
-        });
+      const { rows: applications, count: total } = await models.JobApplications.findAndCountAll({
+        where: whereConditions,
+        include: [
+          {
+            model: models.Applicants,
+            as: "applicant",
+            attributes: ["id", "name", "email", "phone", "file"],
+            where: Object.keys(applicantWhere).length > 0 ? applicantWhere : undefined,
+            required: Object.keys(applicantWhere).length > 0, // Use INNER JOIN if filtering, LEFT JOIN otherwise
+            include: [
+              {
+                model: models.CareerLocations,
+                as: "location",
+                attributes: ["id", "location_name"],
+              },
+            ],
+          },
+          {
+            model: models.CareerJobs,
+            as: "job",
+            attributes: ["id", "job_title"],
+            where: Object.keys(jobWhere).length > 0 ? jobWhere : undefined,
+            required: Object.keys(jobWhere).length > 0, // Use INNER JOIN if filtering, LEFT JOIN otherwise
+            include: [
+              {
+                model: models.CareerRoles,
+                as: "role",
+                attributes: ["id", "role_name"],
+              },
+              {
+                model: models.CareerLocations,
+                as: "locations",
+                attributes: ["id", "location_name"],
+              },
+              {
+                model: models.CareerStates,
+                as: "states",
+                attributes: ["id", "state_name"],
+              },
+            ],
+          },
+          {
+            model: models.ApplicationStatus,
+            as: "status",
+            attributes: ["id", "status_name"],
+          },
+        ],
+        order: [["application_date", "DESC"]],
+        // attributes: ["id", "application_date", "order", "is_active"],
+        limit: parsedLimit,
+        offset: parsedOffset,
+      });
 
       const response = {
         success: true,
@@ -430,6 +560,8 @@ if (existingApplication) {
         data: response,
       });
     } catch (error) {
+      console.log("Error in listApplications:", error);
+
       next(error);
     }
   }
@@ -440,9 +572,7 @@ if (existingApplication) {
       const file = req?.file;
       // Validate reCAPTCHA token
       if (!recaptcha) {
-        return res
-          .status(400)
-          .json({ success: false, message: "reCAPTCHA token is missing" });
+        return res.status(400).json({ success: false, message: "reCAPTCHA token is missing" });
       }
 
       const recaptchaResponse = await axios.post(
@@ -471,23 +601,18 @@ if (existingApplication) {
       }
 
       // Validate preferred location
-      const location = await models.CareerLocations.findByPk(
-        applicant.preferred_location
-      );
+      const location = await models.CareerLocations.findByPk(applicant.preferred_location);
       if (!location) throw new CustomError("Preferred location not found", 404);
 
       // Validate role
-      const role = await models.CareerRoles.findByPk(
-        general_application?.role_id
-      );
+      const role = await models.CareerRoles.findByPk(general_application?.role_id);
       if (!role) throw new CustomError("Role not found", 404);
 
       // Get "Pending" status
       const pendingStatus = await models.ApplicationStatus.findOne({
         where: { status_name: "Pending" },
       });
-      if (!pendingStatus)
-        throw new CustomError("Pending status not found", 500);
+      if (!pendingStatus) throw new CustomError("Pending status not found", 500);
 
       let applicantRecord = await models.Applicants.findOne({
         where: { email: applicant?.email },
@@ -558,10 +683,7 @@ if (existingApplication) {
       careerMail(applicant.email, applicant.name);
 
       // Invalidate caches
-      await Promise.all([
-        CacheService.invalidate("applicants"),
-        CacheService.invalidate("general_applications"),
-      ]);
+      await Promise.all([CacheService.invalidate("applicants"), CacheService.invalidate("general_applications")]);
 
       res.status(201).json({
         success: true,
@@ -578,23 +700,15 @@ if (existingApplication) {
 
   static async listGeneralApplications(req, res, next) {
     try {
-      const {
-        role_id,
-        location_id,
-        status_id,
-        from_date,
-        to_date,
-        limit = "10",
-        offset = "0",
-      } = req.query;
+      const { role_id, location_id, status_id, from_date, to_date, limit = "10", offset = "0" } = req.query;
 
       const parsedLimit = Math.max(1, parseInt(limit, 10) || 10); // Ensure limit >= 1
       const parsedOffset = Math.max(0, parseInt(offset, 10) || 0); // Ensure offset >= 0
 
       // Build cache key based on query parameters
-      const cacheKey = `general_applications_all_${role_id || "all"}_${
-        location_id || "all"
-      }_${status_id || "all"}_${parsedLimit}_${parsedOffset}`;
+      const cacheKey = `general_applications_all_${role_id || "all"}_${location_id || "all"}_${
+        status_id || "all"
+      }_${parsedLimit}_${parsedOffset}`;
       const cachedData = await CacheService.get(cacheKey);
 
       // if (cachedData) {
@@ -634,38 +748,37 @@ if (existingApplication) {
         };
       }
 
-      const { rows: applications, count: total } =
-        await models.GeneralApplications.findAndCountAll({
-          where: whereConditions,
-          include: [
-            {
-              model: models.Applicants,
-              as: "applicant",
-              attributes: ["id", "name", "email", "phone", "file"],
-              where: applicantWhere,
-              include: [
-                {
-                  model: models.CareerLocations,
-                  as: "location",
-                  attributes: ["id", "location_name"],
-                },
-              ],
-            },
-            {
-              model: models.CareerRoles,
-              as: "role",
-              attributes: ["id", "role_name"],
-            },
-            {
-              model: models.ApplicationStatus,
-              as: "status",
-              attributes: ["id", "status_name"],
-            },
-          ],
-          order: [["application_date", "DESC"]],
-          limit: parsedLimit,
-          offset: parsedOffset,
-        });
+      const { rows: applications, count: total } = await models.GeneralApplications.findAndCountAll({
+        where: whereConditions,
+        include: [
+          {
+            model: models.Applicants,
+            as: "applicant",
+            attributes: ["id", "name", "email", "phone", "file"],
+            where: applicantWhere,
+            include: [
+              {
+                model: models.CareerLocations,
+                as: "location",
+                attributes: ["id", "location_name"],
+              },
+            ],
+          },
+          {
+            model: models.CareerRoles,
+            as: "role",
+            attributes: ["id", "role_name"],
+          },
+          {
+            model: models.ApplicationStatus,
+            as: "status",
+            attributes: ["id", "status_name"],
+          },
+        ],
+        order: [["application_date", "DESC"]],
+        limit: parsedLimit,
+        offset: parsedOffset,
+      });
 
       // Prepare response
       const response = {
@@ -699,25 +812,19 @@ if (existingApplication) {
 
       // Validate input
       if (!status_id) {
-        return res
-          .status(400)
-          .json({ success: false, message: "status_id is required" });
+        return res.status(400).json({ success: false, message: "status_id is required" });
       }
 
       // Find the job application
       const application = await models.JobApplications.findByPk(id);
       if (!application) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Job application not found" });
+        return res.status(404).json({ success: false, message: "Job application not found" });
       }
 
       // Check if the status exists
       const status = await models.ApplicationStatus.findByPk(status_id);
       if (!status) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Invalid status_id" });
+        return res.status(400).json({ success: false, message: "Invalid status_id" });
       }
 
       // Update the status
@@ -754,25 +861,19 @@ if (existingApplication) {
 
       // Validate input
       if (!status_id) {
-        return res
-          .status(400)
-          .json({ success: false, message: "status_id is required" });
+        return res.status(400).json({ success: false, message: "status_id is required" });
       }
 
       // Find the job application
       const application = await models.GeneralApplications.findByPk(id);
       if (!application) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Job application not found" });
+        return res.status(404).json({ success: false, message: "Job application not found" });
       }
 
       // Check if the status exists
       const status = await models.ApplicationStatus.findByPk(status_id);
       if (!status) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Invalid status_id" });
+        return res.status(400).json({ success: false, message: "Invalid status_id" });
       }
 
       // Update the status
@@ -804,15 +905,7 @@ if (existingApplication) {
 
   static async exportApplicationsToExcel(req, res, next) {
     try {
-      const {
-        role_id,
-        location_id,
-        state_id,
-        status_id,
-        applicant_location_id,
-        from_date,
-        to_date,
-      } = req.query;
+      const { role_id, location_id, state_id, status_id, applicant_location_id, from_date, to_date } = req.query;
 
       // Build filter conditions (same as your listing API)
       const whereConditions = {};
@@ -854,54 +947,53 @@ if (existingApplication) {
       }
 
       // Fetch all applications without pagination for export
-      const { rows: applications } =
-        await models.JobApplications.findAndCountAll({
-          where: whereConditions,
-          include: [
-            {
-              model: models.Applicants,
-              as: "applicant",
-              attributes: ["id", "name", "email", "phone", "file"],
-              where: applicantWhere,
-              include: [
-                {
-                  model: models.CareerLocations,
-                  as: "location",
-                  attributes: ["id", "location_name"],
-                },
-              ],
-            },
-            {
-              model: models.CareerJobs,
-              as: "job",
-              attributes: ["id", "job_title"],
-              where: jobWhere,
-              include: [
-                {
-                  model: models.CareerRoles,
-                  as: "role",
-                  attributes: ["id", "role_name"],
-                },
-                {
-                  model: models.CareerLocations,
-                  as: "location",
-                  attributes: ["id", "location_name"],
-                },
-                {
-                  model: models.CareerStates,
-                  as: "state",
-                  attributes: ["id", "state_name"],
-                },
-              ],
-            },
-            {
-              model: models.ApplicationStatus,
-              as: "status",
-              attributes: ["id", "status_name"],
-            },
-          ],
-          order: [["application_date", "DESC"]],
-        });
+      const { rows: applications } = await models.JobApplications.findAndCountAll({
+        where: whereConditions,
+        include: [
+          {
+            model: models.Applicants,
+            as: "applicant",
+            attributes: ["id", "name", "email", "phone", "file"],
+            where: applicantWhere,
+            include: [
+              {
+                model: models.CareerLocations,
+                as: "location",
+                attributes: ["id", "location_name"],
+              },
+            ],
+          },
+          {
+            model: models.CareerJobs,
+            as: "job",
+            attributes: ["id", "job_title"],
+            where: jobWhere,
+            include: [
+              {
+                model: models.CareerRoles,
+                as: "role",
+                attributes: ["id", "role_name"],
+              },
+              {
+                model: models.CareerLocations,
+                as: "location",
+                attributes: ["id", "location_name"],
+              },
+              {
+                model: models.CareerStates,
+                as: "state",
+                attributes: ["id", "state_name"],
+              },
+            ],
+          },
+          {
+            model: models.ApplicationStatus,
+            as: "status",
+            attributes: ["id", "status_name"],
+          },
+        ],
+        order: [["application_date", "DESC"]],
+      });
 
       // Create Excel workbook
       const workbook = new ExcelJS.Workbook();
@@ -944,12 +1036,8 @@ if (existingApplication) {
           state: app.job?.state?.state_name || "N/A",
           // applicantLocation: app.applicant?.location?.location_name || "N/A",
           status: app.status?.status_name || "N/A",
-          applicationDate: app.application_date
-            ? new Date(app.application_date).toLocaleDateString("en-GB")
-            : "N/A",
-          resume: app.applicant?.file
-            ? `Resume_${app.applicant.name}_${app.id}`
-            : "No Resume",
+          applicationDate: app.application_date ? new Date(app.application_date).toLocaleDateString("en-GB") : "N/A",
+          resume: app.applicant?.file ? `Resume_${app.applicant.name}_${app.id}` : "No Resume",
         });
 
         // Add hyperlink for resume if file exists
@@ -975,18 +1063,10 @@ if (existingApplication) {
       });
 
       // Set response headers for Excel download
-      const filename = `job_applications_${
-        new Date().toISOString().split("T")[0]
-      }.xlsx`;
+      const filename = `job_applications_${new Date().toISOString().split("T")[0]}.xlsx`;
 
-      res.setHeader(
-        "Content-Type",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-      );
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename="${filename}"`
-      );
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
 
       // Write to response
       await workbook.xlsx.write(res);
@@ -1031,36 +1111,35 @@ if (existingApplication) {
       }
 
       // Fetch all general applications without pagination for export
-      const { rows: applications } =
-        await models.GeneralApplications.findAndCountAll({
-          where: whereConditions,
-          include: [
-            {
-              model: models.Applicants,
-              as: "applicant",
-              attributes: ["id", "name", "email", "phone", "file"],
-              where: applicantWhere,
-              include: [
-                {
-                  model: models.CareerLocations,
-                  as: "location",
-                  attributes: ["id", "location_name"],
-                },
-              ],
-            },
-            {
-              model: models.CareerRoles,
-              as: "role",
-              attributes: ["id", "role_name"],
-            },
-            {
-              model: models.ApplicationStatus,
-              as: "status",
-              attributes: ["id", "status_name"],
-            },
-          ],
-          order: [["application_date", "DESC"]],
-        });
+      const { rows: applications } = await models.GeneralApplications.findAndCountAll({
+        where: whereConditions,
+        include: [
+          {
+            model: models.Applicants,
+            as: "applicant",
+            attributes: ["id", "name", "email", "phone", "file"],
+            where: applicantWhere,
+            include: [
+              {
+                model: models.CareerLocations,
+                as: "location",
+                attributes: ["id", "location_name"],
+              },
+            ],
+          },
+          {
+            model: models.CareerRoles,
+            as: "role",
+            attributes: ["id", "role_name"],
+          },
+          {
+            model: models.ApplicationStatus,
+            as: "status",
+            attributes: ["id", "status_name"],
+          },
+        ],
+        order: [["application_date", "DESC"]],
+      });
 
       // Create Excel workbook
       const workbook = new ExcelJS.Workbook();
@@ -1097,12 +1176,8 @@ if (existingApplication) {
           role: app.role?.role_name || "N/A",
           preferredLocation: app.applicant?.location?.location_name || "N/A",
           status: app.status?.status_name || "N/A",
-          applicationDate: app.application_date
-            ? new Date(app.application_date).toLocaleDateString("en-GB")
-            : "N/A",
-          resume: app.applicant?.file
-            ? `Resume_${app.applicant.name}_${app.id}`
-            : "No Resume",
+          applicationDate: app.application_date ? new Date(app.application_date).toLocaleDateString("en-GB") : "N/A",
+          resume: app.applicant?.file ? `Resume_${app.applicant.name}_${app.id}` : "No Resume",
         });
 
         // Add hyperlink for resume if file exists
@@ -1110,8 +1185,7 @@ if (existingApplication) {
           const resumeCell = row.getCell("resume");
 
           // Construct the full URL for the resume
-          const baseUrl =
-            process.env.BASE_URL || req.protocol + "://" + req.get("host");
+          const baseUrl = process.env.BASE_URL || req.protocol + "://" + req.get("host");
           const resumeUrl = `${baseUrl}/${app.applicant.file}`;
 
           // Add hyperlink
@@ -1129,18 +1203,10 @@ if (existingApplication) {
       });
 
       // Set response headers for Excel download
-      const filename = `general_applications_${
-        new Date().toISOString().split("T")[0]
-      }.xlsx`;
+      const filename = `general_applications_${new Date().toISOString().split("T")[0]}.xlsx`;
 
-      res.setHeader(
-        "Content-Type",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-      );
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename="${filename}"`
-      );
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
 
       // Write to response
       await workbook.xlsx.write(res);
