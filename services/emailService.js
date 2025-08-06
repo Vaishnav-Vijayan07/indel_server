@@ -24,7 +24,7 @@ const newsLetterConfirmation = async (email) => {
     from: process.env.EMAIL_USER,
     to: email,
     subject: "Thank You for Subscribing to Indel Money’s Newsletter!",
-html: `<!DOCTYPE html>
+    html: `<!DOCTYPE html>
 <html>
 
 <head>
@@ -83,7 +83,6 @@ font-style: normal;
 font-weight: 500;
 text-align: center;
 line-height: 26px;">
-Hi jesna sreejith,
 </p>
 </td>
 </tr>
@@ -278,7 +277,7 @@ alt="" width="11" height="11">
 </body>
 
 </html>
-`
+`,
   };
   await transporter.sendMail(mailOptions);
 };
@@ -348,7 +347,7 @@ font-style: normal;
 font-weight: 500;
 text-align: center;
 line-height: 26px;">
-Hi jesna sreejith,
+Hi ${name},
 </p>
 </td>
 </tr>
@@ -613,7 +612,7 @@ font-style: normal;
 font-weight: 500;
 text-align: center;
 line-height: 26px;">
-Hi jesna sreejith,
+Hi ${name},
 </p>
 </td>
 </tr>
