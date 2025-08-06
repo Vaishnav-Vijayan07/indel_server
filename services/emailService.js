@@ -927,10 +927,10 @@ Job Title:
 </p>
 <p style="color: #001A32;
 font-size: 18px;
-font-weight: 600;
+font-weight: 700;
 margin: 0;
 line-height: 24px;">
-"${jobTitle}"
+${jobTitle}
 </p>
 </div>
 <p style="color: #001A32;
