@@ -58,7 +58,7 @@ style="background: #fff;margin:auto;">
 <td style="padding: 0px 60px 15px;">
 <div
 style="width: 95px;height:auto;display: block; margin: 0 auto;">
-<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/logomilr1. png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/logomilr1.png"
 width="95" height="50" loading="lazy" alt="logo">
 </div>
 </td>
@@ -323,7 +323,7 @@ style="background: #fff;margin:auto;">
 <td style="padding: 0px 60px 15px;">
 <div
 style="width: 95px;height:auto;display: block; margin: 0 auto;">
-<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/logomilr1. png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/logomilr1.png"
 width="95" height="50" loading="lazy" alt="logo">
 </div>
 </td>
@@ -348,7 +348,7 @@ font-style: normal;
 font-weight: 500;
 text-align: center;
 line-height: 26px;">
-${name},
+Hi ${name},
 </p>
 </td>
 </tr>
@@ -588,7 +588,7 @@ style="background: #fff;margin:auto;">
 <td style="padding: 0px 60px 15px;">
 <div
 style="width: 95px;height:auto;display: block; margin: 0 auto;">
-<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/logomilr1. png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/logomilr1.png"
 width="95" height="50" loading="lazy" alt="logo">
 </div>
 </td>
@@ -613,7 +613,7 @@ font-style: normal;
 font-weight: 500;
 text-align: center;
 line-height: 26px;">
-${name},
+Hi ${name},
 </p>
 </td>
 </tr>
