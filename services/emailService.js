@@ -58,14 +58,14 @@ style="background: #fff;margin:auto;">
 <td style="padding: 0px 60px 15px;">
 <div
 style="width: 95px;height:auto;display: block; margin: 0 auto;">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/logomilr1. png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/logomilr1. png"
 width="95" height="50" loading="lazy" alt="logo">
 </div>
 </td>
 </tr>
 <tr>
 <td style="width: 100%;">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/line.png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/line.png"
 width="100%" height="1">
 </td>
 </tr>
@@ -83,7 +83,7 @@ font-style: normal;
 font-weight: 500;
 text-align: center;
 line-height: 26px;">
-Hi jesna sreejith,
+Hi,
 </p>
 </td>
 </tr>
@@ -119,7 +119,7 @@ Warm regards,
 </tr>
 <tr>
 <td style="width: 100%;">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/line.png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/line.png"
 width="100%" height="1">
 </td>
 </tr>
@@ -171,7 +171,7 @@ Sai Arcade,N S Road, Mulund, West Mumbai – 400
 <tr>
 <td
 style="width: 13px; text-align: right; padding: 0px;">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/mail2.png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/mail2.png"
 width="13" height="13"
 style="object-fit: contain; margin-top: 3px;">
 </td>
@@ -192,7 +192,7 @@ care@indelmoney.com
 <tbody>
 <tr>
 <td style="width: 13px; padding: 0px;">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/call2.png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/call2.png"
 width="13" height="13"
 style="object-fit: contain; margin-top: 3px;">
 </td>
@@ -229,35 +229,35 @@ style="padding: 0; width: 30%;margin: 0 auto; display: table">
 <td>
 <a href="" target="_blank"
 style="padding: 0 10px;width: 10px;text-decoration: none; display: inline-block;">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/facebook.png "
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/facebook.png "
 alt="" width="5" height="10">
 </a>
 </td>
 <td>
 <a href="" target="_blank"
 style="padding: 0 10px;width: 15px;text-decoration: none; display: inline-block">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/youTube.png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/youTube.png"
 alt="" width="15" height="10">
 </a>
 </td>
 <td>
 <a href="" target="_blank"
 style="padding: 0 10px;width: 18px;text-decoration: none; display: inline-block">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/instagram. png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/instagram. png"
 alt="" width="12" height="12">
 </a>
 </td>
 <td>
 <a href="" target="_blank"
 style="padding: 0 10px;width: 18px;text-decoration: none; display: inline-block">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/linkedIn.png "
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/linkedIn.png "
 alt="" width="11" height="11">
 </a>
 </td>
 <td>
 <a href="" target="_blank"
 style="padding: 0 10px;width: 21px;text-decoration: none; display: inline-block">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/x.png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/x.png"
 alt="" width="11" height="11">
 </a>
 </td>
@@ -323,14 +323,14 @@ style="background: #fff;margin:auto;">
 <td style="padding: 0px 60px 15px;">
 <div
 style="width: 95px;height:auto;display: block; margin: 0 auto;">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/logomilr1. png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/logomilr1. png"
 width="95" height="50" loading="lazy" alt="logo">
 </div>
 </td>
 </tr>
 <tr>
 <td style="width: 100%;">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/line.png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/line.png"
 width="100%" height="1">
 </td>
 </tr>
@@ -348,7 +348,7 @@ font-style: normal;
 font-weight: 500;
 text-align: center;
 line-height: 26px;">
-Hi jesna sreejith,
+${name},
 </p>
 </td>
 </tr>
@@ -384,7 +384,7 @@ Warm regards,
 </tr>
 <tr>
 <td style="width: 100%;">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/line.png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/line.png"
 width="100%" height="1">
 </td>
 </tr>
@@ -436,7 +436,7 @@ Sai Arcade,N S Road, Mulund, West Mumbai – 400
 <tr>
 <td
 style="width: 13px; text-align: right; padding: 0px;">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/mail2.png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/mail2.png"
 width="13" height="13"
 style="object-fit: contain; margin-top: 3px;">
 </td>
@@ -457,7 +457,7 @@ care@indelmoney.com
 <tbody>
 <tr>
 <td style="width: 13px; padding: 0px;">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/call2.png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/call2.png"
 width="13" height="13"
 style="object-fit: contain; margin-top: 3px;">
 </td>
@@ -494,35 +494,35 @@ style="padding: 0; width: 30%;margin: 0 auto; display: table">
 <td>
 <a href="" target="_blank"
 style="padding: 0 10px;width: 10px;text-decoration: none; display: inline-block;">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/facebook.png "
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/facebook.png "
 alt="" width="5" height="10">
 </a>
 </td>
 <td>
 <a href="" target="_blank"
 style="padding: 0 10px;width: 15px;text-decoration: none; display: inline-block">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/youTube.png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/youTube.png"
 alt="" width="15" height="10">
 </a>
 </td>
 <td>
 <a href="" target="_blank"
 style="padding: 0 10px;width: 18px;text-decoration: none; display: inline-block">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/instagram. png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/instagram. png"
 alt="" width="12" height="12">
 </a>
 </td>
 <td>
 <a href="" target="_blank"
 style="padding: 0 10px;width: 18px;text-decoration: none; display: inline-block">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/linkedIn.png "
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/linkedIn.png "
 alt="" width="11" height="11">
 </a>
 </td>
 <td>
 <a href="" target="_blank"
 style="padding: 0 10px;width: 21px;text-decoration: none; display: inline-block">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/x.png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/x.png"
 alt="" width="11" height="11">
 </a>
 </td>
@@ -588,14 +588,14 @@ style="background: #fff;margin:auto;">
 <td style="padding: 0px 60px 15px;">
 <div
 style="width: 95px;height:auto;display: block; margin: 0 auto;">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/logomilr1. png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/logomilr1. png"
 width="95" height="50" loading="lazy" alt="logo">
 </div>
 </td>
 </tr>
 <tr>
 <td style="width: 100%;">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/line.png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/line.png"
 width="100%" height="1">
 </td>
 </tr>
@@ -613,7 +613,7 @@ font-style: normal;
 font-weight: 500;
 text-align: center;
 line-height: 26px;">
-Hi jesna sreejith,
+${name},
 </p>
 </td>
 </tr>
@@ -649,7 +649,7 @@ Warm regards,
 </tr>
 <tr>
 <td style="width: 100%;">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/line.png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/line.png"
 width="100%" height="1">
 </td>
 </tr>
@@ -701,7 +701,7 @@ Sai Arcade,N S Road, Mulund, West Mumbai – 400
 <tr>
 <td
 style="width: 13px; text-align: right; padding: 0px;">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/mail2.png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/mail2.png"
 width="13" height="13"
 style="object-fit: contain; margin-top: 3px;">
 </td>
@@ -722,7 +722,7 @@ care@indelmoney.com
 <tbody>
 <tr>
 <td style="width: 13px; padding: 0px;">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/call2.png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/call2.png"
 width="13" height="13"
 style="object-fit: contain; margin-top: 3px;">
 </td>
@@ -759,35 +759,35 @@ style="padding: 0; width: 30%;margin: 0 auto; display: table">
 <td>
 <a href="" target="_blank"
 style="padding: 0 10px;width: 10px;text-decoration: none; display: inline-block;">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/facebook.png "
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/facebook.png "
 alt="" width="5" height="10">
 </a>
 </td>
 <td>
 <a href="" target="_blank"
 style="padding: 0 10px;width: 15px;text-decoration: none; display: inline-block">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/youTube.png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/youTube.png"
 alt="" width="15" height="10">
 </a>
 </td>
 <td>
 <a href="" target="_blank"
 style="padding: 0 10px;width: 18px;text-decoration: none; display: inline-block">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/instagram. png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/instagram. png"
 alt="" width="12" height="12">
 </a>
 </td>
 <td>
 <a href="" target="_blank"
 style="padding: 0 10px;width: 18px;text-decoration: none; display: inline-block">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/linkedIn.png "
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/linkedIn.png "
 alt="" width="11" height="11">
 </a>
 </td>
 <td>
 <a href="" target="_blank"
 style="padding: 0 10px;width: 21px;text-decoration: none; display: inline-block">
-<img src="https://ux. intersmarthosting.in/Mailers/ indelmoney/images/x.png"
+<img src="https://ux.intersmarthosting.in/Mailers/indelmoney/images/x.png"
 alt="" width="11" height="11">
 </a>
 </td>
