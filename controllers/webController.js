@@ -1168,7 +1168,7 @@ class WebController {
           order: [["order", "ASC"]],
         }),
         models.CareerStates.findAll({
-          order: [["order", "ASC"]],
+          order: [["state_name", "ASC"]],
         }),
         models.CareerJobs.findAll({
           where: whereClause,
