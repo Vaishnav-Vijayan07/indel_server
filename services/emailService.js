@@ -25,6 +25,7 @@ const newsLetterConfirmation = async (email) => {
     to: email,
     subject: "Thank You for Subscribing to Indel Money’s Newsletter!",
     html: `<!DOCTYPE html>
+    html: `<!DOCTYPE html>
 <html>
 
 <head>
