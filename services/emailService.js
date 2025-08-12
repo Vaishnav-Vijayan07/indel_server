@@ -25,7 +25,6 @@ const newsLetterConfirmation = async (email) => {
     to: email,
     subject: "Thank You for Subscribing to Indel Money’s Newsletter!",
     html: `<!DOCTYPE html>
-    html: `<!DOCTYPE html>
 <html>
 
 <head>
@@ -614,7 +613,7 @@ font-style: normal;
 font-weight: 500;
 text-align: center;
 line-height: 26px;">
-Hi ${name},
+Dear ${name},
 </p>
 </td>
 </tr>
@@ -628,12 +627,11 @@ margin-bottom: 20px;
 font-style: normal;
 font-weight: 400;
 line-height: 22px;">
-Thank you for your interest in Indel Money. We’ve received your
-enquiry and our team will get in touch with you shortly to
-assist further. <br>
-At Indel Money, we are committed to offering tailored financial
-solutions to meet your unique needs — whether it's gold loans,
-personal finance, business funding, or investment opportunities.
+Thank you for expressing your interest in joining Indel Money and for taking the time to submit your resume through our career page.
+
+Your application has been successfully received and will be reviewed by our recruitment team. If your profile matches our current or upcoming requirements, we will get in touch with you to discuss the next steps in the selection process.
+
+We appreciate your interest in building a career with us and wish you the very best in your professional journey.
 </p>
 <p style="color: #001A32;
 font-size: 14px;
@@ -645,6 +643,8 @@ font-weight: 400;
 line-height: 26px;">
 We look forward to helping you achieve your financial goals.
 Warm regards,
+Team HR
+Indel Money
 </p>
 </td>
 </tr>
