@@ -127,7 +127,7 @@ class InvestorsController {
 
       const [content, actionPlans, committees, reports] = await Promise.all([
         models.InvestorsPageContent.findAll({
-          attributes: ["page_title", "csr_policy_doc", "csr_committee_title", "csr_reports_title", "csr_action_plan_title", "csr_policy_title"],
+          attributes: ["page_title", "csr_policy_doc", "csr_committee_title", "csr_reports_title", "csr_action_plan_title", "csr_policy_title", "disclosure_title"],
         }),
         models.CsrActionPlan.findAll({
           where: { is_active: true },
