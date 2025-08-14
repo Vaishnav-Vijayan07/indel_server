@@ -1,21 +1,27 @@
 const nodemailer = require("nodemailer");
 
+// const transporter = nodemailer.createTransport({
+//   host: "mail.indelmoney.co.in", // your actual mail server
+//   port: 587, // try 587 for TLS, or 465 for SSL
+//   secure: false, // true fFor 465, false for 587
+//   auth: {
+//     user: process.env.EMAIL_USER, // e.g. careers@indelmoney.co.in
+//     pass: process.env.EMAIL_PASS, // your actual password
+//   },
+//   tls: {
+//     rejectUnauthorized: false, // avoid cert issues if self-signed
+//   },
+// });
+
 const transporter = nodemailer.createTransport({
-  host: "mail.indelmoney.co.in", // your actual mail server
-  port: 587, // try 587 for TLS, or 465 for SSL
-  secure: false, // true fFor 465, false for 587
+  host: "mail.indelmoney.co.in",
+  port: 465,
+  secure: true,
   auth: {
-    user: process.env.EMAIL_USER, // e.g. careers@indelmoney.co.in
-    pass: process.env.EMAIL_PASS, // your actual password
-  },
-  tls: {
-    rejectUnauthorized: false, // avoid cert issues if self-signed
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
 });
-
-console.log("SMTP USER:", process.env.EMAIL_USER);
-console.log("SMTP PASS LENGTH:", process.env.EMAIL_PASS ? process.env.EMAIL_PASS.length : 0);
-
 
 const sendOtpEmail = async (email, otp) => {
   const mailOptions = {
