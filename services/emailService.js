@@ -1,13 +1,5 @@
 const nodemailer = require("nodemailer");
 
-// const transporter = nodemailer.createTransport({
-//   service: "gmail", // Replace with your email provider
-//   auth: {
-//     user: process.env.EMAIL_USER,
-//     pass: process.env.EMAIL_PASS,
-//   },
-// });
-
 const transporter = nodemailer.createTransport({
   host: "mail.indelmoney.co.in", // your actual mail server
   port: 587, // try 587 for TLS, or 465 for SSL
