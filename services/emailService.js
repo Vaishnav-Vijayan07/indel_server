@@ -11,6 +11,8 @@ const transporter = nodemailer.createTransport({
   tls: {
     rejectUnauthorized: false, // avoid cert issues if self-signed
   },
+  debug: true,
+  logger: true,
 });
 
 transporter.verify((error, success) => {
@@ -29,7 +31,13 @@ const sendOtpEmail = async (email, otp) => {
     text: `Your OTP is ${otp}. It is valid for 10 minutes.`,
   };
 
-  await transporter.sendMail(mailOptions);
+  // await transporter.sendMail(mailOptions);
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Email sent successfully");
+  } catch (err) {
+    console.error("Send failed:", err);
+  }
 };
 
 const newsLetterConfirmation = async (email) => {
@@ -293,7 +301,13 @@ alt="" width="11" height="11">
 </html>
 `,
   };
-  await transporter.sendMail(mailOptions);
+  // await transporter.sendMail(mailOptions);
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Email sent successfully");
+  } catch (err) {
+    console.error("Send failed:", err);
+  }
 };
 
 const enquiryMail = async (email, name) => {
@@ -559,7 +573,12 @@ alt="" width="11" height="11">
     `,
   };
 
-  await transporter.sendMail(mailOptions);
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Email sent successfully");
+  } catch (err) {
+    console.error("Send failed:", err);
+  }
 };
 
 const careerMail = async (email, name) => {
@@ -825,26 +844,14 @@ alt="" width="11" height="11">
 `,
   };
 
-  await transporter.sendMail(mailOptions);
+  // await transporter.sendMail(mailOptions);
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Email sent successfully");
+  } catch (err) {
+    console.error("Send failed:", err);
+  }
 };
-
-// const sendMailToHRs = async (emails, jobTitle) => {
-//   const mailOptions = {
-//     from: process.env.EMAIL_USER,
-//     to: emails, // can be array of addresses
-//     subject: "New Job Created Pending Approval",
-//     text: `Dear HR Team,
-
-// A new job titled "${jobTitle}" has been created and is pending your approval.
-
-// Please log in to the admin panel to review and approve the job posting.
-
-// Best regards,
-// Your Team`,
-//   };
-
-//   await transporter.sendMail(mailOptions);
-// };
 
 const sendMailToHRs = async (emails, jobTitle) => {
   const mailOptions = {
@@ -1149,7 +1156,13 @@ alt="" width="11" height="11">
 `,
   };
 
-  await transporter.sendMail(mailOptions);
+  // await transporter.sendMail(mailOptions);
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Email sent successfully");
+  } catch (err) {
+    console.error("Send failed:", err);
+  }
 };
 
 module.exports = { sendOtpEmail, newsLetterConfirmation, enquiryMail, careerMail, sendMailToHRs };
