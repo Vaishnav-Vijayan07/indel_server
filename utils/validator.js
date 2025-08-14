@@ -771,65 +771,232 @@ const validateCareerRoles = [
 ];
 
 // const validateJobsUpdate = [
-//   check("role_id").optional().isInt().withMessage("Role ID must be an integer"),
-//   check("location_id").optional().isInt().withMessage("Location ID must be an integer"),
-//   check("state_id").optional().isInt().withMessage("State ID must be an integer"),
-//   check("short_description").optional().notEmpty().withMessage("Short description cannot be empty"),
-//   check("detailed_description").optional().notEmpty().withMessage("Detailed description cannot be empty"),
-//   check("experience").optional().isInt().withMessage("Experience must be an integer"),
+//   // check("location_id").optional().isInt({ min: 1 }).withMessage("Location ID must be a positive integer"),
+//   // check("state_id").optional().isInt({ min: 1 }).withMessage("State ID must be a positive integer"),
+//   check("location_ids")
+//     .optional()
+//     .isArray({ min: 1 })
+//     .withMessage("Location IDs must be an array with at least one element")
+//     .custom((value) => value.every((id) => Number.isInteger(id)))
+//     .withMessage("Each location ID must be an integer"),
+//   check("state_ids")
+//     .optional()
+//     .isArray({ min: 1 })
+//     .withMessage("State IDs must be an array with at least one element")
+//     .custom((value) => value.every((id) => Number.isInteger(id)))
+//     .withMessage("Each state ID must be an integer"),
+//   check("job_title").optional().trim().isLength({ max: 255 }).withMessage("Job title must not exceed 255 characters"),
+//   check("job_description").optional().trim().notEmpty().withMessage("Job description cannot be empty if provided"),
 //   check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+//   check("end_date").optional().isISO8601().withMessage("End date must be a valid ISO 8601 date (e.g., YYYY-MM-DD)"),
+//   check("order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
 // ];
 
 // const validateJobs = [
-//   check("role_id").isInt().withMessage("Role ID must be an integer"),
-//   check("location_id").isInt().withMessage("Location ID must be an integer"),
-//   check("state_id").isInt().withMessage("State ID must be an integer"),
-//   check("short_description").notEmpty().withMessage("Short description cannot be empty"),
-//   check("detailed_description").notEmpty().withMessage("Detailed description cannot be empty"),
-//   check("experience").isInt().withMessage("Experience must be an integer"),
-//   check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+//   // check("location_id").exists().isInt({ min: 1 }).withMessage("Location ID is required and must be a positive integer"),
+//   check("location_ids")
+//     .isArray({ min: 1 })
+//     .withMessage("At least one location ID is required")
+//     .custom((value) => value.every((id) => Number.isInteger(id)))
+//     .withMessage("Each location ID must be an integer"),
+//   check("state_ids")
+//     .isArray({ min: 1 })
+//     .withMessage("At least one state ID is required")
+//     .custom((value) => value.every((id) => Number.isInteger(id)))
+//     .withMessage("Each state ID must be an integer"),
+//   // check("state_id").exists().isInt({ min: 1 }).withMessage("State ID is required and must be a positive integer"),
+//   check("job_title").optional().trim().isLength({ max: 255 }).withMessage("Job title must not exceed 255 characters"),
+//   check("job_description").exists().trim().notEmpty().withMessage("Job description is required and cannot be empty"),
+//   check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+//   check("end_date").optional().isISO8601().withMessage("End date must be a valid ISO 8601 date (e.g., YYYY-MM-DD)"),
+//   check("order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
 // ];
 
 const validateJobsUpdate = [
-  // check("location_id").optional().isInt({ min: 1 }).withMessage("Location ID must be a positive integer"),
-  // check("state_id").optional().isInt({ min: 1 }).withMessage("State ID must be a positive integer"),
+  // Pan India field validation
+  check("is_pan_india").optional().isBoolean().withMessage("is_pan_india must be a boolean"),
+
+  // Location IDs validation with Pan India logic
   check("location_ids")
     .optional()
-    .isArray({ min: 1 })
-    .withMessage("Location IDs must be an array with at least one element")
-    .custom((value) => value.every((id) => Number.isInteger(id)))
-    .withMessage("Each location ID must be an integer"),
+    .custom((value, { req }) => {
+      const isPanIndia = req.body.is_pan_india;
+
+      if (isPanIndia === true) {
+        // For Pan India jobs, location_ids should not be provided or should be empty
+        if (value && value.length > 0) {
+          throw new Error("Location IDs should not be provided for Pan India jobs");
+        }
+      } else if (isPanIndia === false) {
+        // For location-specific jobs, location_ids are required if provided
+        if (value !== undefined) {
+          if (!Array.isArray(value) || value.length === 0) {
+            throw new Error("At least one location ID is required for location-specific jobs");
+          }
+          // Check if all IDs are valid integers
+          if (!value.every((id) => Number.isInteger(id) && id > 0)) {
+            throw new Error("Each location ID must be a positive integer");
+          }
+        }
+      }
+
+      return true;
+    })
+    .withMessage("Invalid location IDs configuration"),
+
+  // State IDs validation with Pan India logic
   check("state_ids")
     .optional()
-    .isArray({ min: 1 })
-    .withMessage("State IDs must be an array with at least one element")
-    .custom((value) => value.every((id) => Number.isInteger(id)))
-    .withMessage("Each state ID must be an integer"),
-  check("job_title").optional().trim().isLength({ max: 255 }).withMessage("Job title must not exceed 255 characters"),
+    .custom((value, { req }) => {
+      const isPanIndia = req.body.is_pan_india;
+
+      if (isPanIndia === true) {
+        // For Pan India jobs, state_ids should not be provided or should be empty
+        if (value && value.length > 0) {
+          throw new Error("State IDs should not be provided for Pan India jobs");
+        }
+      } else if (isPanIndia === false) {
+        // For location-specific jobs, state_ids are required if provided
+        if (value !== undefined) {
+          if (!Array.isArray(value) || value.length === 0) {
+            throw new Error("At least one state ID is required for location-specific jobs");
+          }
+          // Check if all IDs are valid integers
+          if (!value.every((id) => Number.isInteger(id) && id > 0)) {
+            throw new Error("Each state ID must be a positive integer");
+          }
+        }
+      }
+
+      return true;
+    })
+    .withMessage("Invalid state IDs configuration"),
+
+  check("role_id").optional().isInt({ min: 1 }).withMessage("Role ID must be a positive integer"),
+
+  check("job_title")
+    .optional()
+    .trim()
+    .isLength({ min: 1, max: 255 })
+    .withMessage("Job title must be between 1 and 255 characters"),
+
   check("job_description").optional().trim().notEmpty().withMessage("Job description cannot be empty if provided"),
-  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+
+  check("experience")
+    .optional()
+    .trim()
+    .isLength({ min: 1, max: 100 })
+    .withMessage("Experience must be between 1 and 100 characters"),
+
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+
+  check("is_approved").optional().isBoolean().withMessage("is_approved must be a boolean"),
+
+  check("is_display_full_locations").optional().isBoolean().withMessage("is_display_full_locations must be a boolean"),
+
   check("end_date").optional().isISO8601().withMessage("End date must be a valid ISO 8601 date (e.g., YYYY-MM-DD)"),
+
   check("order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
+
+  check("reapply_period_months").optional().isInt({ min: 1 }).withMessage("Reapply period must be at least 1 month"),
 ];
 
 const validateJobs = [
-  // check("location_id").exists().isInt({ min: 1 }).withMessage("Location ID is required and must be a positive integer"),
+  // Pan India field validation (optional for create, defaults to false)
+  check("is_pan_india").optional().isBoolean().withMessage("is_pan_india must be a boolean"),
+
+  // Role ID is required
+  check("role_id")
+    .exists()
+    .withMessage("Role ID is required")
+    .isInt({ min: 1 })
+    .withMessage("Role ID must be a positive integer"),
+
+  // Job title is required
+  check("job_title")
+    .exists()
+    .withMessage("Job title is required")
+    .trim()
+    .isLength({ min: 1, max: 255 })
+    .withMessage("Job title must be between 1 and 255 characters"),
+
+  // Job description is required
+  check("job_description")
+    .exists()
+    .withMessage("Job description is required")
+    .trim()
+    .notEmpty()
+    .withMessage("Job description cannot be empty"),
+
+  // Experience is required
+  check("experience")
+    .exists()
+    .withMessage("Experience is required")
+    .trim()
+    .isLength({ min: 1, max: 100 })
+    .withMessage("Experience must be between 1 and 100 characters"),
+
+  // Location IDs validation with Pan India logic
   check("location_ids")
-    .isArray({ min: 1 })
-    .withMessage("At least one location ID is required")
-    .custom((value) => value.every((id) => Number.isInteger(id)))
-    .withMessage("Each location ID must be an integer"),
+    .custom((value, { req }) => {
+      const isPanIndia = req.body.is_pan_india;
+
+      if (isPanIndia === true) {
+        // For Pan India jobs, location_ids should not be provided or should be empty
+        if (value && value.length > 0) {
+          throw new Error("Location IDs should not be provided for Pan India jobs");
+        }
+      } else {
+        // For location-specific jobs (default behavior), location_ids are required
+        if (!value || !Array.isArray(value) || value.length === 0) {
+          throw new Error("At least one location ID is required for location-specific jobs");
+        }
+        // Check if all IDs are valid integers
+        if (!value.every((id) => Number.isInteger(id) && id > 0)) {
+          throw new Error("Each location ID must be a positive integer");
+        }
+      }
+
+      return true;
+    })
+    .withMessage("Invalid location IDs configuration"),
+
+  // State IDs validation with Pan India logic
   check("state_ids")
-    .isArray({ min: 1 })
-    .withMessage("At least one state ID is required")
-    .custom((value) => value.every((id) => Number.isInteger(id)))
-    .withMessage("Each state ID must be an integer"),
-  // check("state_id").exists().isInt({ min: 1 }).withMessage("State ID is required and must be a positive integer"),
-  check("job_title").optional().trim().isLength({ max: 255 }).withMessage("Job title must not exceed 255 characters"),
-  check("job_description").exists().trim().notEmpty().withMessage("Job description is required and cannot be empty"),
-  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+    .custom((value, { req }) => {
+      const isPanIndia = req.body.is_pan_india;
+
+      if (isPanIndia === true) {
+        // For Pan India jobs, state_ids should not be provided or should be empty
+        if (value && value.length > 0) {
+          throw new Error("State IDs should not be provided for Pan India jobs");
+        }
+      } else {
+        // For location-specific jobs (default behavior), state_ids are required
+        if (!value || !Array.isArray(value) || value.length === 0) {
+          throw new Error("At least one state ID is required for location-specific jobs");
+        }
+        // Check if all IDs are valid integers
+        if (!value.every((id) => Number.isInteger(id) && id > 0)) {
+          throw new Error("Each state ID must be a positive integer");
+        }
+      }
+
+      return true;
+    })
+    .withMessage("Invalid state IDs configuration"),
+
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+
+  check("is_approved").optional().isBoolean().withMessage("is_approved must be a boolean"),
+
+  check("is_display_full_locations").optional().isBoolean().withMessage("is_display_full_locations must be a boolean"),
+
   check("end_date").optional().isISO8601().withMessage("End date must be a valid ISO 8601 date (e.g., YYYY-MM-DD)"),
+
   check("order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
+
+  check("reapply_period_months").optional().isInt({ min: 1 }).withMessage("Reapply period must be at least 1 month"),
 ];
 
 const validateBlogPageContentUpdate = [

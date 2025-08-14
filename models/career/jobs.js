@@ -53,6 +53,12 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
+      is_pan_india: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        comment: "If true, this job is available across all of India and location/state restrictions don't apply",
+      },
       reapply_period_months: {
         type: DataTypes.INTEGER,
         allowNull: true,
