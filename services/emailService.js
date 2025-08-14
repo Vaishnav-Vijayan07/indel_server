@@ -13,6 +13,10 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+console.log("SMTP USER:", process.env.EMAIL_USER);
+console.log("SMTP PASS LENGTH:", process.env.EMAIL_PASS ? process.env.EMAIL_PASS.length : 0);
+
+
 const sendOtpEmail = async (email, otp) => {
   const mailOptions = {
     from: process.env.EMAIL_USER,
