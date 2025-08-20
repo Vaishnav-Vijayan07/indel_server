@@ -132,7 +132,9 @@ font-style: normal;
 font-weight: 400;
 line-height: 26px;">
 We look forward to helping you achieve your financial goals.
+</br>
 Warm regards,
+Team Indel Money
 </p>
 </td>
 </tr>
@@ -403,7 +405,9 @@ font-style: normal;
 font-weight: 400;
 line-height: 26px;">
 We look forward to helping you achieve your financial goals.
+</br>
 Warm regards,
+Team Indel Money
 </p>
 </td>
 </tr>
