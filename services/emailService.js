@@ -657,7 +657,6 @@ margin-bottom: 20px;
 font-style: normal;
 font-weight: 400;
 line-height: 22px;">
-Dear [Candidate Name],
 
 Thank you for expressing your interest in joining Indel Money and for taking the time to submit your resume through our career page.
 
