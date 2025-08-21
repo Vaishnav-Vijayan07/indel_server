@@ -2451,11 +2451,11 @@ class WebController {
   }
 
   static async newsDetails(req, res, next) {
-    const { id } = req.params;
-    const cacheKey = `webNewsData_${id}`;
+const { slug } = req.params;
+const cacheKey = `webNewsData_${slug}`;
 
     try {
-      await CacheService.invalidate(`webNewsData_${id}`);
+      await CacheService.invalidate(`webNewsData_${slug}`);
       const cachedData = await CacheService.get(cacheKey);
       // if (cachedData) {
       //   logger.info("Serving blog details from cache");
@@ -2463,7 +2463,7 @@ class WebController {
       // }
 
       const news = await models.News.findOne({
-        where: { id },
+        where: { slug },
       });
 
       const newsId = news?.id;
