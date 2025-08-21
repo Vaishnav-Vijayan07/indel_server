@@ -134,6 +134,7 @@ line-height: 26px;">
 We look forward to helping you achieve your financial goals.
 </br>
 Warm regards,
+</br>
 Team Indel Money
 </p>
 </td>
@@ -407,6 +408,7 @@ line-height: 26px;">
 We look forward to helping you achieve your financial goals.
 </br>
 Warm regards,
+</br>
 Team Indel Money
 </p>
 </td>
@@ -679,7 +681,9 @@ line-height: 26px;">
 We look forward to helping you achieve your financial goals.
 </br>
 Warm regards,
+</br>
 Team HR
+</br>
 Indel Money
 </p>
 </td>
