@@ -72,7 +72,7 @@ class InvestorsController {
 
       const [content, files] = await Promise.all([
         models.InvestorsPageContent.findAll({
-          attributes: ["disclosure_title", "disclosure_file", "page_title", "corporate_governance_title"],
+          attributes: ["disclosure_title", "disclosure_file", "page_title", "corporate_governance_title", "csr_policy_doc_title"],
         }),
         models.CorporateGovernance.findAll({
           attributes: ["id", "file", "order", "title"],
@@ -149,6 +149,7 @@ class InvestorsController {
             "csr_action_plan_title",
             "csr_policy_title",
             "disclosure_title",
+            "csr_policy_doc_title"
           ],
         }),
         models.CsrActionPlan.findAll({
