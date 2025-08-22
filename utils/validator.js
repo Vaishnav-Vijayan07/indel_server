@@ -1032,6 +1032,7 @@ const validateBlogs = [
   check("meta_keywords").notEmpty().withMessage("Meta Keywords cannot be empty"),
   check("other_meta_tags").optional().notEmpty().withMessage("Other Meta Tags cannot be empty"),
   check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("slug").optional().notEmpty().withMessage("Slug cannot be empty"),
   check("title").notEmpty().withMessage("Title is required"),
   check("image_description").notEmpty().withMessage("Image Description cannot be empty"),
   check("image_alt").optional().notEmpty().withMessage("Image Alt cannot be empty"),
