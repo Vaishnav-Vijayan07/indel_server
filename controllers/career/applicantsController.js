@@ -75,6 +75,8 @@ class ApplicantsController {
   static async getById(req, res, next) {
     try {
       const { id } = req.params;
+
+      console.log(id)
       const cacheKey = `applicant_${id}`;
       const cachedData = await CacheService.get(cacheKey);
       // if (cachedData) {
@@ -95,7 +97,7 @@ class ApplicantsController {
           {
             model: models.CareerJobs,
             as: "job",
-            attributes: ["id", "job_title", "location_id", "state_id"],
+            // attributes: ["id", "job_title"],
             include: [
               {
                 model: models.CareerRoles,
@@ -104,12 +106,12 @@ class ApplicantsController {
               },
               {
                 model: models.CareerLocations,
-                as: "location",
+                as: "locations",
                 attributes: ["location_name"],
               },
               {
                 model: models.CareerStates,
-                as: "state",
+                as: "states",
                 attributes: ["state_name"],
               },
             ],
@@ -133,6 +135,7 @@ class ApplicantsController {
           location: applicant.location
             ? applicant.location.location_name
             : applicant.current_location || null,
+            applicant,
           resume: applicant.file,
         },
         appliedJobs: appliedJobs.map((job) => ({
