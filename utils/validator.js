@@ -366,7 +366,7 @@ const validateHistoryImagesUpdate = [
 
 const validateHistoryInceptionsYears = [
   check("year").notEmpty().withMessage("Year cannot be empty"),
-  check("title").notEmpty().withMessage("Title cannot be empty"),
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
   check("description").notEmpty().withMessage("Description cannot be empty"),
   check("is_active").isBoolean().withMessage("Is active must be a boolean"),
 ];
