@@ -80,7 +80,7 @@ class NewsController {
           `Uploaded second image for News: ${updateData.second_image}`
         );
       }
-
+      updateData.posted_on = new Date();
       const news = await News.create(updateData);
 
       const subscribedEmails = await models.NewsLetterSubs.findAll({
@@ -165,7 +165,7 @@ class NewsController {
       }
 
       const newsItems = await News.findAll({
-        order: [["createdAt", "DESC"]],
+        order: [["posted_on", "DESC"]],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(newsItems), 3600);
@@ -247,6 +247,8 @@ class NewsController {
         }
       }
 
+      updateData.posted_on = !news.is_active? new Date(): news.posted_on;
+      
       await news.update(updateData);
 
       await CacheService.invalidate("news");

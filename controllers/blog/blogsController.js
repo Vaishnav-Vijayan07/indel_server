@@ -71,6 +71,7 @@ class BlogsController {
         Logger.info(`Uploaded second image for Blog: ${updateData.second_image}`);
       }
 
+      updateData.posted_on = new Date();
       const blog = await Blogs.create(updateData);
 
       await CacheService.invalidate("blogs");
@@ -90,7 +91,7 @@ class BlogsController {
       }
 
       const blogs = await Blogs.findAll({
-        order: [["createdAt", "DESC"]],
+        order: [["posted_on", "DESC"]],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(blogs), 3600);
@@ -175,9 +176,11 @@ class BlogsController {
         throw new CustomError("Blog not found", 404);
       }
 
+
       let updateData = { ...req.body };
       let oldImage = blog.image;
       let oldSecondImage = blog.second_image;
+
 
       // Remove any `null` values from the updateData object
       updateData = Object.fromEntries(Object.entries(updateData).filter(([_, value]) => value !== null));
@@ -212,6 +215,9 @@ class BlogsController {
         }
       }
 
+
+      updateData.posted_on = !blog.is_active? new Date(): blog.posted_on;
+      
       await blog.update(updateData);
 
       await CacheService.invalidate("blogs");
