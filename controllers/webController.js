@@ -104,7 +104,7 @@ class WebController {
         models.IndelCares.findAll({
           attributes: ["id", "title", "show_on_home", "description", "image", "image_alt", "event_date", "slug"],
           where: { is_active: true, show_on_home: true },
-          order: [["order", "ASC"]],
+          order: [["createdAt", "DESC"]],
         }).catch((err) => {
           console.error("Failed to fetch indel cares:", err.message);
           throw err;
@@ -478,7 +478,7 @@ class WebController {
         models.BlogPageContent.findAll(),
         models.Blogs.findAll({
           where: { is_active: true, is_slider: true },
-          order: [["order", "ASC"]],
+          order: [["createdAt", "DESC"]],
         }),
       ]);
 
@@ -511,10 +511,11 @@ class WebController {
       });
       const blogsData = await models.Blogs.findAndCountAll({
         where: { is_active: true },
-        order: [["order", "ASC"]],
+        order: [["createdAt", "DESC"]],
         limit: limitNum,
         offset,
       });
+      console.log(blogsData)
 
       const { count, rows: blogs } = blogsData;
       const pages = Math.ceil(count / limitNum);
@@ -2388,7 +2389,7 @@ class WebController {
         models.NewsPageContent.findAll(),
         models.News.findAll({
           where: { is_active: true, is_slider: true },
-          order: [["order", "ASC"]],
+          order: [["createdAt", "DESC"]],
         }),
       ]);
 
@@ -2422,7 +2423,7 @@ class WebController {
 
       const newsData = await models.News.findAndCountAll({
         where: { is_active: true },
-        order: [["order", "ASC"]],
+        order: [["createdAt", "DESC"]],
         limit: limitNum,
         offset,
       });

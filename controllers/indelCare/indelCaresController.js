@@ -79,7 +79,7 @@ class IndelCaresController {
       }
 
       const indelCares = await IndelCares.findAll({
-        order: [["order", "ASC"]],
+        order: [["createdAt", "DESC"]],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(indelCares), 3600);

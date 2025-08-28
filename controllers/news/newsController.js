@@ -165,7 +165,7 @@ class NewsController {
       }
 
       const newsItems = await News.findAll({
-        order: [["order", "ASC"]],
+        order: [["createdAt", "DESC"]],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(newsItems), 3600);

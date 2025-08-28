@@ -90,7 +90,7 @@ class BlogsController {
       }
 
       const blogs = await Blogs.findAll({
-        order: [["order", "ASC"]],
+        order: [["createdAt", "DESC"]],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(blogs), 3600);
