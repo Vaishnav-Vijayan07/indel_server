@@ -215,13 +215,7 @@ class NewsController {
       );
 
       // Generate slug if title is updated and no slug is provided
-      if (updateData.slug) {
-        updateData.slug = await NewsController.generateUniqueSlug(
-          updateData.slug
-        );
-        Logger.info(`Generated slug for new news: ${updateData.slug}`);
-      }
-      else if(!updateData.slug && updateData.title) {
+     if(!updateData.slug && updateData.title) {
         updateData.slug = await NewsController.generateUniqueSlug(
           updateData.title
         );
