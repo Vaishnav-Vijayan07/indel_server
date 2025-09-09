@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { models } = require("../models/index");
+const { Op } = require("sequelize");
 const CustomError = require("../utils/customError");
 const { sendPasswordResetEmail } = require("../services/emailService");
 
@@ -43,17 +44,37 @@ class AuthController {
 
   static async login(req, res, next) {
     try {
-      const { username, password } = req.body;
+      const { identifier, password } = req.body;
 
+      // Check if identifier and password are provided
+      if (!identifier) {
+        throw new CustomError("Username or email is required", 400);
+      }
+
+      if (!password) {
+        throw new CustomError("Password is required", 400);
+      }
+
+      // Determine if identifier is an email or username
+      const isEmail = identifier.includes('@');
       
+      // Build where condition for either username or email
+      let whereCondition = {};
+      if (isEmail) {
+        // Search by email (case-insensitive)
+        whereCondition = { email: { [Op.iLike]: identifier } };
+      } else {
+        // Search by username (exact match)
+        whereCondition = { username: identifier };
+      }
 
       const user = await User.findOne({
         attributes: ["id", "username", "email", "firstName", "lastName", "phone", "role", "password", "isActive"],
-        where: { username },
+        where: whereCondition,
       });
 
       if (!user) {
-        throw new CustomError("Invalid username or password", 401);
+        throw new CustomError("Invalid credentials", 401);
       }
 
       if (!user.isActive) {
@@ -61,7 +82,7 @@ class AuthController {
       }
 
       if (!(await bcrypt.compare(password, user.password))) {
-        throw new CustomError("Invalid username or password", 401);
+        throw new CustomError("Invalid credentials", 401);
       }
 
       const token = jwt.sign(
@@ -236,6 +257,7 @@ class AuthController {
       next(error);
     }
   }
+
 }
 
 module.exports = AuthController;

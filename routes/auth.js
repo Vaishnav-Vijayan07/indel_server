@@ -18,4 +18,5 @@ router.post("/request-password-reset", validatePasswordResetRequest, validateMid
 router.post("/verify-otp-reset-password", validatePasswordReset, validateMiddleware, AuthController.verifyOtpAndResetPassword);
 router.post("/resend-otp", validateResendOtp, validateMiddleware, AuthController.resendOtp);
 
+
 module.exports = router;
