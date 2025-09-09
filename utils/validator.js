@@ -182,6 +182,42 @@ const validateLogin = [
     .withMessage("Password must be at least 6 characters"),
 ];
 
+const validatePasswordResetRequest = [
+  check("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email format"),
+];
+
+const validatePasswordReset = [
+  check("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email format"),
+  check("otp")
+    .notEmpty()
+    .withMessage("OTP is required")
+    .isLength({ min: 6, max: 6 })
+    .withMessage("OTP must be exactly 6 digits")
+    .isNumeric()
+    .withMessage("OTP must contain only numbers"),
+  check("newPassword")
+    .notEmpty()
+    .withMessage("New password is required")
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters"),
+];
+
+const validateResendOtp = [
+  check("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email format"),
+];
+
 const validateHeroBanner = [
   check("title").notEmpty().withMessage("Title is required"),
   check("button_text").notEmpty().withMessage("Button text is required"),
@@ -2187,6 +2223,9 @@ module.exports = {
   validateJobApplicationSubmission,
   validateRegister,
   validateLogin,
+  validatePasswordResetRequest,
+  validatePasswordReset,
+  validateResendOtp,
   validateServices,
   validateServiceUpdate,
   validateLoanAgainstPropertyContent,
