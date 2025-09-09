@@ -174,12 +174,64 @@ const validateRegister = [
 ];
 
 const validateLogin = [
-  check("username").notEmpty().withMessage("Username is required"),
+  check("identifier")
+    .notEmpty()
+    .withMessage("Username or email is required")
+    .isLength({ min: 3 })
+    .withMessage("Username or email must be at least 3 characters"),
   check("password")
     .notEmpty()
     .withMessage("Password is required")
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 characters"),
+  // Custom validation to check if identifier is valid email or username
+  check().custom((value, { req }) => {
+    const { identifier } = req.body;
+    if (identifier && identifier.includes('@')) {
+      // If it contains @, validate as email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(identifier)) {
+        throw new Error("Invalid email format");
+      }
+    }
+    return true;
+  }),
+];
+
+const validatePasswordResetRequest = [
+  check("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email format"),
+];
+
+const validatePasswordReset = [
+  check("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email format"),
+  check("otp")
+    .notEmpty()
+    .withMessage("OTP is required")
+    .isLength({ min: 6, max: 6 })
+    .withMessage("OTP must be exactly 6 digits")
+    .isNumeric()
+    .withMessage("OTP must contain only numbers"),
+  check("newPassword")
+    .notEmpty()
+    .withMessage("New password is required")
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters"),
+];
+
+const validateResendOtp = [
+  check("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email format"),
 ];
 
 const validateHeroBanner = [
@@ -2187,6 +2239,9 @@ module.exports = {
   validateJobApplicationSubmission,
   validateRegister,
   validateLogin,
+  validatePasswordResetRequest,
+  validatePasswordReset,
+  validateResendOtp,
   validateServices,
   validateServiceUpdate,
   validateLoanAgainstPropertyContent,
