@@ -258,6 +258,157 @@ class AuthController {
     }
   }
 
+  // Get current user profile (from token)
+  static async getCurrentUserProfile(req, res, next) {
+    try {
+      // Get user ID from token (set by auth middleware)
+      const userId = req.user.id;
+
+      if (!userId) {
+        throw new CustomError("User not authenticated", 401);
+      }
+
+      const user = await User.findOne({
+        where: { id: userId },
+        attributes: ["id", "username", "email", "firstName", "lastName", "phone", "role", "isActive", "createdAt", "updatedAt"]
+      });
+
+      if (!user) {
+        throw new CustomError("User not found", 404);
+      }
+
+      res.json({
+        success: true,
+        data: { user }
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Update current user profile (from token)
+  static async updateCurrentUserProfile(req, res, next) {
+    try {
+      // Get user ID from token
+      const userId = req.user.id;
+      const { username, email, firstName, lastName, phone } = req.body;
+
+      if (!userId) {
+        throw new CustomError("User not authenticated", 401);
+      }
+
+      // Check if user exists
+      const user = await User.findOne({
+        where: { id: userId },
+        attributes: ["id", "username", "email", "firstName", "lastName", "phone", "role", "isActive"]
+      });
+
+      if (!user) {
+        throw new CustomError("User not found", 404);
+      }
+
+      // Prepare update data (only allow updating profile fields, not role or isActive)
+      const updateData = {};
+      
+      if (username !== undefined) updateData.username = username;
+      if (email !== undefined) updateData.email = email;
+      if (firstName !== undefined) updateData.firstName = firstName;
+      if (lastName !== undefined) updateData.lastName = lastName;
+      if (phone !== undefined) updateData.phone = phone;
+
+      // Check for duplicate username if username is being updated
+      if (username && username !== user.username) {
+        const existingUser = await User.findOne({
+          where: { username: username }
+        });
+        if (existingUser) {
+          throw new CustomError("Username already exists", 400);
+        }
+      }
+
+      // Check for duplicate email if email is being updated
+      if (email && email !== user.email) {
+        const existingUser = await User.findOne({
+          where: { email: email }
+        });
+        if (existingUser) {
+          throw new CustomError("Email already exists", 400);
+        }
+      }
+
+      // Update user
+      await user.update(updateData);
+
+      // Get updated user data
+      const updatedUser = await User.findOne({
+        where: { id: userId },
+        attributes: ["id", "username", "email", "firstName", "lastName", "phone", "role", "isActive", "createdAt", "updatedAt"]
+      });
+
+      res.json({
+        success: true,
+        message: "Profile updated successfully",
+        data: { user: updatedUser }
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Change current user password (from token)
+  static async changeCurrentUserPassword(req, res, next) {
+    try {
+      // Get user ID from token
+      const userId = req.user.id;
+      const { currentPassword, newPassword, confirmPassword } = req.body;
+
+      if (!userId) {
+        throw new CustomError("User not authenticated", 401);
+      }
+
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        throw new CustomError("Current password, new password and confirm password are required", 400);
+      }
+
+      if (newPassword !== confirmPassword) {
+        throw new CustomError("New passwords do not match", 400);
+      }
+
+      if (newPassword.length < 6) {
+        throw new CustomError("New password must be at least 6 characters long", 400);
+      }
+
+      // Check if user exists
+      const user = await User.findOne({
+        where: { id: userId },
+        attributes: ["id", "username", "email", "password"]
+      });
+
+      if (!user) {
+        throw new CustomError("User not found", 404);
+      }
+
+      // Verify current password
+      if (!(await bcrypt.compare(currentPassword, user.password))) {
+        throw new CustomError("Current password is incorrect", 400);
+      }
+
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Update user password
+      await user.update({ password: hashedPassword });
+
+      res.json({
+        success: true,
+        message: "Password has been changed successfully"
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+
 }
 
 module.exports = AuthController;

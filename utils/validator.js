@@ -234,6 +234,50 @@ const validateResendOtp = [
     .withMessage("Invalid email format"),
 ];
 
+
+const validateCurrentUserProfile = [
+  check("username")
+    .optional()
+    .isLength({ min: 3 })
+    .withMessage("Username must be at least 3 characters if provided"),
+  check("email")
+    .optional()
+    .isEmail()
+    .withMessage("Invalid email format if provided"),
+  check("firstName")
+    .optional()
+    .isLength({ min: 1 })
+    .withMessage("First name must not be empty if provided"),
+  check("lastName")
+    .optional()
+    .isLength({ min: 1 })
+    .withMessage("Last name must not be empty if provided"),
+  check("phone")
+    .optional()
+    .isMobilePhone()
+    .withMessage("Invalid phone number format if provided"),
+];
+
+const validateCurrentUserPassword = [
+  check("currentPassword")
+    .notEmpty()
+    .withMessage("Current password is required"),
+  check("newPassword")
+    .notEmpty()
+    .withMessage("New password is required")
+    .isLength({ min: 6 })
+    .withMessage("New password must be at least 6 characters"),
+  check("confirmPassword")
+    .notEmpty()
+    .withMessage("Confirm password is required")
+    .custom((value, { req }) => {
+      if (value !== req.body.newPassword) {
+        throw new Error("New passwords do not match");
+      }
+      return true;
+    }),
+];
+
 const validateHeroBanner = [
   check("title").notEmpty().withMessage("Title is required"),
   check("button_text").notEmpty().withMessage("Button text is required"),
@@ -2242,6 +2286,8 @@ module.exports = {
   validatePasswordResetRequest,
   validatePasswordReset,
   validateResendOtp,
+  validateCurrentUserProfile,
+  validateCurrentUserPassword,
   validateServices,
   validateServiceUpdate,
   validateLoanAgainstPropertyContent,
