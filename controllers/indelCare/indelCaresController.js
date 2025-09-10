@@ -78,9 +78,7 @@ class IndelCaresController {
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
 
-      const indelCares = await IndelCares.findAll({
-        order: [["order", "ASC"]],
-      });
+      const indelCares = await IndelCares.findAll();
 
       await CacheService.set(cacheKey, JSON.stringify(indelCares), 3600);
       res.json({ success: true, data: indelCares });

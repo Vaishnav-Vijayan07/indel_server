@@ -10,7 +10,9 @@ class ApplicantsController {
 
       const { preffered_location } = updateData;
 
-      const location = await models.CareerLocations.findByPk(preffered_location);
+      const location = await models.CareerLocations.findByPk(
+        preffered_location
+      );
       if (!location) {
         throw new CustomError("Preferred location not found", 404);
       }
@@ -18,7 +20,9 @@ class ApplicantsController {
       const applicant = await models.Applicants.create(updateData);
 
       await CacheService.invalidate("applicants");
-      res.status(201).json({ success: true, data: applicant, message: "Applicant created" });
+      res
+        .status(201)
+        .json({ success: true, data: applicant, message: "Applicant created" });
     } catch (error) {
       next(error);
     }
@@ -45,7 +49,7 @@ class ApplicantsController {
 
       const { rows: applicants, count: total } = await models.Applicants.findAndCountAll({
         where: whereConditions,
-        include: [{ model: models.CareerLocations, as: "location", attributes: ["location_name"] }],
+        include: [{ model: models.CareerLocations, as: "applicantLocation", attributes: ["location_name"] }],
         order: [["created_at", "DESC"]],
         limit: parsedLimit,
         offset: parsedOffset,
@@ -71,22 +75,92 @@ class ApplicantsController {
   static async getById(req, res, next) {
     try {
       const { id } = req.params;
+
+      console.log(id)
       const cacheKey = `applicant_${id}`;
       const cachedData = await CacheService.get(cacheKey);
-
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
 
       const applicant = await models.Applicants.findByPk(id, {
-        include: [{ model: models.CareerLocations, as: "location", attributes: ["location_name"] }],
+        include: [{ model: models.CareerLocations, as: "applicantLocation", attributes: ["location_name"] }],
       });
       if (!applicant) {
         throw new CustomError("Applicant not found", 404);
       }
 
-      await CacheService.set(cacheKey, JSON.stringify(applicant), 3600);
-      res.json({ success: true, data: applicant });
+      // Fetch applied jobs with related job, role, and status details
+      const appliedJobs = await models.JobApplications.findAll({
+        where: { applicant_id: id },
+        include: [
+          {
+            model: models.CareerJobs,
+            as: "job",
+            // attributes: ["id", "job_title"],
+            include: [
+              {
+                model: models.CareerRoles,
+                as: "role",
+                attributes: ["role_name"],
+              },
+              {
+                model: models.CareerLocations,
+                as: "locations",
+                attributes: ["location_name"],
+              },
+              {
+                model: models.CareerStates,
+                as: "states",
+                attributes: ["state_name"],
+              },
+            ],
+          },
+          {
+            model: models.ApplicationStatus,
+            as: "status",
+            attributes: ["status_name"],
+          },
+        ],
+        order: [["application_date", "ASC"]],
+      });
+
+      // Format response
+      const response = {
+        applicant: {
+          id: applicant.id,
+          name: applicant.name,
+          email: applicant.email,
+          phone: applicant.phone,
+          location: applicant.location
+            ? applicant.location.location_name
+            : applicant.current_location || null,
+            applicant,
+          resume: applicant.file,
+        },
+        appliedJobs: appliedJobs.map((job) => ({
+          id: job.id,
+          jobTitle: job.job ? job.job.job_title : null,
+          location: job.job ? job.job.location : null,
+          state: job.job ? job.job.state : null,
+          department: job.job && job.job.role ? job.job.role.role_name : null,
+          status: job.status ? job.status.status_name : null,
+          appliedDate: job.application_date
+            ? job.application_date.toISOString().split("T")[0]
+            : null,
+        })),
+      };
+
+      await CacheService.set(
+        cacheKey,
+        JSON.stringify(applicant, appliedJobs),
+        3600
+      );
+      res.json({
+        success: true,
+        data: response,
+        message: "Applicant details fetched",
+      });
     } catch (error) {
       next(error);
     }
@@ -103,14 +177,24 @@ class ApplicantsController {
       const updateData = { ...req.body };
 
       if (updateData.preffered_location) {
-        const location = await models.CareerLocations.findByPk(updateData.preffered_location);
-        if (!location) throw new CustomError("Preferred location not found", 404);
+        const location = await models.CareerLocations.findByPk(
+          updateData.preffered_location
+        );
+        if (!location)
+          throw new CustomError("Preferred location not found", 404);
       }
 
       await applicant.update(updateData);
 
-      await Promise.all([CacheService.invalidate("applicants"), CacheService.invalidate(`applicant_${id}`)]);
-      res.json({ success: true, data: applicant, message: "Applicant updated" });
+      await Promise.all([
+        CacheService.invalidate("applicants"),
+        CacheService.invalidate(`applicant_${id}`),
+      ]);
+      res.json({
+        success: true,
+        data: applicant,
+        message: "Applicant updated",
+      });
     } catch (error) {
       next(error);
     }
@@ -126,7 +210,10 @@ class ApplicantsController {
 
       await applicant.destroy();
 
-      await Promise.all([CacheService.invalidate("applicants"), CacheService.invalidate(`applicant_${id}`)]);
+      await Promise.all([
+        CacheService.invalidate("applicants"),
+        CacheService.invalidate(`applicant_${id}`),
+      ]);
       res.json({ success: true, message: "Applicant deleted", data: id });
     } catch (error) {
       next(error);

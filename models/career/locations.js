@@ -23,7 +23,7 @@ module.exports = (sequelize) => {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       },
-      order:{
+      order: {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
@@ -40,17 +40,21 @@ module.exports = (sequelize) => {
   );
 
   Locations.associate = (models) => {
-    Locations.hasMany(models.CareerJobs, {
-      foreignKey: "location_id",
-      as: "job_locations",
+    // Removed: Locations.hasMany(models.CareerJobs, { foreignKey: "location_id", as: "job_locations", });
+    Removed: Locations.hasMany(models.JobApplications, { foreignKey: "location", as: "job_applications", });
+    Locations.belongsTo(models.Districts, {
+      foreignKey: "district_id",
+      as: "district",
     });
-  };
 
-  Locations.associate = (models) => {
-    Locations.hasMany(models.JobApplications, {
-      foreignKey: "location",
-      as: "job_applications",
+    // New many-to-many association with CareerJobs through JobLocation
+    Locations.belongsToMany(models.CareerJobs, {
+      through: models.JobLocation,
+      foreignKey: "location_id",
+      otherKey: "job_id",
+      as: "jobs", // Alias for the association
     });
+    
   };
 
   return Locations;

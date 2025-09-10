@@ -21,13 +21,27 @@ class InvestorsController {
         models.AnnualReport.findAll({
           attributes: ["id", "year", "file", "order", "is_active"],
           where: { is_active: true },
-          include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year", "is_active"], where: { is_active: true } }],
+          include: [
+            {
+              model: models.FiscalYears,
+              as: "fiscalYear",
+              attributes: ["id", "fiscal_year", "is_active"],
+              where: { is_active: true },
+            },
+          ],
           order: [["order", "ASC"]],
         }),
         models.AnnualReturns.findAll({
           attributes: ["id", "year", "file", "order", "is_active"],
           where: { is_active: true },
-          include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year", "is_active"], where: { is_active: true } }],
+          include: [
+            {
+              model: models.FiscalYears,
+              as: "fiscalYear",
+              attributes: ["id", "fiscal_year", "is_active"],
+              where: { is_active: true },
+            },
+          ],
           order: [["order", "ASC"]],
         }),
       ]);
@@ -58,7 +72,7 @@ class InvestorsController {
 
       const [content, files] = await Promise.all([
         models.InvestorsPageContent.findAll({
-          attributes: ["disclosure_title", "disclosure_file", "page_title", "corporate_governance_title"],
+          attributes: ["disclosure_title", "disclosure_file", "page_title", "corporate_governance_title", "csr_policy_doc_title"],
         }),
         models.CorporateGovernance.findAll({
           attributes: ["id", "file", "order", "title"],
@@ -127,14 +141,30 @@ class InvestorsController {
 
       const [content, actionPlans, committees, reports] = await Promise.all([
         models.InvestorsPageContent.findAll({
-          attributes: ["page_title", "csr_policy_doc", "csr_committee_title", "csr_reports_title", "csr_action_plan_title", "csr_policy_title"],
+          attributes: [
+            "page_title",
+            "csr_policy_doc",
+            "csr_committee_title",
+            "csr_reports_title",
+            "csr_action_plan_title",
+            "csr_policy_title",
+            "disclosure_title",
+            "csr_policy_doc_title"
+          ],
         }),
         models.CsrActionPlan.findAll({
           where: { is_active: true },
           attributes: ["id", "nature", "name", "designation", "order"],
           order: [["order", "ASC"]],
           attributes: ["id", "report", "order", "fiscal_year"],
-          include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year", "is_active"], where: { is_active: true } }],
+          include: [
+            {
+              model: models.FiscalYears,
+              as: "fiscalYear",
+              attributes: ["id", "fiscal_year", "is_active"],
+              where: { is_active: true },
+            },
+          ],
           order: [["order", "ASC"]],
         }),
         models.CsrCommittee.findAll({
@@ -145,7 +175,14 @@ class InvestorsController {
         models.CsrReport.findAll({
           where: { is_active: true },
           attributes: ["id", "report", "order", "fiscal_year"],
-          include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year", "is_active"], where: { is_active: true } }],
+          include: [
+            {
+              model: models.FiscalYears,
+              as: "fiscalYear",
+              attributes: ["id", "fiscal_year", "is_active"],
+              where: { is_active: true },
+            },
+          ],
           order: [["order", "ASC"]],
         }),
       ]);
@@ -221,7 +258,7 @@ class InvestorsController {
 
       const [content, reports] = await Promise.all([
         models.InvestorsPageContent.findAll({
-          attributes: ["page_title","quarterly_results_title"],
+          attributes: ["page_title", "quarterly_results_title"],
         }),
         models.QuarterlyReports.findAll({
           where: { year, is_active: true },
@@ -238,7 +275,7 @@ class InvestorsController {
       ]);
 
       const data = {
-        content : content[0] || null,
+        content: content[0] || null,
         reports,
       };
 
@@ -409,7 +446,15 @@ class InvestorsController {
         }),
         models.OtherIntimations.findAll({
           where: { is_active: true },
-          attributes: ["id", "fiscal_year", "record_date_document", "interest_payment_document", "month_date","order", "is_active"],
+          attributes: [
+            "id",
+            "fiscal_year",
+            "record_date_document",
+            "interest_payment_document",
+            "month_date",
+            "order",
+            "is_active",
+          ],
           where: { fiscal_year: year, is_active: true },
           include: [
             {

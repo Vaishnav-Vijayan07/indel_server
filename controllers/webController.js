@@ -16,10 +16,7 @@ class WebController {
 
     // 2. If not in session, call geolocation API and store in session
     if (!stateId) {
-      const ip =
-        req.headers["x-forwarded-for"]?.split(",")[0].trim() ||
-        req.socket.remoteAddress ||
-        "127.0.0.1";
+      const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
       try {
         const geo = await getStateFromIp(ip);
         stateId = geo.stateId;
@@ -107,7 +104,7 @@ class WebController {
         models.IndelCares.findAll({
           attributes: ["id", "title", "show_on_home", "description", "image", "image_alt", "event_date", "slug"],
           where: { is_active: true, show_on_home: true },
-          order: [["order", "ASC"]],
+          order: [["event_date", "DESC"]],
         }).catch((err) => {
           console.error("Failed to fetch indel cares:", err.message);
           throw err;
@@ -148,17 +145,7 @@ class WebController {
       let popupServices = null;
       if (!isBanner) {
         popupServices = await models.PopupServices.findAll({
-          attributes: [
-            "id",
-            "image",
-            "image_alt",
-            "title",
-            "description",
-            "button_link",
-            "button_text",
-            "order",
-            "is_active",
-          ],
+          attributes: ["id", "image", "image_alt", "title", "description", "button_link", "button_text", "order", "is_active"],
           where: { is_active: true },
           order: [["order", "ASC"]],
         });
@@ -242,58 +229,41 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [
-        aboutBanner,
-        aboutContent,
-        lifeAtIndelImages,
-        quickLinks,
-        teamMessages,
-        serviceImages,
-        statsData,
-        accolades,
-      ] = await Promise.all([
-        models.AboutBanner.findAll({
-          where: {
-            is_active: true,
-          },
-          order: [["order", "ASC"]],
-          attributes: [
-            "id",
-            "title",
-            "super_title",
-            "image",
-            "image_mobile",
-            "alt_text",
-            "order",
-            "is_active",
-          ],
-        }),
-        models.AboutPageContent.findAll(),
-        models.AboutLifeAtIndelGallery.findAll({
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-        models.AboutQuickLinks.findAll({
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-        models.AboutMessageFromTeam.findAll({
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-        models.AboutServiceGallery.findAll({
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-        models.AboutStatistics.findAll({
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-        models.AboutAccolades.findAll({
-          where: { is_active: true },
-          order: [["order", "ASC"]],
-        }),
-      ]);
+      const [aboutBanner, aboutContent, lifeAtIndelImages, quickLinks, teamMessages, serviceImages, statsData, accolades] =
+        await Promise.all([
+          models.AboutBanner.findAll({
+            where: {
+              is_active: true,
+            },
+            order: [["order", "ASC"]],
+            attributes: ["id", "title", "super_title", "image", "image_mobile", "alt_text", "order", "is_active"],
+          }),
+          models.AboutPageContent.findAll(),
+          models.AboutLifeAtIndelGallery.findAll({
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.AboutQuickLinks.findAll({
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.AboutMessageFromTeam.findAll({
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.AboutServiceGallery.findAll({
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.AboutStatistics.findAll({
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+          models.AboutAccolades.findAll({
+            where: { is_active: true },
+            order: [["order", "ASC"]],
+          }),
+        ]);
 
       const data = {
         aboutBanner,
@@ -350,9 +320,7 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError("Failed to fetch management data", 500, error.message)
-      );
+      next(new CustomError("Failed to fetch management data", 500, error.message));
     }
   }
 
@@ -367,10 +335,7 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, debtPartners] = await Promise.all([
-        models.DebtPartnersContent.findAll(),
-        models.DeptPartners.findAll(),
-      ]);
+      const [content, debtPartners] = await Promise.all([models.DebtPartnersContent.findAll(), models.DeptPartners.findAll()]);
 
       const data = {
         content: content[0] || null,
@@ -388,9 +353,7 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError("Failed to fetch partners data", 500, error.message)
-      );
+      next(new CustomError("Failed to fetch partners data", 500, error.message));
     }
   }
 
@@ -400,10 +363,7 @@ class WebController {
     let stateId = req.session?.stateId || null;
     let stateName = req.session?.stateName || "Global";
     if (!stateId) {
-      const ip =
-        req.headers["x-forwarded-for"]?.split(",")[0].trim() ||
-        req.socket.remoteAddress ||
-        "127.0.0.1";
+      const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
       try {
         const geo = await getStateFromIp(ip);
         stateId = geo.stateId;
@@ -424,24 +384,23 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, faqs, officeContacts, branchLocatorData] =
-        await Promise.all([
-          models.ContactContent.findAll(),
-          models.ContactFaq.findAll({
-            where: {
-              is_active: true,
-              state_id: stateId || null,
-            },
-            order: [["order", "ASC"]],
-          }),
-          models.ContactOffice.findAll({
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }),
-          models.BranchLocatorPageContents.findAll({
-            attributes: ["id", "title", "description"],
-          }),
-        ]);
+      const [content, faqs, officeContacts, branchLocatorData] = await Promise.all([
+        models.ContactContent.findAll(),
+        models.ContactFaq.findAll({
+          where: {
+            is_active: true,
+            state_id: stateId || null,
+          },
+          order: [["order", "ASC"]],
+        }),
+        models.ContactOffice.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.BranchLocatorPageContents.findAll({
+          attributes: ["id", "title", "description"],
+        }),
+      ]);
 
       const data = {
         content: content[0] || null,
@@ -480,18 +439,9 @@ class WebController {
           order: [["order", "ASC"]],
         }),
         models.HistoryInceptionsYears.findAll({
-          attributes: [
-            "id",
-            "image",
-            "image_alt",
-            "year",
-            "title",
-            "description",
-            "is_active",
-            "order",
-          ],
+          attributes: ["id", "image", "image_alt", "year", "title", "description", "is_active", "order"],
           where: { is_active: true },
-          order: [["order", "ASC"]],
+          order: [["year", "DESC"]],
         }),
       ]);
 
@@ -528,7 +478,7 @@ class WebController {
         models.BlogPageContent.findAll(),
         models.Blogs.findAll({
           where: { is_active: true, is_slider: true },
-          order: [["order", "ASC"]],
+          order: [["posted_on", "DESC"]],
         }),
       ]);
 
@@ -561,7 +511,7 @@ class WebController {
       });
       const blogsData = await models.Blogs.findAndCountAll({
         where: { is_active: true },
-        order: [["order", "ASC"]],
+        order: [["posted_on", "DESC"]],
         limit: limitNum,
         offset,
       });
@@ -725,12 +675,7 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [
-        indelValueContent,
-        indelValues,
-        approachPropositions,
-        mobileBanners,
-      ] = await Promise.all([
+      const [indelValueContent, indelValues, approachPropositions, mobileBanners] = await Promise.all([
         models.IndelValueContent.findAll(),
         models.IndelValues.findAll({
           where: { is_active: true },
@@ -762,9 +707,7 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError("Failed to fetch Indel values data", 500, error.message)
-      );
+      next(new CustomError("Failed to fetch Indel values data", 500, error.message));
     }
   }
 
@@ -817,13 +760,7 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError(
-          "Failed to fetch Diffrent Shades of Indel data",
-          500,
-          error.message
-        )
-      );
+      next(new CustomError("Failed to fetch Diffrent Shades of Indel data", 500, error.message));
     }
   }
 
@@ -844,7 +781,7 @@ class WebController {
       const [serviceContent, serviceBenefit, servicesRaw] = await Promise.all([
         models.ServiceContent.findAll(),
         models.ServiceBenefit.findAll({
-          where: { service_id: GoldService },
+          where: { service_id: GoldService.id },
           order: [["order", "ASC"]],
         }),
         models.Services.findAll({
@@ -854,9 +791,7 @@ class WebController {
       ]);
 
       // Filter out the item with slug 'gold-loan'
-      const services = servicesRaw.filter(
-        (service) => service.slug !== "gold-loan"
-      );
+      const services = servicesRaw.filter((service) => service.slug !== "gold-loan");
 
       const data = {
         serviceContent: serviceContent[0] || null,
@@ -872,9 +807,7 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError("Failed to fetch Our Services data", 500, error.message)
-      );
+      next(new CustomError("Failed to fetch Our Services data", 500, error.message));
     }
   }
 
@@ -885,10 +818,7 @@ class WebController {
 
     // 2. If not in session, call geolocation API and store in session
     if (!stateId) {
-      const ip =
-        req.headers["x-forwarded-for"]?.split(",")[0].trim() ||
-        req.socket.remoteAddress ||
-        "127.0.0.1";
+      const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
       try {
         const geo = await getStateFromIp(ip);
         stateId = geo.stateId;
@@ -995,9 +925,7 @@ class WebController {
       );
 
       const centerItem = goldLoanFeatures?.find((item) => item.is_center);
-      const nonCenterItems = goldLoanFeatures?.filter(
-        (item) => !item.is_center
-      );
+      const nonCenterItems = goldLoanFeatures?.filter((item) => !item.is_center);
       ``;
       // Step 1: Group non-center items into pairs
       const grouped = [];
@@ -1039,9 +967,7 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError("Failed to fetch gold loan data", 500, error.message)
-      );
+      next(new CustomError("Failed to fetch gold loan data", 500, error.message));
     }
   }
 
@@ -1050,10 +976,7 @@ class WebController {
     let stateId = req.session?.stateId || null;
     let stateName = req.session?.stateName || "Global";
     if (!stateId) {
-      const ip =
-        req.headers["x-forwarded-for"]?.split(",")[0].trim() ||
-        req.socket.remoteAddress ||
-        "127.0.0.1";
+      const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "127.0.0.1";
       try {
         const geo = await getStateFromIp(ip);
         stateId = geo.stateId;
@@ -1117,9 +1040,7 @@ class WebController {
       res.json({ status: "success", data });
     } catch (error) {
       logger.error("Error fetching MSME Loan data", { error: error.message });
-      next(
-        new CustomError("Failed to fetch MSME Loan data", 500, error.message)
-      );
+      next(new CustomError("Failed to fetch MSME Loan data", 500, error.message));
     }
   }
 
@@ -1133,19 +1054,17 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [cdLoanContent, cdLoanBenefits, cdLoanProducts] = await Promise.all(
-        [
-          models.CdLoanContent.findAll(),
-          models.CdLoanBenefits.findAll({
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }),
-          models.CdLoanProducts.findAll({
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }),
-        ]
-      );
+      const [cdLoanContent, cdLoanBenefits, cdLoanProducts] = await Promise.all([
+        models.CdLoanContent.findAll(),
+        models.CdLoanBenefits.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.CdLoanProducts.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+      ]);
 
       const data = {
         cdLoanContent: cdLoanContent[0] || null,
@@ -1179,19 +1098,17 @@ class WebController {
         attributes: ["id"],
       });
 
-      const [cdLoanContent, cdLoanBenefits, cdLoanProducts] = await Promise.all(
-        [
-          models.LapContent.findAll(),
-          models.ServiceBenefit.findAll({
-            where: { is_active: true, service_id: service?.id },
-            order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
-          }),
-          models.LapProducts.findAll({
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }),
-        ]
-      );
+      const [cdLoanContent, cdLoanBenefits, cdLoanProducts] = await Promise.all([
+        models.LapContent.findAll(),
+        models.ServiceBenefit.findAll({
+          where: { is_active: true, service_id: service?.id },
+          order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
+        }),
+        models.LapProducts.findAll({
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+      ]);
 
       const data = {
         cdLoanContent: cdLoanContent[0] || null,
@@ -1211,15 +1128,212 @@ class WebController {
     }
   }
 
+  // static async CareerPage(req, res, next) {
+  //   const cacheKey = "webCareerPage";
+
+  //   // Helper function to capitalize first letter of each word
+  //   const capitalizeWords = (str) => {
+  //     if (!str) return str;
+  //     return str
+  //       .toLowerCase()
+  //       .split(/(\s+|-)/)
+  //       .map((word, index, arr) => {
+  //         if (word.match(/^\s+|-/)) return word;
+  //         return word.charAt(0).toUpperCase() + word.slice(1);
+  //       })
+  //       .join("");
+  //   };
+
+  //   try {
+  //     const today = new Date();
+  //     today.setHours(0, 0, 0, 0);
+
+  //     const whereClause = {
+  //       is_active: true,
+  //       is_approved: true,
+  //       end_date: {
+  //         [Op.gte]: today,
+  //       },
+  //     };
+
+  //     const [
+  //       careersContent,
+  //       careerBanners,
+  //       careerGallery,
+  //       careerStates,
+  //       careerJobs,
+  //       empBenefits,
+  //       awards,
+  //       awardContent,
+  //       testimoinials,
+  //     ] = await Promise.all([
+  //       models.CareersContent.findAll(),
+  //       models.CareerBanners.findAll({
+  //         where: { is_active: true },
+  //         order: [["order", "ASC"]],
+  //       }),
+  //       models.CareerGallery.findAll({
+  //         where: { is_active: true },
+  //         order: [["order", "ASC"]],
+  //       }),
+  //       models.CareerStates.findAll({
+  //         order: [["state_name", "ASC"]],
+  //       }),
+  //       models.CareerJobs.findAll({
+  //         where: whereClause,
+  //         include: [
+  //           { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
+  //           {
+  //             model: models.CareerLocations,
+  //             as: "locations",
+  //             attributes: ["location_name"],
+  //             through: { attributes: [], required: false },
+  //             include: [
+  //               {
+  //                 model: models.Districts,
+  //                 as: "district",
+  //                 attributes: ["state_id"],
+  //                 where: { is_active: true },
+  //                 required: true,
+  //                 include: [
+  //                   {
+  //                     model: models.CareerStates,
+  //                     as: "state",
+  //                     attributes: ["id", "state_name"],
+  //                   },
+  //                 ],
+  //               },
+  //             ],
+  //           },
+  //           {
+  //             model: models.CareerStates,
+  //             as: "states",
+  //             attributes: ["id", "state_name"],
+  //             through: { attributes: [], required: false },
+  //           },
+  //         ],
+  //         order: [["id", "ASC"]],
+  //       }),
+  //       models.EmployeeBenefits.findAll({
+  //         where: { is_active: true },
+  //         order: [["order", "ASC"]],
+  //       }),
+  //       models.Awards.findAll({
+  //         where: { is_active: true },
+  //         order: [["order", "ASC"]],
+  //       }),
+  //       models.AwardPageContent.findAll({
+  //         attributes: ["id", "mobile_title"],
+  //       }),
+  //       models.Testimonials.findAll(),
+  //     ]);
+
+  //     // Process careerJobs to format locations for multiple states
+  //     const formattedCareerJobs = careerJobs.map((job) => {
+  //       let locationDisplay = "";
+
+  //       if (job.states && job.states.length > 0) {
+  //         // Map locations to their respective states
+  //         const stateLocationMap = job.states.map((state) => {
+  //           // Filter locations for this state via district.state_id
+  //           const stateLocations = job.locations
+  //             .filter((loc) => loc.district && loc.district.state_id === state.id)
+  //             .map((loc) => capitalizeWords(loc.location_name))
+  //             .filter(Boolean);
+
+  //           if (job.is_display_full_locations) {
+  //             // Format: "Kerala: Calicut, Balussery and Chandra Nagar" or with ", etc."
+  //             if (stateLocations.length > 0) {
+  //               const lastLocation = stateLocations.pop();
+  //               const locationString =
+  //                 stateLocations.length > 0 ? `${stateLocations.join(", ")} and ${lastLocation}` : lastLocation;
+  //               return `${capitalizeWords(state.state_name)}: ${locationString}${stateLocations.length + 1 > 3 ? ", etc." : ""}`;
+  //             }
+  //             return `${capitalizeWords(state.state_name)}: No Specific Locations`;
+  //           } else {
+  //             // Show "Multiple Locations" or "No Specific Locations"
+  //             return stateLocations.length > 0
+  //               ? `${capitalizeWords(state.state_name)}: Multiple Locations`
+  //               : `${capitalizeWords(state.state_name)}: No Specific Locations`;
+  //           }
+  //         });
+
+  //         // Join state-location strings with semicolons
+  //         locationDisplay = stateLocationMap.join("; ");
+  //       } else {
+  //         // Fallback if no states are associated
+  //         if (job.is_display_full_locations && job.locations.length > 0) {
+  //           const locations = job.locations.map((loc) => capitalizeWords(loc.location_name)).filter(Boolean);
+  //           const lastLocation = locations.pop();
+  //           const locationString = locations.length > 0 ? `${locations.join(", ")} and ${lastLocation}` : lastLocation;
+  //           locationDisplay = `Unknown State: ${locationString}${locations.length + 1 > 3 ? ", etc." : ""}`;
+  //         } else {
+  //           locationDisplay = `Unknown State: ${job.locations.length > 0 ? "Multiple Locations" : "No Specific Locations"}`;
+  //         }
+  //       }
+
+  //       return {
+  //         ...job.toJSON(), // Convert Sequelize instance to plain object
+  //         locationDisplay, // Add formatted location string
+  //       };
+  //     });
+
+  //     const textTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "text");
+  //     const imageTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "video");
+
+  //     const data = {
+  //       careersContent: careersContent[0] || null,
+  //       careerBanners,
+  //       careerGallery,
+  //       careerStates,
+  //       careerJobs: formattedCareerJobs,
+  //       empBenefits,
+  //       awards,
+  //       awardContent: awardContent[0] || null,
+  //       testimoinials: {
+  //         textTestimonials,
+  //         imageTestimonials,
+  //       },
+  //     };
+
+  //     logger.info("Fetched Career Page data from DB");
+  //     res.json({ status: "success", data });
+  //   } catch (error) {
+  //     logger.error("Error fetching Career Page data", {
+  //       error: error.message,
+  //       stack: error.stack,
+  //     });
+  //     next(new CustomError("Failed to fetch Career Page data", 500, error.message));
+  //   }
+  // }
+
   static async CareerPage(req, res, next) {
     const cacheKey = "webCareerPage";
 
+    // Helper function to capitalize first letter of each word
+    const capitalizeWords = (str) => {
+      if (!str) return str;
+      return str
+        .toLowerCase()
+        .split(/(\s+|-)/)
+        .map((word, index, arr) => {
+          if (word.match(/^\s+|-/)) return word;
+          return word.charAt(0).toUpperCase() + word.slice(1);
+        })
+        .join("");
+    };
+
     try {
-      // const cachedData = await CacheService.get(cacheKey);
-      // if (cachedData) {
-      //   logger.info("Serving Career Page from cache");
-      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
-      // }
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const whereClause = {
+        is_active: true,
+        is_approved: true,
+        end_date: {
+          [Op.gte]: today,
+        },
+      };
 
       const [
         careersContent,
@@ -1242,15 +1356,40 @@ class WebController {
           order: [["order", "ASC"]],
         }),
         models.CareerStates.findAll({
-          where: { is_active: true },
-          order: [["order", "ASC"]],
+          order: [["state_name", "ASC"]],
         }),
         models.CareerJobs.findAll({
-          // attributes: ["id", "role_id", "location_id", "state_id", "job_title", "job_description", "key_responsibilities", "is_active"],
+          where: whereClause,
           include: [
             { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
-            { model: models.CareerLocations, as: "location", attributes: ["location_name"] },
-            { model: models.CareerStates, as: "state", attributes: ["state_name"] },
+            {
+              model: models.CareerLocations,
+              as: "locations",
+              attributes: ["location_name"],
+              through: { attributes: [], required: false },
+              include: [
+                {
+                  model: models.Districts,
+                  as: "district",
+                  attributes: ["state_id"],
+                  where: { is_active: true },
+                  required: true,
+                  include: [
+                    {
+                      model: models.CareerStates,
+                      as: "state",
+                      attributes: ["id", "state_name"],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              model: models.CareerStates,
+              as: "states",
+              attributes: ["id", "state_name"],
+              through: { attributes: [], required: false },
+            },
           ],
           order: [["id", "ASC"]],
         }),
@@ -1259,9 +1398,7 @@ class WebController {
           order: [["order", "ASC"]],
         }),
         models.Awards.findAll({
-          where: {
-            is_active: true,
-          },
+          where: { is_active: true },
           order: [["order", "ASC"]],
         }),
         models.AwardPageContent.findAll({
@@ -1270,19 +1407,68 @@ class WebController {
         models.Testimonials.findAll(),
       ]);
 
-      const textTestimonials = testimoinials.filter(
-        (testimoinial) => testimoinial.type === "text"
-      );
-      const imageTestimonials = testimoinials.filter(
-        (testimoinial) => testimoinial.type === "video"
-      );
+      // Process careerJobs to format locations for multiple states
+      const formattedCareerJobs = careerJobs.map((job) => {
+        let locationDisplay = "";
+
+        // Check if job is Pan India
+        if (job.is_pan_india) {
+          locationDisplay = "Pan India";
+        } else if (job.states && job.states.length > 0) {
+          // Map locations to their respective states
+          const stateLocationMap = job.states.map((state) => {
+            // Filter locations for this state via district.state_id
+            const stateLocations = job.locations
+              .filter((loc) => loc.district && loc.district.state_id === state.id)
+              .map((loc) => capitalizeWords(loc.location_name))
+              .filter(Boolean);
+
+            if (job.is_display_full_locations) {
+              // Format: "Kerala: Calicut, Balussery and Chandra Nagar" or with ", etc."
+              if (stateLocations.length > 0) {
+                const lastLocation = stateLocations.pop();
+                const locationString =
+                  stateLocations.length > 0 ? `${stateLocations.join(", ")} and ${lastLocation}` : lastLocation;
+                return `${capitalizeWords(state.state_name)}: ${locationString}${stateLocations.length + 1 > 3 ? ", etc." : ""}`;
+              }
+              return `${capitalizeWords(state.state_name)}: No Specific Locations`;
+            } else {
+              // Show "Multiple Locations" or "No Specific Locations"
+              return stateLocations.length > 0
+                ? `${capitalizeWords(state.state_name)}: Multiple Locations`
+                : `${capitalizeWords(state.state_name)}: No Specific Locations`;
+            }
+          });
+
+          // Join state-location strings with semicolons
+          locationDisplay = stateLocationMap.join("; ");
+        } else {
+          // Fallback if no states are associated
+          if (job.is_display_full_locations && job.locations.length > 0) {
+            const locations = job.locations.map((loc) => capitalizeWords(loc.location_name)).filter(Boolean);
+            const lastLocation = locations.pop();
+            const locationString = locations.length > 0 ? `${locations.join(", ")} and ${lastLocation}` : lastLocation;
+            locationDisplay = `Unknown State: ${locationString}${locations.length + 1 > 3 ? ", etc." : ""}`;
+          } else {
+            locationDisplay = `Unknown State: ${job.locations.length > 0 ? "Multiple Locations" : "No Specific Locations"}`;
+          }
+        }
+
+        return {
+          ...job.toJSON(), // Convert Sequelize instance to plain object
+          locationDisplay, // Add formatted location string
+        };
+      });
+
+      const textTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "text");
+      const imageTestimonials = testimoinials.filter((testimoinial) => testimoinial.type === "video");
 
       const data = {
         careersContent: careersContent[0] || null,
         careerBanners,
         careerGallery,
         careerStates,
-        careerJobs,
+        careerJobs: formattedCareerJobs,
         empBenefits,
         awards,
         awardContent: awardContent[0] || null,
@@ -1292,7 +1478,6 @@ class WebController {
         },
       };
 
-      // await CacheService.set(cacheKey, JSON.stringify(data), 3600);
       logger.info("Fetched Career Page data from DB");
       res.json({ status: "success", data });
     } catch (error) {
@@ -1300,19 +1485,22 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError("Failed to fetch Career Page data", 500, error.message)
-      );
+      next(new CustomError("Failed to fetch Career Page data", 500, error.message));
     }
   }
 
   static async ActiveJobs(req, res, next) {
     const cacheKey = "webCareerPage";
     const { state, location, role } = req.query;
-
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    console.log("Requested Filters", { state, role, location });
     const whereClause = {
       is_active: true,
       is_approved: true,
+      end_date: {
+        [Op.gte]: today,
+      },
     };
 
     if (state) whereClause.state_id = state;
@@ -1328,28 +1516,24 @@ class WebController {
 
       const jobs = await models.CareerJobs.findAll({
         where: whereClause,
-        attributes: [
-          "id",
-          "role_id",
-          "location_id",
-          "state_id",
-          "short_description",
-          "detailed_description",
-          "experience",
-          "is_active",
-          "is_approved",
-        ],
+        attributes: ["id", "role_id", "location_id", "state_id", "job_description", "experience", "is_active", "is_approved"],
         include: [
           { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
           {
             model: models.CareerLocations,
-            as: "location",
-            attributes: ["location_name"],
+            as: "locations",
+            attributes: ["id", "location_name", "district_id"],
+            through: { attributes: [] }, // Exclude join table attributes
+            required: location ? true : false, // Make required if filtering by location
+            where: location ? { id: parseInt(location) } : {},
           },
           {
             model: models.CareerStates,
-            as: "state",
-            attributes: ["state_name"],
+            as: "states",
+            attributes: ["id", "state_name"],
+            through: { attributes: [] }, // Exclude join table attributes
+            required: state ? true : false, // Make required if filtering by state
+            where: state ? { id: parseInt(state) } : {},
           },
         ],
         order: [["id", "ASC"]],
@@ -1361,15 +1545,13 @@ class WebController {
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
       logger.info("Fetched Career Page data from DB");
-      res.json({ status: "success", data });
+      res.json({ success: true, data });
     } catch (error) {
       logger.error("Error fetching Career Page data", {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError("Failed to fetch Career Page data", 500, error.message)
-      );
+      next(new CustomError("Failed to fetch Career Page data", 500, error.message));
     }
   }
   static async eventGallery(req, res, next) {
@@ -1416,14 +1598,7 @@ class WebController {
         models.GalleryPageContent.findAll(),
         models.EventTypes.findAll({
           where: eventTypeWhere,
-          attributes: [
-            "id",
-            "title",
-            "description",
-            "slug",
-            "cover_image",
-            "image_alt",
-          ],
+          attributes: ["id", "title", "description", "slug", "cover_image", "image_alt"],
           order: [["order", "ASC"]],
         }),
         models.EventTypes.findAndCountAll({
@@ -1457,13 +1632,9 @@ class WebController {
 
       const galleryItems = eventMedias?.rows
         .map((eventType) => {
-          const images = (eventType.galleryItems || [])
-            .map((gallery) => gallery.image)
-            .filter((img) => img);
+          const images = (eventType.galleryItems || []).map((gallery) => gallery.image).filter((img) => img);
 
-          const video_thumbs = (eventType.galleryItems || [])
-            .map((gallery) => gallery.video_thumbnail)
-            .filter((vid) => vid);
+          const video_thumbs = (eventType.galleryItems || []).map((gallery) => gallery.video_thumbnail).filter((vid) => vid);
 
           const thumbnails = [...images, ...video_thumbs];
 
@@ -1613,13 +1784,9 @@ class WebController {
 
       const galleryItems = events
         ?.map((eventType) => {
-          const images = (eventType.galleryItems || [])
-            .map((gallery) => gallery.image)
-            .filter((img) => img);
+          const images = (eventType.galleryItems || []).map((gallery) => gallery.image).filter((img) => img);
 
-          const video_thumbs = (eventType.galleryItems || [])
-            .map((gallery) => gallery.video_thumbnail)
-            .filter((vid) => vid);
+          const video_thumbs = (eventType.galleryItems || []).map((gallery) => gallery.video_thumbnail).filter((vid) => vid);
 
           let thumbnails = [...images, ...video_thumbs];
 
@@ -1670,15 +1837,7 @@ class WebController {
         models.Awards.findAll({
           where: { is_active: true },
           order: [["order", "ASC"]],
-          attributes: [
-            "id",
-            "title",
-            "description",
-            "image",
-            "year",
-            "image_alt",
-            "is_slide",
-          ],
+          attributes: ["id", "title", "description", "image", "year", "image_alt", "is_slide"],
         }),
       ]);
 
@@ -1740,7 +1899,7 @@ class WebController {
             "slug",
           ],
           where: { is_active: true, is_slider: true },
-          order: [["order", "ASC"]],
+          order: [["event_date", "DESC"]],
         }),
         models.IndelCares.findAndCountAll({
           attributes: [
@@ -1830,13 +1989,7 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError(
-          "Failed to fetch indel cares details",
-          500,
-          error.message
-        )
-      );
+      next(new CustomError("Failed to fetch indel cares details", 500, error.message));
     }
   }
 
@@ -1864,13 +2017,7 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError(
-          "Failed to fetch ombudsman files data",
-          500,
-          error.message
-        )
-      );
+      next(new CustomError("Failed to fetch ombudsman files data", 500, error.message));
     }
   }
 
@@ -1918,46 +2065,45 @@ class WebController {
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, footerContent, modes, socialMediaLinks] =
-        await Promise.all([
-          models.HeaderContents.findAll({
-            attributes: [
-              "id",
-              "logo",
-              "button_1_text",
-              "button_1_inner_title",
-              "button_2_link",
-              "button_2_text",
-              "apple_dowload_icon",
-              "andrioid_download_icon",
-              "apple_download_icon_mobile",
-              "andrioid_download_icon_mobile",
-              "apple_dowload_link",
-              "andrioid_download_link",
-            ],
-          }),
-          models.FooterContent.findAll({
-            attributes: [
-              "id",
-              "toll_free_num",
-              "branch_locator_link",
-              "branch_locator_icon_mobile",
-              "branch_locator_icon_web",
-              "toll_free_icon_mobile",
-              "toll_free_icon_web",
-            ],
-          }),
-          models.PaymentModes.findAll({
-            attributes: ["id", "is_active", "title", "link"],
-            where: { is_active: true },
-            order: [["order", "ASC"]],
-          }),
-          models.SocialMediaIcons.findAll({
-            attributes: ["id", "link", "title", "icon"],
-            where: { is_active: true, icon_type: "mobile" },
-            order: [["order", "ASC"]],
-          }),
-        ]);
+      const [content, footerContent, modes, socialMediaLinks] = await Promise.all([
+        models.HeaderContents.findAll({
+          attributes: [
+            "id",
+            "logo",
+            "button_1_text",
+            "button_1_inner_title",
+            "button_2_link",
+            "button_2_text",
+            "apple_dowload_icon",
+            "andrioid_download_icon",
+            "apple_download_icon_mobile",
+            "andrioid_download_icon_mobile",
+            "apple_dowload_link",
+            "andrioid_download_link",
+          ],
+        }),
+        models.FooterContent.findAll({
+          attributes: [
+            "id",
+            "toll_free_num",
+            "branch_locator_link",
+            "branch_locator_icon_mobile",
+            "branch_locator_icon_web",
+            "toll_free_icon_mobile",
+            "toll_free_icon_web",
+          ],
+        }),
+        models.PaymentModes.findAll({
+          attributes: ["id", "is_active", "title", "link"],
+          where: { is_active: true },
+          order: [["order", "ASC"]],
+        }),
+        models.SocialMediaIcons.findAll({
+          attributes: ["id", "link", "title", "icon"],
+          where: { is_active: true, icon_type: "mobile" },
+          order: [["order", "ASC"]],
+        }),
+      ]);
 
       const quickLinks = [
         {
@@ -2014,10 +2160,8 @@ class WebController {
       const isBanner = settings?.is_banner || false;
 
       const bannerPopupData = {
-        banner_popup_disappear_time:
-          settings?.banner_popup_disappear_time || null,
-        banner_popup_appearence_time:
-          settings?.banner_popup_appearence_time || null,
+        banner_popup_disappear_time: settings?.banner_popup_disappear_time || null,
+        banner_popup_appearence_time: settings?.banner_popup_appearence_time || null,
         banner_popup_image: settings?.banner_popup_image || null,
         sub_title: settings?.sub_title || null,
         title: settings?.title || null,
@@ -2105,9 +2249,7 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError("Failed to get testimoinials data", 500, error.message)
-      );
+      next(new CustomError("Failed to get testimoinials data", 500, error.message));
     }
   }
 
@@ -2135,13 +2277,7 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError(
-          "Failed to get partners data for web",
-          500,
-          error.message
-        )
-      );
+      next(new CustomError("Failed to get partners data for web", 500, error.message));
     }
   }
 
@@ -2159,14 +2295,7 @@ class WebController {
           is_active: true,
         },
         order: [["order", "ASC"]],
-        attributes: [
-          "id",
-          "partner_type_id",
-          "logo",
-          "logo_alt",
-          "is_active",
-          "order",
-        ],
+        attributes: ["id", "partner_type_id", "logo", "logo_alt", "is_active", "order"],
       });
 
       logger.info("Fetched partner for web from DB");
@@ -2176,13 +2305,7 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError(
-          "Failed to get partner data for web",
-          500,
-          error.message
-        )
-      );
+      next(new CustomError("Failed to get partner data for web", 500, error.message));
     }
   }
 
@@ -2218,9 +2341,7 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError("Failed to fetch management data", 500, error.message)
-      );
+      next(new CustomError("Failed to fetch management data", 500, error.message));
     }
   }
 
@@ -2249,9 +2370,7 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError(`Failed to fetch ${type} policy`, 500, error.message)
-      );
+      next(new CustomError(`Failed to fetch ${type} policy`, 500, error.message));
     }
   }
 
@@ -2269,7 +2388,7 @@ class WebController {
         models.NewsPageContent.findAll(),
         models.News.findAll({
           where: { is_active: true, is_slider: true },
-          order: [["order", "ASC"]],
+          order: [["posted_on", "DESC"]],
         }),
       ]);
 
@@ -2303,7 +2422,7 @@ class WebController {
 
       const newsData = await models.News.findAndCountAll({
         where: { is_active: true },
-        order: [["order", "ASC"]],
+        order: [["posted_on", "DESC"]],
         limit: limitNum,
         offset,
       });
@@ -2332,11 +2451,11 @@ class WebController {
   }
 
   static async newsDetails(req, res, next) {
-    const { id } = req.params;
-    const cacheKey = `webNewsData_${id}`;
+const { slug } = req.params;
+const cacheKey = `webNewsData_${slug}`;
 
     try {
-      await CacheService.invalidate(`webNewsData_${id}`);
+      await CacheService.invalidate(`webNewsData_${slug}`);
       const cachedData = await CacheService.get(cacheKey);
       // if (cachedData) {
       //   logger.info("Serving blog details from cache");
@@ -2344,7 +2463,7 @@ class WebController {
       // }
 
       const news = await models.News.findOne({
-        where: { id },
+        where: { slug },
       });
 
       const newsId = news?.id;
@@ -2417,13 +2536,7 @@ class WebController {
         error: error.message,
         stack: error.stack,
       });
-      next(
-        new CustomError(
-          "Failed to fetch branch locator data",
-          500,
-          error.message
-        )
-      );
+      next(new CustomError("Failed to fetch branch locator data", 500, error.message));
     }
   }
 }

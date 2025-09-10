@@ -50,7 +50,7 @@ module.exports = (sequelize) => {
       },
       age: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
       current_salary: {
         type: DataTypes.FLOAT,
@@ -96,7 +96,7 @@ module.exports = (sequelize) => {
   Applicants.associate = (models) => {
     Applicants.belongsTo(models.CareerLocations, {
       foreignKey: "preferred_location",
-      as: "location",
+      as: "applicantLocation", // Updated alias
     });
   };
 

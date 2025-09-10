@@ -161,7 +161,11 @@ const validateHomeSmartDealsUpdate = [
   check("order").optional().isInt().withMessage("Order must be an integer"),
 ];
 const validateRegister = [
-  check("username").notEmpty().withMessage("Username is required").isLength({ min: 3 }).withMessage("Username must be at least 3 characters"),
+  check("username")
+    .notEmpty()
+    .withMessage("Username is required")
+    .isLength({ min: 3 })
+    .withMessage("Username must be at least 3 characters"),
   check("email").notEmpty().withMessage("Email is required").isEmail().withMessage("Invalid email format"),
   check("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters"),
   check("firstName").optional().isLength({ min: 1 }).withMessage("First name must not be empty if provided"),
@@ -170,8 +174,64 @@ const validateRegister = [
 ];
 
 const validateLogin = [
-  check("username").notEmpty().withMessage("Username is required"),
-  check("password").notEmpty().withMessage("Password is required").isLength({ min: 6 }).withMessage("Password must be at least 6 characters"),
+  check("identifier")
+    .notEmpty()
+    .withMessage("Username or email is required")
+    .isLength({ min: 3 })
+    .withMessage("Username or email must be at least 3 characters"),
+  check("password")
+    .notEmpty()
+    .withMessage("Password is required")
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters"),
+  // Custom validation to check if identifier is valid email or username
+  check().custom((value, { req }) => {
+    const { identifier } = req.body;
+    if (identifier && identifier.includes('@')) {
+      // If it contains @, validate as email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(identifier)) {
+        throw new Error("Invalid email format");
+      }
+    }
+    return true;
+  }),
+];
+
+const validatePasswordResetRequest = [
+  check("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email format"),
+];
+
+const validatePasswordReset = [
+  check("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email format"),
+  check("otp")
+    .notEmpty()
+    .withMessage("OTP is required")
+    .isLength({ min: 6, max: 6 })
+    .withMessage("OTP must be exactly 6 digits")
+    .isNumeric()
+    .withMessage("OTP must contain only numbers"),
+  check("newPassword")
+    .notEmpty()
+    .withMessage("New password is required")
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters"),
+];
+
+const validateResendOtp = [
+  check("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email format"),
 ];
 
 const validateHeroBanner = [
@@ -358,7 +418,7 @@ const validateHistoryImagesUpdate = [
 
 const validateHistoryInceptionsYears = [
   check("year").notEmpty().withMessage("Year cannot be empty"),
-  check("title").notEmpty().withMessage("Title cannot be empty"),
+  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
   check("description").notEmpty().withMessage("Description cannot be empty"),
   check("is_active").isBoolean().withMessage("Is active must be a boolean"),
 ];
@@ -622,7 +682,9 @@ const validateLoanAgainstPropertyContent = [
   check("about_loan_against_property_title").notEmpty().withMessage("About Loan Against Property title is required"),
   check("about_loan_against_property_description").notEmpty().withMessage("About Loan Against Property description is required"),
   check("loan_against_property_overview_title").notEmpty().withMessage("Loan Against Property overview title is required"),
-  check("loan_against_property_overview_description").notEmpty().withMessage("Loan Against Property overview description is required"),
+  check("loan_against_property_overview_description")
+    .notEmpty()
+    .withMessage("Loan Against Property overview description is required"),
 ];
 
 const validateLoanAgainstPropertyContentUpdate = [
@@ -637,12 +699,27 @@ const validateLoanAgainstPropertyContentUpdate = [
   check("our_offering_title").optional().notEmpty().withMessage("Our offering title cannot be empty"),
   check("our_offering_description").optional().notEmpty().withMessage("Our offering description cannot be empty"),
   check("why_loan_against_property_title").optional().notEmpty().withMessage("Why Loan Against Property title cannot be empty"),
-  check("why_loan_against_property_description").optional().notEmpty().withMessage("Why Loan Against Property description cannot be empty"),
+  check("why_loan_against_property_description")
+    .optional()
+    .notEmpty()
+    .withMessage("Why Loan Against Property description cannot be empty"),
   check("who_do_serve_title").optional().notEmpty().withMessage("Who do serve title cannot be empty"),
-  check("about_loan_against_property_title").optional().notEmpty().withMessage("About Loan Against Property title cannot be empty"),
-  check("about_loan_against_property_description").optional().notEmpty().withMessage("About Loan Against Property description cannot be empty"),
-  check("loan_against_property_overview_title").optional().notEmpty().withMessage("Loan Against Property overview title cannot be empty"),
-  check("loan_against_property_overview_description").optional().notEmpty().withMessage("Loan Against Property overview description cannot be empty"),
+  check("about_loan_against_property_title")
+    .optional()
+    .notEmpty()
+    .withMessage("About Loan Against Property title cannot be empty"),
+  check("about_loan_against_property_description")
+    .optional()
+    .notEmpty()
+    .withMessage("About Loan Against Property description cannot be empty"),
+  check("loan_against_property_overview_title")
+    .optional()
+    .notEmpty()
+    .withMessage("Loan Against Property overview title cannot be empty"),
+  check("loan_against_property_overview_description")
+    .optional()
+    .notEmpty()
+    .withMessage("Loan Against Property overview description cannot be empty"),
 ];
 
 const validateCdLoanContentUpdate = [
@@ -746,43 +823,232 @@ const validateCareerRoles = [
 ];
 
 // const validateJobsUpdate = [
-//   check("role_id").optional().isInt().withMessage("Role ID must be an integer"),
-//   check("location_id").optional().isInt().withMessage("Location ID must be an integer"),
-//   check("state_id").optional().isInt().withMessage("State ID must be an integer"),
-//   check("short_description").optional().notEmpty().withMessage("Short description cannot be empty"),
-//   check("detailed_description").optional().notEmpty().withMessage("Detailed description cannot be empty"),
-//   check("experience").optional().isInt().withMessage("Experience must be an integer"),
+//   // check("location_id").optional().isInt({ min: 1 }).withMessage("Location ID must be a positive integer"),
+//   // check("state_id").optional().isInt({ min: 1 }).withMessage("State ID must be a positive integer"),
+//   check("location_ids")
+//     .optional()
+//     .isArray({ min: 1 })
+//     .withMessage("Location IDs must be an array with at least one element")
+//     .custom((value) => value.every((id) => Number.isInteger(id)))
+//     .withMessage("Each location ID must be an integer"),
+//   check("state_ids")
+//     .optional()
+//     .isArray({ min: 1 })
+//     .withMessage("State IDs must be an array with at least one element")
+//     .custom((value) => value.every((id) => Number.isInteger(id)))
+//     .withMessage("Each state ID must be an integer"),
+//   check("job_title").optional().trim().isLength({ max: 255 }).withMessage("Job title must not exceed 255 characters"),
+//   check("job_description").optional().trim().notEmpty().withMessage("Job description cannot be empty if provided"),
 //   check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+//   check("end_date").optional().isISO8601().withMessage("End date must be a valid ISO 8601 date (e.g., YYYY-MM-DD)"),
+//   check("order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
 // ];
 
 // const validateJobs = [
-//   check("role_id").isInt().withMessage("Role ID must be an integer"),
-//   check("location_id").isInt().withMessage("Location ID must be an integer"),
-//   check("state_id").isInt().withMessage("State ID must be an integer"),
-//   check("short_description").notEmpty().withMessage("Short description cannot be empty"),
-//   check("detailed_description").notEmpty().withMessage("Detailed description cannot be empty"),
-//   check("experience").isInt().withMessage("Experience must be an integer"),
-//   check("is_active").isBoolean().withMessage("Is active must be a boolean"),
+//   // check("location_id").exists().isInt({ min: 1 }).withMessage("Location ID is required and must be a positive integer"),
+//   check("location_ids")
+//     .isArray({ min: 1 })
+//     .withMessage("At least one location ID is required")
+//     .custom((value) => value.every((id) => Number.isInteger(id)))
+//     .withMessage("Each location ID must be an integer"),
+//   check("state_ids")
+//     .isArray({ min: 1 })
+//     .withMessage("At least one state ID is required")
+//     .custom((value) => value.every((id) => Number.isInteger(id)))
+//     .withMessage("Each state ID must be an integer"),
+//   // check("state_id").exists().isInt({ min: 1 }).withMessage("State ID is required and must be a positive integer"),
+//   check("job_title").optional().trim().isLength({ max: 255 }).withMessage("Job title must not exceed 255 characters"),
+//   check("job_description").exists().trim().notEmpty().withMessage("Job description is required and cannot be empty"),
+//   check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+//   check("end_date").optional().isISO8601().withMessage("End date must be a valid ISO 8601 date (e.g., YYYY-MM-DD)"),
+//   check("order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
 // ];
 
 const validateJobsUpdate = [
-  check("location_id").optional().isInt({ min: 1 }).withMessage("Location ID must be a positive integer"),
-  check("state_id").optional().isInt({ min: 1 }).withMessage("State ID must be a positive integer"),
-  check("job_title").optional().trim().isLength({ max: 255 }).withMessage("Job title must not exceed 255 characters"),
+  // Pan India field validation
+  check("is_pan_india").optional().isBoolean().withMessage("is_pan_india must be a boolean"),
+
+  // Location IDs validation with Pan India logic
+  check("location_ids")
+    .optional()
+    .custom((value, { req }) => {
+      const isPanIndia = req.body.is_pan_india;
+
+      if (isPanIndia === true) {
+        // For Pan India jobs, location_ids should not be provided or should be empty
+        if (value && value.length > 0) {
+          throw new Error("Location IDs should not be provided for Pan India jobs");
+        }
+      } else if (isPanIndia === false) {
+        // For location-specific jobs, location_ids are required if provided
+        if (value !== undefined) {
+          if (!Array.isArray(value) || value.length === 0) {
+            throw new Error("At least one location ID is required for location-specific jobs");
+          }
+          // Check if all IDs are valid integers
+          if (!value.every((id) => Number.isInteger(id) && id > 0)) {
+            throw new Error("Each location ID must be a positive integer");
+          }
+        }
+      }
+
+      return true;
+    })
+    .withMessage("Invalid location IDs configuration"),
+
+  // State IDs validation with Pan India logic
+  check("state_ids")
+    .optional()
+    .custom((value, { req }) => {
+      const isPanIndia = req.body.is_pan_india;
+
+      if (isPanIndia === true) {
+        // For Pan India jobs, state_ids should not be provided or should be empty
+        if (value && value.length > 0) {
+          throw new Error("State IDs should not be provided for Pan India jobs");
+        }
+      } else if (isPanIndia === false) {
+        // For location-specific jobs, state_ids are required if provided
+        if (value !== undefined) {
+          if (!Array.isArray(value) || value.length === 0) {
+            throw new Error("At least one state ID is required for location-specific jobs");
+          }
+          // Check if all IDs are valid integers
+          if (!value.every((id) => Number.isInteger(id) && id > 0)) {
+            throw new Error("Each state ID must be a positive integer");
+          }
+        }
+      }
+
+      return true;
+    })
+    .withMessage("Invalid state IDs configuration"),
+
+  check("role_id").optional().isInt({ min: 1 }).withMessage("Role ID must be a positive integer"),
+
+  check("job_title")
+    .optional()
+    .trim()
+    .isLength({ min: 1, max: 255 })
+    .withMessage("Job title must be between 1 and 255 characters"),
+
   check("job_description").optional().trim().notEmpty().withMessage("Job description cannot be empty if provided"),
-  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+
+  check("experience")
+    .optional()
+    .trim()
+    .isLength({ min: 1, max: 100 })
+    .withMessage("Experience must be between 1 and 100 characters"),
+
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+
+  check("is_approved").optional().isBoolean().withMessage("is_approved must be a boolean"),
+
+  check("is_display_full_locations").optional().isBoolean().withMessage("is_display_full_locations must be a boolean"),
+
   check("end_date").optional().isISO8601().withMessage("End date must be a valid ISO 8601 date (e.g., YYYY-MM-DD)"),
+
   check("order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
+
+  check("reapply_period_months").optional().isInt({ min: 1 }).withMessage("Reapply period must be at least 1 month"),
 ];
 
 const validateJobs = [
-  check("location_id").exists().isInt({ min: 1 }).withMessage("Location ID is required and must be a positive integer"),
-  check("state_id").exists().isInt({ min: 1 }).withMessage("State ID is required and must be a positive integer"),
-  check("job_title").optional().trim().isLength({ max: 255 }).withMessage("Job title must not exceed 255 characters"),
-  check("job_description").exists().trim().notEmpty().withMessage("Job description is required and cannot be empty"),
-  check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  // Pan India field validation (optional for create, defaults to false)
+  check("is_pan_india").optional().isBoolean().withMessage("is_pan_india must be a boolean"),
+
+  // Role ID is required
+  check("role_id")
+    .exists()
+    .withMessage("Role ID is required")
+    .isInt({ min: 1 })
+    .withMessage("Role ID must be a positive integer"),
+
+  // Job title is required
+  check("job_title")
+    .exists()
+    .withMessage("Job title is required")
+    .trim()
+    .isLength({ min: 1, max: 255 })
+    .withMessage("Job title must be between 1 and 255 characters"),
+
+  // Job description is required
+  check("job_description")
+    .exists()
+    .withMessage("Job description is required")
+    .trim()
+    .notEmpty()
+    .withMessage("Job description cannot be empty"),
+
+  // Experience is required
+  check("experience")
+    .exists()
+    .withMessage("Experience is required")
+    .trim()
+    .isLength({ min: 1, max: 100 })
+    .withMessage("Experience must be between 1 and 100 characters"),
+
+  // Location IDs validation with Pan India logic
+  check("location_ids")
+    .custom((value, { req }) => {
+      const isPanIndia = req.body.is_pan_india;
+
+      if (isPanIndia === true) {
+        // For Pan India jobs, location_ids should not be provided or should be empty
+        if (value && value.length > 0) {
+          throw new Error("Location IDs should not be provided for Pan India jobs");
+        }
+      } else {
+        // For location-specific jobs (default behavior), location_ids are required
+        if (!value || !Array.isArray(value) || value.length === 0) {
+          throw new Error("At least one location ID is required for location-specific jobs");
+        }
+        // Check if all IDs are valid integers
+        if (!value.every((id) => Number.isInteger(id) && id > 0)) {
+          throw new Error("Each location ID must be a positive integer");
+        }
+      }
+
+      return true;
+    })
+    .withMessage("Invalid location IDs configuration"),
+
+  // State IDs validation with Pan India logic
+  check("state_ids")
+    .custom((value, { req }) => {
+      const isPanIndia = req.body.is_pan_india;
+
+      if (isPanIndia === true) {
+        // For Pan India jobs, state_ids should not be provided or should be empty
+        if (value && value.length > 0) {
+          throw new Error("State IDs should not be provided for Pan India jobs");
+        }
+      } else {
+        // For location-specific jobs (default behavior), state_ids are required
+        if (!value || !Array.isArray(value) || value.length === 0) {
+          throw new Error("At least one state ID is required for location-specific jobs");
+        }
+        // Check if all IDs are valid integers
+        if (!value.every((id) => Number.isInteger(id) && id > 0)) {
+          throw new Error("Each state ID must be a positive integer");
+        }
+      }
+
+      return true;
+    })
+    .withMessage("Invalid state IDs configuration"),
+
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+
+  check("is_approved").optional().isBoolean().withMessage("is_approved must be a boolean"),
+
+  check("is_display_full_locations").optional().isBoolean().withMessage("is_display_full_locations must be a boolean"),
+
   check("end_date").optional().isISO8601().withMessage("End date must be a valid ISO 8601 date (e.g., YYYY-MM-DD)"),
+
   check("order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
+
+  check("reapply_period_months").optional().isInt({ min: 1 }).withMessage("Reapply period must be at least 1 month"),
 ];
 
 const validateBlogPageContentUpdate = [
@@ -797,32 +1063,31 @@ const validateBlogPageContentUpdate = [
 ];
 
 const validateBlogsUpdate = [
-  check("meta_title").optional().notEmpty().withMessage("Meta Title cannot be empty"),
-  check("meta_description").optional().notEmpty().withMessage("Meta Description cannot be empty"),
-  check("meta_keywords").optional().notEmpty().withMessage("Meta Keywords cannot be empty"),
-  check("other_meta_tags").optional().notEmpty().withMessage("Other Meta Tags cannot be empty"),
-  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("meta_title").optional(),
+  check("meta_description").optional(),
+  check("meta_keywords").optional(),
+  check("other_meta_tags").optional(),
   check("title").optional().notEmpty().withMessage("Title is required"),
   check("image_description").optional().notEmpty().withMessage("Image Description cannot be empty"),
   check("image_alt").optional().notEmpty().withMessage("Image Alt cannot be empty"),
-  check("second_image_description").optional().notEmpty().withMessage("Second Image Description cannot be empty"),
-  check("second_image_alt").optional().notEmpty().withMessage("Second Image Alt cannot be empty"),
+  check("second_image_description").optional(),
+  // check("second_image_alt").optional().notEmpty().withMessage("Second Image Alt cannot be empty"),
   check("is_active").optional().notEmpty().withMessage("Is active is required"),
   check("order").optional().isInt().withMessage("Order must be an integer"),
   check("posted_on").optional().notEmpty().withMessage("Posted On cannot be empty"),
 ];
 
 const validateBlogs = [
-  check("meta_title").notEmpty().withMessage("Meta Title cannot be empty"),
-  check("meta_description").notEmpty().withMessage("Meta Description cannot be empty"),
-  check("meta_keywords").notEmpty().withMessage("Meta Keywords cannot be empty"),
-  check("other_meta_tags").optional().notEmpty().withMessage("Other Meta Tags cannot be empty"),
-  check("title").optional().notEmpty().withMessage("Title cannot be empty"),
+  check("meta_title").optional(),
+  check("meta_description").optional(),
+  check("meta_keywords").optional(),
+  check("other_meta_tags").optional(),
   check("title").notEmpty().withMessage("Title is required"),
+  check("slug").optional(),
   check("image_description").notEmpty().withMessage("Image Description cannot be empty"),
   check("image_alt").optional().notEmpty().withMessage("Image Alt cannot be empty"),
-  check("second_image_description").notEmpty().withMessage("Second Image Description cannot be empty"),
-  check("second_image_alt").optional().notEmpty().withMessage("Second Image Alt cannot be empty"),
+  check("second_image_description").optional(),
+  // check("second_image_alt").optional().notEmpty().withMessage("Second Image Alt cannot be empty"),
   check("is_active").notEmpty().withMessage("Is active is required"),
   check("order").isInt().withMessage("Order must be an integer"),
   check("posted_on").optional().notEmpty().withMessage("Posted On cannot be empty"),
@@ -1205,7 +1470,12 @@ const validateCsrCommittee = [
 const validateCsrCommitteeUpdate = [
   check("name").optional().notEmpty().withMessage("Name cannot be empty").isString().withMessage("Name must be a string"),
   check("nature").optional().notEmpty().withMessage("Nature cannot be empty").isString().withMessage("Nature must be a string"),
-  check("designation").optional().notEmpty().withMessage("Designation cannot be empty").isString().withMessage("Designation must be a string"),
+  check("designation")
+    .optional()
+    .notEmpty()
+    .withMessage("Designation cannot be empty")
+    .isString()
+    .withMessage("Designation must be a string"),
   check("order").optional().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
   check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
 ];
@@ -1236,15 +1506,28 @@ const validateCsrActionPlanUpdate = [
 
 const validateTestimonialPageContents = [
   check("meta_title").notEmpty().withMessage("Meta Title is required").isString().withMessage("Meta Title must be a string"),
-  check("meta_description").notEmpty().withMessage("Meta Description is required").isString().withMessage("Meta Description must be a string"),
-  check("meta_keywords").notEmpty().withMessage("Meta Keywords is required").isString().withMessage("Meta Keywords must be a string"),
+  check("meta_description")
+    .notEmpty()
+    .withMessage("Meta Description is required")
+    .isString()
+    .withMessage("Meta Description must be a string"),
+  check("meta_keywords")
+    .notEmpty()
+    .withMessage("Meta Keywords is required")
+    .isString()
+    .withMessage("Meta Keywords must be a string"),
   check("title").notEmpty().withMessage("Title is required").isString().withMessage("Title must be a string"),
 ];
 
 const validateTestimonial = [
   check("name").notEmpty().withMessage("Name is required").isString().withMessage("Name must be a string"),
   check("designation").notEmpty().withMessage("Designation is required").isString().withMessage("Designation must be a string"),
-  check("order").notEmpty().withMessage("Order is required").isString().matches(/^\d+$/).withMessage("Order must be a numeric string"),
+  check("order")
+    .notEmpty()
+    .withMessage("Order is required")
+    .isString()
+    .matches(/^\d+$/)
+    .withMessage("Order must be a numeric string"),
   check("type").notEmpty().withMessage("Type is required").isIn(["video", "text"]).withMessage("Type must be 'video' or 'text'"),
   check("testimonial")
     .if(check("type").equals("text"))
@@ -1266,9 +1549,25 @@ const validateTestimonial = [
 
 const validateTestimonialUpdate = [
   check("name").optional().notEmpty().withMessage("Name cannot be empty").isString().withMessage("Name must be a string"),
-  check("designation").optional().notEmpty().withMessage("Designation cannot be empty").isString().withMessage("Designation must be a string"),
-  check("order").optional().notEmpty().withMessage("Order cannot be empty").isString().matches(/^\d+$/).withMessage("Order must be a numeric string"),
-  check("type").optional().notEmpty().withMessage("Type cannot be empty").isIn(["video", "text"]).withMessage("Type must be 'video' or 'text'"),
+  check("designation")
+    .optional()
+    .notEmpty()
+    .withMessage("Designation cannot be empty")
+    .isString()
+    .withMessage("Designation must be a string"),
+  check("order")
+    .optional()
+    .notEmpty()
+    .withMessage("Order cannot be empty")
+    .isString()
+    .matches(/^\d+$/)
+    .withMessage("Order must be a numeric string"),
+  check("type")
+    .optional()
+    .notEmpty()
+    .withMessage("Type cannot be empty")
+    .isIn(["video", "text"])
+    .withMessage("Type must be 'video' or 'text'"),
   check("testimonial")
     .optional()
     .if(check("type").equals("text"))
@@ -1282,8 +1581,16 @@ const validateTestimonialUpdate = [
 
 const validateBranchLocatorPageContents = [
   check("meta_title").notEmpty().withMessage("Meta Title is required").isString().withMessage("Meta Title must be a string"),
-  check("meta_description").notEmpty().withMessage("Meta Description is required").isString().withMessage("Meta Description must be a string"),
-  check("meta_keywords").notEmpty().withMessage("Meta Keywords is required").isString().withMessage("Meta Keywords must be a string"),
+  check("meta_description")
+    .notEmpty()
+    .withMessage("Meta Description is required")
+    .isString()
+    .withMessage("Meta Description must be a string"),
+  check("meta_keywords")
+    .notEmpty()
+    .withMessage("Meta Keywords is required")
+    .isString()
+    .withMessage("Meta Keywords must be a string"),
   check("title").notEmpty().withMessage("Title is required").isString().withMessage("Title must be a string"),
   check("description").notEmpty().withMessage("Description is required").isString().withMessage("Description must be a string"),
 ];
@@ -1311,9 +1618,24 @@ const validateBranch = [
 const validateBranchUpdate = [
   check("name").optional().notEmpty().withMessage("Name cannot be empty").isString().withMessage("Name must be a string"),
   check("state").optional().notEmpty().withMessage("State cannot be empty").isString().withMessage("State must be a string"),
-  check("district").optional().notEmpty().withMessage("District cannot be empty").isString().withMessage("District must be a string"),
-  check("location").optional().notEmpty().withMessage("Location cannot be empty").isString().withMessage("Location must be a string"),
-  check("address").optional().notEmpty().withMessage("Address cannot be empty").isString().withMessage("Address must be a string"),
+  check("district")
+    .optional()
+    .notEmpty()
+    .withMessage("District cannot be empty")
+    .isString()
+    .withMessage("District must be a string"),
+  check("location")
+    .optional()
+    .notEmpty()
+    .withMessage("Location cannot be empty")
+    .isString()
+    .withMessage("Location must be a string"),
+  check("address")
+    .optional()
+    .notEmpty()
+    .withMessage("Address cannot be empty")
+    .isString()
+    .withMessage("Address must be a string"),
   check("latitude").optional().isFloat({ min: -90, max: 90 }).withMessage("Latitude must be between -90 and 90"),
   check("longitude").optional().isFloat({ min: -180, max: 180 }).withMessage("Longitude must be between -180 and 180"),
   check("phone_no")
@@ -1425,7 +1747,9 @@ const validateServiceEnquiry = [
   check("name").notEmpty().withMessage("Name is required"),
   check("phone").notEmpty().withMessage("Phone is required"),
   check("service_types").notEmpty().withMessage("Service types is required"),
-  check("enquiry_type").isIn(["gold_loan_calculator", "emi_calculator", "general", "contact"]).withMessage("Invalid enquiry type"),
+  check("enquiry_type")
+    .isIn(["gold_loan_calculator", "emi_calculator", "general", "contact"])
+    .withMessage("Invalid enquiry type"),
   check("email").optional().isEmail().withMessage("Email must be valid"),
   check("enquiry_type_details").optional().isObject().withMessage("Enquiry type details must be an object"),
 ];
@@ -1434,7 +1758,10 @@ const validateServiceEnquiryUpdate = [
   check("name").optional().notEmpty().withMessage("Name cannot be empty"),
   check("phone").optional().notEmpty().withMessage("Phone cannot be empty"),
   check("service_types").optional().notEmpty().withMessage("Service types cannot be empty"),
-  check("enquiry_type").optional().isIn(["gold_loan_calculator", "emi_calculator", "general", "contact"]).withMessage("Invalid enquiry type"),
+  check("enquiry_type")
+    .optional()
+    .isIn(["gold_loan_calculator", "emi_calculator", "general", "contact"])
+    .withMessage("Invalid enquiry type"),
   check("email").optional().isEmail().withMessage("Email must be valid"),
   check("enquiry_type_details").optional().isObject().withMessage("Enquiry type details must be an object"),
 ];
@@ -1503,10 +1830,22 @@ const validatePopupSettingsUpdate = [
   check("banner_popup_status").optional().isBoolean().withMessage("Banner Popup Status must be a boolean"),
   check("service_popup_status").optional().isBoolean().withMessage("Service Popup Status must be a boolean"),
   // check("banner_popup_image").optional().isURL().withMessage("Banner Popup Image must be a valid URL"),
-  check("banner_popup_appearence_time").optional().isInt({ min: 0 }).withMessage("Banner Popup Appearance Time must be a non-negative integer"),
-  check("banner_popup_disappear_time").optional().isInt({ min: 0 }).withMessage("Banner Popup Disappear Time must be a non-negative integer"),
-  check("service_popup_appearence_time").optional().isInt({ min: 0 }).withMessage("Service Popup Appearance Time must be a non-negative integer"),
-  check("service_popup_disappear_time").optional().isInt({ min: 0 }).withMessage("Service Popup Disappear Time must be a non-negative integer"),
+  check("banner_popup_appearence_time")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("Banner Popup Appearance Time must be a non-negative integer"),
+  check("banner_popup_disappear_time")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("Banner Popup Disappear Time must be a non-negative integer"),
+  check("service_popup_appearence_time")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("Service Popup Appearance Time must be a non-negative integer"),
+  check("service_popup_disappear_time")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("Service Popup Disappear Time must be a non-negative integer"),
 ];
 
 const validatePopupServicesUpdate = [
@@ -1574,9 +1913,20 @@ const validateApplicants = [
     .isLength({ max: 255 })
     .withMessage("Email must not exceed 255 characters"),
   check("phone").optional().trim().isLength({ max: 20 }).withMessage("Phone number must not exceed 20 characters"),
-  check("preferred_location").exists().isInt({ min: 1 }).withMessage("Preferred location ID is required and must be a positive integer"),
-  check("referred_employee_name").optional().trim().isLength({ max: 200 }).withMessage("Referred employee name must not exceed 200 characters"),
-  check("employee_referral_code").optional().trim().isLength({ max: 50 }).withMessage("Employee referral code must not exceed 50 characters"),
+  check("preferred_location")
+    .exists()
+    .isInt({ min: 1 })
+    .withMessage("Preferred location ID is required and must be a positive integer"),
+  check("referred_employee_name")
+    .optional()
+    .trim()
+    .isLength({ max: 200 })
+    .withMessage("Referred employee name must not exceed 200 characters"),
+  check("employee_referral_code")
+    .optional()
+    .trim()
+    .isLength({ max: 50 })
+    .withMessage("Employee referral code must not exceed 50 characters"),
   check("age").exists().isInt({ min: 18 }).withMessage("Age is required and must be an integer of 18 or above"),
   check("current_salary").optional().isFloat({ min: 0 }).withMessage("Current salary must be a positive number"),
   check("expected_salary").optional().isFloat({ min: 0 }).withMessage("Expected salary must be a positive number"),
@@ -1594,15 +1944,27 @@ const validateApplicantsUpdate = [
     .withMessage("Email must not exceed 255 characters"),
   check("phone").optional().trim().isLength({ max: 20 }).withMessage("Phone number must not exceed 20 characters"),
   check("preferred_location").optional().isInt({ min: 1 }).withMessage("Preferred location ID must be a positive integer"),
-  check("referred_employee_name").optional().trim().isLength({ max: 200 }).withMessage("Referred employee name must not exceed 200 characters"),
-  check("employee_referral_code").optional().trim().isLength({ max: 50 }).withMessage("Employee referral code must not exceed 50 characters"),
+  check("referred_employee_name")
+    .optional()
+    .trim()
+    .isLength({ max: 200 })
+    .withMessage("Referred employee name must not exceed 200 characters"),
+  check("employee_referral_code")
+    .optional()
+    .trim()
+    .isLength({ max: 50 })
+    .withMessage("Employee referral code must not exceed 50 characters"),
   check("age").optional().isInt({ min: 18 }).withMessage("Age must be an integer of 18 or above"),
   check("file").optional().trim().isLength({ max: 255 }).withMessage("File path must not exceed 255 characters"),
   check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
 ];
 
 const validateApplicationStatuses = [
-  check("status_name").exists().trim().isLength({ max: 50 }).withMessage("Status name is required and must not exceed 50 characters"),
+  check("status_name")
+    .exists()
+    .trim()
+    .isLength({ max: 50 })
+    .withMessage("Status name is required and must not exceed 50 characters"),
   check("description").optional().trim().isLength({ max: 255 }).withMessage("Description must not exceed 255 characters"),
   check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
   check("order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
@@ -1618,11 +1980,20 @@ const validateApplicationStatusesUpdate = [
 const validateGeneralApplications = [
   check("applicant_id").exists().isInt({ min: 1 }).withMessage("Applicant ID is required and must be a positive integer"),
   check("status_id").exists().isInt({ min: 1 }).withMessage("Status ID is required and must be a positive integer"),
-  check("application_date").optional().isISO8601().withMessage("Application date must be a valid ISO 8601 date (e.g., YYYY-MM-DD)"),
+  check("application_date")
+    .optional()
+    .isISO8601()
+    .withMessage("Application date must be a valid ISO 8601 date (e.g., YYYY-MM-DD)"),
   check("role_id").optional().isInt({ min: 1 }).withMessage("Role ID must be a positive integer"),
   check("preferred_role").optional().trim().isLength({ max: 200 }).withMessage("Preferred role must not exceed 200 characters"),
-  check("current_salary").optional().isDecimal({ decimal_digits: "0,2" }).withMessage("Current salary must be a valid decimal with up to 2 places"),
-  check("expected_salary").optional().isDecimal({ decimal_digits: "0,2" }).withMessage("Expected salary must be a valid decimal with up to 2 places"),
+  check("current_salary")
+    .optional()
+    .isDecimal({ decimal_digits: "0,2" })
+    .withMessage("Current salary must be a valid decimal with up to 2 places"),
+  check("expected_salary")
+    .optional()
+    .isDecimal({ decimal_digits: "0,2" })
+    .withMessage("Expected salary must be a valid decimal with up to 2 places"),
   check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
   check("order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
 ];
@@ -1630,17 +2001,30 @@ const validateGeneralApplications = [
 const validateGeneralApplicationsUpdate = [
   check("applicant_id").optional().isInt({ min: 1 }).withMessage("Applicant ID must be a positive integer"),
   check("status_id").optional().isInt({ min: 1 }).withMessage("Status ID must be a positive integer"),
-  check("application_date").optional().isISO8601().withMessage("Application date must be a valid ISO 8601 date (e.g., YYYY-MM-DD)"),
+  check("application_date")
+    .optional()
+    .isISO8601()
+    .withMessage("Application date must be a valid ISO 8601 date (e.g., YYYY-MM-DD)"),
   check("role_id").optional().isInt({ min: 1 }).withMessage("Role ID must be a positive integer"),
-  check("current_salary").optional().isDecimal({ decimal_digits: "0,2" }).withMessage("Current salary must be a valid decimal with up to 2 places"),
-  check("expected_salary").optional().isDecimal({ decimal_digits: "0,2" }).withMessage("Expected salary must be a valid decimal with up to 2 places"),
+  check("current_salary")
+    .optional()
+    .isDecimal({ decimal_digits: "0,2" })
+    .withMessage("Current salary must be a valid decimal with up to 2 places"),
+  check("expected_salary")
+    .optional()
+    .isDecimal({ decimal_digits: "0,2" })
+    .withMessage("Expected salary must be a valid decimal with up to 2 places"),
   check("is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
   check("order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
 ];
 
 const validateJobApplicationSubmission = [
   // Applicant Fields
-  check("applicant.name").exists().trim().isLength({ max: 100 }).withMessage("Name is required and must not exceed 100 characters"),
+  check("applicant.name")
+    .exists()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage("Name is required and must not exceed 100 characters"),
   check("applicant.email")
     .exists()
     .isEmail()
@@ -1648,7 +2032,10 @@ const validateJobApplicationSubmission = [
     .isLength({ max: 255 })
     .withMessage("Email must not exceed 255 characters"),
   check("applicant.phone").optional().trim().isLength({ max: 20 }).withMessage("Phone number must not exceed 20 characters"),
-  check("applicant.preferred_location").exists().isInt({ min: 1 }).withMessage("Preferred location ID is required and must be a positive integer"),
+  check("applicant.preferred_location")
+    .exists()
+    .isInt({ min: 1 })
+    .withMessage("Preferred location ID is required and must be a positive integer"),
   check("applicant.referred_employee_name")
     .optional()
     .trim()
@@ -1661,7 +2048,10 @@ const validateJobApplicationSubmission = [
     .withMessage("Employee referral code must not exceed 50 characters"),
   check("applicant.age").exists().isInt({ min: 18 }).withMessage("Age is required and must be an integer of 18 or above"),
   check("applicant.current_salary").optional().isFloat({ min: 0 }).withMessage("Current salary must be a non-negative number"),
-  check("applicant.expected_salary").exists().isFloat({ min: 0 }).withMessage("Expected salary is required and must be a non-negative number"),
+  check("applicant.expected_salary")
+    .exists()
+    .isFloat({ min: 0 })
+    .withMessage("Expected salary is required and must be a non-negative number"),
   // check("applicant.file")
   //   .exists()
   //   .optional()
@@ -1671,8 +2061,14 @@ const validateJobApplicationSubmission = [
   check("applicant.is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
   // Job Application Fields
   check("job_application.job_id").exists().isInt({ min: 1 }).withMessage("Job ID is required and must be a positive integer"),
-  check("job_application.status_id").exists().isInt({ min: 1 }).withMessage("Status ID is required and must be a positive integer"),
-  check("job_application.application_date").optional().isISO8601().withMessage("Application date must be a valid ISO 8601 date (e.g., YYYY-MM-DD)"),
+  check("job_application.status_id")
+    .exists()
+    .isInt({ min: 1 })
+    .withMessage("Status ID is required and must be a positive integer"),
+  check("job_application.application_date")
+    .optional()
+    .isISO8601()
+    .withMessage("Application date must be a valid ISO 8601 date (e.g., YYYY-MM-DD)"),
   check("job_application.is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
   check("job_application.order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
 ];
@@ -1843,6 +2239,9 @@ module.exports = {
   validateJobApplicationSubmission,
   validateRegister,
   validateLogin,
+  validatePasswordResetRequest,
+  validatePasswordReset,
+  validateResendOtp,
   validateServices,
   validateServiceUpdate,
   validateLoanAgainstPropertyContent,

@@ -53,6 +53,7 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+
       disclosure_file: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -78,6 +79,10 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       csr_policy_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      csr_policy_doc_title: {
         type: DataTypes.STRING,
         allowNull: true,
       },

@@ -7,6 +7,7 @@ const { validateCareerLocations, validateCareerLocationsUpdate } = require("../.
 
 router.get("/by_district_state/", LocationsController.getAllByStateDistrict);
 router.get("/", LocationsController.getAll);
+router.get("/by_state", LocationsController.getAllLocationByState);
 router.get("/:id", LocationsController.getById);
 
 router.use(authMiddleware(["admin"]));

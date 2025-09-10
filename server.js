@@ -20,7 +20,12 @@ const { initLoanAgainstPropertyContent } = require("./utils/initLoanAgainstPrope
 
 const { initCdLoanContent } = require("./utils/initCdLoanContent");
 const { initCareerContents } = require("./utils/initCareerContent");
-const { initDebtPartnersContent, initAboutPageContent, initBlogPageContent, initCSRPageContent } = require("./utils/initContents");
+const {
+  initDebtPartnersContent,
+  initAboutPageContent,
+  initBlogPageContent,
+  initCSRPageContent,
+} = require("./utils/initContents");
 const { initGalleryPageContent } = require("./utils/initGalleryContents");
 const { initAwardPageContent } = require("./utils/initAwardPageContent");
 const { initNewsPageContent } = require("./utils/initNewsPageContent");
@@ -39,7 +44,7 @@ const session = require("express-session");
 dotenv.config();
 const app = express();
 
-app.set('trust proxy', true);
+app.set("trust proxy", true);
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
@@ -84,35 +89,35 @@ const startServer = async () => {
     await sequelize.sync({ alter: true });
     Logger.info("Database connected and synced");
 
-    await createDemoAdmin();
-    await initHomePageContent();
-    await initAboutPageContent();
-    await initMngmntTeamContent();
-    await initDebtPartnersContent();
-    await initContactContent();
-    await initCSRPageContent();
-    await initHistoryPageContent();
-    await initIndelValueContent();
-    await initShadesOfIndelContent();
-    await initServicesPageContent();
-    await initGoldLoanContent();
-    await initMsmeLoanContent();
-    await initLoanAgainstPropertyContent();
-    await initCdLoanContent();
-    await initCareerContents();
-    await initBlogPageContent();
-    await initGalleryPageContent();
-    await initAwardPageContent();
-    await initNewsPageContent();
-    await initEventPageContent();
-    await initInvestorsPageContent();
-    await initTestimonialPageContents();
-    await initBranchLocatorPageContents();
-    await initIndelCaresContent();
-    await initFooterContent();
-    await initHeaderContents();
-    await initPopupSettings();
-    await initDirectorsContent();
+    // await createDemoAdmin();
+    // await initHomePageContent();
+    // await initAboutPageContent();
+    // await initMngmntTeamContent();
+    // await initDebtPartnersContent();
+    // await initContactContent();
+    // await initCSRPageContent();
+    // await initHistoryPageContent();
+    // await initIndelValueContent();
+    // await initShadesOfIndelContent();
+    // await initServicesPageContent();
+    // await initGoldLoanContent();
+    // await initMsmeLoanContent();
+    // await initLoanAgainstPropertyContent();
+    // await initCdLoanContent();
+    // await initCareerContents();
+    // await initBlogPageContent();
+    // await initGalleryPageContent();
+    // await initAwardPageContent();
+    // await initNewsPageContent();
+    // await initEventPageContent();
+    // await initInvestorsPageContent();
+    // await initTestimonialPageContents();
+    // await initBranchLocatorPageContents();
+    // await initIndelCaresContent();
+    // await initFooterContent();
+    // await initHeaderContents();
+    // await initPopupSettings();
+    // await initDirectorsContent();
 
     app.listen(PORT, () => {
       Logger.info(`Server running on port ${PORT}`);
