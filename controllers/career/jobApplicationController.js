@@ -270,155 +270,6 @@ class JobApplicationSubmissionController {
     }
   }
 
-  // static async listApplications(req, res, next) {
-  //   try {
-  //     const {
-  //       role_id,
-  //       location_id,
-  //       state_id,
-  //       status_id,
-  //       applicant_location_id,
-  //       limit = "10",
-  //       offset = "0",
-  //       from_date,
-  //       to_date,
-  //     } = req.query;
-
-  //     const parsedLimit = Math.max(1, parseInt(limit, 10) || 10); // Ensure limit >= 1
-  //     const parsedOffset = Math.max(0, parseInt(offset, 10) || 0); // Ensure offset >= 0
-
-  //     // Build cache key based on query parameters
-  //     const cacheKey = `job_applications_all_${role_id || "all"}_${
-  //       location_id || "all"
-  //     }_${state_id || "all"}_${status_id || "all"}_${
-  //       applicant_location_id || "all"
-  //     }_${parsedLimit}_${parsedOffset}`;
-  //     const cachedData = await CacheService.get(cacheKey);
-
-  //     // if (cachedData) {
-  //     //   return res.json({
-  //     //     success: true,
-  //     //     data: JSON.parse(cachedData),
-  //     //   });
-  //     // }
-
-  //     // Build filter conditions
-  //     const whereConditions = {}; // Only active applications
-  //     const jobWhere = {};
-  //     const applicantWhere = {};
-
-  //     if (status_id) {
-  //       whereConditions.status_id = parseInt(status_id);
-  //     }
-
-  //     if (role_id) {
-  //       jobWhere.role_id = parseInt(role_id);
-  //     }
-
-  //     if (location_id) {
-  //       jobWhere.location_id = parseInt(location_id);
-  //     }
-
-  //     if (state_id) {
-  //       jobWhere.state_id = parseInt(state_id);
-  //     }
-
-  //     if (applicant_location_id) {
-  //       applicantWhere.preferred_location = parseInt(applicant_location_id);
-  //     }
-
-  //     if (from_date && to_date) {
-  //       whereConditions.application_date = {
-  //         [Op.between]: [new Date(from_date), new Date(to_date)],
-  //       };
-  //     } else if (from_date) {
-  //       whereConditions.application_date = {
-  //         [Op.gte]: new Date(from_date),
-  //       };
-  //     } else if (to_date) {
-  //       whereConditions.application_date = {
-  //         [Op.lte]: new Date(to_date),
-  //       };
-  //     }
-
-  //     const { rows: applications, count: total } =
-  //       await models.JobApplications.findAndCountAll({
-  //         where: whereConditions,
-  //         include: [
-  //           {
-  //             model: models.Applicants,
-  //             as: "applicant",
-  //             attributes: ["id", "name", "email", "phone", "file"],
-  //             where: applicantWhere,
-  //             include: [
-  //               {
-  //                 model: models.CareerLocations,
-  //                 as: "location",
-  //                 attributes: ["id", "location_name"],
-  //               },
-  //             ],
-  //           },
-  //           {
-  //             model: models.CareerJobs,
-  //             as: "job",
-  //             attributes: ["id", "job_title"],
-  //             where: jobWhere,
-  //             include: [
-  //               {
-  //                 model: models.CareerRoles,
-  //                 as: "role",
-  //                 attributes: ["id", "role_name"],
-  //               },
-  //               {
-  //                 model: models.CareerLocations,
-  //                 as: "locations",
-  //                 attributes: ["id", "location_name"],
-  //               },
-  //               {
-  //                 model: models.CareerStates,
-  //                 as: "states",
-  //                 attributes: ["id", "state_name"],
-  //               },
-  //             ],
-  //           },
-  //           {
-  //             model: models.ApplicationStatus,
-  //             as: "status",
-  //             attributes: ["id", "status_name"],
-  //           },
-  //         ],
-  //         order: [["application_date", "DESC"]],
-  //         // attributes: ["id", "application_date", "order", "is_active"],
-  //         limit: parsedLimit,
-  //         offset: parsedOffset,
-  //       });
-
-  //     const response = {
-  //       success: true,
-  //       data: applications,
-  //       total,
-  //       meta: {
-  //         page: Math.floor(parsedOffset / parsedLimit) + 1,
-  //         totalPages: Math.ceil(total / parsedLimit),
-  //         limit: parsedLimit,
-  //         offset: parsedOffset,
-  //       },
-  //     };
-
-  //     // Store in cache for 1 hour
-  //     await CacheService.set(cacheKey, JSON.stringify(response), 3600); // Cache for 1 hour
-
-  //     res.status(200).json({
-  //       status: "success",
-  //       data: response,
-  //     });
-  //   } catch (error) {
-  //     console.log("Error in listApplications:", error);
-
-  //     next(error);
-  //   }
-  // }
-
   static async listApplications(req, res, next) {
     try {
       const {
@@ -696,113 +547,6 @@ class JobApplicationSubmissionController {
       next(error);
     }
   }
-
-  // static async listGeneralApplications(req, res, next) {
-  //   try {
-  //     const { role_id, location_id, status_id, from_date, to_date, limit = "10", offset = "0" } = req.query;
-
-  //     const parsedLimit = Math.max(1, parseInt(limit, 10) || 10); // Ensure limit >= 1
-  //     const parsedOffset = Math.max(0, parseInt(offset, 10) || 0); // Ensure offset >= 0
-
-  //     // Build cache key based on query parameters
-  //     const cacheKey = `general_applications_all_${role_id || "all"}_${location_id || "all"}_${
-  //       status_id || "all"
-  //     }_${parsedLimit}_${parsedOffset}`;
-  //     const cachedData = await CacheService.get(cacheKey);
-
-  //     // if (cachedData) {
-  //     //   return res.json({
-  //     //     success: true,
-  //     //     data: JSON.parse(cachedData),
-  //     //   });
-  //     // }
-
-  //     // Build filter conditions
-  //     const whereConditions = {};
-  //     const applicantWhere = {};
-
-  //     if (status_id) {
-  //       whereConditions.status_id = parseInt(status_id);
-  //     }
-
-  //     if (role_id) {
-  //       whereConditions.role_id = parseInt(role_id);
-  //     }
-
-  //     if (location_id) {
-  //       applicantWhere.preferred_location = parseInt(location_id);
-  //     }
-
-  //     if (from_date && to_date) {
-  //       whereConditions.application_date = {
-  //         [Op.between]: [new Date(from_date), new Date(to_date)],
-  //       };
-  //     } else if (from_date) {
-  //       whereConditions.application_date = {
-  //         [Op.gte]: new Date(from_date),
-  //       };
-  //     } else if (to_date) {
-  //       whereConditions.application_date = {
-  //         [Op.lte]: new Date(to_date),
-  //       };
-  //     }
-
-  //     const { rows: applications, count: total } = await models.GeneralApplications.findAndCountAll({
-  //       where: whereConditions,
-  //       include: [
-  //         {
-  //           model: models.Applicants,
-  //           as: "applicant",
-  //           attributes: ["id", "name", "email", "phone", "file"],
-  //           where: applicantWhere,
-  //           include: [
-  //             {
-  //               model: models.CareerLocations,
-  //               as: "location",
-  //               attributes: ["id", "location_name"],
-  //             },
-  //           ],
-  //         },
-  //         {
-  //           model: models.CareerRoles,
-  //           as: "role",
-  //           attributes: ["id", "role_name"],
-  //         },
-  //         {
-  //           model: models.ApplicationStatus,
-  //           as: "status",
-  //           attributes: ["id", "status_name"],
-  //         },
-  //       ],
-  //       order: [["application_date", "DESC"]],
-  //       limit: parsedLimit,
-  //       offset: parsedOffset,
-  //     });
-
-  //     // Prepare response
-  //     const response = {
-  //       success: true,
-  //       data: applications,
-  //       total,
-  //       meta: {
-  //         page: Math.floor(parsedOffset / parsedLimit) + 1,
-  //         totalPages: Math.ceil(total / parsedLimit),
-  //         limit: parsedLimit,
-  //         offset: parsedOffset,
-  //       },
-  //     };
-
-  //     // Store in cache
-  //     await CacheService.set(cacheKey, JSON.stringify(response), 3600); // Cache for 1 hour
-
-  //     res.status(200).json({
-  //       success: true,
-  //       data: response,
-  //     });
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // }
 
   static async listGeneralApplications(req, res, next) {
     try {
@@ -1130,7 +874,7 @@ class JobApplicationSubmissionController {
         { header: "Role", key: "role", width: 20 },
         // { header: "Job Location", key: "jobLocation", width: 20 },
         // { header: "State", key: "state", width: 15 },
-        { header: "Preffered Location", key: "applicantLocation", width: 20 },
+        { header: "Preferred Location", key: "applicantLocation", width: 20 },
         { header: "Status", key: "status", width: 15 },
         { header: "Application Date", key: "applicationDate", width: 20 },
         { header: "Resume", key: "resume", width: 30 },
@@ -1243,7 +987,7 @@ class JobApplicationSubmissionController {
             include: [
               {
                 model: models.CareerLocations,
-                as: "location",
+                as: "applicantLocation",
                 attributes: ["id", "location_name"],
               },
             ],
@@ -1295,7 +1039,7 @@ class JobApplicationSubmissionController {
           email: app.applicant?.email || "N/A",
           phone: app.applicant?.phone || "N/A",
           role: app.role?.role_name || "N/A",
-          preferredLocation: app.applicant?.location?.location_name || "N/A",
+          preferredLocation: app.applicant?.applicantLocation?.location_name || "N/A",
           status: app.status?.status_name || "N/A",
           applicationDate: app.application_date ? new Date(app.application_date).toLocaleDateString("en-GB") : "N/A",
           resume: app.applicant?.file ? `Resume_${app.applicant.name}_${app.id}` : "No Resume",
