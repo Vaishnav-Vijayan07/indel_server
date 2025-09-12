@@ -98,6 +98,14 @@ module.exports = (sequelize) => {
       foreignKey: "preferred_location",
       as: "applicantLocation", // Updated alias
     });
+    
+    // Many-to-many relationship with locations
+    Applicants.belongsToMany(models.CareerLocations, {
+      through: models.ApplicantLocations,
+      foreignKey: "applicant_id",
+      otherKey: "location_id",
+      as: "preferredLocations",
+    });
   };
 
   return Applicants;

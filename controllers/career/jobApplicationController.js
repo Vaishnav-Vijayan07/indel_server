@@ -96,40 +96,73 @@ class JobApplicationSubmissionController {
     try {
       const { applicant, job_application, recaptcha } = req.body;
       const file = req.file;
+      
 
-      // Validate reCAPTCHA token
-      if (!recaptcha) {
-        return res.status(400).json({ success: false, message: "reCAPTCHA token is missing" });
-      }
-
-      const recaptchaResponse = await axios.post(
-        "https://www.google.com/recaptcha/api/siteverify",
-        new URLSearchParams({
-          secret: process.env.RECAPTCHA_SECRET_KEY,
-          response: recaptcha,
-        }).toString(),
-        {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
+      // Validate reCAPTCHA token (bypass in development)
+      if (process.env.NODE_ENV !== 'development') {
+        if (!recaptcha) {
+          return res.status(400).json({ success: false, message: "reCAPTCHA token is missing" });
         }
-      );
 
-      console.log("recaptchaResponse.data:", recaptchaResponse.data);
+        const recaptchaResponse = await axios.post(
+          "https://www.google.com/recaptcha/api/siteverify",
+          new URLSearchParams({
+            secret: process.env.RECAPTCHA_SECRET_KEY,
+            response: recaptcha,
+          }).toString(),
+          {
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          }
+        );
 
-      const { success, score } = recaptchaResponse.data;
+        console.log("recaptchaResponse.data:", recaptchaResponse.data);
 
-      if (!success || score < 0.5) {
-        // Adjust score threshold as needed (0.5 is a common threshold for v3)
-        return res.status(400).json({
-          success: false,
-          message: "reCAPTCHA verification failed. Please try again.",
-        });
+        const { success, score } = recaptchaResponse.data;
+
+        if (!success || score < 0.5) {
+          // Adjust score threshold as needed (0.5 is a common threshold for v3)
+          return res.status(400).json({
+            success: false,
+            message: "reCAPTCHA verification failed. Please try again.",
+          });
+        }
+      } else {
+        console.log("reCAPTCHA verification bypassed in development mode");
       }
 
-      // Validate preferred location
-      const location = await models.CareerLocations.findByPk(applicant?.preferred_location);
-      if (!location) throw new CustomError("Preferred location not found", 404);
+      // Validate preferred locations (can be single or multiple)
+      let preferredLocations = [];
+      
+      if (applicant?.preferred_locations && Array.isArray(applicant.preferred_locations)) {
+        // Multiple locations provided
+        preferredLocations = applicant.preferred_locations;
+      } else if (applicant?.preferred_location) {
+        // Single location provided (backward compatibility)
+        preferredLocations = [applicant.preferred_location];
+      } else {
+        throw new CustomError("At least one preferred location is required", 400);
+      }
+
+      // Validate all locations exist
+      const locations = await models.CareerLocations.findAll({
+        where: { id: { [Op.in]: preferredLocations } }
+      });
+      
+      console.log(`Found ${locations.length} locations out of ${preferredLocations.length} requested`);
+      locations.forEach(loc => {
+        console.log(`  - ID: ${loc.id}, Name: ${loc.location_name}`);
+      });
+      
+      if (locations.length !== preferredLocations.length) {
+        const foundIds = locations.map(l => l.id);
+        const missingIds = preferredLocations.filter(id => !foundIds.includes(id));
+        console.log("❌ Missing location IDs:", missingIds);
+        throw new CustomError("One or more preferred locations not found", 404);
+      }
+      
+      console.log("✅ All locations validated successfully");
 
       // Validate job
       const job = await models.CareerJobs.findByPk(job_application?.job_id);
@@ -230,8 +263,27 @@ class JobApplicationSubmissionController {
           updateData.file = file.path;
           updateData.file_uploaded_at = new Date();
         }
+        
+        // Remove preferred_locations from updateData as it will be handled separately
+        delete updateData.preferred_locations;
+        
         // Update applicant
         await existingApplicant.update(updateData);
+        
+        // Update preferred locations
+        await models.ApplicantLocations.destroy({
+          where: { applicant_id: existingApplicant.id }
+        });
+        
+        // Add new preferred locations
+        const locationData = preferredLocations.map((locationId, index) => ({
+          applicant_id: existingApplicant.id,
+          location_id: locationId,
+          is_primary: index === 0 // First location is primary
+        }));
+        
+        await models.ApplicantLocations.bulkCreate(locationData);
+        
         applicantRecord = existingApplicant;
       } else {
         // Prepare create data
@@ -240,7 +292,23 @@ class JobApplicationSubmissionController {
           file: file ? file.path : null,
           file_uploaded_at: file ? new Date() : null,
         };
+        
+        // Remove preferred_locations from createData as it will be handled separately
+        delete createData.preferred_locations;
+        
+        // Set the first location as the primary preferred_location for backward compatibility
+        createData.preferred_location = preferredLocations[0];
+        
         applicantRecord = await models.Applicants.create(createData);
+        
+        // Add preferred locations
+        const locationData = preferredLocations.map((locationId, index) => ({
+          applicant_id: applicantRecord.id,
+          location_id: locationId,
+          is_primary: index === 0 // First location is primary
+        }));
+        
+        await models.ApplicantLocations.bulkCreate(locationData);
       }
 
       // Create job application record
@@ -257,10 +325,22 @@ class JobApplicationSubmissionController {
       // Invalidate caches
       await Promise.all([CacheService.invalidate("applicants"), CacheService.invalidate("job_applications")]);
 
+      // Fetch applicant with preferred locations for response
+      const applicantWithLocations = await models.Applicants.findByPk(applicantRecord.id, {
+        include: [
+          {
+            model: models.CareerLocations,
+            through: models.ApplicantLocations,
+            as: "preferredLocations",
+            attributes: ["id", "location_name"],
+          },
+        ],
+      });
+
       res.status(201).json({
         success: true,
         data: {
-          applicant: applicantRecord,
+          applicant: applicantWithLocations,
           job_application: newApplication,
         },
         message: "Job application submitted successfully",
@@ -314,7 +394,19 @@ class JobApplicationSubmissionController {
       }
 
       if (applicant_location_id) {
-        applicantWhere.preferred_location = parseInt(applicant_location_id);
+        // Filter by both old single location and new multiple locations
+        applicantWhere[Op.or] = [
+          { preferred_location: parseInt(applicant_location_id) },
+          {
+            id: {
+              [Op.in]: require('sequelize').literal(`(
+                SELECT applicant_id 
+                FROM "applicant_locations" 
+                WHERE location_id = ${parseInt(applicant_location_id)}
+              )`)
+            }
+          }
+        ];
       }
 
       if (from_date && to_date) {
@@ -358,38 +450,56 @@ class JobApplicationSubmissionController {
         },
       ];
 
+      // Build include array conditionally
+      const includeArray = [
+        {
+          model: models.Applicants,
+          as: "applicant",
+          attributes: ["id", "name", "email", "phone", "file", "preferred_location"],
+          ...(Object.keys(applicantWhere).length > 0 && { where: applicantWhere }),
+          include: [
+            {
+              model: models.CareerLocations,
+              as: "applicantLocation",
+              attributes: ["id", "location_name"],
+              required: false,
+            },
+            {
+              model: models.CareerLocations,
+              as: "preferredLocations",
+              through: {
+                model: models.ApplicantLocations,
+                attributes: ["is_primary"],
+              },
+              attributes: ["id", "location_name"],
+              required: false, // Always optional to avoid affecting count
+            },
+          ],
+        },
+        {
+          model: models.CareerJobs,
+          as: "job",
+          attributes: ["id", "job_title", "role_id"], // Include role_id
+          ...(Object.keys(jobWhere).length > 0 && { where: jobWhere }),
+          include: jobInclude.map(include => ({
+            ...include,
+            required: false, // Make all job includes optional
+          })),
+        },
+        {
+          model: models.ApplicationStatus,
+          as: "status",
+          attributes: ["id", "status_name"],
+        },
+      ];
+
       const { rows: applications, count: total } = await models.JobApplications.findAndCountAll({
         where: whereConditions,
-        include: [
-          {
-            model: models.Applicants,
-            as: "applicant",
-            attributes: ["id", "name", "email", "phone", "file", "preferred_location"],
-            where: applicantWhere,
-            include: [
-              {
-                model: models.CareerLocations,
-                as: "applicantLocation",
-                attributes: ["id", "location_name"],
-              },
-            ],
-          },
-          {
-            model: models.CareerJobs,
-            as: "job",
-            attributes: ["id", "job_title", "role_id"], // Include role_id
-            where: jobWhere,
-            include: jobInclude,
-          },
-          {
-            model: models.ApplicationStatus,
-            as: "status",
-            attributes: ["id", "status_name"],
-          },
-        ],
+        include: includeArray,
         order: [["application_date", "DESC"]],
         limit: parsedLimit,
         offset: parsedOffset,
+        distinct: true, // Add distinct to handle potential duplicates from joins
       });
 
       const response = {
@@ -420,39 +530,60 @@ class JobApplicationSubmissionController {
     try {
       const { applicant, general_application, recaptcha } = req.body;
       const file = req?.file;
-      // Validate reCAPTCHA token
-      if (!recaptcha) {
-        return res.status(400).json({ success: false, message: "reCAPTCHA token is missing" });
-      }
-
-      const recaptchaResponse = await axios.post(
-        "https://www.google.com/recaptcha/api/siteverify",
-        new URLSearchParams({
-          secret: process.env.RECAPTCHA_SECRET_KEY,
-          response: recaptcha,
-        }).toString(),
-        {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
+      // Validate reCAPTCHA token (bypass in development)
+      if (process.env.NODE_ENV !== 'development') {
+        if (!recaptcha) {
+          return res.status(400).json({ success: false, message: "reCAPTCHA token is missing" });
         }
-      );
 
-      console.log("recaptchaResponse.data:", recaptchaResponse.data);
+        const recaptchaResponse = await axios.post(
+          "https://www.google.com/recaptcha/api/siteverify",
+          new URLSearchParams({
+            secret: process.env.RECAPTCHA_SECRET_KEY,
+            response: recaptcha,
+          }).toString(),
+          {
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          }
+        );
 
-      const { success, score } = recaptchaResponse.data;
+        console.log("recaptchaResponse.data:", recaptchaResponse.data);
 
-      if (!success || score < 0.5) {
-        // Adjust score threshold as needed (0.5 is a common threshold for v3)
-        return res.status(400).json({
-          success: false,
-          message: "reCAPTCHA verification failed. Please try again.",
-        });
+        const { success, score } = recaptchaResponse.data;
+
+        if (!success || score < 0.5) {
+          // Adjust score threshold as needed (0.5 is a common threshold for v3)
+          return res.status(400).json({
+            success: false,
+            message: "reCAPTCHA verification failed. Please try again.",
+          });
+        }
+      } else {
+        console.log("reCAPTCHA verification bypassed in development mode");
       }
 
-      // Validate preferred location
-      const location = await models.CareerLocations.findByPk(applicant.preferred_location);
-      if (!location) throw new CustomError("Preferred location not found", 404);
+      // Validate preferred locations (can be single or multiple)
+      let preferredLocations = [];
+      if (applicant?.preferred_locations && Array.isArray(applicant.preferred_locations)) {
+        // Multiple locations provided
+        preferredLocations = applicant.preferred_locations;
+      } else if (applicant?.preferred_location) {
+        // Single location provided (backward compatibility)
+        preferredLocations = [applicant.preferred_location];
+      } else {
+        throw new CustomError("At least one preferred location is required", 400);
+      }
+
+      // Validate all locations exist
+      const locations = await models.CareerLocations.findAll({
+        where: { id: { [Op.in]: preferredLocations } }
+      });
+      
+      if (locations.length !== preferredLocations.length) {
+        throw new CustomError("One or more preferred locations not found", 404);
+      }
 
       // Validate role
       const role = await models.CareerRoles.findByPk(general_application?.role_id);
@@ -487,6 +618,9 @@ class JobApplicationSubmissionController {
           ...applicant,
         };
 
+        // Remove preferred_locations from updateData as it will be handled separately
+        delete updatedData.preferred_locations;
+
         // Handle file logic:
         if (file) {
           // New file uploaded: update both fields
@@ -501,12 +635,43 @@ class JobApplicationSubmissionController {
 
         await applicantRecord.update(updatedData);
 
+        // Update preferred locations
+        await models.ApplicantLocations.destroy({
+          where: { applicant_id: applicantRecord.id }
+        });
+
+        // Create new preferred locations
+        const locationInserts = preferredLocations.map((locationId, index) => ({
+          applicant_id: applicantRecord.id,
+          location_id: locationId,
+          is_primary: index === 0, // First location is primary
+          created_at: new Date(),
+          updated_at: new Date()
+        }));
+
+        await models.ApplicantLocations.bulkCreate(locationInserts);
+
         // If application exists, return response
         if (existingApplication) {
+          // Fetch applicant with preferred locations for response
+          const applicantWithLocations = await models.Applicants.findByPk(applicantRecord.id, {
+            include: [
+              {
+                model: models.CareerLocations,
+                through: {
+                  model: models.ApplicantLocations,
+                  attributes: ["is_primary"],
+                },
+                as: "preferredLocations",
+                attributes: ["id", "location_name"],
+              },
+            ],
+          });
+
           return res.status(200).json({
             success: true,
             data: {
-              applicant: applicantRecord,
+              applicant: applicantWithLocations,
               general_application: existingApplication,
             },
             message: "Application already exists. Details have been updated.",
@@ -519,7 +684,25 @@ class JobApplicationSubmissionController {
           file: file ? file.path : null,
           file_uploaded_at: file ? new Date() : null,
         };
+
+        // Remove preferred_locations from newApplicantData as it will be handled separately
+        delete newApplicantData.preferred_locations;
+
+        // Set the first location as the primary preferred_location for backward compatibility
+        newApplicantData.preferred_location = preferredLocations[0];
+
         applicantRecord = await models.Applicants.create(newApplicantData);
+
+        // Create preferred locations
+        const locationInserts = preferredLocations.map((locationId, index) => ({
+          applicant_id: applicantRecord.id,
+          location_id: locationId,
+          is_primary: index === 0, // First location is primary
+          created_at: new Date(),
+          updated_at: new Date()
+        }));
+
+        await models.ApplicantLocations.bulkCreate(locationInserts);
       }
 
       // Create the general application
@@ -535,10 +718,25 @@ class JobApplicationSubmissionController {
       // Invalidate caches
       await Promise.all([CacheService.invalidate("applicants"), CacheService.invalidate("general_applications")]);
 
+      // Fetch applicant with preferred locations for response
+      const applicantWithLocations = await models.Applicants.findByPk(applicantRecord.id, {
+        include: [
+          {
+            model: models.CareerLocations,
+            through: {
+              model: models.ApplicantLocations,
+              attributes: ["is_primary"],
+            },
+            as: "preferredLocations",
+            attributes: ["id", "location_name"],
+          },
+        ],
+      });
+
       res.status(201).json({
         success: true,
         data: {
-          applicant: applicantRecord,
+          applicant: applicantWithLocations,
           general_application: newApplication,
         },
         message: "General application submitted successfully",
@@ -581,7 +779,19 @@ class JobApplicationSubmissionController {
       }
 
       if (location_id) {
-        applicantWhere.preferred_location = parseInt(location_id);
+        // Filter by both old single location and new multiple locations
+        applicantWhere[Op.or] = [
+          { preferred_location: parseInt(location_id) },
+          {
+            id: {
+              [Op.in]: require('sequelize').literal(`(
+                SELECT applicant_id 
+                FROM "applicant_locations" 
+                WHERE location_id = ${parseInt(location_id)}
+              )`)
+            }
+          }
+        ];
       }
 
       if (from_date && to_date) {
@@ -611,6 +821,16 @@ class JobApplicationSubmissionController {
               {
                 model: models.CareerLocations,
                 as: "applicantLocation", // Use unique alias
+                attributes: ["id", "location_name"],
+                required: !!location_id, // Make join required if location_id is provided
+              },
+              {
+                model: models.CareerLocations,
+                as: "preferredLocations",
+                through: {
+                  model: models.ApplicantLocations,
+                  attributes: ["is_primary"],
+                },
                 attributes: ["id", "location_name"],
                 required: !!location_id, // Make join required if location_id is provided
               },
