@@ -49,7 +49,33 @@ class ApplicantsController {
 
       const { rows: applicants, count: total } = await models.Applicants.findAndCountAll({
         where: whereConditions,
-        include: [{ model: models.CareerLocations, as: "applicantLocation", attributes: ["location_name"] }],
+        include: [
+          { 
+            model: models.CareerLocations, 
+            as: "applicantLocation", 
+            attributes: ["id", "location_name"] 
+          },
+          {
+            model: models.CareerLocations,
+            as: "preferredLocations",
+            through: {
+              model: models.ApplicantLocations,
+              attributes: ["is_primary"],
+            },
+            attributes: ["id", "location_name"],
+            required: false,
+          },
+          {
+            model: models.CareerStates,
+            as: "preferredStates",
+            through: {
+              model: models.ApplicantStates,
+              attributes: ["is_primary"],
+            },
+            attributes: ["id", "state_name"],
+            required: false,
+          },
+        ],
         order: [["created_at", "DESC"]],
         limit: parsedLimit,
         offset: parsedOffset,
@@ -84,7 +110,33 @@ class ApplicantsController {
       // }
 
       const applicant = await models.Applicants.findByPk(id, {
-        include: [{ model: models.CareerLocations, as: "applicantLocation", attributes: ["location_name"] }],
+        include: [
+          { 
+            model: models.CareerLocations, 
+            as: "applicantLocation", 
+            attributes: ["id", "location_name"] 
+          },
+          {
+            model: models.CareerLocations,
+            as: "preferredLocations",
+            through: {
+              model: models.ApplicantLocations,
+              attributes: ["is_primary"],
+            },
+            attributes: ["id", "location_name"],
+            required: false,
+          },
+          {
+            model: models.CareerStates,
+            as: "preferredStates",
+            through: {
+              model: models.ApplicantStates,
+              attributes: ["is_primary"],
+            },
+            attributes: ["id", "state_name"],
+            required: false,
+          },
+        ],
       });
       if (!applicant) {
         throw new CustomError("Applicant not found", 404);

@@ -145,6 +145,13 @@ class JobApplicationSubmissionController {
         throw new CustomError("At least one preferred location is required", 400);
       }
 
+      // Validate preferred states (optional)
+      let preferredStates = [];
+      
+      if (applicant?.preferred_states && Array.isArray(applicant.preferred_states)) {
+        preferredStates = applicant.preferred_states;
+      }
+
       // Validate all locations exist
       const locations = await models.CareerLocations.findAll({
         where: { id: { [Op.in]: preferredLocations } }
@@ -163,6 +170,27 @@ class JobApplicationSubmissionController {
       }
       
       console.log("✅ All locations validated successfully");
+
+      // Validate all states exist (if provided)
+      if (preferredStates.length > 0) {
+        const states = await models.CareerStates.findAll({
+          where: { id: { [Op.in]: preferredStates } }
+        });
+        
+        console.log(`Found ${states.length} states out of ${preferredStates.length} requested`);
+        states.forEach(state => {
+          console.log(`  - ID: ${state.id}, Name: ${state.state_name}`);
+        });
+        
+        if (states.length !== preferredStates.length) {
+          const foundIds = states.map(s => s.id);
+          const missingIds = preferredStates.filter(id => !foundIds.includes(id));
+          console.log("❌ Missing state IDs:", missingIds);
+          throw new CustomError("One or more preferred states not found", 404);
+        }
+        
+        console.log("✅ All states validated successfully");
+      }
 
       // Validate job
       const job = await models.CareerJobs.findByPk(job_application?.job_id);
@@ -264,8 +292,9 @@ class JobApplicationSubmissionController {
           updateData.file_uploaded_at = new Date();
         }
         
-        // Remove preferred_locations from updateData as it will be handled separately
+        // Remove preferred_locations and preferred_states from updateData as they will be handled separately
         delete updateData.preferred_locations;
+        delete updateData.preferred_states;
         
         // Update applicant
         await existingApplicant.update(updateData);
@@ -283,6 +312,22 @@ class JobApplicationSubmissionController {
         }));
         
         await models.ApplicantLocations.bulkCreate(locationData);
+
+        // Update preferred states
+        await models.ApplicantStates.destroy({
+          where: { applicant_id: existingApplicant.id }
+        });
+        
+        // Add new preferred states
+        if (preferredStates.length > 0) {
+          const stateData = preferredStates.map((stateId, index) => ({
+            applicant_id: existingApplicant.id,
+            state_id: stateId,
+            is_primary: index === 0 // First state is primary
+          }));
+          
+          await models.ApplicantStates.bulkCreate(stateData);
+        }
         
         applicantRecord = existingApplicant;
       } else {
@@ -293,8 +338,9 @@ class JobApplicationSubmissionController {
           file_uploaded_at: file ? new Date() : null,
         };
         
-        // Remove preferred_locations from createData as it will be handled separately
+        // Remove preferred_locations and preferred_states from createData as they will be handled separately
         delete createData.preferred_locations;
+        delete createData.preferred_states;
         
         // Set the first location as the primary preferred_location for backward compatibility
         createData.preferred_location = preferredLocations[0];
@@ -309,6 +355,17 @@ class JobApplicationSubmissionController {
         }));
         
         await models.ApplicantLocations.bulkCreate(locationData);
+
+        // Add preferred states
+        if (preferredStates.length > 0) {
+          const stateData = preferredStates.map((stateId, index) => ({
+            applicant_id: applicantRecord.id,
+            state_id: stateId,
+            is_primary: index === 0 // First state is primary
+          }));
+          
+          await models.ApplicantStates.bulkCreate(stateData);
+        }
       }
 
       // Create job application record
@@ -325,7 +382,7 @@ class JobApplicationSubmissionController {
       // Invalidate caches
       await Promise.all([CacheService.invalidate("applicants"), CacheService.invalidate("job_applications")]);
 
-      // Fetch applicant with preferred locations for response
+      // Fetch applicant with preferred locations and states for response
       const applicantWithLocations = await models.Applicants.findByPk(applicantRecord.id, {
         include: [
           {
@@ -333,6 +390,12 @@ class JobApplicationSubmissionController {
             through: models.ApplicantLocations,
             as: "preferredLocations",
             attributes: ["id", "location_name"],
+          },
+          {
+            model: models.CareerStates,
+            through: models.ApplicantStates,
+            as: "preferredStates",
+            attributes: ["id", "state_name"],
           },
         ],
       });
@@ -576,6 +639,13 @@ class JobApplicationSubmissionController {
         throw new CustomError("At least one preferred location is required", 400);
       }
 
+      // Validate preferred states (optional)
+      let preferredStates = [];
+      
+      if (applicant?.preferred_states && Array.isArray(applicant.preferred_states)) {
+        preferredStates = applicant.preferred_states;
+      }
+
       // Validate all locations exist
       const locations = await models.CareerLocations.findAll({
         where: { id: { [Op.in]: preferredLocations } }
@@ -583,6 +653,17 @@ class JobApplicationSubmissionController {
       
       if (locations.length !== preferredLocations.length) {
         throw new CustomError("One or more preferred locations not found", 404);
+      }
+
+      // Validate all states exist (if provided)
+      if (preferredStates.length > 0) {
+        const states = await models.CareerStates.findAll({
+          where: { id: { [Op.in]: preferredStates } }
+        });
+        
+        if (states.length !== preferredStates.length) {
+          throw new CustomError("One or more preferred states not found", 404);
+        }
       }
 
       // Validate role
@@ -618,8 +699,9 @@ class JobApplicationSubmissionController {
           ...applicant,
         };
 
-        // Remove preferred_locations from updateData as it will be handled separately
+        // Remove preferred_locations and preferred_states from updateData as they will be handled separately
         delete updatedData.preferred_locations;
+        delete updatedData.preferred_states;
 
         // Handle file logic:
         if (file) {
@@ -651,9 +733,26 @@ class JobApplicationSubmissionController {
 
         await models.ApplicantLocations.bulkCreate(locationInserts);
 
+        // Update preferred states
+        await models.ApplicantStates.destroy({
+          where: { applicant_id: applicantRecord.id }
+        });
+        
+        // Add new preferred states
+        if (preferredStates.length > 0) {
+          const stateInserts = preferredStates.map((stateId, index) => ({
+            applicant_id: applicantRecord.id,
+            state_id: stateId,
+            is_primary: index === 0, // First state is primary
+            created_at: new Date()
+          }));
+          
+          await models.ApplicantStates.bulkCreate(stateInserts);
+        }
+
         // If application exists, return response
         if (existingApplication) {
-          // Fetch applicant with preferred locations for response
+          // Fetch applicant with preferred locations and states for response
           const applicantWithLocations = await models.Applicants.findByPk(applicantRecord.id, {
             include: [
               {
@@ -664,6 +763,15 @@ class JobApplicationSubmissionController {
                 },
                 as: "preferredLocations",
                 attributes: ["id", "location_name"],
+              },
+              {
+                model: models.CareerStates,
+                through: {
+                  model: models.ApplicantStates,
+                  attributes: ["is_primary"],
+                },
+                as: "preferredStates",
+                attributes: ["id", "state_name"],
               },
             ],
           });
@@ -685,8 +793,9 @@ class JobApplicationSubmissionController {
           file_uploaded_at: file ? new Date() : null,
         };
 
-        // Remove preferred_locations from newApplicantData as it will be handled separately
+        // Remove preferred_locations and preferred_states from newApplicantData as they will be handled separately
         delete newApplicantData.preferred_locations;
+        delete newApplicantData.preferred_states;
 
         // Set the first location as the primary preferred_location for backward compatibility
         newApplicantData.preferred_location = preferredLocations[0];
@@ -703,6 +812,18 @@ class JobApplicationSubmissionController {
         }));
 
         await models.ApplicantLocations.bulkCreate(locationInserts);
+
+        // Create preferred states
+        if (preferredStates.length > 0) {
+          const stateInserts = preferredStates.map((stateId, index) => ({
+            applicant_id: applicantRecord.id,
+            state_id: stateId,
+            is_primary: index === 0, // First state is primary
+            created_at: new Date()
+          }));
+          
+          await models.ApplicantStates.bulkCreate(stateInserts);
+        }
       }
 
       // Create the general application
@@ -718,7 +839,7 @@ class JobApplicationSubmissionController {
       // Invalidate caches
       await Promise.all([CacheService.invalidate("applicants"), CacheService.invalidate("general_applications")]);
 
-      // Fetch applicant with preferred locations for response
+      // Fetch applicant with preferred locations and states for response
       const applicantWithLocations = await models.Applicants.findByPk(applicantRecord.id, {
         include: [
           {
@@ -729,6 +850,15 @@ class JobApplicationSubmissionController {
             },
             as: "preferredLocations",
             attributes: ["id", "location_name"],
+          },
+          {
+            model: models.CareerStates,
+            through: {
+              model: models.ApplicantStates,
+              attributes: ["is_primary"],
+            },
+            as: "preferredStates",
+            attributes: ["id", "state_name"],
           },
         ],
       });

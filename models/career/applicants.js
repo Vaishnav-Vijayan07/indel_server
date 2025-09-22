@@ -106,6 +106,14 @@ module.exports = (sequelize) => {
       otherKey: "location_id",
       as: "preferredLocations",
     });
+    
+    // Many-to-many relationship with states
+    Applicants.belongsToMany(models.CareerStates, {
+      through: models.ApplicantStates,
+      foreignKey: "applicant_id",
+      otherKey: "state_id",
+      as: "preferredStates",
+    });
   };
 
   return Applicants;

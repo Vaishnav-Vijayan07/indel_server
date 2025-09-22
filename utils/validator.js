@@ -2088,6 +2088,14 @@ const validateJobApplicationSubmission = [
     .optional()
     .isInt({ min: 1 })
     .withMessage("Each preferred location ID must be a positive integer"),
+  check("applicant.preferred_states")
+    .optional()
+    .isArray({ min: 1 })
+    .withMessage("Preferred states must be an array with at least one state"),
+  check("applicant.preferred_states.*")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Each preferred state ID must be a positive integer"),
   // Custom validation to ensure at least one location is provided
   check().custom((value, { req }) => {
     const { applicant } = req.body;
