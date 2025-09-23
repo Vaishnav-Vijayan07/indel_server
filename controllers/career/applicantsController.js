@@ -30,21 +30,84 @@ class ApplicantsController {
 
   static async getAll(req, res, next) {
     try {
-      const cacheKey = "applicants";
-      const cachedData = await CacheService.get(cacheKey);
-
-      const { limit = "10", offset = "0" } = req.query;
+      const { limit = "10", offset = "0", location_id, state_id, search } = req.query;
 
       const parsedLimit = Math.max(1, parseInt(limit, 10) || 10); // Ensure limit >= 1
       const parsedOffset = Math.max(0, parseInt(offset, 10) || 0); // Ensure offset >= 0
 
+      // Build cache key based on query parameters
+      const cacheKey = `applicants_${location_id || "all"}_${state_id || "all"}_${search || "all"}_${parsedLimit}_${parsedOffset}`;
+      const cachedData = await CacheService.get(cacheKey);
+
       // if (cachedData) {
       //   return res.json({ success: true, data: JSON.parse(cachedData) });
       // }
+      
       const whereConditions = {};
+      const { Op } = require('sequelize');
 
+      // Handle location filtering
+      if (location_id) {
+        whereConditions.id = {
+          [Op.in]: require('sequelize').literal(`(
+            SELECT applicant_id 
+            FROM "applicant_locations" 
+            WHERE location_id = ${parseInt(location_id)}
+          )`)
+        };
+      }
 
-      const { rows: applicants, count: total } = await models.Applicants.findAndCountAll({
+      // Handle state filtering
+      if (state_id) {
+        whereConditions.id = {
+          [Op.in]: require('sequelize').literal(`(
+            SELECT applicant_id 
+            FROM "applicant_states" 
+            WHERE state_id = ${parseInt(state_id)}
+          )`)
+        };
+      }
+
+      // Handle combined filtering for both location and state
+      if (location_id && state_id) {
+        whereConditions.id = {
+          [Op.in]: require('sequelize').literal(`(
+            SELECT DISTINCT al.applicant_id 
+            FROM "applicant_locations" al
+            INNER JOIN "applicant_states" ast ON al.applicant_id = ast.applicant_id
+            WHERE al.location_id = ${parseInt(location_id)}
+            AND ast.state_id = ${parseInt(state_id)}
+          )`)
+        };
+      }
+
+      // Handle search (searches both name and email with case-insensitive partial match)
+      if (search) {
+        whereConditions[Op.or] = [
+          {
+            name: {
+              [Op.iLike]: `%${search}%`
+            }
+          },
+          {
+            email: {
+              [Op.iLike]: `%${search}%`
+            }
+          }
+        ];
+      }
+
+      // Use separate count query when filtering is applied to avoid issues with sequelize.literal
+      let total;
+      if (Object.keys(whereConditions).length > 0) {
+        // When filtering, use a separate count query
+        const countResult = await models.Applicants.count({
+          where: whereConditions,
+        });
+        total = countResult;
+      }
+
+      const { rows: applicants, count: countFromFindAndCount } = await models.Applicants.findAndCountAll({
         where: whereConditions,
         include: [
           {
@@ -72,6 +135,11 @@ class ApplicantsController {
         limit: parsedLimit,
         offset: parsedOffset,
       });
+
+      // Use the separate count if filtering was applied, otherwise use the count from findAndCountAll
+      if (total === undefined) {
+        total = countFromFindAndCount;
+      }
 
       await CacheService.set(cacheKey, JSON.stringify(applicants), 3600);
       res.json({
