@@ -33,7 +33,7 @@ class ApplicantsController {
       const cacheKey = "applicants";
       const cachedData = await CacheService.get(cacheKey);
 
-      const { preferred_location, limit = "10", offset = "0" } = req.query;
+      const { limit = "10", offset = "0" } = req.query;
 
       const parsedLimit = Math.max(1, parseInt(limit, 10) || 10); // Ensure limit >= 1
       const parsedOffset = Math.max(0, parseInt(offset, 10) || 0); // Ensure offset >= 0
@@ -43,18 +43,10 @@ class ApplicantsController {
       // }
       const whereConditions = {};
 
-      if (preferred_location) {
-        whereConditions.preferred_location = parseInt(preferred_location);
-      }
 
       const { rows: applicants, count: total } = await models.Applicants.findAndCountAll({
         where: whereConditions,
         include: [
-          { 
-            model: models.CareerLocations, 
-            as: "applicantLocation", 
-            attributes: ["id", "location_name"] 
-          },
           {
             model: models.CareerLocations,
             as: "preferredLocations",
@@ -111,11 +103,6 @@ class ApplicantsController {
 
       const applicant = await models.Applicants.findByPk(id, {
         include: [
-          { 
-            model: models.CareerLocations, 
-            as: "applicantLocation", 
-            attributes: ["id", "location_name"] 
-          },
           {
             model: models.CareerLocations,
             as: "preferredLocations",

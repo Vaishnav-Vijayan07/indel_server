@@ -25,16 +25,6 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING(200),
         allowNull: true,
       },
-      preferred_location: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: "locations",
-          key: "id",
-        },
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE",
-      },
       notice_period: {
         type: DataTypes.ENUM,
         values: ["Less than 15 days", "15 to 30 days", "30 days", "60 to 90 days", "More than 90 days"],
@@ -94,11 +84,6 @@ module.exports = (sequelize) => {
   );
 
   Applicants.associate = (models) => {
-    Applicants.belongsTo(models.CareerLocations, {
-      foreignKey: "preferred_location",
-      as: "applicantLocation", // Updated alias
-    });
-    
     // Many-to-many relationship with locations
     Applicants.belongsToMany(models.CareerLocations, {
       through: models.ApplicantLocations,

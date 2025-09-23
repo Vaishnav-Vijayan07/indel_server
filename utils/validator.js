@@ -1957,10 +1957,6 @@ const validateApplicants = [
     .isLength({ max: 255 })
     .withMessage("Email must not exceed 255 characters"),
   check("phone").optional().trim().isLength({ max: 20 }).withMessage("Phone number must not exceed 20 characters"),
-  check("preferred_location")
-    .exists()
-    .isInt({ min: 1 })
-    .withMessage("Preferred location ID is required and must be a positive integer"),
   check("referred_employee_name")
     .optional()
     .trim()
@@ -1987,7 +1983,6 @@ const validateApplicantsUpdate = [
     .isLength({ max: 255 })
     .withMessage("Email must not exceed 255 characters"),
   check("phone").optional().trim().isLength({ max: 20 }).withMessage("Phone number must not exceed 20 characters"),
-  check("preferred_location").optional().isInt({ min: 1 }).withMessage("Preferred location ID must be a positive integer"),
   check("referred_employee_name")
     .optional()
     .trim()
@@ -2076,10 +2071,6 @@ const validateGeneralApplicationSubmission = [
     .isLength({ max: 255 })
     .withMessage("Email must not exceed 255 characters"),
   check("applicant.phone").optional().trim().isLength({ max: 20 }).withMessage("Phone number must not exceed 20 characters"),
-  check("applicant.preferred_location")
-    .optional()
-    .isInt({ min: 1 })
-    .withMessage("Preferred location ID must be a positive integer"),
   check("applicant.preferred_locations")
     .optional()
     .isArray({ min: 1 })
@@ -2103,10 +2094,9 @@ const validateGeneralApplicationSubmission = [
       throw new Error("Applicant data is required");
     }
     
-    const hasPreferredLocation = applicant.preferred_location && parseInt(applicant.preferred_location) > 0;
     const hasPreferredLocations = applicant.preferred_locations && Array.isArray(applicant.preferred_locations) && applicant.preferred_locations.length > 0;
     
-    if (!hasPreferredLocation && !hasPreferredLocations) {
+    if (!hasPreferredLocations) {
       throw new Error("At least one preferred location is required");
     }
     
@@ -2152,10 +2142,6 @@ const validateJobApplicationSubmission = [
     .isLength({ max: 255 })
     .withMessage("Email must not exceed 255 characters"),
   check("applicant.phone").optional().trim().isLength({ max: 20 }).withMessage("Phone number must not exceed 20 characters"),
-  check("applicant.preferred_location")
-    .optional()
-    .isInt({ min: 1 })
-    .withMessage("Preferred location ID must be a positive integer"),
   check("applicant.preferred_locations")
     .optional()
     .isArray({ min: 1 })
@@ -2179,10 +2165,9 @@ const validateJobApplicationSubmission = [
       throw new Error("Applicant data is required");
     }
     
-    const hasPreferredLocation = applicant.preferred_location && parseInt(applicant.preferred_location) > 0;
     const hasPreferredLocations = applicant.preferred_locations && Array.isArray(applicant.preferred_locations) && applicant.preferred_locations.length > 0;
     
-    if (!hasPreferredLocation && !hasPreferredLocations) {
+    if (!hasPreferredLocations) {
       throw new Error("At least one preferred location is required");
     }
     
