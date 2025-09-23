@@ -752,6 +752,164 @@ class JobsController {
       next(error);
     }
   }
+
+  // Job-specific dropdowns API
+  static async getJobDropdowns(req, res, next) {
+    try {
+      const { id } = req.params;
+      const jobId = parseInt(id);
+
+      if (isNaN(jobId)) {
+        throw new CustomError("Invalid job ID", 400);
+      }
+
+      // Check if job exists
+      const job = await Jobs.findByPk(jobId);
+      if (!job) {
+        throw new CustomError("Job not found", 404);
+      }
+
+      // Get job-specific data
+      const jobWithAssociations = await Jobs.findByPk(jobId, {
+        include: [
+          {
+            model: models.CareerStates,
+            as: "states",
+            attributes: ["id", "state_name"],
+            through: { attributes: [] },
+            where: { is_active: true },
+            required: false,
+          },
+          {
+            model: models.CareerLocations,
+            as: "locations",
+            attributes: ["id", "location_name", "district_id"],
+            through: { attributes: [] },
+            where: { is_active: true },
+            required: false,
+            include: [
+              {
+                model: models.Districts,
+                as: "district",
+                attributes: ["state_id"],
+                required: false,
+              },
+            ],
+          },
+          {
+            model: models.CareerRoles,
+            as: "role",
+            attributes: ["id", "role_name"],
+            required: false,
+          },
+        ],
+      });
+
+      // Format job states for dropdown
+      const job_states = jobWithAssociations.states.map((state) => ({
+        value: state.id.toString(),
+        label: state.state_name,
+      }));
+
+      // Format job locations for dropdown
+      const job_locations = jobWithAssociations.locations.map((location) => ({
+        id: location.id,
+        location_name: location.location_name,
+        district_id: location.district_id,
+      }));
+
+      // Format roles for dropdown
+      const roles = jobWithAssociations.role ? [
+        {
+          value: jobWithAssociations.role.id.toString(),
+          label: jobWithAssociations.role.role_name,
+        }
+      ] : [];
+
+      res.json({
+        success: true,
+        data: {
+          job_states,
+          job_locations,
+          roles,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Job-specific locations by state API
+  static async getJobLocationsByState(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { state_ids } = req.query;
+      const jobId = parseInt(id);
+
+      if (isNaN(jobId)) {
+        throw new CustomError("Invalid job ID", 400);
+      }
+
+      if (!state_ids) {
+        throw new CustomError("state_ids parameter is required", 400);
+      }
+
+      // Check if job exists
+      const job = await Jobs.findByPk(jobId);
+      if (!job) {
+        throw new CustomError("Job not found", 404);
+      }
+
+      // Parse state_ids (comma-separated string)
+      const stateIdArray = state_ids.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+      
+      if (stateIdArray.length === 0) {
+        throw new CustomError("Invalid state_ids format", 400);
+      }
+
+      // Get job-specific locations filtered by states
+      const jobWithLocations = await Jobs.findByPk(jobId, {
+        include: [
+          {
+            model: models.CareerLocations,
+            as: "locations",
+            attributes: ["id", "location_name", "district_id"],
+            through: { attributes: [] },
+            where: { is_active: true },
+            required: true,
+            include: [
+              {
+                model: models.Districts,
+                as: "district",
+                attributes: ["state_id"],
+                where: {
+                  state_id: {
+                    [Op.in]: stateIdArray,
+                  },
+                },
+                required: true,
+              },
+            ],
+          },
+        ],
+      });
+
+      // Format locations with state_id
+      const locations = jobWithLocations.locations.map((location) => ({
+        id: location.id,
+        location_name: location.location_name,
+        district_id: location.district_id,
+        state_id: location.district.state_id,
+      }));
+
+      res.json({
+        success: true,
+        data: locations,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = JobsController;
