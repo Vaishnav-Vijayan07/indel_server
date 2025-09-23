@@ -1957,10 +1957,6 @@ const validateApplicants = [
     .isLength({ max: 255 })
     .withMessage("Email must not exceed 255 characters"),
   check("phone").optional().trim().isLength({ max: 20 }).withMessage("Phone number must not exceed 20 characters"),
-  check("preferred_location")
-    .exists()
-    .isInt({ min: 1 })
-    .withMessage("Preferred location ID is required and must be a positive integer"),
   check("referred_employee_name")
     .optional()
     .trim()
@@ -1987,7 +1983,6 @@ const validateApplicantsUpdate = [
     .isLength({ max: 255 })
     .withMessage("Email must not exceed 255 characters"),
   check("phone").optional().trim().isLength({ max: 20 }).withMessage("Phone number must not exceed 20 characters"),
-  check("preferred_location").optional().isInt({ min: 1 }).withMessage("Preferred location ID must be a positive integer"),
   check("referred_employee_name")
     .optional()
     .trim()
@@ -2062,6 +2057,77 @@ const validateGeneralApplicationsUpdate = [
   check("order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
 ];
 
+const validateGeneralApplicationSubmission = [
+  // Applicant Fields
+  check("applicant.name")
+    .exists()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage("Name is required and must not exceed 100 characters"),
+  check("applicant.email")
+    .exists()
+    .isEmail()
+    .withMessage("A valid email is required")
+    .isLength({ max: 255 })
+    .withMessage("Email must not exceed 255 characters"),
+  check("applicant.phone").optional().trim().isLength({ max: 20 }).withMessage("Phone number must not exceed 20 characters"),
+  check("applicant.preferred_locations")
+    .optional()
+    .isArray({ min: 1 })
+    .withMessage("Preferred locations must be an array with at least one location"),
+  check("applicant.preferred_locations.*")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Each preferred location ID must be a positive integer"),
+  check("applicant.preferred_states")
+    .optional()
+    .isArray({ min: 1 })
+    .withMessage("Preferred states must be an array with at least one state"),
+  check("applicant.preferred_states.*")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Each preferred state ID must be a positive integer"),
+  // Custom validation to ensure at least one location is provided
+  check().custom((value, { req }) => {
+    const { applicant } = req.body;
+    if (!applicant) {
+      throw new Error("Applicant data is required");
+    }
+    
+    const hasPreferredLocations = applicant.preferred_locations && Array.isArray(applicant.preferred_locations) && applicant.preferred_locations.length > 0;
+    
+    if (!hasPreferredLocations) {
+      throw new Error("At least one preferred location is required");
+    }
+    
+    return true;
+  }),
+  check("applicant.referred_employee_name")
+    .optional()
+    .trim()
+    .isLength({ max: 200 })
+    .withMessage("Referred employee name must not exceed 200 characters"),
+  check("applicant.employee_referral_code")
+    .optional()
+    .trim()
+    .isLength({ max: 50 })
+    .withMessage("Employee referral code must not exceed 50 characters"),
+  check("applicant.age").exists().isInt({ min: 18 }).withMessage("Age is required and must be an integer of 18 or above"),
+  check("applicant.current_salary").optional().isFloat({ min: 0 }).withMessage("Current salary must be a non-negative number"),
+  check("applicant.expected_salary")
+    .exists()
+    .isFloat({ min: 0 })
+    .withMessage("Expected salary is required and must be a non-negative number"),
+  check("applicant.is_active").optional().isBoolean().withMessage("Is active must be a boolean"),
+  // General Application Fields
+  check("general_application.role_id").exists().isInt({ min: 1 }).withMessage("Role ID is required and must be a positive integer"),
+  check("general_application.preferred_role_name")
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage("Preferred role name must not exceed 100 characters"),
+];
+
 const validateJobApplicationSubmission = [
   // Applicant Fields
   check("applicant.name")
@@ -2076,10 +2142,37 @@ const validateJobApplicationSubmission = [
     .isLength({ max: 255 })
     .withMessage("Email must not exceed 255 characters"),
   check("applicant.phone").optional().trim().isLength({ max: 20 }).withMessage("Phone number must not exceed 20 characters"),
-  check("applicant.preferred_location")
-    .exists()
+  check("applicant.preferred_locations")
+    .optional()
+    .isArray({ min: 1 })
+    .withMessage("Preferred locations must be an array with at least one location"),
+  check("applicant.preferred_locations.*")
+    .optional()
     .isInt({ min: 1 })
-    .withMessage("Preferred location ID is required and must be a positive integer"),
+    .withMessage("Each preferred location ID must be a positive integer"),
+  check("applicant.preferred_states")
+    .optional()
+    .isArray({ min: 1 })
+    .withMessage("Preferred states must be an array with at least one state"),
+  check("applicant.preferred_states.*")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Each preferred state ID must be a positive integer"),
+  // Custom validation to ensure at least one location is provided
+  check().custom((value, { req }) => {
+    const { applicant } = req.body;
+    if (!applicant) {
+      throw new Error("Applicant data is required");
+    }
+    
+    const hasPreferredLocations = applicant.preferred_locations && Array.isArray(applicant.preferred_locations) && applicant.preferred_locations.length > 0;
+    
+    if (!hasPreferredLocations) {
+      throw new Error("At least one preferred location is required");
+    }
+    
+    return true;
+  }),
   check("applicant.referred_employee_name")
     .optional()
     .trim()
@@ -2318,6 +2411,7 @@ module.exports = {
   validateApplicationStatusesUpdate,
   validateGeneralApplications,
   validateGeneralApplicationsUpdate,
+  validateGeneralApplicationSubmission,
   validateJobApplicationSubmission,
   validateRegister,
   validateLogin,

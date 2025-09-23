@@ -122,6 +122,8 @@ const defineFileShare = require("./fileShare");
 const defineJobLocation = require("./career/jobLocation"); // New import
 const defineJobState = require("./career/jobState");     // New import
 const defineNcdContent = require("./ncd/content");
+const defineApplicantLocations = require("./career/applicantLocations"); // New import
+const defineApplicantStates = require("./career/applicantStates"); // New import
 
 
 const models = {
@@ -251,6 +253,8 @@ const models = {
   JobState: defineJobState(sequelize),
   NcdPageContent: defineNcdContent(sequelize),
   
+  ApplicantLocations: defineApplicantLocations(sequelize), // New model
+  ApplicantStates: defineApplicantStates(sequelize), // New model
 };
 
 Object.keys(models).forEach((modelName) => {

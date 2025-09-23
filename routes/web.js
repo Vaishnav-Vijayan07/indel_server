@@ -4,7 +4,7 @@ const WebController = require("../controllers/webController");
 const JobApplicationsController = require("../controllers/resumeController");
 const createUploadMiddleware = require("../middlewares/multerMiddleware");
 const InvestorsController = require("../controllers/investorsController");
-const { validateJobApplicationSubmission } = require("../utils/validator");
+const { validateJobApplicationSubmission, validateGeneralApplicationSubmission } = require("../utils/validator");
 const JobApplicationSubmissionController = require("../controllers/career/jobApplicationController");
 const MetaDataController = require("../controllers/meta/metaDataController");
 const GoldRateController = require("../controllers/general/goldRateController");
@@ -85,7 +85,7 @@ router.get("/careers/export_general_applications", JobApplicationSubmissionContr
 
 router.post(
   "/careers/general_application",
-  validateJobApplicationSubmission,
+  validateGeneralApplicationSubmission,
   uploadApplicantFile,
   JobApplicationSubmissionController.submitGeneralApplication
 );
