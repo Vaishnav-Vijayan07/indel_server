@@ -58,7 +58,6 @@ class JobApplicationSubmissionController {
           "name",
           "email",
           "phone",
-          "preferred_location",
           "referred_employee_name",
           "employee_referral_code",
           "age",
@@ -138,9 +137,6 @@ class JobApplicationSubmissionController {
       if (applicant?.preferred_locations && Array.isArray(applicant.preferred_locations)) {
         // Multiple locations provided
         preferredLocations = applicant.preferred_locations;
-      } else if (applicant?.preferred_location) {
-        // Single location provided (backward compatibility)
-        preferredLocations = [applicant.preferred_location];
       } else {
         throw new CustomError("At least one preferred location is required", 400);
       }
@@ -342,9 +338,6 @@ class JobApplicationSubmissionController {
         delete createData.preferred_locations;
         delete createData.preferred_states;
         
-        // Set the first location as the primary preferred_location for backward compatibility
-        createData.preferred_location = preferredLocations[0];
-        
         applicantRecord = await models.Applicants.create(createData);
         
         // Add preferred locations
@@ -421,6 +414,7 @@ class JobApplicationSubmissionController {
         state_id,
         status_id,
         applicant_location_id,
+        applicant_state_id,
         limit = "10",
         offset = "0",
         from_date,
@@ -433,7 +427,7 @@ class JobApplicationSubmissionController {
       // Build cache key based on query parameters
       const cacheKey = `job_applications_all_${role_id || "all"}_${location_id || "all"}_${state_id || "all"}_${
         status_id || "all"
-      }_${applicant_location_id || "all"}_${parsedLimit}_${parsedOffset}`;
+      }_${applicant_location_id || "all"}_${applicant_state_id || "all"}_${parsedLimit}_${parsedOffset}`;
       const cachedData = await CacheService.get(cacheKey);
 
       // if (cachedData) {
@@ -463,6 +457,30 @@ class JobApplicationSubmissionController {
             SELECT applicant_id 
             FROM "applicant_locations" 
             WHERE location_id = ${parseInt(applicant_location_id)}
+          )`)
+        };
+      }
+
+      if (applicant_state_id) {
+        // Filter by applicant's preferred states only (many-to-many relationship)
+        applicantWhere.id = {
+          [Op.in]: require('sequelize').literal(`(
+            SELECT applicant_id 
+            FROM "applicant_states" 
+            WHERE state_id = ${parseInt(applicant_state_id)}
+          )`)
+        };
+      }
+
+      // Handle combined filtering for both location and state
+      if (applicant_location_id && applicant_state_id) {
+        applicantWhere.id = {
+          [Op.in]: require('sequelize').literal(`(
+            SELECT DISTINCT al.applicant_id 
+            FROM "applicant_locations" al
+            INNER JOIN "applicant_states" ast ON al.applicant_id = ast.applicant_id
+            WHERE al.location_id = ${parseInt(applicant_location_id)}
+            AND ast.state_id = ${parseInt(applicant_state_id)}
           )`)
         };
       }
@@ -513,15 +531,9 @@ class JobApplicationSubmissionController {
         {
           model: models.Applicants,
           as: "applicant",
-          attributes: ["id", "name", "email", "phone", "file", "preferred_location"],
+          attributes: ["id", "name", "email", "phone", "file"],
           ...(Object.keys(applicantWhere).length > 0 && { where: applicantWhere }),
           include: [
-            {
-              model: models.CareerLocations,
-              as: "applicantLocation",
-              attributes: ["id", "location_name"],
-              required: false,
-            },
             {
               model: models.CareerLocations,
               as: "preferredLocations",
@@ -637,9 +649,6 @@ class JobApplicationSubmissionController {
       if (applicant?.preferred_locations && Array.isArray(applicant.preferred_locations)) {
         // Multiple locations provided
         preferredLocations = applicant.preferred_locations;
-      } else if (applicant?.preferred_location) {
-        // Single location provided (backward compatibility)
-        preferredLocations = [applicant.preferred_location];
       } else {
         throw new CustomError("At least one preferred location is required", 400);
       }
@@ -802,9 +811,6 @@ class JobApplicationSubmissionController {
         delete newApplicantData.preferred_locations;
         delete newApplicantData.preferred_states;
 
-        // Set the first location as the primary preferred_location for backward compatibility
-        newApplicantData.preferred_location = preferredLocations[0];
-
         applicantRecord = await models.Applicants.create(newApplicantData);
 
         // Create preferred locations
@@ -883,15 +889,13 @@ class JobApplicationSubmissionController {
 
   static async listGeneralApplications(req, res, next) {
     try {
-      const { role_id, location_id, status_id, from_date, to_date, limit = "10", offset = "0" } = req.query;
+      const { role_id, location_id, status_id, applicant_location_id, applicant_state_id, from_date, to_date, limit = "10", offset = "0" } = req.query;
 
       const parsedLimit = Math.max(1, parseInt(limit, 10) || 10); // Ensure limit >= 1
       const parsedOffset = Math.max(0, parseInt(offset, 10) || 0); // Ensure offset >= 0
 
       // Build cache key based on query parameters
-      const cacheKey = `general_applications_all_${role_id || "all"}_${location_id || "all"}_${
-        status_id || "all"
-      }_${parsedLimit}_${parsedOffset}`;
+      const cacheKey = `general_applications_all_${role_id || "all"}_${location_id || "all"}_${status_id || "all"}_${applicant_location_id || "all"}_${applicant_state_id || "all"}_${parsedLimit}_${parsedOffset}`;
       const cachedData = await CacheService.get(cacheKey);
 
       // if (cachedData) {
@@ -924,6 +928,41 @@ class JobApplicationSubmissionController {
         };
       }
 
+      if (applicant_location_id) {
+        // Filter by applicant's preferred locations only (many-to-many relationship)
+        applicantWhere.id = {
+          [Op.in]: require('sequelize').literal(`(
+            SELECT applicant_id 
+            FROM "applicant_locations" 
+            WHERE location_id = ${parseInt(applicant_location_id)}
+          )`)
+        };
+      }
+
+      if (applicant_state_id) {
+        // Filter by applicant's preferred states only (many-to-many relationship)
+        applicantWhere.id = {
+          [Op.in]: require('sequelize').literal(`(
+            SELECT applicant_id 
+            FROM "applicant_states" 
+            WHERE state_id = ${parseInt(applicant_state_id)}
+          )`)
+        };
+      }
+
+      // Handle combined filtering for both location and state
+      if (applicant_location_id && applicant_state_id) {
+        applicantWhere.id = {
+          [Op.in]: require('sequelize').literal(`(
+            SELECT DISTINCT al.applicant_id 
+            FROM "applicant_locations" al
+            INNER JOIN "applicant_states" ast ON al.applicant_id = ast.applicant_id
+            WHERE al.location_id = ${parseInt(applicant_location_id)}
+            AND ast.state_id = ${parseInt(applicant_state_id)}
+          )`)
+        };
+      }
+
       if (from_date && to_date) {
         whereConditions.application_date = {
           [Op.between]: [new Date(from_date), new Date(to_date)],
@@ -944,16 +983,10 @@ class JobApplicationSubmissionController {
           {
             model: models.Applicants,
             as: "applicant",
-            attributes: ["id", "name", "email", "phone", "file", "preferred_location"],
+            attributes: ["id", "name", "email", "phone", "file"],
             where: applicantWhere,
-            required: !!location_id, // Make Applicants join required if location_id is provided
+            required: !!(location_id || applicant_location_id || applicant_state_id), // Make Applicants join required if any applicant filtering is provided
             include: [
-              {
-                model: models.CareerLocations,
-                as: "applicantLocation", // Use unique alias
-                attributes: ["id", "location_name"],
-                required: !!location_id, // Make join required if location_id is provided
-              },
               {
                 model: models.CareerLocations,
                 as: "preferredLocations",
@@ -999,8 +1032,6 @@ class JobApplicationSubmissionController {
         applications.map((app) => ({
           id: app.id,
           applicantId: app.applicant_id,
-          preferred_location: app.applicant.preferred_location,
-          applicantLocation: app.applicant.applicantLocation?.location_name,
         }))
       );
 
@@ -1145,9 +1176,7 @@ class JobApplicationSubmissionController {
         jobWhere.role_id = parseInt(role_id);
       }
 
-      if (location_id) {
-        jobWhere.location_id = parseInt(location_id);
-      }
+      // Note: location_id filtering will be handled in the job include section
 
       // Note: state_id filtering will be handled in the job include section
 
@@ -1204,13 +1233,8 @@ class JobApplicationSubmissionController {
             model: models.Applicants,
             as: "applicant",
             attributes: ["id", "name", "email", "phone", "file"],
-            where: applicantWhere,
+            ...(Object.keys(applicantWhere).length > 0 && { where: applicantWhere }),
             include: [
-              {
-                model: models.CareerLocations,
-                as: "applicantLocation",
-                attributes: ["id", "location_name"],
-              },
               {
                 model: models.CareerLocations,
                 as: "preferredLocations",
@@ -1248,6 +1272,9 @@ class JobApplicationSubmissionController {
                 model: models.CareerLocations,
                 as: "locations",
                 attributes: ["id", "location_name"],
+                ...(location_id && {
+                  where: { id: parseInt(location_id) },
+                }),
               },
               {
                 model: models.CareerStates,
@@ -1432,11 +1459,6 @@ class JobApplicationSubmissionController {
             attributes: ["id", "name", "email", "phone", "file"],
             where: applicantWhere,
             include: [
-              {
-                model: models.CareerLocations,
-                as: "applicantLocation",
-                attributes: ["id", "location_name"],
-              },
               {
                 model: models.CareerLocations,
                 as: "preferredLocations",
