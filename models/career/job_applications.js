@@ -38,6 +38,14 @@ module.exports = (sequelize) => {
         allowNull: false,
         defaultValue: DataTypes.NOW,
       },
+      preferred_role: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      location: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       created_at: {
         type: DataTypes.DATE,
         allowNull: false,
