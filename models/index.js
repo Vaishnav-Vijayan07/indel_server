@@ -121,6 +121,7 @@ const defineCareerMeta = require("./career/careerMeta");
 const defineFileShare = require("./fileShare");
 const defineJobLocation = require("./career/jobLocation"); // New import
 const defineJobState = require("./career/jobState");     // New import
+const defineNcdContent = require("./ncd/content");
 
 
 const models = {
@@ -248,6 +249,8 @@ const models = {
   FileShare: defineFileShare(sequelize),
   JobLocation: defineJobLocation(sequelize), // New model
   JobState: defineJobState(sequelize),
+  NcdPageContent: defineNcdContent(sequelize),
+  
 };
 
 Object.keys(models).forEach((modelName) => {

@@ -38,6 +38,7 @@ const { initFooterContent } = require("./utils/initFooterContent");
 const { initHeaderContents } = require("./utils/initHeaderContent");
 const { initPopupSettings } = require("./utils/initPopupSettings");
 const { initDirectorsContent } = require("./utils/initDirectorsContent");
+const {initNcdPageContent} = require("./utils/initNcdContent");
 require("./utils/fileExpiration");
 const session = require("express-session");
 
@@ -86,7 +87,7 @@ app.use(errorMiddleware);
 const startServer = async () => {
   try {
     await sequelize.authenticate();
-    await sequelize.sync({ alter: true });
+    // await sequelize.sync({ alter: true });
     Logger.info("Database connected and synced");
 
     // await createDemoAdmin();
@@ -118,6 +119,7 @@ const startServer = async () => {
     // await initHeaderContents();
     // await initPopupSettings();
     // await initDirectorsContent();
+    //  await initNcdPageContent();
 
     app.listen(PORT, () => {
       Logger.info(`Server running on port ${PORT}`);

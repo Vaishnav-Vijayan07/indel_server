@@ -2539,6 +2539,47 @@ const cacheKey = `webNewsData_${slug}`;
       next(new CustomError("Failed to fetch branch locator data", 500, error.message));
     }
   }
+
+
+  static async getNcdPageData(req, res, next) {
+    const cacheKey = `ncdPageData`;
+
+    try {
+      // 1️⃣ Try to get from cache
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
+
+      // 2️⃣ Fetch from database
+      const ncdContent = await models.NcdPageContent.findOne();
+
+      if (!ncdContent) {
+        throw new CustomError("NCD Page Content not found", 404);
+      }
+
+      // 3️⃣ Prepare data for frontend
+      const data = {
+        banner_image: ncdContent.banner_image,
+        banner_image_alt: ncdContent.banner_image_alt,
+        content: ncdContent.content,
+        second_banner_image: ncdContent.second_banner_image,
+        second_banner_image_alt: ncdContent.second_banner_image_alt,
+      };
+
+      // 4️⃣ Cache the data for 1 hour
+      await CacheService.set(cacheKey, JSON.stringify(data), 3600);
+
+      // 5️⃣ Send response
+      res.json({ status: "success", data });
+    } catch (error) {
+      console.error("Error fetching NCD page data:", error.message);
+      next(new CustomError("Failed to fetch NCD page data", 500, error.message));
+    }
+}
+
+
+
 }
 
 module.exports = WebController;

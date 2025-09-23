@@ -2117,6 +2117,44 @@ const validateJobApplicationSubmission = [
   check("job_application.order").optional().isInt({ min: 0 }).withMessage("Order must be a non-negative integer"),
 ];
 
+
+const validateNCDPageContentUpdate = [
+  check("meta_title")
+    .optional()
+    .notEmpty()
+    .withMessage("Meta Title cannot be empty"),
+
+  check("meta_description")
+    .optional()
+    .notEmpty()
+    .withMessage("Meta Description cannot be empty"),
+
+  check("meta_keywords")
+    .optional()
+    .notEmpty()
+    .withMessage("Meta Keywords cannot be empty"),
+
+  check("banner_image_alt")
+    .optional()
+    .notEmpty()
+    .withMessage("Banner Image Alt cannot be empty"),
+
+  check("content")
+    .optional()
+    .notEmpty()
+    .withMessage("Content cannot be empty"),
+
+  check("second_banner_image_alt")
+    .optional()
+    .notEmpty()
+    .withMessage("Second Banner Image Alt cannot be empty"),
+];
+
+
+
+
+
+
 module.exports = {
   validateLoanTypes,
   validateLoanTypesUpdate,
@@ -2292,4 +2330,5 @@ module.exports = {
   validateServiceUpdate,
   validateLoanAgainstPropertyContent,
   validateLoanAgainstPropertyContentUpdate,
+  validateNCDPageContentUpdate
 };
