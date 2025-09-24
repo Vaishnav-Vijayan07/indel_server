@@ -9,6 +9,8 @@ router.get("/dropdowns", JobsController.getDropdowns);
 router.get("/", JobsController.getAll);
 router.get("/filtered", JobsController.getAllFiltered);
 router.get("/:id", JobsController.getById);
+router.get("/:id/dropdowns", JobsController.getJobDropdowns);
+router.get("/:id/locations/by_state", JobsController.getJobLocationsByState);
 router.put("/order", JobsController.updateOrder);
 
 router.use(authMiddleware(["admin", "hr", "hr_assistant"])); // Protect routes for
