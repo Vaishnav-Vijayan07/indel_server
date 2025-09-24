@@ -20,12 +20,7 @@ const { initLoanAgainstPropertyContent } = require("./utils/initLoanAgainstPrope
 
 const { initCdLoanContent } = require("./utils/initCdLoanContent");
 const { initCareerContents } = require("./utils/initCareerContent");
-const {
-  initDebtPartnersContent,
-  initAboutPageContent,
-  initBlogPageContent,
-  initCSRPageContent,
-} = require("./utils/initContents");
+const { initDebtPartnersContent, initAboutPageContent, initBlogPageContent, initCSRPageContent } = require("./utils/initContents");
 const { initGalleryPageContent } = require("./utils/initGalleryContents");
 const { initAwardPageContent } = require("./utils/initAwardPageContent");
 const { initNewsPageContent } = require("./utils/initNewsPageContent");
