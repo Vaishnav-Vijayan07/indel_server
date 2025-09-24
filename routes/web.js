@@ -67,6 +67,7 @@ router.get("/partner-data", WebController.partnersData);
 router.get("/directors", WebController.directors);
 router.get("/policies", WebController.policy);
 router.get("/branch-locator", WebController.branchLocator);
+router.get("/ncd-forms", WebController.getNcdPageData);
 
 router.post("/career/resume", uploadField, JobApplicationsController.create);
 router.get("/career/resume", uploadField, JobApplicationsController.getAll);
