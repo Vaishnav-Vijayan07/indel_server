@@ -28,6 +28,7 @@ const typeToDbMap = {
   newsItem: models.News,
   news: models.NewsPageContent,
   branchlocator: models.BranchLocatorPageContents,
+  ncd: models.NcdPageContent,
 };
 
 class MetaDataController {

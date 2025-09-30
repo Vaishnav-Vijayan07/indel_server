@@ -20,12 +20,7 @@ const { initLoanAgainstPropertyContent } = require("./utils/initLoanAgainstPrope
 
 const { initCdLoanContent } = require("./utils/initCdLoanContent");
 const { initCareerContents } = require("./utils/initCareerContent");
-const {
-  initDebtPartnersContent,
-  initAboutPageContent,
-  initBlogPageContent,
-  initCSRPageContent,
-} = require("./utils/initContents");
+const { initDebtPartnersContent, initAboutPageContent, initBlogPageContent, initCSRPageContent } = require("./utils/initContents");
 const { initGalleryPageContent } = require("./utils/initGalleryContents");
 const { initAwardPageContent } = require("./utils/initAwardPageContent");
 const { initNewsPageContent } = require("./utils/initNewsPageContent");
@@ -38,6 +33,7 @@ const { initFooterContent } = require("./utils/initFooterContent");
 const { initHeaderContents } = require("./utils/initHeaderContent");
 const { initPopupSettings } = require("./utils/initPopupSettings");
 const { initDirectorsContent } = require("./utils/initDirectorsContent");
+const { initNcdPageContent } = require("./utils/initNcdContent");
 require("./utils/fileExpiration");
 const session = require("express-session");
 
@@ -118,6 +114,7 @@ const startServer = async () => {
     // await initHeaderContents();
     // await initPopupSettings();
     // await initDirectorsContent();
+    await initNcdPageContent();
 
     app.listen(PORT, () => {
       Logger.info(`Server running on port ${PORT}`);

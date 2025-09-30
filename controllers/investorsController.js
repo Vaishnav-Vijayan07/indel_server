@@ -149,7 +149,7 @@ class InvestorsController {
             "csr_action_plan_title",
             "csr_policy_title",
             "disclosure_title",
-            "csr_policy_doc_title"
+            "csr_policy_doc_title",
           ],
         }),
         models.CsrActionPlan.findAll({
@@ -218,7 +218,7 @@ class InvestorsController {
           attributes: ["ncd_title", "page_title"],
         }),
         models.NcdReports.findAll({
-          attributes: ["id", "file", "order", "title", "order", "is_active"],
+          attributes: ["id", "file", "order", "title", "order", "is_active", "show_disclaimer", "disclaimer"],
           where: { is_active: true },
           order: [["order", "ASC"]],
         }),
@@ -446,15 +446,7 @@ class InvestorsController {
         }),
         models.OtherIntimations.findAll({
           where: { is_active: true },
-          attributes: [
-            "id",
-            "fiscal_year",
-            "record_date_document",
-            "interest_payment_document",
-            "month_date",
-            "order",
-            "is_active",
-          ],
+          attributes: ["id", "fiscal_year", "record_date_document", "interest_payment_document", "month_date", "order", "is_active"],
           where: { fiscal_year: year, is_active: true },
           include: [
             {
