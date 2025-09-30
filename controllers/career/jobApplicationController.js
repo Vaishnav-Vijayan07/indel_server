@@ -582,9 +582,25 @@ class JobApplicationSubmissionController {
         distinct: true, // Add distinct to handle potential duplicates from joins
       });
 
+      // Derive legacy single preferred_location from preferredLocations
+      const transformedApplications = applications.map((app) => {
+        const plain = app.toJSON();
+
+        const preferredLocations = plain?.applicant?.preferredLocations || [];
+        // Prefer primary (through.is_primary === true), else fallback to first
+        const primary = preferredLocations.find((loc) => loc?.ApplicantLocations?.is_primary) || preferredLocations[0];
+        const preferredLocationName = primary?.location_name || null;
+
+        if (plain.applicant) {
+          plain.applicant.preferred_location = preferredLocationName;
+        }
+
+        return plain;
+      });
+
       const response = {
         success: true,
-        data: applications,
+        data: transformedApplications,
         total,
         meta: {
           page: Math.floor(parsedOffset / parsedLimit) + 1,
@@ -1036,9 +1052,23 @@ class JobApplicationSubmissionController {
       );
 
       // Prepare response
+      // Derive legacy single preferred_location for each application's applicant
+      const transformedGeneralApplications = applications.map((app) => {
+        const plain = app.toJSON();
+        const preferredLocations = plain?.applicant?.preferredLocations || [];
+        const primary = preferredLocations.find((loc) => loc?.ApplicantLocations?.is_primary) || preferredLocations[0];
+        const preferredLocationName = primary?.location_name || null;
+
+        if (plain.applicant) {
+          plain.applicant.preferred_location = preferredLocationName;
+        }
+
+        return plain;
+      });
+
       const response = {
         success: true,
-        data: applications,
+        data: transformedGeneralApplications,
         total,
         meta: {
           page: Math.floor(parsedOffset / parsedLimit) + 1,
@@ -1326,11 +1356,11 @@ class JobApplicationSubmissionController {
 
       // Add data rows
       applications.forEach((app, index) => {
-        // Format preferred locations
-        const preferredLocations = app.applicant?.preferredLocations?.map(loc => 
-          loc.location_name
-        ).join(', ') || 'N/A';
-        
+        // Derive legacy single preferred location (primary or first)
+        const preferredLocationsArr = app.applicant?.preferredLocations || [];
+        const primaryLocation = preferredLocationsArr.find(loc => loc?.ApplicantLocations?.is_primary) || preferredLocationsArr[0];
+        const preferredLocationName = primaryLocation?.location_name || 'N/A';
+
         // Format preferred states
         const preferredStates = app.applicant?.preferredStates?.map(state => 
           state.state_name
@@ -1345,7 +1375,7 @@ class JobApplicationSubmissionController {
           role: app.job?.role?.role_name || "N/A",
           // jobLocation: app.job?.location?.location_name || "N/A",
           // state: app.job?.state?.state_name || "N/A",
-          preferredLocations: preferredLocations,
+          preferredLocations: preferredLocationName,
           preferredStates: preferredStates,
           status: app.status?.status_name || "N/A",
           applicationDate: app.application_date ? new Date(app.application_date).toLocaleDateString("en-GB") : "N/A",
