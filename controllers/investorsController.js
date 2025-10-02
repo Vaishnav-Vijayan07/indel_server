@@ -213,20 +213,24 @@ class InvestorsController {
       //     return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, reports] = await Promise.all([
+      const [content, allReports] = await Promise.all([
         models.InvestorsPageContent.findAll({
           attributes: ["ncd_title", "page_title", "ncd_button_text", "ncd_button_link"],
         }),
         models.NcdReports.findAll({
-          attributes: ["id", "file", "order", "title", "order", "is_active", "show_disclaimer", "disclaimer"],
+          attributes: ["id", "file", "order", "title", "order", "is_active", "is_past", "show_disclaimer", "disclaimer"],
           where: { is_active: true },
           order: [["order", "ASC"]],
         }),
       ]);
 
+      const currentReports = allReports.filter(report => !report.is_past);
+      const pastReports = allReports.filter(report => report.is_past);
+
       const data = {
         content: content[0] || null,
-        reports,
+        currentReports,
+        pastReports,
       };
 
       await cacheService.set(cacheKey, JSON.stringify(data), 3600);

@@ -31,6 +31,11 @@ module.exports = (sequelize) => {
         allowNull: false,
         defaultValue: true,
       },
+      is_past: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
       order: {
         type: DataTypes.INTEGER,
         allowNull: true,
