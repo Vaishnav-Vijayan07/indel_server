@@ -215,7 +215,7 @@ class InvestorsController {
 
       const [content, reports] = await Promise.all([
         models.InvestorsPageContent.findAll({
-          attributes: ["ncd_title", "page_title"],
+          attributes: ["ncd_title", "page_title", "ncd_button_text", "ncd_button_link"],
         }),
         models.NcdReports.findAll({
           attributes: ["id", "file", "order", "title", "order", "is_active", "show_disclaimer", "disclaimer"],

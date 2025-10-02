@@ -94,6 +94,14 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      ncd_button_text: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      ncd_button_link: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
     {
       tableName: "investors_page_content",
