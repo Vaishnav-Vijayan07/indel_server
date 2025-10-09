@@ -584,22 +584,66 @@ class JobApplicationSubmissionController {
         order: [["application_date", "DESC"]],
         limit: parsedLimit,
         offset: parsedOffset,
+        raw: false, // Ensure we get full objects
       });
 
-      // Derive legacy single preferred_location from preferredLocations
+      // Transform applications to include all required fields
       const transformedApplications = applications.map((app) => {
         const plain = app.toJSON();
 
+        // Get preferred location (primary or first)
         const preferredLocations = plain?.applicant?.preferredLocations || [];
-        // Prefer primary (through.is_primary === true), else fallback to first
-        const primary = preferredLocations.find((loc) => loc?.ApplicantLocations?.is_primary) || preferredLocations[0];
-        const preferredLocationName = primary?.location_name || null;
+        const primaryLocation = preferredLocations.find((loc) => loc?.ApplicantLocations?.is_primary) || preferredLocations[0];
+        const preferredLocationName = primaryLocation?.location_name || null;
 
-        if (plain.applicant) {
-          plain.applicant.preferred_location = preferredLocationName;
-        }
+        // Get preferred state (primary or first)
+        const preferredStates = plain?.applicant?.preferredStates || [];
+        const primaryState = preferredStates.find((state) => state?.ApplicantStates?.is_primary) || preferredStates[0];
+        const preferredStateName = primaryState?.state_name || null;
 
-        return plain;
+        // Format application date
+        const applicationDate = plain.application_date ? new Date(plain.application_date).toLocaleDateString('en-GB') : null;
+
+        // Create clean response object with all required fields
+        const transformedApp = {
+          id: plain.id,
+          applicant_name: plain.applicant?.name || null,
+          applicant_email: plain.applicant?.email || null,
+          job_title: plain.job?.job_title || null,
+          role: plain.job?.role?.role_name || null,
+          preferred_location: preferredLocationName,
+          preferred_state: preferredStateName,
+          application_date: applicationDate,
+          status: plain.status?.status_name || null,
+          resume: plain.applicant?.file ? `Resume_${plain.applicant.name}_${plain.id}` : null,
+        };
+
+        // Return only the transformed fields, no nested job object
+        return {
+          id: plain.id,
+          applicant_name: plain.applicant?.name || null,
+          applicant_email: plain.applicant?.email || null,
+          job_title: plain.job?.job_title || null,
+          role: plain.job?.role?.role_name || null,
+          preferred_location: preferredLocationName,
+          preferred_state: preferredStateName,
+          application_date: applicationDate,
+          status: plain.status?.status_name || null,
+          resume: plain.applicant?.file ? `Resume_${plain.applicant.name}_${plain.id}` : null,
+          applicant: {
+            id: plain.applicant?.id,
+            name: plain.applicant?.name,
+            email: plain.applicant?.email,
+            phone: plain.applicant?.phone,
+            file: plain.applicant?.file,
+            preferred_location: preferredLocationName,
+            preferred_state: preferredStateName,
+          },
+          status: {
+            id: plain.status?.id,
+            status_name: plain.status?.status_name,
+          }
+        };
       });
 
       const response = {
@@ -1045,19 +1089,49 @@ class JobApplicationSubmissionController {
         distinct: true, // Add distinct to handle potential duplicates from joins
       });
 
-      // Prepare response
-      // Derive legacy single preferred_location for each application's applicant
+      // Transform general applications to include all required fields
       const transformedGeneralApplications = applications.map((app) => {
         const plain = app.toJSON();
+
+        // Get preferred location (primary or first)
         const preferredLocations = plain?.applicant?.preferredLocations || [];
-        const primary = preferredLocations.find((loc) => loc?.ApplicantLocations?.is_primary) || preferredLocations[0];
-        const preferredLocationName = primary?.location_name || null;
+        const primaryLocation = preferredLocations.find((loc) => loc?.ApplicantLocations?.is_primary) || preferredLocations[0];
+        const preferredLocationName = primaryLocation?.location_name || null;
 
-        if (plain.applicant) {
-          plain.applicant.preferred_location = preferredLocationName;
-        }
+        // Get preferred state (primary or first)
+        const preferredStates = plain?.applicant?.preferredStates || [];
+        const primaryState = preferredStates.find((state) => state?.ApplicantStates?.is_primary) || preferredStates[0];
+        const preferredStateName = primaryState?.state_name || null;
 
-        return plain;
+        // Format application date
+        const applicationDate = plain.application_date ? new Date(plain.application_date).toLocaleDateString('en-GB') : null;
+
+        // Create clean response object with all required fields
+        return {
+          id: plain.id,
+          applicant_name: plain.applicant?.name || null,
+          applicant_email: plain.applicant?.email || null,
+          job_title: plain.preferred_role_name || null, // For general applications, use preferred_role_name
+          role: plain.role?.role_name || null,
+          preferred_location: preferredLocationName,
+          preferred_state: preferredStateName,
+          application_date: applicationDate,
+          status: plain.status?.status_name || null,
+          resume: plain.applicant?.file ? `Resume_${plain.applicant.name}_${plain.id}` : null,
+          applicant: {
+            id: plain.applicant?.id,
+            name: plain.applicant?.name,
+            email: plain.applicant?.email,
+            phone: plain.applicant?.phone,
+            file: plain.applicant?.file,
+            preferred_location: preferredLocationName,
+            preferred_state: preferredStateName,
+          },
+          status: {
+            id: plain.status?.id,
+            status_name: plain.status?.status_name,
+          }
+        };
       });
 
       const response = {
