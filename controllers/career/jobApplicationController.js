@@ -526,7 +526,7 @@ class JobApplicationSubmissionController {
         },
       ];
 
-      // Build include array conditionally with memory optimization
+      // Simplified include array to avoid memory issues
       const includeArray = [
         {
           model: models.Applicants,
@@ -542,7 +542,7 @@ class JobApplicationSubmissionController {
                 attributes: ["is_primary"],
               },
               attributes: ["id", "location_name"],
-              required: false, // Always optional to avoid affecting count
+              required: false,
             },
             {
               model: models.CareerStates,
@@ -552,19 +552,23 @@ class JobApplicationSubmissionController {
                 attributes: ["is_primary"],
               },
               attributes: ["id", "state_name"],
-              required: false, // Always optional to avoid affecting count
+              required: false,
             },
           ],
         },
         {
           model: models.CareerJobs,
           as: "job",
-          attributes: ["id", "job_title", "role_id"], // Include role_id
+          attributes: ["id", "job_title", "role_id"],
           ...(Object.keys(jobWhere).length > 0 && { where: jobWhere }),
-          include: jobInclude.map(include => ({
-            ...include,
-            required: false, // Make all job includes optional
-          })),
+          include: [
+            {
+              model: models.CareerRoles,
+              as: "role",
+              attributes: ["id", "role_name"],
+              required: false,
+            }
+          ],
         },
         {
           model: models.ApplicationStatus,
