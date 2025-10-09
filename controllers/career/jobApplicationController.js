@@ -526,7 +526,7 @@ class JobApplicationSubmissionController {
         },
       ];
 
-      // Build include array conditionally
+      // Build include array conditionally with memory optimization
       const includeArray = [
         {
           model: models.Applicants,
@@ -573,15 +573,17 @@ class JobApplicationSubmissionController {
         },
       ];
 
-      // Use separate queries to avoid memory issues with complex joins
-      const { rows: applications, count: total } = await models.JobApplications.findAndCountAll({
+      // Use separate count query to avoid Sequelize issues with complex joins
+      const total = await models.JobApplications.count({
+        where: whereConditions,
+      });
+
+      const applications = await models.JobApplications.findAll({
         where: whereConditions,
         include: includeArray,
         order: [["application_date", "DESC"]],
         limit: parsedLimit,
         offset: parsedOffset,
-        distinct: true, // Add distinct to handle potential duplicates from joins
-        subQuery: false, // Disable subqueries to reduce memory usage
       });
 
       // Derive legacy single preferred_location from preferredLocations
@@ -604,21 +606,20 @@ class JobApplicationSubmissionController {
         success: true,
         data: transformedApplications,
         total,
-        meta: {
+        pagination: {
           page: Math.floor(parsedOffset / parsedLimit) + 1,
           totalPages: Math.ceil(total / parsedLimit),
           limit: parsedLimit,
           offset: parsedOffset,
+          hasNextPage: Math.floor(parsedOffset / parsedLimit) + 1 < Math.ceil(total / parsedLimit),
+          hasPrevPage: Math.floor(parsedOffset / parsedLimit) + 1 > 1,
         },
       };
 
       // Store in cache for 1 hour
       await CacheService.set(cacheKey, JSON.stringify(response), 3600); // Cache for 1 hour
 
-      res.status(200).json({
-        status: "success",
-        data: response,
-      });
+      res.status(200).json(response);
     } catch (error) {
       next(error);
     }
@@ -1041,7 +1042,6 @@ class JobApplicationSubmissionController {
         order: [["application_date", "DESC"]],
         limit: parsedLimit,
         offset: parsedOffset,
-        subQuery: false, // Disable subqueries to reduce memory usage
         distinct: true, // Add distinct to handle potential duplicates from joins
       });
 
@@ -1064,21 +1064,20 @@ class JobApplicationSubmissionController {
         success: true,
         data: transformedGeneralApplications,
         total,
-        meta: {
+        pagination: {
           page: Math.floor(parsedOffset / parsedLimit) + 1,
           totalPages: Math.ceil(total / parsedLimit),
           limit: parsedLimit,
           offset: parsedOffset,
+          hasNextPage: Math.floor(parsedOffset / parsedLimit) + 1 < Math.ceil(total / parsedLimit),
+          hasPrevPage: Math.floor(parsedOffset / parsedLimit) + 1 > 1,
         },
       };
 
       // Store in cache for 1 hour
       await CacheService.set(cacheKey, JSON.stringify(response), 3600); // Cache for 1 hour
 
-      res.status(200).json({
-        status: "success",
-        data: response,
-      });
+      res.status(200).json(response);
     } catch (error) {
       console.error("Error in listGeneralApplications:", error);
       next(error);
