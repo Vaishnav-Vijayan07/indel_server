@@ -573,6 +573,7 @@ class JobApplicationSubmissionController {
         },
       ];
 
+      // Use separate queries to avoid memory issues with complex joins
       const { rows: applications, count: total } = await models.JobApplications.findAndCountAll({
         where: whereConditions,
         include: includeArray,
@@ -580,6 +581,7 @@ class JobApplicationSubmissionController {
         limit: parsedLimit,
         offset: parsedOffset,
         distinct: true, // Add distinct to handle potential duplicates from joins
+        subQuery: false, // Disable subqueries to reduce memory usage
       });
 
       // Derive legacy single preferred_location from preferredLocations
@@ -1039,17 +1041,9 @@ class JobApplicationSubmissionController {
         order: [["application_date", "DESC"]],
         limit: parsedLimit,
         offset: parsedOffset,
-        logging: console.log, // Log SQL for debugging
+        subQuery: false, // Disable subqueries to reduce memory usage
+        distinct: true, // Add distinct to handle potential duplicates from joins
       });
-
-      // Log retrieved applications for debugging
-      console.log(
-        "Retrieved Applications:",
-        applications.map((app) => ({
-          id: app.id,
-          applicantId: app.applicant_id,
-        }))
-      );
 
       // Prepare response
       // Derive legacy single preferred_location for each application's applicant
