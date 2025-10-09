@@ -661,7 +661,12 @@ class JobsController {
         jobWhereConditions.role_id = parseInt(role_id);
       }
 
-      const { rows: jobs, count: totalItems } = await Jobs.findAndCountAll({
+      // Use separate count query to avoid issues with joins
+      const totalItems = await Jobs.count({
+        where: jobWhereConditions,
+      });
+
+      const jobs = await Jobs.findAll({
         where: jobWhereConditions,
         attributes: {
           include: [
@@ -691,11 +696,12 @@ class JobsController {
       res.json({
         success: true,
         data: jobs,
+        total: totalItems,
         pagination: {
-          currentPage: pageNum,
+          page: pageNum,
           totalPages,
-          totalItems,
-          itemsPerPage: limitNum,
+          limit: limitNum,
+          offset,
           hasNextPage,
           hasPrevPage,
         },

@@ -97,17 +97,12 @@ class ApplicantsController {
         ];
       }
 
-      // Use separate count query when filtering is applied to avoid issues with sequelize.literal
-      let total;
-      if (Object.keys(whereConditions).length > 0) {
-        // When filtering, use a separate count query
-        const countResult = await models.Applicants.count({
-          where: whereConditions,
-        });
-        total = countResult;
-      }
+      // Always use separate count query to avoid issues with joins
+      const total = await models.Applicants.count({
+        where: whereConditions,
+      });
 
-      const { rows: applicants, count: countFromFindAndCount } = await models.Applicants.findAndCountAll({
+      const applicants = await models.Applicants.findAll({
         where: whereConditions,
         include: [
           {
@@ -136,21 +131,18 @@ class ApplicantsController {
         offset: parsedOffset,
       });
 
-      // Use the separate count if filtering was applied, otherwise use the count from findAndCountAll
-      if (total === undefined) {
-        total = countFromFindAndCount;
-      }
-
       await CacheService.set(cacheKey, JSON.stringify(applicants), 3600);
       res.json({
         success: true,
         data: applicants,
         total,
-        meta: {
+        pagination: {
           page: Math.floor(parsedOffset / parsedLimit) + 1,
           totalPages: Math.ceil(total / parsedLimit),
           limit: parsedLimit,
           offset: parsedOffset,
+          hasNextPage: Math.floor(parsedOffset / parsedLimit) + 1 < Math.ceil(total / parsedLimit),
+          hasPrevPage: Math.floor(parsedOffset / parsedLimit) + 1 > 1,
         },
       });
     } catch (error) {

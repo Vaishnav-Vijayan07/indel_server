@@ -1264,17 +1264,12 @@ class JobApplicationSubmissionController {
     try {
       const { role_id, location_id, state_id, status_id, applicant_location_id, applicant_state_id, from_date, to_date } = req.query;
 
-      // Build filter conditions (same as your listing API)
+      // Build filter conditions (simplified for export)
       const whereConditions = {};
-      const jobWhere = {};
       const applicantWhere = {};
 
       if (status_id) {
         whereConditions.status_id = parseInt(status_id);
-      }
-
-      if (role_id) {
-        jobWhere.role_id = parseInt(role_id);
       }
 
       // Note: location_id filtering will be handled in the job include section
@@ -1326,74 +1321,66 @@ class JobApplicationSubmissionController {
         };
       }
 
-      // Fetch all applications without pagination for export
-      const { rows: applications } = await models.JobApplications.findAndCountAll({
+      // Build include array for export with preferred locations and states
+      const includeArray = [
+        {
+          model: models.Applicants,
+          as: "applicant",
+          attributes: ["id", "name", "email", "phone", "file"],
+          ...(Object.keys(applicantWhere).length > 0 && { where: applicantWhere }),
+          include: [
+            {
+              model: models.CareerLocations,
+              as: "preferredLocations",
+              through: {
+                model: models.ApplicantLocations,
+                attributes: ["is_primary"],
+              },
+              attributes: ["id", "location_name"],
+              required: false,
+            },
+            {
+              model: models.CareerStates,
+              as: "preferredStates",
+              through: {
+                model: models.ApplicantStates,
+                attributes: ["is_primary"],
+              },
+              attributes: ["id", "state_name"],
+              required: false,
+            },
+          ],
+        },
+        {
+          model: models.CareerJobs,
+          as: "job",
+          attributes: ["id", "job_title"],
+          include: [
+            {
+              model: models.CareerRoles,
+              as: "role",
+              attributes: ["id", "role_name"],
+            },
+          ],
+        },
+        {
+          model: models.ApplicationStatus,
+          as: "status",
+          attributes: ["id", "status_name"],
+        },
+      ];
+
+      // Use separate count and findAll to avoid memory issues
+      const total = await models.JobApplications.count({
         where: whereConditions,
-        include: [
-          {
-            model: models.Applicants,
-            as: "applicant",
-            attributes: ["id", "name", "email", "phone", "file"],
-            ...(Object.keys(applicantWhere).length > 0 && { where: applicantWhere }),
-            include: [
-              {
-                model: models.CareerLocations,
-                as: "preferredLocations",
-                through: {
-                  model: models.ApplicantLocations,
-                  attributes: ["is_primary"],
-                },
-                attributes: ["id", "location_name"],
-                required: false,
-              },
-              {
-                model: models.CareerStates,
-                as: "preferredStates",
-                through: {
-                  model: models.ApplicantStates,
-                  attributes: ["is_primary"],
-                },
-                attributes: ["id", "state_name"],
-                required: false,
-              },
-            ],
-          },
-          {
-            model: models.CareerJobs,
-            as: "job",
-            attributes: ["id", "job_title"],
-            where: jobWhere,
-            include: [
-              {
-                model: models.CareerRoles,
-                as: "role",
-                attributes: ["id", "role_name"],
-              },
-              {
-                model: models.CareerLocations,
-                as: "locations",
-                attributes: ["id", "location_name"],
-                ...(location_id && {
-                  where: { id: parseInt(location_id) },
-                }),
-              },
-              {
-                model: models.CareerStates,
-                as: "states",
-                attributes: ["id", "state_name"],
-                ...(state_id && {
-                  where: { id: parseInt(state_id) },
-                }),
-              },
-            ],
-          },
-          {
-            model: models.ApplicationStatus,
-            as: "status",
-            attributes: ["id", "status_name"],
-          },
-        ],
+      });
+
+      const applications = await models.JobApplications.findAll({
+        where: whereConditions,
+        include: includeArray,
         order: [["application_date", "DESC"]],
+        limit: 100, // Add small limit for testing
+        raw: false, // Ensure we get full objects
       });
 
       // Create Excel workbook
@@ -1427,43 +1414,43 @@ class JobApplicationSubmissionController {
 
       // Add data rows
       applications.forEach((app, index) => {
-        // Derive legacy single preferred location (primary or first)
-        const preferredLocationsArr = app.applicant?.preferredLocations || [];
-        const primaryLocation = preferredLocationsArr.find(loc => loc?.ApplicantLocations?.is_primary) || preferredLocationsArr[0];
+        const plain = app.toJSON();
+        
+        // Get preferred location (primary or first) - same logic as listing API
+        const preferredLocations = plain?.applicant?.preferredLocations || [];
+        const primaryLocation = preferredLocations.find((loc) => loc?.ApplicantLocations?.is_primary) || preferredLocations[0];
         const preferredLocationName = primaryLocation?.location_name || 'N/A';
 
-        // Format preferred states
-        const preferredStates = app.applicant?.preferredStates?.map(state => 
-          state.state_name
-        ).join(', ') || 'N/A';
+        // Get preferred state (primary or first) - same logic as listing API
+        const preferredStates = plain?.applicant?.preferredStates || [];
+        const primaryState = preferredStates.find((state) => state?.ApplicantStates?.is_primary) || preferredStates[0];
+        const preferredStateName = primaryState?.state_name || 'N/A';
 
         const row = worksheet.addRow({
-          applicationId: app.id,
-          applicantName: app.applicant?.name || "N/A",
-          email: app.applicant?.email || "N/A",
-          phone: app.applicant?.phone || "N/A",
-          jobTitle: app.job?.job_title || "N/A",
-          role: app.job?.role?.role_name || "N/A",
-          // jobLocation: app.job?.location?.location_name || "N/A",
-          // state: app.job?.state?.state_name || "N/A",
+          applicationId: plain.id,
+          applicantName: plain.applicant?.name || "N/A",
+          email: plain.applicant?.email || "N/A",
+          phone: plain.applicant?.phone || "N/A",
+          jobTitle: plain.job?.job_title || "N/A",
+          role: plain.job?.role?.role_name || "N/A",
           preferredLocations: preferredLocationName,
-          preferredStates: preferredStates,
-          status: app.status?.status_name || "N/A",
-          applicationDate: app.application_date ? new Date(app.application_date).toLocaleDateString("en-GB") : "N/A",
-          resume: app.applicant?.file ? `Resume_${app.applicant.name}_${app.id}` : "No Resume",
+          preferredStates: preferredStateName,
+          status: plain.status?.status_name || "N/A",
+          applicationDate: plain.application_date ? new Date(plain.application_date).toLocaleDateString("en-GB") : "N/A",
+          resume: plain.applicant?.file ? `Resume_${plain.applicant.name}_${plain.id}` : "No Resume",
         });
 
         // Add hyperlink for resume if file exists
-        if (app.applicant?.file) {
+        if (plain.applicant?.file) {
           const resumeCell = row.getCell("resume");
 
           // Construct the full URL for the resume
           const baseUrl = process.env.BASE_URL;
-          const resumeUrl = `${baseUrl}/${app.applicant.file}`;
+          const resumeUrl = `${baseUrl}/${plain.applicant.file}`;
 
           // Add hyperlink
           resumeCell.value = {
-            text: `Resume_${app.applicant.name}_${app.id}`,
+            text: `Resume_${plain.applicant.name}_${plain.id}`,
             hyperlink: resumeUrl,
           };
 
@@ -1550,50 +1537,59 @@ class JobApplicationSubmissionController {
         };
       }
 
-      // Fetch all general applications without pagination for export
-      const { rows: applications } = await models.GeneralApplications.findAndCountAll({
+      // Build include array for export with preferred locations and states
+      const includeArray = [
+        {
+          model: models.Applicants,
+          as: "applicant",
+          attributes: ["id", "name", "email", "phone", "file"],
+          ...(Object.keys(applicantWhere).length > 0 && { where: applicantWhere }),
+          include: [
+            {
+              model: models.CareerLocations,
+              as: "preferredLocations",
+              through: {
+                model: models.ApplicantLocations,
+                attributes: ["is_primary"],
+              },
+              attributes: ["id", "location_name"],
+              required: false,
+            },
+            {
+              model: models.CareerStates,
+              as: "preferredStates",
+              through: {
+                model: models.ApplicantStates,
+                attributes: ["is_primary"],
+              },
+              attributes: ["id", "state_name"],
+              required: false,
+            },
+          ],
+        },
+        {
+          model: models.CareerRoles,
+          as: "role",
+          attributes: ["id", "role_name"],
+        },
+        {
+          model: models.ApplicationStatus,
+          as: "status",
+          attributes: ["id", "status_name"],
+        },
+      ];
+
+      // Use separate count and findAll to avoid memory issues
+      const total = await models.GeneralApplications.count({
         where: whereConditions,
-        include: [
-          {
-            model: models.Applicants,
-            as: "applicant",
-            attributes: ["id", "name", "email", "phone", "file"],
-            where: applicantWhere,
-            include: [
-              {
-                model: models.CareerLocations,
-                as: "preferredLocations",
-                through: {
-                  model: models.ApplicantLocations,
-                  attributes: ["is_primary"],
-                },
-                attributes: ["id", "location_name"],
-                required: false,
-              },
-              {
-                model: models.CareerStates,
-                as: "preferredStates",
-                through: {
-                  model: models.ApplicantStates,
-                  attributes: ["is_primary"],
-                },
-                attributes: ["id", "state_name"],
-                required: false,
-              },
-            ],
-          },
-          {
-            model: models.CareerRoles,
-            as: "role",
-            attributes: ["id", "role_name"],
-          },
-          {
-            model: models.ApplicationStatus,
-            as: "status",
-            attributes: ["id", "status_name"],
-          },
-        ],
+      });
+
+      const applications = await models.GeneralApplications.findAll({
+        where: whereConditions,
+        include: includeArray,
         order: [["application_date", "DESC"]],
+        limit: 100, // Add small limit for testing
+        raw: false, // Ensure we get full objects
       });
 
       // Create Excel workbook
@@ -1624,40 +1620,42 @@ class JobApplicationSubmissionController {
 
       // Add data rows
       applications.forEach((app) => {
-        // Format preferred locations
-        const preferredLocations = app.applicant?.preferredLocations?.map(loc => 
-          loc.location_name
-        ).join(', ') || 'N/A';
+        const plain = app.toJSON();
         
-        // Format preferred states
-        const preferredStates = app.applicant?.preferredStates?.map(state => 
-          state.state_name
-        ).join(', ') || 'N/A';
+        // Get preferred location (primary or first) - same logic as listing API
+        const preferredLocations = plain?.applicant?.preferredLocations || [];
+        const primaryLocation = preferredLocations.find((loc) => loc?.ApplicantLocations?.is_primary) || preferredLocations[0];
+        const preferredLocationName = primaryLocation?.location_name || 'N/A';
+
+        // Get preferred state (primary or first) - same logic as listing API
+        const preferredStates = plain?.applicant?.preferredStates || [];
+        const primaryState = preferredStates.find((state) => state?.ApplicantStates?.is_primary) || preferredStates[0];
+        const preferredStateName = primaryState?.state_name || 'N/A';
 
         const row = worksheet.addRow({
-          applicationId: app.id,
-          applicantName: app.applicant?.name || "N/A",
-          email: app.applicant?.email || "N/A",
-          phone: app.applicant?.phone || "N/A",
-          role: app.role?.role_name || "N/A",
-          preferredLocations: preferredLocations,
-          preferredStates: preferredStates,
-          status: app.status?.status_name || "N/A",
-          applicationDate: app.application_date ? new Date(app.application_date).toLocaleDateString("en-GB") : "N/A",
-          resume: app.applicant?.file ? `Resume_${app.applicant.name}_${app.id}` : "No Resume",
+          applicationId: plain.id,
+          applicantName: plain.applicant?.name || "N/A",
+          email: plain.applicant?.email || "N/A",
+          phone: plain.applicant?.phone || "N/A",
+          role: plain.role?.role_name || "N/A",
+          preferredLocations: preferredLocationName,
+          preferredStates: preferredStateName,
+          status: plain.status?.status_name || "N/A",
+          applicationDate: plain.application_date ? new Date(plain.application_date).toLocaleDateString("en-GB") : "N/A",
+          resume: plain.applicant?.file ? `Resume_${plain.applicant.name}_${plain.id}` : "No Resume",
         });
 
         // Add hyperlink for resume if file exists
-        if (app.applicant?.file) {
+        if (plain.applicant?.file) {
           const resumeCell = row.getCell("resume");
 
           // Construct the full URL for the resume
           const baseUrl = process.env.BASE_URL || req.protocol + "://" + req.get("host");
-          const resumeUrl = `${baseUrl}/${app.applicant.file}`;
+          const resumeUrl = `${baseUrl}/${plain.applicant.file}`;
 
           // Add hyperlink
           resumeCell.value = {
-            text: `Resume_${app.applicant.name}_${app.id}`,
+            text: `Resume_${plain.applicant.name}_${plain.id}`,
             hyperlink: resumeUrl,
           };
 
