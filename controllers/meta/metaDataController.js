@@ -36,60 +36,57 @@ class MetaDataController {
     const { page } = req.query;
 
     console.log(`Fetching meta data for page: ${page}`, typeToDbMap[page]);
-    
+
+    // Validate page
     if (!typeToDbMap[page] && page !== "career" && page !== "listings") {
       return res.status(404).json({ error: "Page type not found" });
     }
 
+    // Handle career & listings separately
     if (page === "career" || page === "listings") {
-      const cacheKey = `metaData:${page}`;
-      const cachedData = await cacheService.get(cacheKey);
+      try {
+        const metaData = await models.CareerMeta.findOne({
+          attributes: ["id", "meta_title", "meta_description", "meta_keywords"],
+          where: { type: page },
+        });
 
-      if (cachedData) {
-        console.log(`Getting ${page} data from cache`);
-        return res.status(200).json({ status: "success", data: JSON.parse(cachedData) });
+        if (!metaData) {
+          return res.status(404).json({ error: "Meta data not found" });
+        }
+
+        console.log(`Fetching ${page} data from DB`);
+        return res.status(200).json({ status: "success", data: metaData });
+      } catch (error) {
+        logger.error(`Error fetching meta data for ${page}: ${error.message}`);
+        return next(error);
       }
-
-      const metaData = await models.CareerMeta.findOne({
-        attributes: ["id", "meta_title", "meta_description", "meta_keywords"],
-        where: { type: page },
-      });
-
-      if (!metaData) {
-        return res.status(404).json({ error: "Meta data not found" });
-      }
-
-      await cacheService.set(cacheKey, JSON.stringify(metaData));
-      console.log(`Getting ${page} data from DB`);
-      return res.status(200).json({ status: "success", data: metaData });
     }
 
-    const cacheKey = `metaData:${page}`;
+    // General page meta
     try {
-      const cachedData = await cacheService.get(cacheKey);
-      if (cachedData) {
-        return res.json({ status: "success", data: JSON.parse(cachedData) });
-      }
       const metaData = await typeToDbMap[page].findOne({
         attributes: ["id", "meta_title", "meta_description", "meta_keywords"],
       });
+
       if (!metaData) {
         return res.status(404).json({ error: "Meta data not found" });
       }
-      await cacheService.set(cacheKey, JSON.stringify(metaData));
 
-      res.status(200).json({ status: "success", data: metaData });
+      return res.status(200).json({ status: "success", data: metaData });
     } catch (error) {
       logger.error(`Error fetching meta data for ${page}: ${error.message}`);
       next(error);
     }
   }
 
+  // Fetch meta for slug (cache removed)
   static async getMetaForSlug(req, res, next) {
     const { page, slug } = req.query;
+
     if (!typeToDbMap[page]) {
       return res.status(404).json({ error: "Page type not found" });
     }
+
     try {
       const metaData = await typeToDbMap[page].findOne({
         attributes: ["id", "meta_title", "meta_description", "meta_keywords", "image", "image_alt", "slug"],
@@ -100,20 +97,14 @@ class MetaDataController {
       if (!metaData) {
         return res.status(404).json({ error: "Meta data not found" });
       }
-      const itemId = metaData.id;
-      const cacheKey = `metaData:${page}:${itemId}`;
-      const cachedData = await cacheService.get(cacheKey);
-      if (cachedData) {
-        console.log("Serving meta data from cache");
-        return res.json({ status: "success", data: JSON.parse(cachedData) });
-      }
-      await cacheService.set(cacheKey, JSON.stringify(metaData));
-      console.log("Serving meta data from database");
-      res.status(200).json({ status: "success", data: metaData });
+
+      console.log("Fetching meta data from database");
+      return res.status(200).json({ status: "success", data: metaData });
     } catch (error) {
       logger.error(`Error fetching meta data for ${page}: ${error.message}`);
       next(error);
     }
   }
 }
+
 module.exports = MetaDataController;
