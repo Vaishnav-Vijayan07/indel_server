@@ -313,7 +313,7 @@ class JobApplicationSubmissionController {
         }
 
         await models.ApplicantDistricts.destroy({
-          where: { applicant_id: applicantRecord.id },
+          where: { applicant_id: existingApplicant.id },
         });
 
         await models?.ApplicantDistricts?.create({
