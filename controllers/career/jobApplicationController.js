@@ -724,6 +724,11 @@ class JobApplicationSubmissionController {
         preferredStates = applicant.preferred_states;
       }
 
+      let preferredDistrictId = null;
+      if (applicant?.preferred_districts && Array.isArray(applicant.preferred_districts)) {
+        preferredDistrictId = applicant.preferred_districts[0];
+      }
+
       // Validate all states exist (if provided)
       if (preferredStates.length > 0) {
         const states = await models.CareerStates.findAll({
@@ -821,6 +826,17 @@ class JobApplicationSubmissionController {
           await models.ApplicantStates.bulkCreate(stateInserts);
         }
 
+        await models.ApplicantDistricts.destroy({
+          where: { applicant_id: applicantRecord.id },
+        });
+
+        await models?.ApplicantDistricts?.create({
+          applicant_id: applicantRecord.id,
+          district_id: preferredDistrictId,
+          is_primary: true,
+          created_at: new Date(),
+        });
+
         // If application exists, return response
         if (existingApplication) {
           // Fetch applicant with preferred locations and states for response
@@ -843,6 +859,18 @@ class JobApplicationSubmissionController {
                 },
                 as: "preferredStates",
                 attributes: ["id", "state_name"],
+              },
+              {
+                model: models.ApplicantDistricts,
+                as: "preferredDistrict",
+                attributes: ["id", "district_id"],
+                include: [
+                  {
+                    model: models.Districts,
+                    as: "district",
+                    attributes: ["id", "district_name"],
+                  },
+                ],
               },
             ],
           });
@@ -896,6 +924,13 @@ class JobApplicationSubmissionController {
         }
       }
 
+      await models?.ApplicantDistricts?.create({
+        applicant_id: applicantRecord.id,
+        district_id: preferredDistrictId,
+        is_primary: true,
+        created_at: new Date(),
+      });
+
       // Create the general application
       const newApplication = await models.GeneralApplications.create({
         applicant_id: applicantRecord.id,
@@ -929,6 +964,9 @@ class JobApplicationSubmissionController {
             },
             as: "preferredStates",
             attributes: ["id", "state_name"],
+          },
+          {
+            model: models.CareerDistricts,
           },
         ],
       });
