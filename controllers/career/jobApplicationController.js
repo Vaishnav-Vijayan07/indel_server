@@ -136,8 +136,6 @@ class JobApplicationSubmissionController {
       if (applicant?.preferred_locations && Array.isArray(applicant.preferred_locations)) {
         // Multiple locations provided
         preferredLocations = applicant.preferred_locations;
-      } else {
-        throw new CustomError("At least one preferred location is required", 400);
       }
 
       // Validate preferred states (optional)
@@ -147,21 +145,9 @@ class JobApplicationSubmissionController {
         preferredStates = applicant.preferred_states;
       }
 
-      // Validate all locations exist
-      const locations = await models.CareerLocations.findAll({
-        where: { id: { [Op.in]: preferredLocations } },
-      });
-
-      console.log(`Found ${locations.length} locations out of ${preferredLocations.length} requested`);
-      locations.forEach((loc) => {
-        console.log(`  - ID: ${loc.id}, Name: ${loc.location_name}`);
-      });
-
-      if (locations.length !== preferredLocations.length) {
-        const foundIds = locations.map((l) => l.id);
-        const missingIds = preferredLocations.filter((id) => !foundIds.includes(id));
-        console.log("❌ Missing location IDs:", missingIds);
-        throw new CustomError("One or more preferred locations not found", 404);
+      let preferredDistrictId = null;
+      if (applicant?.preferred_districts && Array.isArray(applicant.preferred_districts)) {
+        preferredDistrictId = applicant.preferred_districts[0];
       }
 
       console.log("✅ All locations validated successfully");
@@ -288,7 +274,7 @@ class JobApplicationSubmissionController {
         }
 
         // Remove preferred_locations and preferred_states from updateData as they will be handled separately
-        delete updateData.preferred_locations;
+        preferredLocations?.length > 0 && delete updateData.preferred_locations;
         delete updateData.preferred_states;
 
         // Update applicant
@@ -299,14 +285,16 @@ class JobApplicationSubmissionController {
           where: { applicant_id: existingApplicant.id },
         });
 
-        // Add new preferred locations
-        const locationData = preferredLocations.map((locationId, index) => ({
-          applicant_id: existingApplicant.id,
-          location_id: locationId,
-          is_primary: index === 0, // First location is primary
-        }));
+        if (preferredLocations.length > 0) {
+          // Add new preferred locations
+          const locationData = preferredLocations.map((locationId, index) => ({
+            applicant_id: existingApplicant.id,
+            location_id: locationId,
+            is_primary: index === 0, // First location is primary
+          }));
 
-        await models.ApplicantLocations.bulkCreate(locationData);
+          await models.ApplicantLocations.bulkCreate(locationData);
+        }
 
         // Update preferred states
         await models.ApplicantStates.destroy({
@@ -324,6 +312,17 @@ class JobApplicationSubmissionController {
           await models.ApplicantStates.bulkCreate(stateData);
         }
 
+        await models.ApplicantDistricts.destroy({
+          where: { applicant_id: applicantRecord.id },
+        });
+
+        await models?.ApplicantDistricts?.create({
+          applicant_id: existingApplicant.id,
+          district_id: preferredDistrictId,
+          is_primary: true,
+          created_at: new Date(),
+        });
+
         applicantRecord = existingApplicant;
       } else {
         // Prepare create data
@@ -334,7 +333,7 @@ class JobApplicationSubmissionController {
         };
 
         // Remove preferred_locations and preferred_states from createData as they will be handled separately
-        delete createData.preferred_locations;
+        preferredLocations?.length > 0 && delete createData.preferred_locations;
         delete createData.preferred_states;
 
         applicantRecord = await models.Applicants.create(createData);
@@ -358,6 +357,12 @@ class JobApplicationSubmissionController {
 
           await models.ApplicantStates.bulkCreate(stateData);
         }
+        await models?.ApplicantDistricts?.create({
+          applicant_id: applicantRecord.id,
+          district_id: preferredDistrictId,
+          is_primary: true,
+          created_at: new Date(),
+        });
       }
 
       // Create job application record
