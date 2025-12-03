@@ -10,7 +10,7 @@ router.get("/:id", DistrictsController.getById);
 router.get("/by_state/:id", DistrictsController.getDistrictsByStateId);
 
 router.use(authMiddleware(["admin"]));
-router.post("/",  validateCareerDistricts, validateMiddleware, DistrictsController.create);
+router.post("/", validateCareerDistricts, validateMiddleware, DistrictsController.create);
 router.put("/:id", validateCareerDistrictsUpdate, validateMiddleware, DistrictsController.update);
 router.delete("/:id", DistrictsController.delete);
 

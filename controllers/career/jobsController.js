@@ -40,8 +40,7 @@ class JobsController {
         // For non-pan India jobs, require at least one location and state
         if (!Array.isArray(location_ids) || location_ids.length === 0)
           throw new CustomError("At least one location is required for non-pan India jobs", 400);
-        if (!Array.isArray(state_ids) || state_ids.length === 0)
-          throw new CustomError("At least one state is required for non-pan India jobs", 400);
+        if (!Array.isArray(state_ids) || state_ids.length === 0) throw new CustomError("At least one state is required for non-pan India jobs", 400);
 
         const existingLocations = await models.CareerLocations.findAll({
           where: { id: location_ids },
@@ -296,8 +295,7 @@ class JobsController {
             if (job.is_display_full_locations) {
               if (stateLocations.length > 0) {
                 const lastLocation = stateLocations.pop();
-                const locationString =
-                  stateLocations.length > 0 ? `${stateLocations.join(", ")} and ${lastLocation}` : lastLocation;
+                const locationString = stateLocations.length > 0 ? `${stateLocations.join(", ")} and ${lastLocation}` : lastLocation;
                 return `${capitalizeWords(state.state_name)}: ${locationString}${stateLocations.length + 1 > 3 ? ", etc." : ""}`;
               }
               return `${capitalizeWords(state.state_name)}: No Specific Locations`;
@@ -417,8 +415,7 @@ class JobsController {
           if (job.is_display_full_locations) {
             if (stateLocations.length > 0) {
               const lastLocation = stateLocations.pop();
-              const locationString =
-                stateLocations.length > 0 ? `${stateLocations.join(", ")} and ${lastLocation}` : lastLocation;
+              const locationString = stateLocations.length > 0 ? `${stateLocations.join(", ")} and ${lastLocation}` : lastLocation;
               return `${capitalizeWords(state.state_name)}: ${locationString}${stateLocations.length + 1 > 3 ? ", etc." : ""}`;
             }
             return `${capitalizeWords(state.state_name)}: No Specific Locations`;
@@ -569,11 +566,7 @@ class JobsController {
       }
 
       // Invalidate caches after update
-      await Promise.all([
-        CacheService.invalidate("jobs"),
-        CacheService.invalidate("webCareerPage"),
-        CacheService.invalidate(`job_${id}`),
-      ]);
+      await Promise.all([CacheService.invalidate("jobs"), CacheService.invalidate("webCareerPage"), CacheService.invalidate(`job_${id}`)]);
       res.json({ success: true, data: job, message: "Job updated" });
     } catch (error) {
       next(error);
@@ -583,6 +576,7 @@ class JobsController {
   // Keep existing methods (getDropdowns, getAll, delete, updateOrder) unchanged
   static async getDropdowns(req, res, next) {
     try {
+      console.log("Fetching job dropdowns...");
       const [roles, locations, states, statuses] = await Promise.all([
         models.CareerRoles.findAll({
           where: { is_active: true },
@@ -721,11 +715,7 @@ class JobsController {
 
       await job.destroy();
 
-      await Promise.all([
-        CacheService.invalidate("jobs"),
-        CacheService.invalidate("webCareerPage"),
-        CacheService.invalidate(`job_${id}`),
-      ]);
+      await Promise.all([CacheService.invalidate("jobs"), CacheService.invalidate("webCareerPage"), CacheService.invalidate(`job_${id}`)]);
       res.json({ success: true, message: "Job deleted", data: id });
     } catch (error) {
       next(error);
@@ -825,12 +815,14 @@ class JobsController {
       }));
 
       // Format roles for dropdown
-      const roles = jobWithAssociations.role ? [
-        {
-          value: jobWithAssociations.role.id.toString(),
-          label: jobWithAssociations.role.role_name,
-        }
-      ] : [];
+      const roles = jobWithAssociations.role
+        ? [
+            {
+              value: jobWithAssociations.role.id.toString(),
+              label: jobWithAssociations.role.role_name,
+            },
+          ]
+        : [];
 
       res.json({
         success: true,
@@ -867,8 +859,11 @@ class JobsController {
       }
 
       // Parse state_ids (comma-separated string)
-      const stateIdArray = state_ids.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
-      
+      const stateIdArray = state_ids
+        .split(",")
+        .map((id) => parseInt(id.trim()))
+        .filter((id) => !isNaN(id));
+
       if (stateIdArray.length === 0) {
         throw new CustomError("Invalid state_ids format", 400);
       }
