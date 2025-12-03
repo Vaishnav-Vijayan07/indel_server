@@ -715,8 +715,6 @@ class JobApplicationSubmissionController {
       if (applicant?.preferred_locations && Array.isArray(applicant.preferred_locations)) {
         // Multiple locations provided
         preferredLocations = applicant.preferred_locations;
-      } else {
-        throw new CustomError("At least one preferred location is required", 400);
       }
 
       // Validate preferred states (optional)
