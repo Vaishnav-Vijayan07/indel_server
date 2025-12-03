@@ -1333,7 +1333,20 @@ class JobApplicationSubmissionController {
         {
           model: models.Applicants,
           as: "applicant",
-          attributes: ["id", "name", "email", "phone", "file"],
+          attributes: [
+            "id",
+            "name",
+            "email",
+            "phone",
+            "file",
+            "expected_salary",
+            "notice_period",
+            "current_salary",
+            "age",
+            "employee_referral_code",
+            "referred_employee_name",
+            "current_location",
+          ],
           ...(Object.keys(applicantWhere).length > 0 && { where: applicantWhere }),
           include: [
             {
@@ -1355,6 +1368,10 @@ class JobApplicationSubmissionController {
               },
               attributes: ["id", "state_name"],
               required: false,
+            },
+            {
+              model: models.ApplicantDistricts,
+              as: "preferredDistricts",
             },
           ],
         },
@@ -1409,6 +1426,13 @@ class JobApplicationSubmissionController {
         { header: "Status", key: "status", width: 15 },
         { header: "Application Date", key: "applicationDate", width: 20 },
         { header: "Resume", key: "resume", width: 30 },
+        { header: "Age", key: "age", width: 30 },
+        { header: "Current Salary", key: "currentSalary", width: 30 },
+        { header: "Expected Salary", key: "expectedSalary", width: 30 },
+        { header: "Notice Period", key: "noticePeriod", width: 30 },
+        { header: "Current Location", key: "currentLocation", width: 30 },
+        { header: "Referred Employee Name", key: "referredEmployeeName", width: 30 },
+        { header: "Referral Code", key: "referralCode", width: 30 },
       ];
 
       // Style the header row
@@ -1432,6 +1456,15 @@ class JobApplicationSubmissionController {
         const preferredStates = plain?.applicant?.preferredStates || [];
         const primaryState = preferredStates.find((state) => state?.ApplicantStates?.is_primary) || preferredStates[0];
         const preferredStateName = primaryState?.state_name || "N/A";
+        const preferredDistrictName = plain?.applicant?.preferredDistrict?.district?.district_name || "N/A";
+
+        const age = applicant.age ?? "N/A";
+        const currentSalary = applicant.current_salary ?? "N/A";
+        const expectedSalary = applicant.expected_salary ?? "N/A";
+        const noticePeriod = applicant.notice_period ?? "N/A";
+        const currentLocation = applicant.current_location ?? "N/A";
+        const referredEmployeeName = applicant.referred_employee_name ?? "N/A";
+        const referralCode = applicant.employee_referral_code ?? "N/A";
 
         const row = worksheet.addRow({
           applicationId: plain.id,
@@ -1442,9 +1475,17 @@ class JobApplicationSubmissionController {
           role: plain.job?.role?.role_name || "N/A",
           preferredLocations: preferredLocationName,
           preferredStates: preferredStateName,
+          preferredDistricts: preferredDistrictName,
           status: plain.status?.status_name || "N/A",
           applicationDate: plain.application_date ? new Date(plain.application_date).toLocaleDateString("en-GB") : "N/A",
           resume: plain.applicant?.file ? `Resume_${plain.applicant.name}_${plain.id}` : "No Resume",
+          age,
+          currentSalary,
+          expectedSalary,
+          noticePeriod,
+          currentLocation,
+          referredEmployeeName,
+          referralCode,
         });
 
         // Add hyperlink for resume if file exists
@@ -1588,6 +1629,16 @@ class JobApplicationSubmissionController {
               attributes: ["id", "state_name"],
               required: false,
             },
+            {
+              model: models.ApplicantDistricts,
+              as: "preferredDistricts",
+              include: [
+                {
+                  model: models.Districts,
+                  as: "district",
+                },
+              ],
+            },
           ],
         },
         {
@@ -1629,6 +1680,7 @@ class JobApplicationSubmissionController {
         { header: "Job Title", key: "role", width: 20 },
         { header: "Preferred Locations", key: "preferredLocations", width: 30 },
         { header: "Preferred States", key: "preferredStates", width: 30 },
+        { header: "Preferred District", key: "preferredDistrict", width: 30 },
         { header: "Status", key: "status", width: 15 },
         { header: "Application Date", key: "applicationDate", width: 20 },
         { header: "Resume", key: "resume", width: 30 },
@@ -1662,6 +1714,7 @@ class JobApplicationSubmissionController {
         const preferredStates = plain?.applicant?.preferredStates || [];
         const primaryState = preferredStates.find((state) => state?.ApplicantStates?.is_primary) || preferredStates[0];
         const preferredStateName = primaryState?.state_name || "N/A";
+        const preferredDistrictName = plain?.applicant?.preferredDistrict?.district?.district_name || "N/A";
 
         const age = applicant.age ?? "N/A";
         const currentSalary = applicant.current_salary ?? "N/A";
@@ -1680,6 +1733,7 @@ class JobApplicationSubmissionController {
           role: plain.role?.role_name || "N/A",
           preferredLocations: preferredLocationName,
           preferredStates: preferredStateName,
+          preferredDistrict: preferredDistrictName,
           status: plain.status?.status_name || "N/A",
           applicationDate: plain.application_date ? new Date(plain.application_date).toLocaleDateString("en-GB") : "N/A",
           resume: plain.applicant?.file ? `Resume_${plain.applicant.name}_${plain.id}` : "No Resume",
