@@ -1419,6 +1419,7 @@ class JobApplicationSubmissionController {
       // Define columns
       worksheet.columns = [
         { header: "Application ID", key: "applicationId", width: 15 },
+        { header: "Application Type", key: "applicationType", width: 25 },
         { header: "Applicant Name", key: "applicantName", width: 20 },
         { header: "Email", key: "email", width: 25 },
         { header: "Phone", key: "phone", width: 15 },
@@ -1474,6 +1475,7 @@ class JobApplicationSubmissionController {
 
         const row = worksheet.addRow({
           applicationId: plain.id,
+          applicationType: "Job Application",
           applicantName: plain.applicant?.name || "N/A",
           email: plain.applicant?.email || "N/A",
           phone: plain.applicant?.phone || "N/A",
