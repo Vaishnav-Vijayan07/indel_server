@@ -744,7 +744,6 @@ class JobApplicationSubmissionController {
       const role = await models.CareerRoles.findByPk(general_application?.role_id);
       if (!role) throw new CustomError("Role not found", 404);
 
-      // Get "Pending" status
       const pendingStatus = await models.ApplicationStatus.findOne({
         where: { status_name: "Pending" },
       });
@@ -862,7 +861,7 @@ class JobApplicationSubmissionController {
               },
               {
                 model: models.ApplicantDistricts,
-                as: "preferredDistrict",
+                as: "preferredDistricts",
                 attributes: ["id", "district_id"],
                 include: [
                   {
@@ -924,6 +923,9 @@ class JobApplicationSubmissionController {
         }
       }
 
+      console.log("Preferred District ID:", preferredDistrictId);
+      console.log("Preferred District ID:", applicantRecord.id);
+
       await models?.ApplicantDistricts?.create({
         applicant_id: applicantRecord.id,
         district_id: preferredDistrictId,
@@ -944,39 +946,9 @@ class JobApplicationSubmissionController {
       // Invalidate caches
       await Promise.all([CacheService.invalidate("applicants"), CacheService.invalidate("general_applications")]);
 
-      // Fetch applicant with preferred locations and states for response
-      const applicantWithLocations = await models.Applicants.findByPk(applicantRecord.id, {
-        include: [
-          {
-            model: models.CareerLocations,
-            through: {
-              model: models.ApplicantLocations,
-              attributes: ["is_primary"],
-            },
-            as: "preferredLocations",
-            attributes: ["id", "location_name"],
-          },
-          {
-            model: models.CareerStates,
-            through: {
-              model: models.ApplicantStates,
-              attributes: ["is_primary"],
-            },
-            as: "preferredStates",
-            attributes: ["id", "state_name"],
-          },
-          {
-            model: models.CareerDistricts,
-          },
-        ],
-      });
-
       res.status(201).json({
         success: true,
-        data: {
-          applicant: applicantWithLocations,
-          general_application: newApplication,
-        },
+        data: {},
         message: "General application submitted successfully",
       });
     } catch (error) {
@@ -1494,15 +1466,16 @@ class JobApplicationSubmissionController {
         const preferredStates = plain?.applicant?.preferredStates || [];
         const primaryState = preferredStates.find((state) => state?.ApplicantStates?.is_primary) || preferredStates[0];
         const preferredStateName = primaryState?.state_name || "N/A";
-        const preferredDistrictName = plain?.applicant?.preferredDistrict?.district?.district_name || "N/A";
+        const preferredDistrictName = plain?.applicant?.preferredDistricts?.district?.district_name || "N/A";
 
         const age = plain?.applicant.age ?? "N/A";
         const currentSalary = plain?.applicant.current_salary ?? "N/A";
         const expectedSalary = plain?.applicant.expected_salary ?? "N/A";
         const noticePeriod = plain?.applicant.notice_period ?? "N/A";
         const currentLocation = plain?.applicant.current_location ?? "N/A";
-        const referredEmployeeName = plain?.applicant.referred_employee_name ?? "N/A";
-        const referralCode = plain?.applicant.employee_referral_code ?? "N/A";
+        const referredEmployeeName = plain?.applicant?.referred_employee_name?.trim() ? plain.applicant.referred_employee_name : "N/A";
+
+        const referralCode = plain?.applicant?.employee_referral_code?.trim() ? plain.applicant.employee_referral_code : "N/A";
 
         const row = worksheet.addRow({
           applicationId: plain.id,
@@ -1752,7 +1725,7 @@ class JobApplicationSubmissionController {
         const preferredStates = plain?.applicant?.preferredStates || [];
         const primaryState = preferredStates.find((state) => state?.ApplicantStates?.is_primary) || preferredStates[0];
         const preferredStateName = primaryState?.state_name || "N/A";
-        const preferredDistrictName = plain?.applicant?.preferredDistrict?.district?.district_name || "N/A";
+        const preferredDistrictName = plain?.applicant?.preferredDistricts?.district?.district_name || "N/A";
 
         console.log("Preferred District Name:", preferredDistrictName);
         console.log("Preferred District Name:", plain?.applicant?.preferredDistrict?.district?.district_name);
@@ -1765,8 +1738,9 @@ class JobApplicationSubmissionController {
         const expectedSalary = plain?.applicant.expected_salary ?? "N/A";
         const noticePeriod = plain?.applicant.notice_period ?? "N/A";
         const currentLocation = plain?.applicant.current_location ?? "N/A";
-        const referredEmployeeName = plain?.applicant.referred_employee_name ?? "N/A";
-        const referralCode = plain?.applicant.employee_referral_code ?? "N/A";
+        const referredEmployeeName = plain?.applicant?.referred_employee_name?.trim() ? plain.applicant.referred_employee_name : "N/A";
+
+        const referralCode = plain?.applicant?.employee_referral_code?.trim() ? plain.applicant.employee_referral_code : "N/A";
 
         const row = worksheet.addRow({
           applicationId: plain.id,
