@@ -923,16 +923,6 @@ class JobApplicationSubmissionController {
         }
       }
 
-      console.log("Preferred District ID:", preferredDistrictId);
-      console.log("Preferred District ID:", applicantRecord.id);
-
-      await models?.ApplicantDistricts?.create({
-        applicant_id: applicantRecord.id,
-        district_id: preferredDistrictId,
-        is_primary: true,
-        created_at: new Date(),
-      });
-
       // Create the general application
       const newApplication = await models.GeneralApplications.create({
         applicant_id: applicantRecord.id,
