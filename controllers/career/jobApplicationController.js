@@ -1458,13 +1458,13 @@ class JobApplicationSubmissionController {
         const preferredStateName = primaryState?.state_name || "N/A";
         const preferredDistrictName = plain?.applicant?.preferredDistrict?.district?.district_name || "N/A";
 
-        const age = applicant.age ?? "N/A";
-        const currentSalary = applicant.current_salary ?? "N/A";
-        const expectedSalary = applicant.expected_salary ?? "N/A";
-        const noticePeriod = applicant.notice_period ?? "N/A";
-        const currentLocation = applicant.current_location ?? "N/A";
-        const referredEmployeeName = applicant.referred_employee_name ?? "N/A";
-        const referralCode = applicant.employee_referral_code ?? "N/A";
+        const age = plain?.applicant.age ?? "N/A";
+        const currentSalary = plain?.applicant.current_salary ?? "N/A";
+        const expectedSalary = plain?.applicant.expected_salary ?? "N/A";
+        const noticePeriod = plain?.applicant.notice_period ?? "N/A";
+        const currentLocation = plain?.applicant.current_location ?? "N/A";
+        const referredEmployeeName = plain?.applicant.referred_employee_name ?? "N/A";
+        const referralCode = plain?.applicant.employee_referral_code ?? "N/A";
 
         const row = worksheet.addRow({
           applicationId: plain.id,
@@ -1716,13 +1716,13 @@ class JobApplicationSubmissionController {
         const preferredStateName = primaryState?.state_name || "N/A";
         const preferredDistrictName = plain?.applicant?.preferredDistrict?.district?.district_name || "N/A";
 
-        const age = applicant.age ?? "N/A";
-        const currentSalary = applicant.current_salary ?? "N/A";
-        const expectedSalary = applicant.expected_salary ?? "N/A";
-        const noticePeriod = applicant.notice_period ?? "N/A";
-        const currentLocation = applicant.current_location ?? "N/A";
-        const referredEmployeeName = applicant.referred_employee_name ?? "N/A";
-        const referralCode = applicant.employee_referral_code ?? "N/A";
+        const age = plain?.applicant.age ?? "N/A";
+        const currentSalary = plain?.applicant.current_salary ?? "N/A";
+        const expectedSalary = plain?.applicant.expected_salary ?? "N/A";
+        const noticePeriod = plain?.applicant.notice_period ?? "N/A";
+        const currentLocation = plain?.applicant.current_location ?? "N/A";
+        const referredEmployeeName = plain?.applicant.referred_employee_name ?? "N/A";
+        const referralCode = plain?.applicant.employee_referral_code ?? "N/A";
 
         const row = worksheet.addRow({
           applicationId: plain.id,
