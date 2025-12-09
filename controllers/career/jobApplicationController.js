@@ -1457,6 +1457,12 @@ class JobApplicationSubmissionController {
         const preferredStateName = primaryState?.state_name || "N/A";
         const preferredDistrictName = plain?.applicant?.preferredDistricts?.district?.district_name || "N/A";
 
+        console.log("Preferred District Name:", preferredDistrictName);
+        console.log("Preferred District Name:", plain?.applicant?.preferredDistrict?.district?.district_name);
+        console.log("Preferred District Name:", plain?.applicant?.preferredDistrict?.district);
+        console.log("Preferred District Name:", plain?.applicant?.preferredDistrict);
+        console.log("Preferred District Name:", plain?.applicant);
+
         const age = plain?.applicant.age ?? "N/A";
         const currentSalary = plain?.applicant.current_salary ?? "N/A";
         const expectedSalary = plain?.applicant.expected_salary ?? "N/A";
@@ -1476,7 +1482,7 @@ class JobApplicationSubmissionController {
           role: plain.job?.role?.role_name || "N/A",
           preferredLocations: preferredLocationName,
           preferredStates: preferredStateName,
-          preferredDistricts: preferredDistrictName,
+          preferredDistrict: preferredDistrictName,
           status: plain.status?.status_name || "N/A",
           applicationDate: plain.application_date ? new Date(plain.application_date).toLocaleDateString("en-GB") : "N/A",
           resume: plain.applicant?.file ? `Resume_${plain.applicant.name}_${plain.id}` : "No Resume",

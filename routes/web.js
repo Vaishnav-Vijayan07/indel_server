@@ -72,12 +72,7 @@ router.get("/ncd-forms", WebController.getNcdPageData);
 router.post("/career/resume", uploadField, JobApplicationsController.create);
 router.get("/career/resume", uploadField, JobApplicationsController.getAll);
 
-router.post(
-  "/careers/job_application",
-  validateJobApplicationSubmission,
-  uploadApplicantFile,
-  JobApplicationSubmissionController.submitApplication
-);
+router.post("/careers/job_application", validateJobApplicationSubmission, uploadApplicantFile, JobApplicationSubmissionController.submitApplication);
 
 router.get("/careers/job_applications", JobApplicationSubmissionController.listApplications);
 router.get("/careers/export_job_applications", JobApplicationSubmissionController.exportApplicationsToExcel);
