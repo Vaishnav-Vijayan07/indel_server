@@ -612,20 +612,6 @@ class JobApplicationSubmissionController {
         // Format application date
         const applicationDate = plain.application_date ? new Date(plain.application_date).toLocaleDateString("en-GB") : null;
 
-        // Create clean response object with all required fields
-        const transformedApp = {
-          id: plain.id,
-          applicant_name: plain.applicant?.name || null,
-          applicant_email: plain.applicant?.email || null,
-          job_title: plain.job?.job_title || null,
-          role: plain.job?.role?.role_name || null,
-          preferred_location: preferredLocationName,
-          preferred_state: preferredStateName,
-          application_date: applicationDate,
-          status: plain.status?.status_name || null,
-          resume: plain.applicant?.file ? `Resume_${plain.applicant.name}_${plain.id}` : null,
-        };
-
         // Return only the transformed fields, no nested job object
         return {
           id: plain.id,
@@ -1377,6 +1363,12 @@ class JobApplicationSubmissionController {
             {
               model: models.ApplicantDistricts,
               as: "preferredDistricts",
+              include: [
+                {
+                  model: models.Districts,
+                  as: "district",
+                },
+              ],
             },
           ],
         },
@@ -1429,6 +1421,7 @@ class JobApplicationSubmissionController {
         // { header: "State", key: "state", width: 15 },
         { header: "Preferred Locations", key: "preferredLocations", width: 30 },
         { header: "Preferred States", key: "preferredStates", width: 30 },
+        { header: "Preferred District", key: "preferredDistrict", width: 30 },
         { header: "Status", key: "status", width: 15 },
         { header: "Application Date", key: "applicationDate", width: 20 },
         { header: "Resume", key: "resume", width: 30 },
@@ -1723,12 +1716,6 @@ class JobApplicationSubmissionController {
         const primaryState = preferredStates.find((state) => state?.ApplicantStates?.is_primary) || preferredStates[0];
         const preferredStateName = primaryState?.state_name || "N/A";
         const preferredDistrictName = plain?.applicant?.preferredDistricts?.district?.district_name || "N/A";
-
-        console.log("Preferred District Name:", preferredDistrictName);
-        console.log("Preferred District Name:", plain?.applicant?.preferredDistrict?.district?.district_name);
-        console.log("Preferred District Name:", plain?.applicant?.preferredDistrict?.district);
-        console.log("Preferred District Name:", plain?.applicant?.preferredDistrict);
-        console.log("Preferred District Name:", plain?.applicant);
 
         const age = plain?.applicant.age ?? "N/A";
         const currentSalary = plain?.applicant.current_salary ?? "N/A";
