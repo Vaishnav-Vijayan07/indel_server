@@ -11,6 +11,7 @@ class GoldRateController {
           headers: {
             Api_key: "ed8d7baf6b5bc3be44ea3fcd65482541a6770d8d",
           },
+          timeout: 10000, // ADD THIS: 10 second timeout
         }
       );
 
@@ -20,7 +21,11 @@ class GoldRateController {
         throw new CustomError("Failed to fetch gold rate", 502);
       }
     } catch (error) {
-      next(error); // Uses your centralized error handler
+      // ADD THIS: Handle timeout errors specifically
+      if (error.code === "ECONNABORTED" || error.code === "ETIMEDOUT") {
+        return next(new CustomError("Gold rate service timeout", 504));
+      }
+      next(error);
     }
   }
 }
