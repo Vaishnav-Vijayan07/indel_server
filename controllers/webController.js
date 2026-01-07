@@ -41,11 +41,11 @@ class WebController {
       const [heroBanner, announcement, faqs, loanSteps, homeStatistics, homePageData, lifeAtIndel, blogs, popUp, smartMoneyDeals, branchLocatorData] =
         await Promise.all([
           models.HeroBanner.findAll({
-            // where: {
-            //   is_active: true,
-            //   [Op.or]: [{ state_id: stateId || null }, { state_id: null }],
-            // },
-            // include: [{ model: models.CareerStates, attributes: ["state_name"], as: "state" }],
+            where: {
+              is_active: true,
+              [Op.or]: [{ state_id: stateId || null }, { state_id: null }],
+            },
+            include: [{ model: models.CareerStates, attributes: ["state_name"], as: "state" }],
             order: [
               [sequelize.literal(`state_id ${stateId ? "= " + stateId : "IS NULL"}`), "DESC"],
               ["order", "ASC"],
