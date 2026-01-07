@@ -10,6 +10,8 @@ const upload = createUploadMiddleware("banner");
 const uploadField = upload.fields([
   { name: "image", maxCount: 1 },
   { name: "image_mobile", maxCount: 1 },
+  { name: "video", maxCount: 1 },
+  { name: "video_mobile", maxCount: 1 },
 ]);
 
 router.get("/", HeroBannerController.getAll);

@@ -25,13 +25,11 @@ class HeroBannerController {
 
   static async create(req, res, next) {
     try {
-      const { title, button_text, button_link, image_alt_text, is_active, order, state_id, banner_type } = req.body;
+      const { title, button_text, button_link, image_alt_text, is_active, order, state_id, banner_type, media_type, video_link } = req.body;
       const image = req.files?.image ? `/uploads/banner/${req.files.image[0].filename}` : null;
       const mobileImage = req.files?.image_mobile ? `/uploads/banner/${req.files.image_mobile[0].filename}` : null;
-
-      if (!image) {
-        throw new CustomError("Image is required", 400);
-      }
+      const video = req.files?.video ? `/uploads/banner/${req.files.video[0].filename}` : null;
+      const video_mobile = req.files?.video_mobile ? `/uploads/banner/${req.files.video_mobile[0].filename}` : null;
 
       if (state_id) {
         const state = await States.findByPk(state_id);
@@ -47,9 +45,13 @@ class HeroBannerController {
         state_id: state_id || null,
         image,
         image_mobile: mobileImage,
+        video,
+        video_mobile,
+        media_type,
         image_alt_text,
         is_active,
         banner_type,
+        video_link,
         order,
       });
 
@@ -137,13 +139,9 @@ class HeroBannerController {
         throw new CustomError("HeroBanner not found", 404);
       }
 
-      const oldImage = heroBanner.image;
-      const oldImageMobile = heroBanner.image_mobile;
+      const { title, button_text, button_link, location, image_alt_text, is_active, order, state_id, banner_type, media_type, video_link } = req.body;
 
-      const { title, button_text, button_link, location, image_alt_text, is_active, order, state_id, banner_type } = req.body;
-      const image = req.files?.image ? `/uploads/banner/${req.files.image[0].filename}` : heroBanner.image;
-      const mobileImage = req.files?.image_mobile ? `/uploads/banner/${req.files.image_mobile[0].filename}` : heroBanner.image_mobile;
-
+      // Validate state if provided
       if (state_id) {
         const state = await States.findByPk(state_id);
         if (!state || !state.is_active) {
@@ -151,8 +149,34 @@ class HeroBannerController {
         }
       }
 
-      console.log(oldImage)
-      console.log(oldImageMobile)
+      // Default values from existing banner
+      let image = heroBanner.image;
+      let image_mobile = heroBanner.image_mobile;
+      let video = heroBanner.video;
+      let video_mobile = heroBanner.video_mobile;
+
+      // MEDIA TYPE HANDLING
+      if (media_type === "video") {
+        // Set videos
+        video = req.files?.video ? `/uploads/banner/${req.files.video[0].filename}` : heroBanner.video;
+
+        video_mobile = req.files?.video_mobile ? `/uploads/banner/${req.files.video_mobile[0].filename}` : heroBanner.video_mobile;
+
+        // Force images to NULL
+        image = null;
+        image_mobile = null;
+      }
+
+      if (media_type === "image") {
+        // Set images
+        image = req.files?.image ? `/uploads/banner/${req.files.image[0].filename}` : heroBanner.image;
+
+        image_mobile = req.files?.image_mobile ? `/uploads/banner/${req.files.image_mobile[0].filename}` : heroBanner.image_mobile;
+
+        // Force videos to NULL
+        video = null;
+        video_mobile = null;
+      }
 
       await heroBanner.update({
         title,
@@ -160,18 +184,26 @@ class HeroBannerController {
         button_link,
         location,
         image,
-        image_mobile: mobileImage,
+        image_mobile,
+        video,
+        video_mobile,
+        media_type,
         state_id: state_id || null,
         image_alt_text,
         is_active,
         banner_type,
+        video_link: media_type === "video" ? video_link : null,
         order,
       });
 
       await CacheService.invalidate("heroBanners");
       await CacheService.invalidate("webHomeData");
 
-      res.json({ success: true, data: heroBanner, message: "Hero Banner updated successfully" });
+      res.json({
+        success: true,
+        data: heroBanner,
+        message: "Hero Banner updated successfully",
+      });
     } catch (error) {
       next(error);
     }

@@ -29,11 +29,28 @@ module.exports = (sequelize) => {
           key: "id",
         },
       },
+      media_type: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: "image",
+      },
       image: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       image_mobile: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      video: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      video_mobile: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      video_link: {
         type: DataTypes.STRING,
         allowNull: true,
       },
