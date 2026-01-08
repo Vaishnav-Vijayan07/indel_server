@@ -103,13 +103,13 @@ class HeroBannerController {
       }
 
       const banners = await HeroBanner.findAll({
-        where: whereClause,
-        include: [{ model: States, attributes: ["state_name"], as: "state" }],
-        order: [
-          [sequelize.literal(`state_id ${stateId ? "= " + Number(stateId) : "IS NULL"}`), "DESC"],
-          ["order", "ASC"],
-          ["createdAt", "DESC"],
-        ],
+        // where: whereClause,
+        // include: [{ model: States, attributes: ["state_name"], as: "state" }],
+        // order: [
+        //   [sequelize.literal(`state_id ${stateId ? "= " + Number(stateId) : "IS NULL"}`), "DESC"],
+        //   ["order", "ASC"],
+        //   ["createdAt", "DESC"],
+        // ],
         // limit: Number(limit),
       });
 
