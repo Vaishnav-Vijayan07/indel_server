@@ -801,8 +801,11 @@ class WebController {
 
   static async goldLoan(req, res, next) {
     const cacheKey = "webGoldLoan";
+    // 1. Try to get stateId and stateName from session
     let stateId = req.session?.stateId || null;
     let stateName = req.session?.stateName || "Global";
+
+    console.log("Ip address ===>", stateId, stateName);
 
     // 2. If not in session, call geolocation API and store in session
     if (!stateId) {
@@ -822,7 +825,6 @@ class WebController {
     logger.info(`Session stateId: ${stateId}, stateName: ${stateName}`);
 
     try {
-      const cachedData = await CacheService.get(cacheKey);
       // if (cachedData) {
       //   logger.info("Serving gold loan from cache");
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
@@ -833,7 +835,7 @@ class WebController {
         attributes: ["id"],
       });
 
-      console.log(service);
+      console.log("SERVICE", service);
 
       const [
         goldloanContent,
@@ -866,10 +868,10 @@ class WebController {
           order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
         }),
         models.GoldLoanFaq.findAll({
-          where: {
-            is_active: true,
-            [Op.or]: [{ state_id: stateId || null }, { state_id: null }],
-          },
+          // where: {
+          //   is_active: true,
+          //   [Op.or]: [{ state_id: stateId || null }, { state_id: null }],
+          // },
           order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
         }),
         models.GoldLoanScheme.findAll({
