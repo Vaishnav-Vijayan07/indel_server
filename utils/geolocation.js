@@ -6,12 +6,11 @@ const NodeCache = require("node-cache");
 const cache = new NodeCache({ stdTTL: 3600 });
 
 async function getStateFromIp(ip) {
-  // const cacheKey = `geo_${ip}`;
-  // const cached = cache.get(cacheKey);
-  // if (cached) {
-
-  //   return cached;
-  // }
+  const cacheKey = `geo_${ip}`;
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
 
   const isLocalhost = ip === "::1" || ip === "127.0.0.1" || ip === "1.1.1.1";
   const queryIp = isLocalhost ? "111.92.66.81" : ip;
@@ -32,7 +31,7 @@ async function getStateFromIp(ip) {
       longitude: parseFloat(response.data.longitude) || 0,
     };
 
-    // cache.set(cacheKey, result);
+    cache.set(cacheKey, result);
     return result;
   } catch (error) {
     console.error("Geolocation error:", error.message);
