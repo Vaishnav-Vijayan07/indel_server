@@ -1063,7 +1063,7 @@ class WebController {
         }
       }
 
-      const [cdLoanContent, cdLoanBenefits, cdLoanProducts, cdLoanFaqs] = await Promise.all([
+      const [cdLoanContent, cdLoanBenefits, cdLoanProducts] = await Promise.all([
         models.CdLoanContent.findAll(),
         models.CdLoanBenefits.findAll({
           where: { is_active: true },
@@ -1073,20 +1073,12 @@ class WebController {
           where: { is_active: true },
           order: [["order", "ASC"]],
         }),
-        models.CDFaq.findAll({
-          // where: {
-          //   is_active: true,
-          //   [Op.or]: [{ state_id: stateId || null }, { state_id: null }],
-          // },
-          order: [["order", "ASC"]],
-        }),
       ]);
 
       const data = {
         cdLoanContent: cdLoanContent[0] || null,
         cdLoanBenefits,
         cdLoanProducts,
-        cdLoanFaqs,
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
