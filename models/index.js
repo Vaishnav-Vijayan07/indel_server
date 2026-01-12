@@ -48,6 +48,7 @@ const defineMsmeLoanTypes = require("./msme/loanTypes");
 const defineCdLoanContent = require("./CD/cdContent");
 const defineCdLoanProducts = require("./CD/loanProducts");
 const defineCdLoanBenefits = require("./CD/loanBenefits");
+const defineCdLoanFaq = require("./CD/cdFaq");
 const defineCareersContent = require("./career/contents");
 const defineCareerBanners = require("./career/banners");
 const defineCareerStates = require("./career/states");
@@ -117,6 +118,7 @@ const defineFloatButtons = require("./floatButtons/buttons");
 const defineAnnouncement = require("./homePage/announcement");
 const defineLapContent = require("./Lap/content");
 const defineLapProducts = require("./Lap/products");
+const defineLapFaq = require("./Lap/lapFaq");
 const defineCareerMeta = require("./career/careerMeta");
 const defineFileShare = require("./fileShare");
 const defineJobLocation = require("./career/jobLocation"); // New import
@@ -178,6 +180,7 @@ const models = {
   CdLoanContent: defineCdLoanContent(sequelize),
   CdLoanProducts: defineCdLoanProducts(sequelize),
   CdLoanBenefits: defineCdLoanBenefits(sequelize),
+  CDFaq: defineCdLoanFaq(sequelize),
   CareersContent: defineCareersContent(sequelize),
   CareerBanners: defineCareerBanners(sequelize),
   CareerStates: defineCareerStates(sequelize),
@@ -247,6 +250,7 @@ const models = {
   Announcement: defineAnnouncement(sequelize),
   LapContent: defineLapContent(sequelize),
   LapProducts: defineLapProducts(sequelize),
+  LapFaq: defineLapFaq(sequelize),
   CareerMeta: defineCareerMeta(sequelize),
   FileShare: defineFileShare(sequelize),
   JobLocation: defineJobLocation(sequelize), // New model

@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
   const LapContent = sequelize.define(
-     "LapContent",
+    "LapContent",
     {
       id: {
         type: DataTypes.INTEGER,
@@ -90,6 +90,10 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       feature_image_alt: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      faq_title: {
         type: DataTypes.STRING,
         allowNull: true,
       },

@@ -51,13 +51,10 @@ class BlogsController {
       const updateData = { ...req.body };
 
       // Generate slug from title if not provided
-         if (updateData.slug) {
-        updateData.slug = await BlogsController.generateUniqueSlug(
-          updateData.slug
-        );
+      if (updateData.slug) {
+        updateData.slug = await BlogsController.generateUniqueSlug(updateData.slug);
         Logger.info(`Generated slug for new news: ${updateData.slug}`);
-      }
-      else if (!updateData.slug && updateData.title) {
+      } else if (!updateData.slug && updateData.title) {
         updateData.slug = await BlogsController.generateUniqueSlug(updateData.title);
         Logger.info(`Generated slug for new blog: ${updateData.slug}`);
       }
@@ -131,7 +128,7 @@ class BlogsController {
   //       throw new CustomError("Blog not found", 404);
   //     }
 
-  //     
+  //
 
   //     const updateData = { ...req.body };
   //     let oldImage = blog.image;
@@ -176,27 +173,23 @@ class BlogsController {
         throw new CustomError("Blog not found", 404);
       }
 
-
       let updateData = { ...req.body };
       let oldImage = blog.image;
       let oldSecondImage = blog.second_image;
-
 
       // Remove any `null` values from the updateData object
       updateData = Object.fromEntries(Object.entries(updateData).filter(([_, value]) => value !== null));
 
       // Generate slug if title is updated and no slug is provided
-        // Generate slug from title if not provided
-         if (updateData.slug) {
-        updateData.slug = await BlogsController.generateUniqueSlug(
-          updateData.slug
-        );
+      // Generate slug from title if not provided
+      if (!updateData.slug) {
+        updateData.slug = await BlogsController.generateUniqueSlug(updateData.title);
         Logger.info(`Generated slug for new news: ${updateData.slug}`);
       }
-      else if (updateData.title && !updateData.slug) {
-        updateData.slug = await BlogsController.generateUniqueSlug(updateData.title, id);
-        Logger.info(`Generated slug for updated blog ID ${id}: ${updateData.slug}`);
-      }
+      // else if (updateData.title && !updateData.slug) {
+      //   updateData.slug = await BlogsController.generateUniqueSlug(updateData.title, id);
+      //   Logger.info(`Generated slug for updated blog ID ${id}: ${updateData.slug}`);
+      // }
 
       // Handle image uploads
       if (req.files?.image) {
@@ -215,9 +208,8 @@ class BlogsController {
         }
       }
 
+      updateData.posted_on = !blog.is_active ? new Date() : blog.posted_on;
 
-      updateData.posted_on = !blog.is_active? new Date(): blog.posted_on;
-      
       await blog.update(updateData);
 
       await CacheService.invalidate("blogs");

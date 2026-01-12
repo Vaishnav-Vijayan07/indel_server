@@ -1035,13 +1035,35 @@ class WebController {
     const cacheKey = "webCDLoan";
 
     try {
-      const cachedData = await CacheService.get(cacheKey);
-      // if (cachedData) {
-      //   logger.info("Serving CD Loan from cache");
-      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
-      // }
+      let stateId = req.session?.stateId || null;
+      let stateName = req.session?.stateName || "Global";
 
-      const [cdLoanContent, cdLoanBenefits, cdLoanProducts] = await Promise.all([
+      logger.info(`Session stateId: ${stateId}, stateName: ${stateName}`);
+      logger.info(`Request IP: ${req.ip}`);
+
+      // 3. If not in session, call geolocation API and store in session
+      if (!stateId) {
+        // Use Express's built-in IP extraction (requires app.set('trust proxy', true))
+        let ip = req.ip;
+        // Remove IPv6 prefix if present
+        if (ip && ip.startsWith("::ffff:")) ip = ip.substring(7);
+
+        logger.info(`Extracted IP for geolocation: ${ip}`);
+
+        try {
+          const geo = await getStateFromIp(ip);
+          stateId = geo?.stateId || null;
+          stateName = geo?.stateName || "Global";
+          // Store in session for future requests
+          req.session.stateId = stateId;
+          req.session.stateName = stateName;
+          logger.info(`Geolocation resolved: stateId=${stateId}, stateName=${stateName}`);
+        } catch (geoErr) {
+          logger.error("Failed to resolve geolocation:", geoErr.message);
+        }
+      }
+
+      const [cdLoanContent, cdLoanBenefits, cdLoanProducts, cdLoanFaqs] = await Promise.all([
         models.CdLoanContent.findAll(),
         models.CdLoanBenefits.findAll({
           where: { is_active: true },
@@ -1051,12 +1073,20 @@ class WebController {
           where: { is_active: true },
           order: [["order", "ASC"]],
         }),
+        models.CDFaq.findAll({
+          // where: {
+          //   is_active: true,
+          //   [Op.or]: [{ state_id: stateId || null }, { state_id: null }],
+          // },
+          order: [["order", "ASC"]],
+        }),
       ]);
 
       const data = {
         cdLoanContent: cdLoanContent[0] || null,
         cdLoanBenefits,
         cdLoanProducts,
+        cdLoanFaqs,
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);

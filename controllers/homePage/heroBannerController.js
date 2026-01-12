@@ -94,14 +94,6 @@ class HeroBannerController {
       //   return res.json({ success: true, data: JSON.parse(cachedData) });
       // }
 
-      let whereClause = { is_active: true };
-      if (stateId) {
-        whereClause = {
-          ...whereClause,
-          [Op.or]: [{ state_id: Number(stateId) }, { state_id: null }],
-        };
-      }
-
       const banners = await HeroBanner.findAll({
         // where: whereClause,
         // include: [{ model: States, attributes: ["state_name"], as: "state" }],

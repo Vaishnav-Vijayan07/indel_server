@@ -51,7 +51,7 @@ class CsrController {
       const updateData = { ...req.body };
 
       // Generate slug from title if not provided
-      if (!updateData.slug && updateData.title) {
+      if (!updateData.slug) {
         updateData.slug = await CsrController.generateUniqueSlug(updateData.title);
         Logger.info(`Generated slug for new csr: ${updateData.slug}`);
       }
@@ -124,7 +124,7 @@ class CsrController {
   //       throw new CustomError("csr not found", 404);
   //     }
 
-  //     
+  //
 
   //     const updateData = { ...req.body };
   //     let oldImage = csr.image;
@@ -169,8 +169,6 @@ class CsrController {
         throw new CustomError("csr not found", 404);
       }
 
-      
-
       let updateData = { ...req.body };
       let oldImage = csr.image;
       let oldSecondImage = csr.second_image;
@@ -179,7 +177,7 @@ class CsrController {
       updateData = Object.fromEntries(Object.entries(updateData).filter(([_, value]) => value !== null));
 
       // Generate slug if title is updated and no slug is provided
-      if (updateData.title && !updateData.slug) {
+      if (!updateData.slug) {
         updateData.slug = await CsrController.generateUniqueSlug(updateData.title, id);
         Logger.info(`Generated slug for updated csr ID ${id}: ${updateData.slug}`);
       }

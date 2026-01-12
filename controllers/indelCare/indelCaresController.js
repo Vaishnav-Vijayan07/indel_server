@@ -120,7 +120,7 @@ class IndelCaresController {
       const updateData = { ...req.body };
       let oldImage = indelCare.image;
 
-      if (updateData.title && !updateData.slug) {
+      if (!updateData.slug) {
         updateData.slug = await IndelCaresController.generateUniqueSlug(updateData.title, id);
         Logger.info(`Generated slug for updated IndelCares ID ${id}: ${updateData.slug}`);
       }
