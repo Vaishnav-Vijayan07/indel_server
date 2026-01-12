@@ -6,21 +6,18 @@ const NodeCache = require("node-cache");
 const cache = new NodeCache({ stdTTL: 3600 });
 
 async function getStateFromIp(ip) {
-  const cacheKey = `geo_${ip}`;
-  const cached = cache.get(cacheKey);
-  if (cached) {
-    
-    return cached;
-  }
+  // const cacheKey = `geo_${ip}`;
+  // const cached = cache.get(cacheKey);
+  // if (cached) {
+
+  //   return cached;
+  // }
 
   const isLocalhost = ip === "::1" || ip === "127.0.0.1" || ip === "1.1.1.1";
   const queryIp = isLocalhost ? "111.92.66.81" : ip;
 
   try {
-    const response = await axios.get(
-      `https://api.ipgeolocation.io/v2/ipgeo?apiKey=${process.env.IPGEOLOCATION_API_KEY}&ip=${queryIp}`
-    );
-    
+    const response = await axios.get(`https://api.ipgeolocation.io/v2/ipgeo?apiKey=${process.env.IPGEOLOCATION_API_KEY}&ip=${queryIp}`);
 
     const stateName = response.data.location?.state_prov || "Global";
     const state = await models.CareerStates.findOne({

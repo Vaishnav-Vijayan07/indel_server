@@ -835,8 +835,6 @@ class WebController {
         attributes: ["id"],
       });
 
-      console.log("SERVICE", service);
-
       const [
         goldloanContent,
         announcement,
@@ -868,10 +866,10 @@ class WebController {
           order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
         }),
         models.GoldLoanFaq.findAll({
-          // where: {
-          //   is_active: true,
-          //   [Op.or]: [{ state_id: stateId || null }, { state_id: null }],
-          // },
+          where: {
+            is_active: true,
+            [Op.or]: [{ state_id: stateId || null }, { state_id: null }],
+          },
           order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
         }),
         models.GoldLoanScheme.findAll({
@@ -936,7 +934,7 @@ class WebController {
         }
       }
 
-      console.log("FAQS===>", goldLoanFaq);
+      console.log("FAQS===>", goldLoanFaq?.length);
 
       const data = {
         GoldloanContent: goldloanContent[0] || null,
