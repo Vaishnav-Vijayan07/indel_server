@@ -819,6 +819,8 @@ class WebController {
       }
     }
 
+    logger.info(`Session stateId: ${stateId}, stateName: ${stateName}`);
+
     try {
       const cachedData = await CacheService.get(cacheKey);
       // if (cachedData) {
