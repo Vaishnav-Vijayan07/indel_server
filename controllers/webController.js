@@ -934,6 +934,8 @@ class WebController {
         }
       }
 
+      console.log("FAQS===>", goldLoanFaq);
+
       const data = {
         GoldloanContent: goldloanContent[0] || null,
         announcement: announcement[0] || null,
