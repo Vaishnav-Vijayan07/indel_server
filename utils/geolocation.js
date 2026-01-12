@@ -32,12 +32,12 @@ async function getStateFromIp(ip) {
       longitude: parseFloat(response.data.longitude) || 0,
     };
 
-    cache.set(cacheKey, result);
+    // cache.set(cacheKey, result);
     return result;
   } catch (error) {
     console.error("Geolocation error:", error.message);
     const result = { stateId: null, stateName: "Global", latitude: 0, longitude: 0 };
-    cache.set(cacheKey, result);
+    // cache.set(cacheKey, result);
     return result;
   }
 }
