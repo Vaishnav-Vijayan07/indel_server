@@ -866,7 +866,7 @@ class WebController {
         models.GoldLoanFaq.findAll({
           where: {
             is_active: true,
-            state_id: stateId || null,
+            [Op.or]: [{ state_id: stateId || null }, { state_id: null }],
           },
           order: [[Sequelize.literal('CAST("order" AS INTEGER)'), "ASC"]],
         }),
@@ -1063,7 +1063,7 @@ class WebController {
         }
       }
 
-      const [cdLoanContent, cdLoanBenefits, cdLoanProducts] = await Promise.all([
+      const [cdLoanContent, cdLoanBenefits, cdLoanProducts, cdLoanFaqs] = await Promise.all([
         models.CdLoanContent.findAll(),
         models.CdLoanBenefits.findAll({
           where: { is_active: true },
@@ -1073,12 +1073,20 @@ class WebController {
           where: { is_active: true },
           order: [["order", "ASC"]],
         }),
+        models.CDFaq.findAll({
+          where: {
+            is_active: true,
+            [Op.or]: [{ state_id: stateId || null }, { state_id: null }],
+          },
+          order: [["order", "ASC"]],
+        }),
       ]);
 
       const data = {
         cdLoanContent: cdLoanContent[0] || null,
         cdLoanBenefits,
         cdLoanProducts,
+        cdLoanFaqs,
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
@@ -1096,18 +1104,40 @@ class WebController {
   static async LoanAgainstProperty(req, res, next) {
     const cacheKey = "webLoanAgainstProperty";
     try {
-      const cachedData = await CacheService.get(cacheKey);
-      // if (cachedData) {
-      //   logger.info("Serving CD Loan from cache");
-      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
-      // }
+      let stateId = req.session?.stateId || null;
+      let stateName = req.session?.stateName || "Global";
+
+      logger.info(`Session stateId: ${stateId}, stateName: ${stateName}`);
+      logger.info(`Request IP: ${req.ip}`);
+
+      // 3. If not in session, call geolocation API and store in session
+      if (!stateId) {
+        // Use Express's built-in IP extraction (requires app.set('trust proxy', true))
+        let ip = req.ip;
+        // Remove IPv6 prefix if present
+        if (ip && ip.startsWith("::ffff:")) ip = ip.substring(7);
+
+        logger.info(`Extracted IP for geolocation: ${ip}`);
+
+        try {
+          const geo = await getStateFromIp(ip);
+          stateId = geo?.stateId || null;
+          stateName = geo?.stateName || "Global";
+          // Store in session for future requests
+          req.session.stateId = stateId;
+          req.session.stateName = stateName;
+          logger.info(`Geolocation resolved: stateId=${stateId}, stateName=${stateName}`);
+        } catch (geoErr) {
+          logger.error("Failed to resolve geolocation:", geoErr.message);
+        }
+      }
 
       const service = await models.Services.findOne({
         where: { slug: "loan-against-property", is_active: true },
         attributes: ["id"],
       });
 
-      const [cdLoanContent, cdLoanBenefits, cdLoanProducts] = await Promise.all([
+      const [cdLoanContent, cdLoanBenefits, cdLoanProducts, cdLoanFaqs] = await Promise.all([
         models.LapContent.findAll(),
         models.ServiceBenefit.findAll({
           where: { is_active: true, service_id: service?.id },
@@ -1117,12 +1147,20 @@ class WebController {
           where: { is_active: true },
           order: [["order", "ASC"]],
         }),
+        models.LapFaq.findAll({
+          where: {
+            is_active: true,
+            [Op.or]: [{ state_id: stateId || null }, { state_id: null }],
+          },
+          order: [["order", "ASC"]],
+        }),
       ]);
 
       const data = {
         cdLoanContent: cdLoanContent[0] || null,
         cdLoanBenefits,
         cdLoanProducts,
+        cdLoanFaqs,
       };
 
       await CacheService.set(cacheKey, JSON.stringify(data), 3600);
