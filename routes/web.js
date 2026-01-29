@@ -82,7 +82,7 @@ router.post(
   "/careers/general_application",
   validateGeneralApplicationSubmission,
   uploadApplicantFile,
-  JobApplicationSubmissionController.submitGeneralApplication
+  JobApplicationSubmissionController.submitGeneralApplication,
 );
 
 router.get("/careers/general_applications", JobApplicationSubmissionController.listGeneralApplications);

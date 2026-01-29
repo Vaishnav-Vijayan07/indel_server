@@ -112,7 +112,7 @@ class JobApplicationSubmissionController {
             headers: {
               "Content-Type": "application/x-www-form-urlencoded",
             },
-          }
+          },
         );
 
         console.log("recaptchaResponse.data:", recaptchaResponse.data);
@@ -683,7 +683,7 @@ class JobApplicationSubmissionController {
             headers: {
               "Content-Type": "application/x-www-form-urlencoded",
             },
-          }
+          },
         );
 
         console.log("recaptchaResponse.data:", recaptchaResponse.data);
@@ -1400,7 +1400,6 @@ class JobApplicationSubmissionController {
         where: whereConditions,
         include: includeArray,
         order: [["application_date", "DESC"]],
-        limit: 100, // Add small limit for testing
         raw: false, // Ensure we get full objects
       });
 
@@ -1669,7 +1668,6 @@ class JobApplicationSubmissionController {
         where: whereConditions,
         include: includeArray,
         order: [["application_date", "DESC"]],
-        limit: 100, // Add small limit for testing
         raw: false, // Ensure we get full objects
       });
 
