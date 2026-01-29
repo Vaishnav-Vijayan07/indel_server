@@ -9,6 +9,7 @@ const { validateBlogs, validateBlogsUpdate } = require("../../utils/validator");
 const upload = createUploadMiddleware("news");
 const uploadFields = upload.fields([
   { name: "image", maxCount: 1 },
+  { name: "author_image", maxCount: 1 },
   { name: "second_image", maxCount: 1 },
 ]);
 

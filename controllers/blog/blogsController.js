@@ -63,6 +63,10 @@ class BlogsController {
         updateData.image = `/uploads/blogs/${req.files.image[0].filename}`;
         Logger.info(`Uploaded image for Blog: ${updateData.image}`);
       }
+      if (req.files?.author_image) {
+        updateData.author_image = `/uploads/blogs/${req.files.author_image[0].filename}`;
+        Logger.info(`Uploaded author image for Blog: ${updateData.author_image}`);
+      }
       if (req.files?.second_image) {
         updateData.second_image = `/uploads/blogs/${req.files.second_image[0].filename}`;
         Logger.info(`Uploaded second image for Blog: ${updateData.second_image}`);
@@ -176,6 +180,7 @@ class BlogsController {
       let updateData = { ...req.body };
       let oldImage = blog.image;
       let oldSecondImage = blog.second_image;
+      let oldAuthorImage = blog.author_image;
 
       // Remove any `null` values from the updateData object
       updateData = Object.fromEntries(Object.entries(updateData).filter(([_, value]) => value !== null));
@@ -197,6 +202,14 @@ class BlogsController {
         Logger.info(`Updated image for Blog ID ${id}: ${updateData.image}`);
         if (oldImage) {
           await BlogsController.deleteFile(oldImage);
+        }
+      }
+
+      if (req.files?.author_image) {
+        updateData.author_image = `/uploads/blogs/${req.files.author_image[0].filename}`;
+        Logger.info(`Updated author image for Blog ID ${id}: ${updateData.author_image}`);
+        if (oldAuthorImage) {
+          await BlogsController.deleteFile(oldAuthorImage);
         }
       }
 
@@ -232,6 +245,7 @@ class BlogsController {
 
       const oldImage = blog.image;
       const oldSecondImage = blog.second_image;
+      const oldAuthorImage = blog.author_image;
       await blog.destroy();
 
       if (oldImage) {
@@ -239,6 +253,10 @@ class BlogsController {
       }
       if (oldSecondImage) {
         await BlogsController.deleteFile(oldSecondImage);
+      }
+
+      if (oldAuthorImage) {
+        await BlogsController.deleteFile(oldAuthorImage);
       }
 
       await CacheService.invalidate("blogs");

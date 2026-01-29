@@ -42,6 +42,14 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      author_image: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      author_name: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       image_description: {
         type: DataTypes.TEXT,
         allowNull: true,
@@ -84,7 +92,7 @@ module.exports = (sequelize) => {
     {
       tableName: "blogs",
       timestamps: true,
-    }
+    },
   );
 
   return Blogs;

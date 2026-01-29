@@ -62,6 +62,10 @@ class NewsController {
         updateData.image = `/uploads/news/${req.files.image[0].filename}`;
         Logger.info(`Uploaded image for News: ${updateData.image}`);
       }
+      if (req.files?.author_image) {
+        updateData.author_image = `/uploads/news/${req.files.author_image[0].filename}`;
+        Logger.info(`Uploaded author image for News: ${updateData.author_image}`);
+      }
       if (req.files?.second_image) {
         updateData.second_image = `/uploads/news/${req.files.second_image[0].filename}`;
         Logger.info(`Uploaded second image for News: ${updateData.second_image}`);
@@ -180,6 +184,7 @@ class NewsController {
       let updateData = { ...req.body };
       let oldImage = news.image;
       let oldSecondImage = news.second_image;
+      let oldAuthorImage = news.author_image;
 
       // Remove any `null` values from the updateData object
       updateData = Object.fromEntries(Object.entries(updateData).filter(([_, value]) => value !== null));
@@ -196,6 +201,14 @@ class NewsController {
         Logger.info(`Updated image for News ID ${id}: ${updateData.image}`);
         if (oldImage) {
           await NewsController.deleteFile(oldImage);
+        }
+      }
+
+      if (req.files?.author_image) {
+        updateData.author_image = `/uploads/news/${req.files.author_image[0].filename}`;
+        Logger.info(`Updated author_image for News ID ${id}: ${updateData.author_image}`);
+        if (oldAuthorImage) {
+          await NewsController.deleteFile(oldAuthorImage);
         }
       }
 
@@ -231,6 +244,8 @@ class NewsController {
 
       const oldImage = news.image;
       const oldSecondImage = news.second_image;
+      const oldAuthorImage = news.author_image;
+
       await news.destroy();
 
       if (oldImage) {
@@ -238,6 +253,10 @@ class NewsController {
       }
       if (oldSecondImage) {
         await NewsController.deleteFile(oldSecondImage);
+      }
+
+      if (oldAuthorImage) {
+        await NewsController.deleteFile(oldAuthorImage);
       }
 
       await CacheService.invalidate("news");

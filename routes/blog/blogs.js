@@ -9,6 +9,7 @@ const BlogsController = require("../../controllers/blog/blogsController");
 const upload = createUploadMiddleware("blogs");
 const uploadFields = upload.fields([
   { name: "image", maxCount: 1 },
+  { name: "author_image", maxCount: 1 },
   { name: "second_image", maxCount: 1 },
 ]);
 

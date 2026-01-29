@@ -57,7 +57,7 @@ app.use(
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
     },
-  })
+  }),
 );
 
 app.get("/set-location", (req, res) => {
@@ -82,7 +82,7 @@ app.use(errorMiddleware);
 const startServer = async () => {
   try {
     await sequelize.authenticate();
-    await sequelize.sync({ alter: false });
+    await sequelize.sync({ alter: true });
     Logger.info("Database connected and synced");
 
     // await createDemoAdmin();
@@ -114,7 +114,7 @@ const startServer = async () => {
     // await initHeaderContents();
     // await initPopupSettings();
     // await initDirectorsContent();
-    await initNcdPageContent();
+    // await initNcdPageContent();
 
     app.listen(PORT, () => {
       Logger.info(`Server running on port ${PORT}`);
