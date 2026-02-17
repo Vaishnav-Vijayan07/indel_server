@@ -313,7 +313,7 @@ alt="" width="11" height="11">
 
 const enquiryMail = async (email, name) => {
   const mailOptions = {
-    from: process.env.CARE_MAIL,
+    from: process.env.EMAIL_USER,
     to: email,
     subject: "Thank You for Reaching Out to Indel Money!",
     html: `
