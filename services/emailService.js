@@ -40,7 +40,7 @@ const sendOtpEmail = async (email, otp) => {
 
 const newsLetterConfirmation = async (email) => {
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: process.env.CARE_MAIL,
     to: email,
     subject: "Thank You for Subscribing to Indel Money’s Newsletter!",
     html: `<!DOCTYPE html>
@@ -313,7 +313,7 @@ alt="" width="11" height="11">
 
 const enquiryMail = async (email, name) => {
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: process.env.CARE_MAIL,
     to: email,
     subject: "Thank You for Reaching Out to Indel Money!",
     html: `
@@ -1175,7 +1175,7 @@ alt="" width="11" height="11">
 
 const sendPasswordResetEmail = async (email, otp, firstName) => {
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: process.env.CARE_MAIL,
     to: email,
     subject: "Password Reset - Indel Money",
     html: `<!DOCTYPE html>
