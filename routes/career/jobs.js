@@ -8,6 +8,7 @@ const JobsController = require("../../controllers/career/jobsController");
 router.get("/dropdowns", JobsController.getDropdowns);
 router.get("/", JobsController.getAll);
 router.get("/filtered", JobsController.getAllFiltered);
+router.get("/export", JobsController.exportAllJobs);
 router.get("/:id", JobsController.getById);
 router.get("/:id/dropdowns", JobsController.getJobDropdowns);
 router.get("/:id/locations/by_state", JobsController.getJobLocationsByState);

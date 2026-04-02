@@ -623,13 +623,17 @@ class JobsController {
 
   static async getAll(req, res, next) {
     try {
-      const { state_id, location_id, role_id, page = 1, limit = 10 } = req.query;
+      const { state_id, location_id, role_id, page = 1, limit = 10, type = null } = req.query;
 
       const pageNum = Math.max(1, parseInt(page, 10));
       const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
       const offset = (pageNum - 1) * limitNum;
 
       const jobWhereConditions = {};
+
+      if (type) {
+        jobWhereConditions.is_approved = false;
+      }
 
       const includeOptions = [
         { model: models.CareerRoles, as: "role", attributes: ["role_name"] },
@@ -907,6 +911,96 @@ class JobsController {
         success: true,
         data: locations,
       });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async exportAllJobs(req, res, next) {
+    try {
+      const ExcelJS = require("exceljs");
+
+      const jobs = await Jobs.findAll({
+        include: [
+          {
+            model: models.CareerRoles,
+            as: "role",
+            attributes: ["role_name"],
+          },
+          {
+            model: models.CareerLocations,
+            as: "locations",
+            attributes: ["location_name"],
+            through: { attributes: [] },
+          },
+          {
+            model: models.CareerStates,
+            as: "states",
+            attributes: ["state_name"],
+            through: { attributes: [] },
+          },
+        ],
+        order: [["order", "ASC"], ["createdAt", "DESC"]],
+      });
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("All Jobs");
+
+      worksheet.columns = [
+        { header: "Sl.No", key: "slNo", width: 8 },
+        { header: "Job Title", key: "jobTitle", width: 30 },
+        { header: "Department", key: "department", width: 20 },
+        { header: "Locations", key: "locations", width: 35 },
+        { header: "States", key: "states", width: 30 },
+        { header: "Experience", key: "experience", width: 20 },
+        { header: "Date of Posting", key: "dateOfPosting", width: 20 },
+        { header: "End Date of Posting", key: "endDate", width: 20 },
+        { header: "Status", key: "status", width: 15 },
+      ];
+
+      worksheet.getRow(1).font = { bold: true };
+      worksheet.getRow(1).fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFE0E0E0" },
+      };
+
+      const formatDate = (date) => {
+        if (!date) return "N/A";
+        const d = new Date(date);
+        if (isNaN(d.getTime())) return "N/A";
+        return d.toLocaleDateString("en-GB");
+      };
+
+      jobs.forEach((job, index) => {
+        const plain = job.toJSON();
+        worksheet.addRow({
+          slNo: index + 1,
+          jobTitle: plain.job_title || "N/A",
+          department: plain.role?.role_name || "N/A",
+          locations: plain.is_pan_india
+            ? "Pan India"
+            : plain.locations?.length
+            ? plain.locations.map((l) => l.location_name).join(", ")
+            : "N/A",
+          states: plain.is_pan_india
+            ? "All India"
+            : plain.states?.length
+            ? plain.states.map((s) => s.state_name).join(", ")
+            : "N/A",
+          experience: plain.experience || "N/A",
+          dateOfPosting: formatDate(plain.createdAt),
+          endDate: formatDate(plain.end_date),
+          status: plain.is_active ? "Active" : "Not Active",
+        });
+      });
+
+      const filename = `all_jobs_${new Date().toISOString().split("T")[0]}.xlsx`;
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+
+      await workbook.xlsx.write(res);
+      res.end();
     } catch (error) {
       next(error);
     }

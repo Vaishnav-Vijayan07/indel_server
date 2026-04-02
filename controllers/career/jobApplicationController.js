@@ -752,6 +752,10 @@ class JobApplicationSubmissionController {
         return new Date(record.file_uploaded_at) < sixMonthsAgo;
       };
 
+      if (!applicantRecord && !file) {
+        throw new CustomError("Resume file is required for new applicants", 400);
+      }
+
       if (applicantRecord) {
         // Check if any general application exists
         const existingApplication = await models.GeneralApplications.findOne({

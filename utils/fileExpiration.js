@@ -1,5 +1,5 @@
 // scripts/fileExpiration.js
-const { Applicants } = require("../models"); // Adjust path
+const { models } = require("../models/index");
 const nodemailer = require("nodemailer");
 const cron = require("node-cron");
 const { Op } = require("sequelize");
@@ -35,7 +35,7 @@ cron.schedule(
       sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
       // Find applicants with non-null, expired files
-      const expiredApplicants = await Applicants.findAll({
+      const expiredApplicants = await models.Applicants.findAll({
         where: {
           file: { [Op.ne]: null },
           file_uploaded_at: { [Op.lt]: sixMonthsAgo },
@@ -50,6 +50,7 @@ cron.schedule(
       for (const applicant of expiredApplicants) {
         await transporter.sendMail({
           from: process.env.EMAIL_USER,
+          cc: "afsal@intersmart.in",
           to: applicant.email,
           subject: "Resume File Expiration Notice",
           text: `Dear ${
@@ -70,5 +71,5 @@ cron.schedule(
   },
   {
     timezone: "Asia/Kolkata",
-  }
+  },
 );

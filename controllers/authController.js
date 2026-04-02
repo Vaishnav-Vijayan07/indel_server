@@ -56,8 +56,8 @@ class AuthController {
       }
 
       // Determine if identifier is an email or username
-      const isEmail = identifier.includes('@');
-      
+      const isEmail = identifier.includes("@");
+
       // Build where condition for either username or email
       let whereCondition = {};
       if (isEmail) {
@@ -93,7 +93,7 @@ class AuthController {
           role: user.role,
         },
         process.env.JWT_SECRET,
-        { expiresIn: "7d" }
+        { expiresIn: "7d" },
       );
 
       const userWithoutPassword = { ...user.toJSON() };
@@ -116,7 +116,7 @@ class AuthController {
       // Check if user exists
       const user = await User.findOne({
         where: { email },
-        attributes: ["id", "email", "firstName", "lastName"]
+        attributes: ["id", "email", "firstName", "lastName"],
       });
 
       if (!user) {
@@ -125,28 +125,28 @@ class AuthController {
 
       // Generate 6-digit OTP
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      
+
       // Set expiration time (10 minutes from now)
       const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
       // Delete any existing OTPs for this email
       await Otp.destroy({
-        where: { email }
+        where: { email },
       });
 
       // Save new OTP
       await Otp.create({
         email,
         otp,
-        expires_at: expiresAt
+        expires_at: expiresAt,
       });
 
       // Send password reset email
-      await sendPasswordResetEmail(email, otp, user.firstName || 'User');
+      await sendPasswordResetEmail(email, otp, user.firstName || "User");
 
       res.json({
         success: true,
-        message: "Password reset OTP sent to your email address"
+        message: "Password reset OTP sent to your email address",
       });
     } catch (error) {
       next(error);
@@ -169,7 +169,7 @@ class AuthController {
       // Find the OTP record
       const otpRecord = await Otp.findOne({
         where: { email, otp },
-        order: [['created_at', 'DESC']]
+        order: [["created_at", "DESC"]],
       });
 
       if (!otpRecord) {
@@ -185,7 +185,7 @@ class AuthController {
       // Find user
       const user = await User.findOne({
         where: { email },
-        attributes: ["id", "email"]
+        attributes: ["id", "email"],
       });
 
       if (!user) {
@@ -203,7 +203,7 @@ class AuthController {
 
       res.json({
         success: true,
-        message: "Password has been reset successfully"
+        message: "Password has been reset successfully",
       });
     } catch (error) {
       next(error);
@@ -221,7 +221,7 @@ class AuthController {
       // Check if user exists
       const user = await User.findOne({
         where: { email },
-        attributes: ["id", "email", "firstName", "lastName"]
+        attributes: ["id", "email", "firstName", "lastName"],
       });
 
       if (!user) {
@@ -230,28 +230,28 @@ class AuthController {
 
       // Generate new 6-digit OTP
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      
+
       // Set expiration time (10 minutes from now)
       const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
       // Delete any existing OTPs for this email
       await Otp.destroy({
-        where: { email }
+        where: { email },
       });
 
       // Save new OTP
       await Otp.create({
         email,
         otp,
-        expires_at: expiresAt
+        expires_at: expiresAt,
       });
 
       // Send password reset email
-      await sendPasswordResetEmail(email, otp, user.firstName || 'User');
+      await sendPasswordResetEmail(email, otp, user.firstName || "User");
 
       res.json({
         success: true,
-        message: "New OTP sent to your email address"
+        message: "New OTP sent to your email address",
       });
     } catch (error) {
       next(error);
@@ -270,7 +270,7 @@ class AuthController {
 
       const user = await User.findOne({
         where: { id: userId },
-        attributes: ["id", "username", "email", "firstName", "lastName", "phone", "role", "isActive", "createdAt", "updatedAt"]
+        attributes: ["id", "username", "email", "firstName", "lastName", "phone", "role", "isActive", "createdAt", "updatedAt"],
       });
 
       if (!user) {
@@ -279,7 +279,7 @@ class AuthController {
 
       res.json({
         success: true,
-        data: { user }
+        data: { user },
       });
     } catch (error) {
       next(error);
@@ -300,7 +300,7 @@ class AuthController {
       // Check if user exists
       const user = await User.findOne({
         where: { id: userId },
-        attributes: ["id", "username", "email", "firstName", "lastName", "phone", "role", "isActive"]
+        attributes: ["id", "username", "email", "firstName", "lastName", "phone", "role", "isActive"],
       });
 
       if (!user) {
@@ -309,7 +309,7 @@ class AuthController {
 
       // Prepare update data (only allow updating profile fields, not role or isActive)
       const updateData = {};
-      
+
       if (username !== undefined) updateData.username = username;
       if (email !== undefined) updateData.email = email;
       if (firstName !== undefined) updateData.firstName = firstName;
@@ -319,7 +319,7 @@ class AuthController {
       // Check for duplicate username if username is being updated
       if (username && username !== user.username) {
         const existingUser = await User.findOne({
-          where: { username: username }
+          where: { username: username },
         });
         if (existingUser) {
           throw new CustomError("Username already exists", 400);
@@ -329,7 +329,7 @@ class AuthController {
       // Check for duplicate email if email is being updated
       if (email && email !== user.email) {
         const existingUser = await User.findOne({
-          where: { email: email }
+          where: { email: email },
         });
         if (existingUser) {
           throw new CustomError("Email already exists", 400);
@@ -342,13 +342,13 @@ class AuthController {
       // Get updated user data
       const updatedUser = await User.findOne({
         where: { id: userId },
-        attributes: ["id", "username", "email", "firstName", "lastName", "phone", "role", "isActive", "createdAt", "updatedAt"]
+        attributes: ["id", "username", "email", "firstName", "lastName", "phone", "role", "isActive", "createdAt", "updatedAt"],
       });
 
       res.json({
         success: true,
         message: "Profile updated successfully",
-        data: { user: updatedUser }
+        data: { user: updatedUser },
       });
     } catch (error) {
       next(error);
@@ -381,7 +381,7 @@ class AuthController {
       // Check if user exists
       const user = await User.findOne({
         where: { id: userId },
-        attributes: ["id", "username", "email", "password"]
+        attributes: ["id", "username", "email", "password"],
       });
 
       if (!user) {
@@ -401,14 +401,12 @@ class AuthController {
 
       res.json({
         success: true,
-        message: "Password has been changed successfully"
+        message: "Password has been changed successfully",
       });
     } catch (error) {
       next(error);
     }
   }
-
-
 }
 
 module.exports = AuthController;
