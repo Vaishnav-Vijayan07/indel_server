@@ -533,7 +533,7 @@ class JobsController {
         experience,
         is_active,
         is_approved,
-        end_date: end_date ? new Date(end_date) : null,
+        end_date,
         order,
         reapply_period_months,
         is_display_full_locations,
@@ -547,9 +547,11 @@ class JobsController {
         }
       });
 
-      if (updateData.end_date && isNaN(updateData.end_date.getTime())) {
-        throw new CustomError("Invalid end_date format", 400);
-      }
+      // if (end_date && updateData.end_date && isNaN(updateData.end_date.getTime())) {
+      //   throw new CustomError("Invalid end_date format", 400);
+      // }
+
+      console.log("Updating job with data:", updateData);
 
       await job.update(updateData);
 
@@ -658,6 +660,19 @@ class JobsController {
       if (role_id) {
         jobWhereConditions.role_id = parseInt(role_id);
       }
+
+      await Jobs.update(
+        { is_active: false },
+        {
+          where: {
+            end_date: {
+              [Op.ne]: null,
+              [Op.lt]: new Date(),
+            },
+            is_active: true,
+          },
+        },
+      );
 
       // Use separate count query to avoid issues with joins
       const totalItems = await Jobs.count({
@@ -940,7 +955,10 @@ class JobsController {
             through: { attributes: [] },
           },
         ],
-        order: [["order", "ASC"], ["createdAt", "DESC"]],
+        order: [
+          ["order", "ASC"],
+          ["createdAt", "DESC"],
+        ],
       });
 
       const workbook = new ExcelJS.Workbook();
@@ -978,20 +996,12 @@ class JobsController {
           slNo: index + 1,
           jobTitle: plain.job_title || "N/A",
           department: plain.role?.role_name || "N/A",
-          locations: plain.is_pan_india
-            ? "Pan India"
-            : plain.locations?.length
-            ? plain.locations.map((l) => l.location_name).join(", ")
-            : "N/A",
-          states: plain.is_pan_india
-            ? "All India"
-            : plain.states?.length
-            ? plain.states.map((s) => s.state_name).join(", ")
-            : "N/A",
+          locations: plain.is_pan_india ? "Pan India" : plain.locations?.length ? plain.locations.map((l) => l.location_name).join(", ") : "N/A",
+          states: plain.is_pan_india ? "All India" : plain.states?.length ? plain.states.map((s) => s.state_name).join(", ") : "N/A",
           experience: plain.experience || "N/A",
           dateOfPosting: formatDate(plain.createdAt),
           endDate: formatDate(plain.end_date),
-          status: plain.is_active ? "Active" : "Not Active",
+          status: (plain.end_date && new Date(plain.end_date) < new Date()) || !plain.is_active ? "Not Active" : "Active",
         });
       });
 
