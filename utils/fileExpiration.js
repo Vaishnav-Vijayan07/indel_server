@@ -50,7 +50,6 @@ cron.schedule(
       for (const applicant of expiredApplicants) {
         await transporter.sendMail({
           from: process.env.EMAIL_USER,
-          cc: "afsal@intersmart.in",
           to: applicant.email,
           subject: "Resume File Expiration Notice",
           text: `Dear ${
