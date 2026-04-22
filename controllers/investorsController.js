@@ -224,8 +224,8 @@ class InvestorsController {
         }),
       ]);
 
-      const currentReports = allReports.filter(report => !report.is_past);
-      const pastReports = allReports.filter(report => report.is_past);
+      const currentReports = allReports.filter((report) => !report.is_past);
+      const pastReports = allReports.filter((report) => report.is_past);
 
       const data = {
         content: content[0] || null,
@@ -297,25 +297,29 @@ class InvestorsController {
 
     try {
       const cachedData = await cacheService.get(cacheKey);
-      if (cachedData) {
-        logger.info("Serving investors contact from cache");
-        return res.json({ status: "success", data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   logger.info("Serving investors contact from cache");
+      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
 
       const [content, contact] = await Promise.all([
         models.InvestorsPageContent.findAll({
           attributes: ["investors_contact_title", "page_title"],
         }),
         models.InvestorsContact.findAll({
-          attributes: ["id", "title", "name", "address", "email", "phone", "order", "is_active"],
+          attributes: ["id", "title", "name", "address", "email", "phone", "order", "is_active", "file", "type"],
           where: { is_active: true },
           order: [["order", "ASC"]],
         }),
       ]);
 
+      const textContacts = contact.filter((c) => !c.type || c.type === "text");
+      const pdfContacts = contact.filter((c) => c.type === "pdf");
+
       const data = {
         content: content[0] || null,
-        contact,
+        text_contacts: textContacts,
+        pdf_contacts: pdfContacts,
       };
 
       await cacheService.set(cacheKey, JSON.stringify(data), 3600);
