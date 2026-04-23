@@ -299,6 +299,7 @@ class InvestorsController {
       const cachedData = await cacheService.get(cacheKey);
       if (cachedData) {
         logger.info("Serving investors contact from cache");
+        console.log("Serving investors contact from cache", { cachedData: JSON.parse(cachedData) });
         return res.json({ status: "success", data: JSON.parse(cachedData) });
       }
 
@@ -324,6 +325,7 @@ class InvestorsController {
 
       await cacheService.set(cacheKey, JSON.stringify(data), 3600);
       logger.info("Fetched investors contact from DB");
+      console.log("Fetched investors contact from DB", { data });
       res.json({ status: "success", data });
     } catch (error) {
       logger.error("Error fetching investors contact", { error: error.message, stack: error.stack });
