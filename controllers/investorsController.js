@@ -297,10 +297,10 @@ class InvestorsController {
 
     try {
       const cachedData = await cacheService.get(cacheKey);
-      // if (cachedData) {
-      //   logger.info("Serving investors contact from cache");
-      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
-      // }
+      if (cachedData) {
+        logger.info("Serving investors contact from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
 
       const [content, contact] = await Promise.all([
         models.InvestorsPageContent.findAll({
