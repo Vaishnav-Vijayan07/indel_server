@@ -104,13 +104,12 @@ class InvestorsContactController {
         updateData.file = oldFile;
       }
 
-      // PDF → text: delete existing file and null it
-      // if (investorsContact.type === "pdf" && updateData.type === "text") {
-      // if (oldFile && !req.file) {
-      //   await InvestorsContactController.deleteFile(oldFile);
-      // }
-      // updateData.file = null;
-      // }
+      if (investorsContact.type === "pdf" && updateData.type === "text") {
+        if (oldFile && !req.file) {
+          await InvestorsContactController.deleteFile(oldFile);
+        }
+        updateData.file = null;
+      }
 
       // PDF mode: null text-only fields
       if (updateData.type === "pdf") {
