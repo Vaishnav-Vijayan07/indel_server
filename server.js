@@ -82,7 +82,7 @@ app.use(errorMiddleware);
 const startServer = async () => {
   try {
     await sequelize.authenticate();
-    await sequelize.sync({ alter: false });
+    // await sequelize.sync({ alter: false });
     Logger.info("Database connected and synced");
 
     // await createDemoAdmin();
