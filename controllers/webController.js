@@ -911,7 +911,7 @@ class WebController {
             id: detail.id,
             title: detail.title,
             value: detail.value,
-          }))
+          })),
       );
 
       const centerItem = goldLoanFeatures?.find((item) => item.is_center);
@@ -1994,7 +1994,7 @@ class WebController {
       const files = await models.OmbudsmanFiles.findAll({
         attributes: ["id", "title", "file", "order"],
         where: { is_active: true },
-        order: [["order", "DESC"]],
+        order: [["order", "ASC"]],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(files), 3600);
