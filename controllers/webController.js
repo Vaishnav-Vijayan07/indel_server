@@ -1986,10 +1986,10 @@ class WebController {
 
     try {
       const cachedData = await CacheService.get(cacheKey);
-      // if (cachedData) {
-      //   logger.info("Serving ombudsman files from cache");
-      //   return res.json({ status: "success", data: JSON.parse(cachedData) });
-      // }
+      if (cachedData) {
+        logger.info("Serving ombudsman files from cache");
+        return res.json({ status: "success", data: JSON.parse(cachedData) });
+      }
 
       const files = await models.OmbudsmanFiles.findAll({
         attributes: ["id", "title", "file", "order"],
