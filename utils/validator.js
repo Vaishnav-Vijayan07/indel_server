@@ -1365,6 +1365,18 @@ const validatePoliciesUpdate = [
   check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
 ];
 
+const validatePolicyCategory = [
+  check("title").notEmpty().withMessage("Title is required").isString().withMessage("Title must be a string").isLength({ max: 15 }).withMessage("Title must be at most 15 characters"),
+  check("order").optional().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
+const validatePolicyCategoryUpdate = [
+  check("title").optional().notEmpty().withMessage("Title cannot be empty").isString().withMessage("Title must be a string").isLength({ max: 15 }).withMessage("Title must be at most 15 characters"),
+  check("order").optional().isInt({ gt: 0 }).withMessage("Order must be a positive integer"),
+  check("is_active").optional().isBoolean().withMessage("is_active must be a boolean"),
+];
+
 const validateBoardMeetings = [
   check("fiscal_year")
     .notEmpty()
@@ -2189,4 +2201,6 @@ module.exports = {
   validateLoanAgainstPropertyContent,
   validateLoanAgainstPropertyContentUpdate,
   validateNCDPageContentUpdate,
+  validatePolicyCategory,
+  validatePolicyCategoryUpdate,
 };

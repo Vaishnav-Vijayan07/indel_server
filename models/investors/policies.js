@@ -17,6 +17,14 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      category_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: "policy_categories",
+          key: "id",
+        },
+      },
       is_active: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
@@ -32,6 +40,10 @@ module.exports = (sequelize) => {
       timestamps: true,
     }
   );
+
+    Policies.associate = (models) => {
+        Policies.belongsTo(models.PolicyCategories, { foreignKey: "category_id", as: "policyCategory" });
+    };
 
   return Policies;
 };

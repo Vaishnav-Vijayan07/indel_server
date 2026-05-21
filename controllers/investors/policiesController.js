@@ -50,7 +50,12 @@ class PoliciesController {
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
 
-      const policies = await Policies.findAll({ order: [["order", "ASC"]] });
+      const policies = await Policies.findAll({
+        include: [
+          { model: models.PolicyCategories, as: "policyCategory", attributes: ["id", "title"] },
+        ],
+        order: [["order", "ASC"]],
+      });
       await CacheService.set(cacheKey, JSON.stringify(policies), 3600);
       res.json({ success: true, data: policies });
     } catch (error) {
@@ -110,7 +115,7 @@ class PoliciesController {
       next(error);
     }
   }
-
+  
   static async delete(req, res, next) {
     try {
       const { id } = req.params;

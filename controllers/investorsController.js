@@ -338,6 +338,7 @@ class InvestorsController {
       // Extract pagination parameters from query
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 5;
+      const category_id = req.query.category_id;
       const offset = (page - 1) * limit;
 
       // Validate pagination parameters
@@ -349,7 +350,7 @@ class InvestorsController {
       }
 
       // Create cache key that includes pagination parameters
-      const cacheKey = `webInvestorsContact_page_${page}_limit_${limit}`;
+      const cacheKey = `policies_page_${page}_limit_${limit}${category_id ? `_cat_${category_id}` : ''}`;
 
       // Check cache first
       const cachedData = await cacheService.get(cacheKey);
@@ -357,6 +358,11 @@ class InvestorsController {
       //   logger.info(`Serving investors policies from cache - Page: ${page}, Limit: ${limit}`);
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
+
+      let whereClause = { is_active: true };
+      if (category_id) {
+        whereClause.category_id = category_id;
+      }
 
       const [content, policiesResult] = await Promise.all([
         // Content doesn't need pagination, fetch once
@@ -368,7 +374,16 @@ class InvestorsController {
           order: [["order", "ASC"]],
           limit: limit,
           offset: offset,
-          where: { is_active: true },
+          where: whereClause,
+          include: [
+            {
+              model: models.PolicyCategories,
+              as: "policyCategory",
+              attributes: [],
+              where: { is_active: true },
+              required: true
+            }
+          ]
         }),
       ]);
 
@@ -423,6 +438,43 @@ class InvestorsController {
     } catch (error) {
       logger.error("Error fetching fiscal years for stock exchange", { error: error.message, stack: error.stack });
       next(new CustomError("Failed to fetch fiscal years for stock exchange", 500, error.message));
+    }
+  }
+
+
+  static async policyCategories(req, res, next) {
+    const cacheKey = "webInvestorsPolicyCategories";
+
+    try {
+      const cachedData = await cacheService.get(cacheKey);
+      // if (cachedData) {
+      //     logger.info("Serving fiscal years for stock exchange from cache");
+      //     return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const policy_categories = await models.PolicyCategories.findAll({
+        attributes: ["id", "title", "is_active", "order"],
+        order: [["order", "ASC"]],
+        where: { is_active: true },
+        include: [
+          {
+            model: models.Policies,
+            as: "policies",
+            attributes: [],
+            where: { is_active: true },
+            required: true
+          }
+        ],
+        group: ["PolicyCategories.id", "PolicyCategories.title", "PolicyCategories.is_active", "PolicyCategories.order"]
+      });
+
+      await cacheService.set(cacheKey, JSON.stringify(policy_categories), 3600);
+      logger.info("Fetched policy categories from DB");
+
+      res.json({ status: "success", policy_categories });
+    } catch (error) {
+      logger.error("Error fetching policy categories", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch policy categories", 500, error.message));
     }
   }
 

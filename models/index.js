@@ -127,6 +127,7 @@ const defineNcdContent = require("./ncd/content");
 const defineApplicantLocations = require("./career/applicantLocations"); // New import
 const defineApplicantStates = require("./career/applicantStates"); // New import
 const defineApplicantDistricts = require("./career/applicantDistricts");
+const definePolicyCategories = require("./investors/policyCategory");
 
 const models = {
   User: defineUser(sequelize),
@@ -242,6 +243,7 @@ const models = {
   Partners: definePartnersData(sequelize),
   Directors: defineDirectors(sequelize),
   DirectorsContent: defineDirectorsContent(sequelize),
+  PolicyCategories: definePolicyCategories(sequelize),
   MasterPolicies: defineMasterPolicies(sequelize),
   ApplicationStatus: defineApplicationStatus(sequelize),
   GeneralApplications: defineGeneralApplications(sequelize),
