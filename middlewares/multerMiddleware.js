@@ -28,7 +28,7 @@ const createUploadMiddleware = (subfolder) => {
   return multer({
     storage: getStorage(subfolder),
     limits: {
-      fileSize: 2 * 1024 * 1024, // 1MB limit
+      fileSize: 20 * 1024 * 1024, // 1MB limit
     },
     // fileFilter: (req, file, cb) => {
     //   const filetypes = /jpeg|jpg|png|svg|webp|mp4|mov|avi|pdf|xlsx/;
