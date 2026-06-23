@@ -784,24 +784,20 @@ class JobsController {
         throw new CustomError("Job not found", 404);
       }
 
-      // Get job-specific data
-      const jobWithAssociations = await Jobs.findByPk(jobId, {
-        include: [
-          {
-            model: models.CareerStates,
-            as: "states",
+      let job_states, job_locations, roles;
+
+      if (job.is_pan_india) {
+        // Pan India job: return all active locations and states
+        const [allStates, allLocations, jobWithRole] = await Promise.all([
+          models.CareerStates.findAll({
+            where: { is_active: true },
             attributes: ["id", "state_name"],
-            through: { attributes: [] },
+            order: [["state_name", "ASC"]],
+          }),
+          models.CareerLocations.findAll({
             where: { is_active: true },
-            required: false,
-          },
-          {
-            model: models.CareerLocations,
-            as: "locations",
             attributes: ["id", "location_name", "district_id"],
-            through: { attributes: [] },
-            where: { is_active: true },
-            required: false,
+            order: [["location_name", "ASC"]],
             include: [
               {
                 model: models.Districts,
@@ -810,38 +806,71 @@ class JobsController {
                 required: false,
               },
             ],
-          },
-          {
-            model: models.CareerRoles,
-            as: "role",
-            attributes: ["id", "role_name"],
-            required: false,
-          },
-        ],
-      });
+          }),
+          Jobs.findByPk(jobId, {
+            include: [{ model: models.CareerRoles, as: "role", attributes: ["id", "role_name"], required: false }],
+          }),
+        ]);
 
-      // Format job states for dropdown
-      const job_states = jobWithAssociations.states.map((state) => ({
-        value: state.id.toString(),
-        label: state.state_name,
-      }));
-
-      // Format job locations for dropdown
-      const job_locations = jobWithAssociations.locations.map((location) => ({
-        id: location.id,
-        location_name: location.location_name,
-        district_id: location.district_id,
-      }));
-
-      // Format roles for dropdown
-      const roles = jobWithAssociations.role
-        ? [
+        job_states = allStates.map((state) => ({ value: state.id.toString(), label: state.state_name }));
+        job_locations = allLocations.map((location) => ({
+          id: location.id,
+          location_name: location.location_name,
+          district_id: location.district_id,
+        }));
+        roles = jobWithRole.role
+          ? [{ value: jobWithRole.role.id.toString(), label: jobWithRole.role.role_name }]
+          : [];
+      } else {
+        // Job-specific data
+        const jobWithAssociations = await Jobs.findByPk(jobId, {
+          include: [
             {
-              value: jobWithAssociations.role.id.toString(),
-              label: jobWithAssociations.role.role_name,
+              model: models.CareerStates,
+              as: "states",
+              attributes: ["id", "state_name"],
+              through: { attributes: [] },
+              where: { is_active: true },
+              required: false,
             },
-          ]
-        : [];
+            {
+              model: models.CareerLocations,
+              as: "locations",
+              attributes: ["id", "location_name", "district_id"],
+              through: { attributes: [] },
+              where: { is_active: true },
+              required: false,
+              include: [
+                {
+                  model: models.Districts,
+                  as: "district",
+                  attributes: ["state_id"],
+                  required: false,
+                },
+              ],
+            },
+            {
+              model: models.CareerRoles,
+              as: "role",
+              attributes: ["id", "role_name"],
+              required: false,
+            },
+          ],
+        });
+
+        job_states = jobWithAssociations.states.map((state) => ({
+          value: state.id.toString(),
+          label: state.state_name,
+        }));
+        job_locations = jobWithAssociations.locations.map((location) => ({
+          id: location.id,
+          location_name: location.location_name,
+          district_id: location.district_id,
+        }));
+        roles = jobWithAssociations.role
+          ? [{ value: jobWithAssociations.role.id.toString(), label: jobWithAssociations.role.role_name }]
+          : [];
+      }
 
       res.json({
         success: true,
