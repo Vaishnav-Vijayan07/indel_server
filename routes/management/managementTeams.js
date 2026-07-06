@@ -12,7 +12,7 @@ const uploadField = upload.single("image");
 router.get("/", ManagementTeamsController.getAll);
 router.get("/:id", ManagementTeamsController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateManagementTeam, validateMiddleware, ManagementTeamsController.create);
 router.put("/:id", uploadField, validateManagementTeamUpdate, validateMiddleware, ManagementTeamsController.update);
 router.delete("/:id", ManagementTeamsController.delete);

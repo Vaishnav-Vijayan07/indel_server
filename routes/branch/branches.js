@@ -11,7 +11,7 @@ router.get("/filtered_branches", BranchesController.getAllBranchesFilter);
 router.get("/", BranchesController.getAll);
 router.get("/:id", BranchesController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 
 // router.post("/", validateBranch, validateMiddleware, BranchesController.create);
 router.post("/", validateMiddleware, BranchesController.create);

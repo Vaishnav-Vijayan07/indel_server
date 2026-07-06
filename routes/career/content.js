@@ -12,7 +12,7 @@ const uploadFields = upload.single("make_your_move_image");
 router.get("/", CareerContentsController.get);
 router.put(
   "/",
-  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
   uploadFields,
   validateCareerContentsUpdate,
   validateMiddleware,

@@ -11,7 +11,7 @@ const uploadFields = upload.single("why_msme_loan_image");
 
 router.get("/", MsmeLoanContentController.getAll);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.put("/", uploadFields, validateMsmeLoanContentUpdate, validateMiddleware, MsmeLoanContentController.update);
 
 module.exports = router;

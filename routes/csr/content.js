@@ -8,7 +8,7 @@ const CsrContentController = require("../../controllers/CSR/contentController");
 router.get("/", CsrContentController.get);
 router.put(
   "/",
-  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
   validateCSRPageContentUpdate,
   validateMiddleware,
   CsrContentController.update,

@@ -12,7 +12,7 @@ const uploadField = upload.single("image");
 router.get("/", AboutQuickLinksController.getAll);
 router.get("/:id", AboutQuickLinksController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 
 router.post("/", uploadField, validateAboutQuickLinks, validateMiddleware, AboutQuickLinksController.create);
 router.put("/:id", uploadField, validateAboutQuickLinksUpdate, validateMiddleware, AboutQuickLinksController.update);

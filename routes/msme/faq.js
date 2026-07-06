@@ -8,7 +8,7 @@ const MsmeLoanFaqsController = require("../../controllers/msme/faqController");
 router.get("/", MsmeLoanFaqsController.getAll);
 router.get("/:id", MsmeLoanFaqsController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", validateFaq, validateMiddleware, MsmeLoanFaqsController.create);
 router.put("/:id", validateFaqUpdate, validateMiddleware, MsmeLoanFaqsController.update);
 router.delete("/:id", MsmeLoanFaqsController.delete);

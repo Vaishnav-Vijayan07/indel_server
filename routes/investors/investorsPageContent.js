@@ -15,7 +15,7 @@ const uploadField = upload.fields([
 router.get("/", InvestorsPageContentController.get);
 router.put(
   "/",
-  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
   uploadField,
   validateInvestorsPageContentItemUpdate,
   validateMiddleware,

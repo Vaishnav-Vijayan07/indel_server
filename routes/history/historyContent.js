@@ -8,7 +8,7 @@ const { validateHistoryPageContent, validateHistoryPageContentUpdate } = require
 router.get("/", validateHistoryPageContent, HistoryContentController.get);
 router.put(
   "/",
-  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
   validateHistoryPageContentUpdate,
   validateMiddleware,
   HistoryContentController.update,

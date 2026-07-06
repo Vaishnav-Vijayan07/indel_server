@@ -13,7 +13,7 @@ const uploadFields = upload.single("banner_image");
 router.get("/", IndelValueContentController.get);
 router.put(
   "/",
-  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
   uploadFields,
   updateValidation,
   validateMiddleware,

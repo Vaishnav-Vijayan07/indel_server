@@ -18,7 +18,7 @@ const uploadFields = upload.fields([
 router.get("/", FooterContentController.get);
 router.put(
   "/",
-  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
   uploadFields,
   validateFooterContentUpdate,
   validateMiddleware,

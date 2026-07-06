@@ -14,7 +14,7 @@ router.get("/:id/dropdowns", JobsController.getJobDropdowns);
 router.get("/:id/locations/by_state", JobsController.getJobLocationsByState);
 router.put("/order", JobsController.updateOrder);
 
-router.use(authMiddleware(["admin", "hr", "hr_assistant"])); // Protect routes for
+router.use(authMiddleware(["admin", "hr", "hr_assistant", "manager"])); // Protect routes for
 router.post("/", validateJobs, validateMiddleware, JobsController.create);
 router.put("/:id", validateJobsUpdate, validateMiddleware, JobsController.update);
 router.delete("/:id", JobsController.delete);

@@ -13,7 +13,7 @@ const uploadField = upload.fields([
 ]);
 
 router.get("/", NcdContentController.get);
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.put("/", uploadField, validateNCDPageContentUpdate, validateMiddleware, NcdContentController.update);
 
 module.exports = router;

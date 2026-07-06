@@ -9,7 +9,7 @@ const router = express.Router();
 // Get all announcements (optionally filtered by state_id)
 router.get("/", AnnouncementController.getAll);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 
 // Create a new announcement
 router.post("/", AnnouncementController.create);

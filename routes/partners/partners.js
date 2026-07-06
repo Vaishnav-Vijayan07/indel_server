@@ -27,7 +27,7 @@ const uploadField = upload.single("logo");
 router.get("/", PartnersController.getAll);
 router.get("/:id", PartnersController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validatePartners, validateMiddleware, PartnersController.create);
 router.put("/:id", uploadField, validatePartnersUpdate, validateMiddleware, PartnersController.update);
 router.delete("/:id", PartnersController.delete);

@@ -7,6 +7,12 @@ const ShadesOfIndelContentController = require("../../controllers/shadesOfIndel/
 const updateValidation = generateStringValidators(["page_title", "approach_title"], true);
 
 router.get("/", ShadesOfIndelContentController.get);
-router.put("/", authMiddleware(["admin", "hr", "hr-executive", "user"]), updateValidation, validateMiddleware, ShadesOfIndelContentController.update);
+router.put(
+  "/",
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
+  updateValidation,
+  validateMiddleware,
+  ShadesOfIndelContentController.update,
+);
 
 module.exports = router;

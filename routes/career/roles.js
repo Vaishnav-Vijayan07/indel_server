@@ -8,7 +8,7 @@ const RolesController = require("../../controllers/career/rolesController");
 router.get("/", RolesController.getAll);
 router.get("/:id", RolesController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", validateCareerRoles, validateMiddleware, RolesController.create);
 router.put("/:id", validateCareerRolesUpdate, validateMiddleware, RolesController.update);
 router.delete("/:id", RolesController.delete);

@@ -8,7 +8,7 @@ const { validateDeptPartnersContentUpdate, validateDeptPartnersContent } = requi
 router.get("/", validateDeptPartnersContent, DebtPartnersContentController.get);
 router.put(
   "/",
-  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
   validateDeptPartnersContentUpdate,
   validateMiddleware,
   DebtPartnersContentController.update,

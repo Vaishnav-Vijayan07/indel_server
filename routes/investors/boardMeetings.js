@@ -15,7 +15,7 @@ const uploadFields = upload.fields([
 router.get("/", BoardMeetingsController.getAll);
 router.get("/:id", BoardMeetingsController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadFields, validateBoardMeetings, validateMiddleware, BoardMeetingsController.create);
 router.put("/:id", uploadFields, validateBoardMeetingsUpdate, validateMiddleware, BoardMeetingsController.update);
 router.delete("/:id", BoardMeetingsController.delete);

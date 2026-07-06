@@ -8,7 +8,7 @@ const { validateAwardPageContentItemUpdate } = require("../../utils/validator");
 router.get("/", AwardPageContentController.get);
 router.put(
   "/",
-  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
   validateAwardPageContentItemUpdate,
   validateMiddleware,
   AwardPageContentController.update,

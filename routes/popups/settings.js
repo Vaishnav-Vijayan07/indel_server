@@ -15,7 +15,7 @@ const uploadFields = upload.fields([
 router.get("/", PopupSettingsController.get);
 router.put(
   "/",
-  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
   uploadFields,
   validatePopupSettingsUpdate,
   validateMiddleware,

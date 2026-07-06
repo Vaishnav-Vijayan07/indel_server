@@ -12,7 +12,7 @@ const uploadField = upload.single("file");
 router.get("/", PoliciesController.getAll);
 router.get("/:id", PoliciesController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validatePolicies, validateMiddleware, PoliciesController.create);
 router.put("/:id", uploadField, validatePoliciesUpdate, validateMiddleware, PoliciesController.update);
 router.delete("/:id", PoliciesController.delete);

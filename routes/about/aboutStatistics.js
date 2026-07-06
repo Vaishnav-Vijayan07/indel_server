@@ -12,7 +12,7 @@ const uploadField = upload.single("icon");
 router.get("/", AboutStatisticsController.getAll);
 router.get("/:id", AboutStatisticsController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 
 router.post("/", uploadField, validateAboutStatsItem, validateMiddleware, AboutStatisticsController.create);
 router.put("/:id", uploadField, validateAboutStatsItemUpdate, validateMiddleware, AboutStatisticsController.update);

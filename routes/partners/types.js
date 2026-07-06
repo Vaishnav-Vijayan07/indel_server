@@ -20,7 +20,7 @@ const validatePartnersTypes = [
 router.get("/", PartnersTypesController.getAll);
 router.get("/:id", PartnersTypesController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", validatePartnersTypes, validateMiddleware, PartnersTypesController.create);
 router.put("/:id", validatePartnersTypesUpdate, validateMiddleware, PartnersTypesController.update);
 router.delete("/:id", PartnersTypesController.delete);

@@ -9,7 +9,7 @@ router.get("/get-active-category", PolicyCategoryController.getActiveAll);
 router.get("/", PolicyCategoryController.getAll);
 router.get("/:id", PolicyCategoryController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", validatePolicyCategory, validateMiddleware, PolicyCategoryController.create);
 router.put("/:id", validatePolicyCategoryUpdate, validateMiddleware, PolicyCategoryController.update);
 router.delete("/:id", PolicyCategoryController.delete);

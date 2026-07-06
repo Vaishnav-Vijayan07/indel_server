@@ -8,7 +8,7 @@ const uploadField = upload.single("file");
 
 router.get("/", FileShareController.getAllFiles);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 
 router.post("/", uploadField, FileShareController.create);
 router.put("/:id", uploadField, FileShareController.updateFile);

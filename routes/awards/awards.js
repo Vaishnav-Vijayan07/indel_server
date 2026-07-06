@@ -12,7 +12,7 @@ const uploadField = upload.single("image");
 router.get("/", AwardsController.getAll);
 router.get("/:id", AwardsController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 
 router.post("/", uploadField, validateAward, validateMiddleware, AwardsController.create);
 router.put("/:id", uploadField, validateAwardUpdate, validateMiddleware, AwardsController.update);

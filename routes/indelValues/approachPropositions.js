@@ -12,7 +12,7 @@ const uploadField = upload.single("icon");
 router.get("/", ApproachPropositionsController.getAll);
 router.get("/:id", ApproachPropositionsController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateIndelValue, validateMiddleware, ApproachPropositionsController.create);
 router.put("/:id", uploadField, validateIndelValueUpdate, validateMiddleware, ApproachPropositionsController.update);
 router.delete("/:id", ApproachPropositionsController.delete);

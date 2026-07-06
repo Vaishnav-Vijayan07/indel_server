@@ -12,7 +12,7 @@ const uploadField = upload.single("image");
 router.get("/", MsmeTargetedAudienceController.getAll);
 router.get("/:id", MsmeTargetedAudienceController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateMsmeTargetedAudience, validateMiddleware, MsmeTargetedAudienceController.create);
 router.put("/:id", uploadField, validateMsmeTargetedAudienceUpdate, validateMiddleware, MsmeTargetedAudienceController.update);
 router.delete("/:id", MsmeTargetedAudienceController.delete);

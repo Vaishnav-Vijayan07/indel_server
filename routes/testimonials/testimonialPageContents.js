@@ -8,7 +8,7 @@ const { validateTestimonialPageContents } = require("../../utils/validator");
 router.get("/", TestimonialPageContentsController.get);
 router.put(
   "/",
-  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
   validateTestimonialPageContents,
   validateMiddleware,
   TestimonialPageContentsController.update,

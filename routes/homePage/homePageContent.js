@@ -21,7 +21,7 @@ const uploadFields = upload.fields([
 router.get("/", HomePageContentController.get);
 router.put(
   "/",
-  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
   uploadFields,
   validateHomePageContentUpdate,
   validateMiddleware,

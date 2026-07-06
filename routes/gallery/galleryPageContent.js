@@ -8,7 +8,7 @@ const { validateGalleryPageContentItemUpdate } = require("../../utils/validator"
 router.get("/", GalleryPageContentController.get);
 router.put(
   "/",
-  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
   validateGalleryPageContentItemUpdate,
   validateMiddleware,
   GalleryPageContentController.update,

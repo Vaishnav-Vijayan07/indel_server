@@ -15,7 +15,7 @@ const uploadField = upload.fields([
 router.get("/", AboutAccoladesController.getAll);
 router.get("/:id", AboutAccoladesController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 
 router.post("/", uploadField, validateAboutAccolades, validateMiddleware, AboutAccoladesController.create);
 router.put("/:id", uploadField, validateAboutAccoladesUpdate, validateMiddleware, AboutAccoladesController.update);

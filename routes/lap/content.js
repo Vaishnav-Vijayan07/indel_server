@@ -17,7 +17,7 @@ const uploadFields = upload.fields([
 router.get("/", LAPContentController.get);
 router.put(
   "/",
-  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
   uploadFields,
   validateCdLoanContentUpdate,
   validateMiddleware,

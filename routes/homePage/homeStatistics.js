@@ -8,7 +8,7 @@ const validateMiddleware = require("../../middlewares/validateMiddleware");
 router.get("/", HomeStatisticsController.getAll);
 router.get("/:id", HomeStatisticsController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", validateHomeStatistics, validateMiddleware, HomeStatisticsController.create);
 router.put("/:id", validateHomeStatistics, validateMiddleware, HomeStatisticsController.update);
 router.delete("/:id", HomeStatisticsController.delete);

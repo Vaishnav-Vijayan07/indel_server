@@ -16,7 +16,7 @@ const uploadFields = upload.fields([
 router.get("/", EventGalleryController.getAll);
 router.get("/:id", EventGalleryController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadFields, validateEventGallery, validateMiddleware, EventGalleryController.create);
 router.put("/:id", uploadFields, validateEventGalleryUpdate, validateMiddleware, EventGalleryController.update);
 router.delete("/:id", EventGalleryController.delete);

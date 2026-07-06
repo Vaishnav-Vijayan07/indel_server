@@ -12,7 +12,7 @@ const uploadField = upload.single("image");
 router.get("/", AboutMessageTeamController.getAll);
 router.get("/:id", AboutMessageTeamController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 
 router.post("/", uploadField, validateAboutMessageFromTeam, validateMiddleware, AboutMessageTeamController.create);
 router.put("/:id", uploadField, validateAboutMessageFromTeamUpdate, validateMiddleware, AboutMessageTeamController.update);

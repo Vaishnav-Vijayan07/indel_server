@@ -12,7 +12,7 @@ const uploadField = upload.single("file");
 router.get("/", InvestorsContactController.getAll);
 router.get("/:id", InvestorsContactController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateInvestorsContact, validateMiddleware, InvestorsContactController.create);
 router.put("/:id", uploadField, validateInvestorsContactUpdate, validateMiddleware, InvestorsContactController.update);
 router.delete("/:id", InvestorsContactController.delete);

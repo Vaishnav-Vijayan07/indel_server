@@ -8,7 +8,7 @@ const { validateBlogPageContentUpdate } = require("../../utils/validator");
 router.get("/", NewsPageContentController.get);
 router.put(
   "/",
-  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
   validateBlogPageContentUpdate,
   validateMiddleware,
   NewsPageContentController.update,

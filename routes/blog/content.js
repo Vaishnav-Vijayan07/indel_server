@@ -8,7 +8,7 @@ const BlogPageContentController = require("../../controllers/blog/contentControl
 router.get("/", BlogPageContentController.get);
 router.put(
   "/",
-  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
   validateBlogPageContentUpdate,
   validateMiddleware,
   BlogPageContentController.update,

@@ -15,7 +15,7 @@ const uploadFields = upload.fields([
 router.get("/", OtherIntimationsController.getAll);
 router.get("/:id", OtherIntimationsController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadFields, validateOtherIntimations, validateMiddleware, OtherIntimationsController.create);
 router.put("/:id", uploadFields, validateOtherIntimationsUpdate, validateMiddleware, OtherIntimationsController.update);
 router.delete("/:id", OtherIntimationsController.delete);

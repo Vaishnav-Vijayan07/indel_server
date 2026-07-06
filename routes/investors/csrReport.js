@@ -12,7 +12,7 @@ const uploadField = upload.single("report");
 router.get("/", CsrReportController.getAll);
 router.get("/:id", CsrReportController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateCsrReport, validateMiddleware, CsrReportController.create);
 router.put("/:id", uploadField, validateCsrReportUpdate, validateMiddleware, CsrReportController.update);
 router.delete("/:id", CsrReportController.delete);

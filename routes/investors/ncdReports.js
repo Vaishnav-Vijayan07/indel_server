@@ -12,7 +12,7 @@ const uploadField = upload.single("file");
 router.get("/", NcdReportsController.getAll);
 router.get("/:id", NcdReportsController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateCorporateGovernance, validateMiddleware, NcdReportsController.create);
 router.put("/:id", uploadField, validateCorporateGovernanceUpdate, validateMiddleware, NcdReportsController.update);
 router.delete("/:id", NcdReportsController.delete);

@@ -16,7 +16,7 @@ router.get("/", AboutPageContentController.get);
 
 router.put(
   "/",
-  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
   uploadFields,
   validateAboutPageContentUpdate,
   validateMiddleware,

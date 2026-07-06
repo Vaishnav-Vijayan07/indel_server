@@ -8,7 +8,7 @@ const { validateEventPageContentItemUpdate } = require("../../utils/validator");
 router.get("/", IndelCaresContentController.get);
 router.put(
   "/",
-  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
   validateEventPageContentItemUpdate,
   validateMiddleware,
   IndelCaresContentController.update,

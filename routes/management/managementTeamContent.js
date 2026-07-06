@@ -8,7 +8,7 @@ const { validateMngmtTeamContentItemUpdate } = require("../../utils/validator");
 router.get("/", ManagementTeamContentController.get);
 router.put(
   "/",
-  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
   validateMngmtTeamContentItemUpdate,
   validateMiddleware,
   ManagementTeamContentController.update,

@@ -8,7 +8,7 @@ const DirectorContentController = require("../../controllers/directors/contentCo
 router.get("/", DirectorContentController.get);
 router.put(
   "/",
-  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
   validateMngmtTeamContentItemUpdate,
   validateMiddleware,
   DirectorContentController.update,

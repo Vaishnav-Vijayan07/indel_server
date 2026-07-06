@@ -8,7 +8,7 @@ const { validateFaq, validateFaqUpdate } = require("../../utils/validator");
 router.get("/", ContactFaqController.getAll);
 router.get("/:id", ContactFaqController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"])); // Protect routes for admin, hr, hr-executive, and manager roles
 router.post("/", validateFaq, validateMiddleware, ContactFaqController.create);
 router.put("/:id", validateFaqUpdate, validateMiddleware, ContactFaqController.update);
 router.delete("/:id", ContactFaqController.delete);

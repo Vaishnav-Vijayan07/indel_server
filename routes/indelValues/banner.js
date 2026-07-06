@@ -12,7 +12,7 @@ const uploadField = upload.single("image");
 router.get("/", ValuesBannerMobileController.getAll);
 router.get("/:id", ValuesBannerMobileController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateAboutBanner, validateMiddleware, ValuesBannerMobileController.create);
 router.put("/:id", uploadField, validateAboutBannerUpdate, validateMiddleware, ValuesBannerMobileController.update);
 router.delete("/:id", ValuesBannerMobileController.delete);

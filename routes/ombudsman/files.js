@@ -12,7 +12,7 @@ const uploadField = upload.single("file");
 router.get("/", OmbudsmanFilesController.getAll);
 router.get("/:id", OmbudsmanFilesController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateCorporateGovernance, validateMiddleware, OmbudsmanFilesController.create);
 router.put("/:id", uploadField, validateCorporateGovernanceUpdate, validateMiddleware, OmbudsmanFilesController.update);
 router.delete("/:id", OmbudsmanFilesController.delete);

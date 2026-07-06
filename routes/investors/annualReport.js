@@ -12,7 +12,7 @@ const uploadField = upload.single("file");
 router.get("/", AnnualReportController.getAll);
 router.get("/:id", AnnualReportController.getById);
 
-router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateAnnualReport, validateMiddleware, AnnualReportController.create);
 router.put("/:id", uploadField, validateAnnualReportUpdate, validateMiddleware, AnnualReportController.update);
 router.delete("/:id", AnnualReportController.delete);
