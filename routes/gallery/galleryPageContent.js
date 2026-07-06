@@ -6,6 +6,12 @@ const GalleryPageContentController = require("../../controllers/gallery/galleryP
 const { validateGalleryPageContentItemUpdate } = require("../../utils/validator");
 
 router.get("/", GalleryPageContentController.get);
-router.put("/", authMiddleware(["admin"]), validateGalleryPageContentItemUpdate, validateMiddleware, GalleryPageContentController.update);
+router.put(
+  "/",
+  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  validateGalleryPageContentItemUpdate,
+  validateMiddleware,
+  GalleryPageContentController.update,
+);
 
 module.exports = router;

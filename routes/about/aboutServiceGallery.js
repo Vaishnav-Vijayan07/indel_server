@@ -7,12 +7,13 @@ const { validateAboutLifeAtIndel, validateAboutLifeAtIndelUpdate } = require("..
 const AboutServiceGalleryController = require("../../controllers/about/aboutServiceGalleryController");
 
 const upload = createUploadMiddleware("about-service-gallery");
-const uploadField = upload.single("image")
+const uploadField = upload.single("image");
 
 router.get("/", AboutServiceGalleryController.getAll);
 router.get("/:id", AboutServiceGalleryController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+
 router.post("/", uploadField, validateAboutLifeAtIndel, validateMiddleware, AboutServiceGalleryController.create);
 router.put("/:id", uploadField, validateAboutLifeAtIndelUpdate, validateMiddleware, AboutServiceGalleryController.update);
 router.delete("/:id", AboutServiceGalleryController.delete);

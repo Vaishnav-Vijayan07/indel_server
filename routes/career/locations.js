@@ -10,7 +10,7 @@ router.get("/", LocationsController.getAll);
 router.get("/by_state", LocationsController.getAllLocationByState);
 router.get("/:id", LocationsController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive"]));
 router.post("/", validateCareerLocations, validateMiddleware, LocationsController.create);
 router.put("/:id", validateCareerLocationsUpdate, validateMiddleware, LocationsController.update);
 router.delete("/:id", LocationsController.delete);

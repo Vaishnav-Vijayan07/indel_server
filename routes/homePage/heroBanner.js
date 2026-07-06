@@ -17,7 +17,7 @@ const uploadField = upload.fields([
 router.get("/", HeroBannerController.getAll);
 router.get("/:id", HeroBannerController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
 router.post("/", uploadField, validateHeroBanner, validateMiddleware, HeroBannerController.create);
 router.put("/:id", uploadField, validateHeroBannerUpdate, validateMiddleware, HeroBannerController.update);
 router.delete("/:id", HeroBannerController.delete);

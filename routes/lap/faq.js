@@ -8,7 +8,7 @@ const LapFaqsController = require("../../controllers/lap/faqContoller");
 router.get("/", LapFaqsController.getAll);
 router.get("/:id", LapFaqsController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
 router.post("/", validateFaq, validateMiddleware, LapFaqsController.create);
 router.put("/:id", validateFaqUpdate, validateMiddleware, LapFaqsController.update);
 router.delete("/:id", LapFaqsController.delete);

@@ -8,15 +8,15 @@ const { validateEventGallery, validateEventGalleryUpdate } = require("../../util
 
 const upload = createUploadMiddleware("event-gallery");
 const uploadFields = upload.fields([
-    { name: "image", maxCount: 1 },
-    { name: "video", maxCount: 1 },
-    { name: "video_thumbnail", maxCount: 1 },
+  { name: "image", maxCount: 1 },
+  { name: "video", maxCount: 1 },
+  { name: "video_thumbnail", maxCount: 1 },
 ]);
 
 router.get("/", EventGalleryController.getAll);
 router.get("/:id", EventGalleryController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
 router.post("/", uploadFields, validateEventGallery, validateMiddleware, EventGalleryController.create);
 router.put("/:id", uploadFields, validateEventGalleryUpdate, validateMiddleware, EventGalleryController.update);
 router.delete("/:id", EventGalleryController.delete);

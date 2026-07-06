@@ -16,7 +16,7 @@ const uploadFields = upload.fields([
 router.get("/", NewsController.getAll);
 router.get("/:id", NewsController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
 router.post("/", uploadFields, validateBlogs, validateMiddleware, NewsController.create);
 router.put("/:id", uploadFields, validateBlogsUpdate, validateMiddleware, NewsController.update);
 router.delete("/:id", NewsController.delete);

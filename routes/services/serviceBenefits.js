@@ -12,7 +12,7 @@ const uploadField = upload.single("icon");
 router.get("/", ServiceBenefitsController.getAll);
 router.get("/:id", ServiceBenefitsController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
 router.post("/", uploadField, validateServiceBenefits, validateMiddleware, ServiceBenefitsController.create);
 router.put("/:id", uploadField, validateServiceBenefitsUpdate, validateMiddleware, ServiceBenefitsController.update);
 router.delete("/:id", ServiceBenefitsController.delete);

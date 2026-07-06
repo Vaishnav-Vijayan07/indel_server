@@ -12,7 +12,7 @@ const uploadField = upload.single("icon");
 router.get("/", MsmeLoanSupportedIndustriesController.getAll);
 router.get("/:id", MsmeLoanSupportedIndustriesController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
 router.post("/", uploadField, validateMsmeLoanSupportedIndustries, validateMiddleware, MsmeLoanSupportedIndustriesController.create);
 router.put("/:id", uploadField, validateMsmeLoanSupportedIndustriesUpdate, validateMiddleware, MsmeLoanSupportedIndustriesController.update);
 router.delete("/:id", MsmeLoanSupportedIndustriesController.delete);

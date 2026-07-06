@@ -128,6 +128,7 @@ const defineApplicantLocations = require("./career/applicantLocations"); // New 
 const defineApplicantStates = require("./career/applicantStates"); // New import
 const defineApplicantDistricts = require("./career/applicantDistricts");
 const definePolicyCategories = require("./investors/policyCategory");
+const defineRefreshToken = require("./refreshToken");
 
 const models = {
   User: defineUser(sequelize),
@@ -262,6 +263,7 @@ const models = {
   ApplicantLocations: defineApplicantLocations(sequelize), // New model
   ApplicantStates: defineApplicantStates(sequelize), // New model
   ApplicantDistricts: defineApplicantDistricts(sequelize),
+  RefreshToken: defineRefreshToken(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {

@@ -12,7 +12,7 @@ const uploadField = upload.single("icon");
 router.get("/", MsmeOfferingsController.getAll);
 router.get("/:id", MsmeOfferingsController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
 router.post("/", uploadField, validateMsmeOfferings, validateMiddleware, MsmeOfferingsController.create);
 router.put("/:id", uploadField, validateMsmeOfferingsUpdate, validateMiddleware, MsmeOfferingsController.update);
 router.delete("/:id", MsmeOfferingsController.delete);

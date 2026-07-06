@@ -7,12 +7,13 @@ const AboutMessageTeamController = require("../../controllers/about/aboutMessage
 const { validateAboutMessageFromTeam, validateAboutMessageFromTeamUpdate } = require("../../utils/validator");
 
 const upload = createUploadMiddleware("about-message-teams");
-const uploadField = upload.single("image")
+const uploadField = upload.single("image");
 
 router.get("/", AboutMessageTeamController.getAll);
 router.get("/:id", AboutMessageTeamController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+
 router.post("/", uploadField, validateAboutMessageFromTeam, validateMiddleware, AboutMessageTeamController.create);
 router.put("/:id", uploadField, validateAboutMessageFromTeamUpdate, validateMiddleware, AboutMessageTeamController.update);
 router.delete("/:id", AboutMessageTeamController.delete);

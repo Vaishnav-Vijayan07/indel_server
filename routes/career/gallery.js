@@ -12,7 +12,7 @@ const uploadField = upload.single("image");
 router.get("/", CareerGalleryController.getAll);
 router.get("/:id", CareerGalleryController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
 router.post("/", uploadField, validateCareerBanners, validateMiddleware, CareerGalleryController.create);
 router.put("/:id", uploadField, validateCareerBannersUpdate, validateMiddleware, CareerGalleryController.update);
 router.delete("/:id", CareerGalleryController.delete);

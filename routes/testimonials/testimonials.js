@@ -16,7 +16,7 @@ const uploadFields = upload.fields([
 router.get("/", TestimonialsController.getAll);
 router.get("/:id", TestimonialsController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
 router.post("/", uploadFields, validateTestimonial, validateMiddleware, TestimonialsController.create);
 router.put("/:id", uploadFields, validateTestimonialUpdate, validateMiddleware, TestimonialsController.update);
 router.delete("/:id", TestimonialsController.delete);

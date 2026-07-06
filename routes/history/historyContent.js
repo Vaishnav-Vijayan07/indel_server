@@ -6,6 +6,12 @@ const HistoryContentController = require("../../controllers/history/historyConte
 const { validateHistoryPageContent, validateHistoryPageContentUpdate } = require("../../utils/validator");
 
 router.get("/", validateHistoryPageContent, HistoryContentController.get);
-router.put("/", authMiddleware(["admin"]), validateHistoryPageContentUpdate, validateMiddleware, HistoryContentController.update);
+router.put(
+  "/",
+  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  validateHistoryPageContentUpdate,
+  validateMiddleware,
+  HistoryContentController.update,
+);
 
 module.exports = router;

@@ -6,6 +6,12 @@ const NewsPageContentController = require("../../controllers/news/newsPageConten
 const { validateBlogPageContentUpdate } = require("../../utils/validator");
 
 router.get("/", NewsPageContentController.get);
-router.put("/", authMiddleware(["admin"]), validateBlogPageContentUpdate, validateMiddleware, NewsPageContentController.update);
+router.put(
+  "/",
+  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  validateBlogPageContentUpdate,
+  validateMiddleware,
+  NewsPageContentController.update,
+);
 
 module.exports = router;

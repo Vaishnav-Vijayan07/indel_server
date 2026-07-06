@@ -8,7 +8,7 @@ const CDLoanFaqsController = require("../../controllers/CD/faqController");
 router.get("/", CDLoanFaqsController.getAll);
 router.get("/:id", CDLoanFaqsController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive"]));
 router.post("/", validateFaq, validateMiddleware, CDLoanFaqsController.create);
 router.put("/:id", validateFaqUpdate, validateMiddleware, CDLoanFaqsController.update);
 router.delete("/:id", CDLoanFaqsController.delete);

@@ -7,12 +7,13 @@ const AboutQuickLinksController = require("../../controllers/about/aboutQuickLin
 const { validateAboutQuickLinks, validateAboutQuickLinksUpdate } = require("../../utils/validator");
 
 const upload = createUploadMiddleware("about-quick-links");
-const uploadField = upload.single("image")
+const uploadField = upload.single("image");
 
 router.get("/", AboutQuickLinksController.getAll);
 router.get("/:id", AboutQuickLinksController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+
 router.post("/", uploadField, validateAboutQuickLinks, validateMiddleware, AboutQuickLinksController.create);
 router.put("/:id", uploadField, validateAboutQuickLinksUpdate, validateMiddleware, AboutQuickLinksController.update);
 router.delete("/:id", AboutQuickLinksController.delete);

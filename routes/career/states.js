@@ -12,7 +12,7 @@ const uploadField = upload.single("image");
 router.get("/", StatesController.getAll);
 router.get("/:id", StatesController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive"]));
 router.post("/", uploadField, validateCareerStates, validateMiddleware, StatesController.create);
 router.put("/:id", uploadField, validateCareerStatesUpdate, validateMiddleware, StatesController.update);
 router.delete("/:id", StatesController.delete);

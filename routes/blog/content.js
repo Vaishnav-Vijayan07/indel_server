@@ -6,6 +6,12 @@ const validateMiddleware = require("../../middlewares/validateMiddleware");
 const BlogPageContentController = require("../../controllers/blog/contentController");
 
 router.get("/", BlogPageContentController.get);
-router.put("/", authMiddleware(["admin"]), validateBlogPageContentUpdate, validateMiddleware, BlogPageContentController.update);
+router.put(
+  "/",
+  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  validateBlogPageContentUpdate,
+  validateMiddleware,
+  BlogPageContentController.update,
+);
 
 module.exports = router;

@@ -6,6 +6,7 @@ const errorMiddleware = require("./middlewares/errorMiddleware");
 const Logger = require("./services/logger");
 const path = require("path");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const { createDemoAdmin } = require("./utils/demoUser");
 const { initHomePageContent } = require("./utils/initHomePageContent");
 const { initMngmntTeamContent } = require("./utils/initMangementTeamContent");
@@ -40,9 +41,35 @@ const session = require("express-session");
 dotenv.config();
 const app = express();
 
-app.set("trust proxy", true);
-app.use(cors({ origin: "*" }));
+app.set("trust proxy", 1);
+
+const ALLOWED_ORIGINS = (
+  process.env.ALLOWED_ORIGINS ||
+  "http://localhost:5173,http://localhost:3001"
+)
+  .split(",")
+  .map((o) => o.trim());
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow same-origin requests (origin is undefined) and whitelisted origins
+      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS: origin '${origin}' not allowed`));
+      }
+    },
+    credentials: true, // Required for cross-origin cookies
+  })
+);
+
+// Parse incoming JSON bodies
 app.use(express.json());
+
+// Parse cookies — required for req.cookies.refreshToken in auth/refresh and auth/logout
+app.use(cookieParser());
+
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 

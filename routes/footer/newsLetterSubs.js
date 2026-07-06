@@ -6,7 +6,7 @@ const NewsLetterSubsController = require("../../controllers/footer/newsLetterSub
 const { validateNewsLetterSubs } = require("../../utils/validator");
 
 router.post("/", validateNewsLetterSubs, validateMiddleware, NewsLetterSubsController.create);
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
 router.get("/", NewsLetterSubsController.getAll);
 router.get("/:id", NewsLetterSubsController.getById);
 

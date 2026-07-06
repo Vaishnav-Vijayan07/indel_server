@@ -6,6 +6,12 @@ const AwardPageContentController = require("../../controllers/awards/awardPageCo
 const { validateAwardPageContentItemUpdate } = require("../../utils/validator");
 
 router.get("/", AwardPageContentController.get);
-router.put("/", authMiddleware(["admin"]), validateAwardPageContentItemUpdate, validateMiddleware, AwardPageContentController.update);
+router.put(
+  "/",
+  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  validateAwardPageContentItemUpdate,
+  validateMiddleware,
+  AwardPageContentController.update,
+);
 
 module.exports = router;

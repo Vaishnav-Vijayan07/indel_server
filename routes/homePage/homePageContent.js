@@ -21,11 +21,11 @@ const uploadFields = upload.fields([
 router.get("/", HomePageContentController.get);
 router.put(
   "/",
-  authMiddleware(["admin"]),
+  authMiddleware(["admin", "hr", "hr-executive", "user"]),
   uploadFields,
   validateHomePageContentUpdate,
   validateMiddleware,
-  HomePageContentController.update
+  HomePageContentController.update,
 );
 
 module.exports = router;

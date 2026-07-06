@@ -2,14 +2,17 @@
 
 const express = require("express");
 const AnnouncementController = require("../../controllers/homePage/announcementController");
+const authMiddleware = require("../../middlewares/authMiddleware");
 
 const router = express.Router();
 
-// Create a new announcement
-router.post("/", AnnouncementController.create);
-
 // Get all announcements (optionally filtered by state_id)
 router.get("/", AnnouncementController.getAll);
+
+router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
+
+// Create a new announcement
+router.post("/", AnnouncementController.create);
 
 // Get a specific announcement by ID
 // router.get("/:id", AnnouncementController.getById);

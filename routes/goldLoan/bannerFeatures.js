@@ -12,7 +12,7 @@ const uploadField = upload.single("icon");
 router.get("/", GoldLoanBannerFeaturesController.getAll);
 router.get("/:id", GoldLoanBannerFeaturesController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
 router.post("/", uploadField, validateHomeSmartDeals, validateMiddleware, GoldLoanBannerFeaturesController.create);
 router.put("/:id", uploadField, validateHomeSmartDealsUpdate, validateMiddleware, GoldLoanBannerFeaturesController.update);
 router.delete("/:id", GoldLoanBannerFeaturesController.delete);

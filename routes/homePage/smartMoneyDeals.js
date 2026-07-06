@@ -12,7 +12,7 @@ const uploadField = upload.single("icon");
 router.get("/", SmartMoneyDealsController.getAll);
 router.get("/:id", SmartMoneyDealsController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
 router.post("/", uploadField, validateHomeSmartDeals, validateMiddleware, SmartMoneyDealsController.create);
 router.put("/:id", uploadField, validateHomeSmartDealsUpdate, validateMiddleware, SmartMoneyDealsController.update);
 router.delete("/:id", SmartMoneyDealsController.delete);

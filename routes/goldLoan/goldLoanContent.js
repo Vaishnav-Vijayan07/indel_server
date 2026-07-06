@@ -15,6 +15,13 @@ const uploadFields = upload.fields([
 ]);
 
 router.get("/", GoldLoanContentController.get);
-router.put("/", authMiddleware(["admin"]), uploadFields, validateGoldLoanContentUpdate, validateMiddleware, GoldLoanContentController.update);
+router.put(
+  "/",
+  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  uploadFields,
+  validateGoldLoanContentUpdate,
+  validateMiddleware,
+  GoldLoanContentController.update,
+);
 
 module.exports = router;

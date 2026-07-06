@@ -4,14 +4,62 @@ const { models } = require("../models/index");
 const { Op } = require("sequelize");
 const CustomError = require("../utils/customError");
 const { sendPasswordResetEmail } = require("../services/emailService");
+const { generateAccessToken, generateRefreshToken, hashToken } = require("../utils/tokenService");
+const { formatDateTime, formatDuration } = require("../utils/logFormat");
 
 const User = models.User;
 const Otp = models.Otp;
+const RefreshToken = models.RefreshToken;
+
+const REFRESH_TOKEN_EXPIRY_MS = Number(process.env.REFRESH_TOKEN_EXPIRY_MS) || 30 * 24 * 60 * 60 * 1000;
+
+const REFRESH_COOKIE_NAME = "refreshToken";
+const REFRESH_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: true,
+  sameSite: "none",
+  maxAge: REFRESH_TOKEN_EXPIRY_MS, // 30 days in ms
+};
+
+// Helper to clear the refresh cookie with matching options
+const clearRefreshCookie = (res) => {
+  res.clearCookie(REFRESH_COOKIE_NAME, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
+};
+
+// Helper: create a new RefreshToken DB row and return the raw token
+const issueRefreshToken = async (userId, req) => {
+  const rawToken = generateRefreshToken();
+  const tokenHash = hashToken(rawToken);
+
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + REFRESH_TOKEN_EXPIRY_MS);
+
+  await RefreshToken.create({
+    userId,
+    tokenHash,
+    expiresAt,
+    userAgent: req.headers["user-agent"] || null,
+    ip: req.ip || null,
+  });
+
+  console.log(
+    `[AUTH] Issued refresh token for user ${userId} at ${formatDateTime(now)} — valid for ${formatDuration(REFRESH_TOKEN_EXPIRY_MS)}, expires ${formatDateTime(expiresAt)}.`,
+  );
+
+  return rawToken;
+};
 
 class AuthController {
   static async register(req, res, next) {
     try {
-      const { username, email, password, firstName, lastName, phone, role } = req.body;
+      const { username, email, password, firstName, lastName, phone } = req.body;
+      // SECURITY: role is ALWAYS forced to "user" on self-registration.
+      // Privileged account creation (admin/hr/manager) must go through a
+      // separate, authMiddleware()-gated, role-checked endpoint.
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const user = await User.create({
@@ -21,8 +69,8 @@ class AuthController {
         firstName,
         lastName,
         phone,
-        role: role || "user",
-        isActive: true, // Default value, can be omitted since schema sets it
+        role: "user",
+        isActive: true,
       });
 
       res.status(201).json({
@@ -85,21 +133,153 @@ class AuthController {
         throw new CustomError("Invalid credentials", 401);
       }
 
-      const token = jwt.sign(
-        {
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          role: user.role,
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: "7d" },
-      );
+      // Issue short-lived access token (15 min)
+      const token = generateAccessToken(user);
+
+      // Issue rotated refresh token — stored hashed in DB, raw in httpOnly cookie
+      const rawRefreshToken = await issueRefreshToken(user.id, req);
+      res.cookie(REFRESH_COOKIE_NAME, rawRefreshToken, REFRESH_COOKIE_OPTIONS);
 
       const userWithoutPassword = { ...user.toJSON() };
       delete userWithoutPassword.password;
 
+      // Response shape is unchanged: { success, data: { token, user } }
+      // Frontend reads response.data.data.token — preserved as-is.
       res.json({ success: true, data: { token, user: userWithoutPassword } });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async refresh(req, res, next) {
+    try {
+      const rawToken = req.cookies?.[REFRESH_COOKIE_NAME];
+
+      if (!rawToken) {
+        throw new CustomError("Refresh token missing", 401);
+      }
+
+      const incomingHash = hashToken(rawToken);
+
+      // Look up the token row (regardless of revocation status — we need to
+      // detect replayed rotated-out tokens for theft detection)
+      const tokenRow = await RefreshToken.findOne({
+        where: { tokenHash: incomingHash },
+      });
+
+      if (!tokenRow) {
+        // Unknown token — could be forged or from a previous DB wipe
+        clearRefreshCookie(res);
+        throw new CustomError("Invalid refresh token", 401);
+      }
+
+      // ── Theft detection ─────────────────────────────────────────────────────
+      // If the token has already been revoked it means a previously rotated-out
+      // token is being replayed.  Revoke ALL active tokens for this user and
+      // treat it as a possible session hijack.
+      if (tokenRow.revokedAt !== null) {
+        console.warn(
+          `[AUTH ALARM] Possible token theft for user ${tokenRow.userId} at ${formatDateTime(new Date())} — a previously rotated-out refresh token was replayed (originally revoked ${formatDateTime(tokenRow.revokedAt)}). Revoking all active sessions for this user.`,
+        );
+        await RefreshToken.update(
+          { revokedAt: new Date() },
+          {
+            where: {
+              userId: tokenRow.userId,
+              revokedAt: null,
+            },
+          },
+        );
+        clearRefreshCookie(res);
+        throw new CustomError("Refresh token already used — possible token theft detected", 401);
+      }
+
+      // ── Expiry check ────────────────────────────────────────────────────────
+      if (new Date() > tokenRow.expiresAt) {
+        console.log(
+          `[AUTH] Refresh token expired for user ${tokenRow.userId} — expired at ${formatDateTime(tokenRow.expiresAt)} (${formatDuration(new Date() - tokenRow.expiresAt)} ago). Revoking.`,
+        );
+        await tokenRow.update({ revokedAt: new Date() });
+        clearRefreshCookie(res);
+        throw new CustomError("Refresh token expired", 401);
+      }
+
+      // ── Token is valid — rotate ──────────────────────────────────────────────
+      const user = await User.findOne({
+        where: { id: tokenRow.userId },
+        attributes: ["id", "username", "email", "role", "isActive"],
+      });
+
+      if (!user || !user.isActive) {
+        clearRefreshCookie(res);
+        throw new CustomError("User not found or deactivated", 401);
+      }
+
+      // Issue new refresh token
+      const newRawToken = generateRefreshToken();
+      const newTokenHash = hashToken(newRawToken);
+      const now = new Date();
+      const nextExpiry = new Date(now.getTime() + REFRESH_TOKEN_EXPIRY_MS);
+
+      // Revoke old token, record what replaced it
+      await tokenRow.update({
+        revokedAt: now,
+        replacedByTokenHash: newTokenHash,
+      });
+
+      // Persist new token row
+      await RefreshToken.create({
+        userId: user.id,
+        tokenHash: newTokenHash,
+        expiresAt: nextExpiry,
+        userAgent: req.headers["user-agent"] || null,
+        ip: req.ip || null,
+      });
+
+      console.log(
+        `[AUTH] Refresh token rotated for user ${user.id} at ${formatDateTime(now)} — old token revoked, new token expires ${formatDateTime(nextExpiry)} (${formatDuration(REFRESH_TOKEN_EXPIRY_MS)} from now).`,
+      );
+
+      // Set new cookie
+      res.cookie(REFRESH_COOKIE_NAME, newRawToken, REFRESH_COOKIE_OPTIONS);
+
+      // Issue new access token
+      const token = generateAccessToken(user);
+
+      res.json({ success: true, data: { token } });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async logout(req, res, next) {
+    try {
+      // This route must NOT be behind authMiddleware() — the whole point of
+      // logout is that it should work even when the access token has expired.
+      // We identify the session solely via the refresh cookie.
+      const rawToken = req.cookies?.[REFRESH_COOKIE_NAME];
+
+      if (rawToken) {
+        const tokenHash = hashToken(rawToken);
+        const now = new Date();
+        // Revoke the matching row if it exists and is still active
+        const [updatedCount] = await RefreshToken.update(
+          { revokedAt: now },
+          {
+            where: {
+              tokenHash,
+              revokedAt: null,
+            },
+          },
+        );
+
+        if (updatedCount > 0) {
+          console.log(`[AUTH] Refresh token revoked via logout at ${formatDateTime(now)}.`);
+        }
+      }
+
+      clearRefreshCookie(res);
+      res.json({ success: true, message: "Logged out" });
     } catch (error) {
       next(error);
     }

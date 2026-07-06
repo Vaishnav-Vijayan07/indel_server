@@ -15,6 +15,13 @@ const uploadFields = upload.fields([
 ]);
 
 router.get("/", LAPContentController.get);
-router.put("/", authMiddleware(["admin"]), uploadFields, validateCdLoanContentUpdate, validateMiddleware, LAPContentController.update);
+router.put(
+  "/",
+  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  uploadFields,
+  validateCdLoanContentUpdate,
+  validateMiddleware,
+  LAPContentController.update,
+);
 
 module.exports = router;

@@ -8,7 +8,7 @@ const GoldCaratTypesController = require("../../controllers/serviceEnquiries/gol
 router.get("/", GoldCaratTypesController.getAll);
 router.get("/:id", GoldCaratTypesController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
 router.post("/", validateGoldCaratType, validateMiddleware, GoldCaratTypesController.create);
 router.put("/:id", validateGoldCaratTypeUpdate, validateMiddleware, GoldCaratTypesController.update);
 router.delete("/:id", GoldCaratTypesController.delete);

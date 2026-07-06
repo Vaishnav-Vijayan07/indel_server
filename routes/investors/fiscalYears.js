@@ -9,7 +9,7 @@ router.get("/get-fiscal-year", FiscalYearsController.getAll);
 router.get("/", FiscalYearsController.getActiveAll);
 router.get("/:id", FiscalYearsController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
 router.post("/", validateFiscalYear, validateMiddleware, FiscalYearsController.create);
 router.put("/:id", validateFiscalYearUpdate, validateMiddleware, FiscalYearsController.update);
 router.delete("/:id", FiscalYearsController.delete);

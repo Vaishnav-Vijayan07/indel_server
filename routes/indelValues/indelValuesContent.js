@@ -11,6 +11,13 @@ const upload = createUploadMiddleware("indel-value-content");
 const uploadFields = upload.single("banner_image");
 
 router.get("/", IndelValueContentController.get);
-router.put("/", authMiddleware(["admin"]), uploadFields, updateValidation, validateMiddleware, IndelValueContentController.update);
+router.put(
+  "/",
+  authMiddleware(["admin", "hr", "hr-executive", "user"]),
+  uploadFields,
+  updateValidation,
+  validateMiddleware,
+  IndelValueContentController.update,
+);
 
 module.exports = router;

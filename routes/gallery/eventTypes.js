@@ -12,7 +12,7 @@ const uploadFields = upload.single("cover_image");
 router.get("/", EventTypesController.getAll);
 router.get("/:id", EventTypesController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "user"]));
 router.post("/", uploadFields, validateEventType, validateMiddleware, EventTypesController.create);
 router.put("/:id", uploadFields, validateEventTypeUpdate, validateMiddleware, EventTypesController.update);
 router.delete("/:id", EventTypesController.delete);

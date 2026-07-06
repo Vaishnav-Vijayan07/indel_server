@@ -8,10 +8,10 @@ const { validateBranchLocatorPageContents } = require("../../utils/validator");
 router.get("/", BranchLocatorPageContentsController.get);
 router.put(
   "/",
-  authMiddleware(["admin"]),
+  authMiddleware(["admin", "hr", "hr-executive", "user"]),
   validateBranchLocatorPageContents,
   validateMiddleware,
-  BranchLocatorPageContentsController.update
+  BranchLocatorPageContentsController.update,
 );
 
 module.exports = router;
