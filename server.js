@@ -43,25 +43,28 @@ const app = express();
 
 app.set("trust proxy", 1);
 
-const ALLOWED_ORIGINS = (
-  process.env.ALLOWED_ORIGINS ||
-  "http://localhost:5173,http://localhost:3001"
-)
-  .split(",")
-  .map((o) => o.trim());
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "http://localhost:5173,http://localhost:3001").split(",").map((o) => o.trim());
+
+function normalizeOrigin(origin) {
+  return origin.replace(/^https?:\/\/www\./, "https://");
+}
+
+const normalizedAllowedOrigins = ALLOWED_ORIGINS.map(normalizeOrigin);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow same-origin requests (origin is undefined) and whitelisted origins
-      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error(`CORS: origin '${origin}' not allowed`));
+      if (!origin) return callback(null, true); // same-origin / server-to-server
+
+      if (normalizedAllowedOrigins.includes(normalizeOrigin(origin))) {
+        return callback(null, true);
       }
+
+      Logger.warn(`CORS rejected origin: ${origin}`); // ← see point 4
+      callback(new Error(`CORS: origin '${origin}' not allowed`));
     },
-    credentials: true, // Required for cross-origin cookies
-  })
+    credentials: true,
+  }),
 );
 
 // Parse incoming JSON bodies
@@ -69,7 +72,6 @@ app.use(express.json());
 
 // Parse cookies — required for req.cookies.refreshToken in auth/refresh and auth/logout
 app.use(cookieParser());
-
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
