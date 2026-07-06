@@ -58,7 +58,7 @@ cron.schedule(
           html: `
           <p>Dear ${applicant.name || "Applicant"},</p>
           <p>Your resume uploaded on ${applicant.file_uploaded_at.toDateString()} has expired. Please upload a new resume for future applications.</p>
-          <p>Best regards,<br>Your Company</p>
+          <p>Best regards,<br>Indel Money</p>
         `,
         });
 

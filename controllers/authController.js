@@ -303,6 +303,10 @@ class AuthController {
         throw new CustomError("No account found with this email address", 404);
       }
 
+      if (user.role !== "admin") {
+        throw new CustomError("Password reset for accounts must be requested through your system administrator", 403);
+      }
+
       // Generate 6-digit OTP
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
 

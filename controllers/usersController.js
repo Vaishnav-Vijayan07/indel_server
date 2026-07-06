@@ -4,11 +4,45 @@ const Logger = require("../services/logger");
 const CacheService = require("../services/cacheService"); // optional
 const User = models.User;
 const bcrypt = require("bcrypt");
+const logger = require("../services/logger");
+const nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+  host: "smtp.office365.com", // your actual mail server
+  port: 587, // try 587 for TLS, or 465 for SSL
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER, // e.g. careers@indelmoney.co.in
+    pass: process.env.EMAIL_PASS, // your actual password
+  },
+  tls: {
+    ciphers: "SSLv3", // as per client team (but STARTTLS handles most cases)
+  },
+});
+
+async function sendEmailChangeNotification(oldEmail, newEmail, firstName) {
+  if (!oldEmail) return; // nothing to notify if there was no prior email on record
+
+  await transporter.sendMail({
+    from: `"Indel Money" <${process.env.EMAIL_USER}>`,
+    to: oldEmail,
+    subject: "Your account email address has changed",
+    html: `
+      <p>Hi ${firstName || "there"},</p>
+      <p>Your account email was changed from <b>${oldEmail}</b> to <b>${newEmail}</b>.</p>
+      <p>If you did not request this change, please contact support immediately.</p>
+    `,
+  });
+}
 
 class UsersController {
   static async create(req, res, next) {
     try {
       const { username, password, email, firstName, lastName, phone, isActive, role } = req.body;
+
+      if (role == "admin" && req.user.role !== "admin") {
+        throw new CustomError("Forbidden: Only admins can create admin accounts", 403);
+      }
 
       if (!username || !password) {
         return res.status(400).json({ success: false, message: "Username and password are required." });
@@ -26,6 +60,13 @@ class UsersController {
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
+
+      if (role == "admin") {
+        const isAdmin = await User.findOne({ where: { role: "admin" } });
+        if (isAdmin) {
+          throw new CustomError("Admin account already exists", 400);
+        }
+      }
 
       const user = await User.create({
         username,
@@ -122,13 +163,36 @@ class UsersController {
         updateData.password = await bcrypt.hash(req.body.password, 10);
       }
 
+      // ── Email change detection ────────────────────────────────────────────
+      const oldEmail = targetUser.email;
+      const emailChanged = updateData.email && updateData.email !== oldEmail;
+
+      if (emailChanged) {
+        // Prevent taking over an email already claimed by another account
+        const existing = await User.findOne({ where: { email: updateData.email } });
+        if (existing) {
+          throw new CustomError("Email already in use", 400);
+        }
+      }
+
       await targetUser.update(updateData);
       await CacheService.invalidate?.("Users_all");
       await CacheService.invalidate?.(`User_${id}`);
 
+      // ── Notify both old and new addresses, fire-and-forget ────────────────
+      // Don't let email delivery issues break the actual update response.
+      if (emailChanged) {
+        sendEmailChangeNotification(oldEmail, updateData.email, targetUser.firstName).catch((err) =>
+          logger.error(`Failed to send email-change notification for user ${id}: ${err.message}`),
+        );
+      }
+
       const { password, ...safeUser } = targetUser.toJSON();
       res.json({ success: true, data: safeUser, message: "User updated successfully" });
     } catch (error) {
+      if (error.name === "SequelizeUniqueConstraintError" && error.original?.constraint === "unique_admin_role") {
+        return res.status(400).json({ success: false, message: "An admin account already exists." });
+      }
       next(error);
     }
   }
