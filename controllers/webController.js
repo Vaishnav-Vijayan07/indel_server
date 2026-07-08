@@ -1640,7 +1640,18 @@ class WebController {
         models.EventTypes.findAll({
           where: eventTypeWhere,
           attributes: ["id", "title", "description", "slug", "cover_image", "image_alt"],
+          include: [
+            {
+              model: models.EventGallery,
+              as: "galleryItems",
+              attributes: [],
+              where: galleryWhere,
+              required: true, // Only include event types that have at least one matching gallery item
+            },
+          ],
           order: [["order", "ASC"]],
+          subQuery: false,
+          group: ["EventTypes.id"],
         }),
         models.EventTypes.findAndCountAll({
           where: eventTypeWhere,
@@ -1651,15 +1662,18 @@ class WebController {
               as: "galleryItems",
               where: galleryWhere,
               attributes: ["id", "image", "video", "is_video", "order", "image_alt", "video_thumbnail", "thumbnail_alt", "createdAt"],
-              required: type !== "all", // Use inner join for specific types
+              required: true, // Always inner join so event types with no matching gallery items are excluded, keeping totalCount/totalPages in sync with the returned galleryItems
               order: [["order", "ASC"]],
             },
           ],
           limit: limitNum,
           offset: offset,
-          distinct: true, // Important for correct count with joins
+          distinct: true,
         }),
       ]);
+
+      console.log("ROWSSS", eventMedias?.rows?.length);
+      console.log("ROWSSS", eventMedias?.count);
 
       const galleryItems = eventMedias?.rows
         .map((eventType) => {
@@ -1688,6 +1702,9 @@ class WebController {
         };
       });
 
+      console.log("ROWSSS", galleryItems.length);
+      console.log("ROWSSS", mainSliderItems.length);
+
       const data = {
         galleryPageContent: contents[0] || null,
         galleryItems,
@@ -1695,7 +1712,7 @@ class WebController {
         pagination: {
           totalCount: eventMedias.count,
           totalPages: Math.ceil(eventMedias.count / limitNum),
-          currentPage: page,
+          currentPage: pageNum,
           limit: limitNum,
         },
       };
