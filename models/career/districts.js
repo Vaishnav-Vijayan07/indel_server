@@ -31,6 +31,7 @@ module.exports = (sequelize) => {
             order: {
                 type: DataTypes.INTEGER,
                 allowNull: true,
+                default: 0
             },
         },
         {
