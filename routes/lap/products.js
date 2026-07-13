@@ -11,7 +11,7 @@ const uploadField = upload.single("icon");
 
 router.get("/", LapProductsController.getAll);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateCdLoanProducts, validateMiddleware, LapProductsController.create);
 router.put("/:id", uploadField, validateCdLoanProductsUpdate, validateMiddleware, LapProductsController.update);
 router.delete("/:id", LapProductsController.delete);

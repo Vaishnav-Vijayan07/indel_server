@@ -4,7 +4,7 @@ const WebController = require("../controllers/webController");
 const JobApplicationsController = require("../controllers/resumeController");
 const createUploadMiddleware = require("../middlewares/multerMiddleware");
 const InvestorsController = require("../controllers/investorsController");
-const { validateJobApplicationSubmission } = require("../utils/validator");
+const { validateJobApplicationSubmission, validateGeneralApplicationSubmission } = require("../utils/validator");
 const JobApplicationSubmissionController = require("../controllers/career/jobApplicationController");
 const MetaDataController = require("../controllers/meta/metaDataController");
 const GoldRateController = require("../controllers/general/goldRateController");
@@ -31,7 +31,7 @@ router.get("/csr", WebController.CsrData);
 router.get("/csr/:slug", WebController.csrDetails);
 router.get("/news", WebController.allNews);
 router.get("/news-latest", WebController.newsDataLatest);
-router.get("/news/:id", WebController.newsDetails);
+router.get("/news/:slug", WebController.newsDetails);
 router.get("/indel-values", WebController.IndelValuesData);
 router.get("/shades-of-indel", WebController.ShadesOfIndel);
 router.get("/our-services", WebController.OurServices);
@@ -50,6 +50,8 @@ router.get("/investors/contact", InvestorsController.contact);
 router.get("/investors/policies", InvestorsController.policies);
 router.get("/investors/stock-exchange", InvestorsController.stockExchangeData);
 router.get("/investors/fiscal_years", InvestorsController.fiscalyears);
+router.get("/investors/policy_categories", InvestorsController.policyCategories);
+
 router.get("/investors/corporate-governance", InvestorsController.CorporateGovernence);
 router.get("/investors/ncd-reports", InvestorsController.ncdReports);
 router.get("/investors/quarterly-reports", InvestorsController.quarterlyReports);
@@ -67,16 +69,12 @@ router.get("/partner-data", WebController.partnersData);
 router.get("/directors", WebController.directors);
 router.get("/policies", WebController.policy);
 router.get("/branch-locator", WebController.branchLocator);
+router.get("/ncd-forms", WebController.getNcdPageData);
 
 router.post("/career/resume", uploadField, JobApplicationsController.create);
 router.get("/career/resume", uploadField, JobApplicationsController.getAll);
 
-router.post(
-  "/careers/job_application",
-  validateJobApplicationSubmission,
-  uploadApplicantFile,
-  JobApplicationSubmissionController.submitApplication
-);
+router.post("/careers/job_application", validateJobApplicationSubmission, uploadApplicantFile, JobApplicationSubmissionController.submitApplication);
 
 router.get("/careers/job_applications", JobApplicationSubmissionController.listApplications);
 router.get("/careers/export_job_applications", JobApplicationSubmissionController.exportApplicationsToExcel);
@@ -84,9 +82,9 @@ router.get("/careers/export_general_applications", JobApplicationSubmissionContr
 
 router.post(
   "/careers/general_application",
-  validateJobApplicationSubmission,
+  validateGeneralApplicationSubmission,
   uploadApplicantFile,
-  JobApplicationSubmissionController.submitGeneralApplication
+  JobApplicationSubmissionController.submitGeneralApplication,
 );
 
 router.get("/careers/general_applications", JobApplicationSubmissionController.listGeneralApplications);

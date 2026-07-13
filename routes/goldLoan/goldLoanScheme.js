@@ -8,7 +8,7 @@ const { validateGoldLoanScheme, validateGoldLoanSchemeUpdate } = require("../../
 router.get("/", GoldLoanSchemeController.getAll);
 router.get("/:id", GoldLoanSchemeController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", validateGoldLoanScheme, validateMiddleware, GoldLoanSchemeController.create);
 router.put("/:id", validateGoldLoanSchemeUpdate, validateMiddleware, GoldLoanSchemeController.update);
 router.delete("/:id", GoldLoanSchemeController.delete);

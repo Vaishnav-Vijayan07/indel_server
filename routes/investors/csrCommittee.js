@@ -8,7 +8,7 @@ const { validateCsrCommittee, validateCsrCommitteeUpdate } = require("../../util
 router.get("/", CsrCommitteeController.getAll);
 router.get("/:id", CsrCommitteeController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", validateCsrCommittee, validateMiddleware, CsrCommitteeController.create);
 router.put("/:id", validateCsrCommitteeUpdate, validateMiddleware, CsrCommitteeController.update);
 router.delete("/:id", CsrCommitteeController.delete);

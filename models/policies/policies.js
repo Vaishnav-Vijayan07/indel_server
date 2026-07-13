@@ -21,6 +21,7 @@ module.exports = (sequelize) => {
           "fair-practices-code",
           "gold-loan-terms-and-conditions",
           "kyc-policy",
+          "methodology-and-valuation-of-gold-collateral",
         ),
         allowNull: true,
       },
@@ -42,6 +43,7 @@ module.exports = (sequelize) => {
       timestamps: true,
     }
   );
+  
 
   return MasterPolicies;
 };

@@ -53,6 +53,7 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+
       disclosure_file: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -81,11 +82,23 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      csr_policy_doc_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       csr_policy_doc: {
         type: DataTypes.STRING,
         allowNull: true,
       },
       ncd_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      ncd_button_text: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      ncd_button_link: {
         type: DataTypes.STRING,
         allowNull: true,
       },

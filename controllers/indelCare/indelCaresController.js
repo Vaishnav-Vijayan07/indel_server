@@ -78,9 +78,7 @@ class IndelCaresController {
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
 
-      const indelCares = await IndelCares.findAll({
-        order: [["order", "ASC"]],
-      });
+      const indelCares = await IndelCares.findAll();
 
       await CacheService.set(cacheKey, JSON.stringify(indelCares), 3600);
       res.json({ success: true, data: indelCares });
@@ -122,7 +120,7 @@ class IndelCaresController {
       const updateData = { ...req.body };
       let oldImage = indelCare.image;
 
-      if (updateData.title && !updateData.slug) {
+      if (!updateData.slug) {
         updateData.slug = await IndelCaresController.generateUniqueSlug(updateData.title, id);
         Logger.info(`Generated slug for updated IndelCares ID ${id}: ${updateData.slug}`);
       }

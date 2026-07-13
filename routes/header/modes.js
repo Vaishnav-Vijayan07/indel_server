@@ -8,7 +8,7 @@ const PaymentModesController = require("../../controllers/header/paymentModesCon
 router.get("/", PaymentModesController.getAll);
 router.get("/:id", PaymentModesController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", validatePaymentModes, validateMiddleware, PaymentModesController.create);
 router.put("/:id", validatePaymentModesUpdate, validateMiddleware, PaymentModesController.update);
 router.delete("/:id", PaymentModesController.delete);

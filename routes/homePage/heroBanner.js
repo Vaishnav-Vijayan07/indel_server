@@ -10,12 +10,14 @@ const upload = createUploadMiddleware("banner");
 const uploadField = upload.fields([
   { name: "image", maxCount: 1 },
   { name: "image_mobile", maxCount: 1 },
+  { name: "video", maxCount: 1 },
+  { name: "video_mobile", maxCount: 1 },
 ]);
 
 router.get("/", HeroBannerController.getAll);
 router.get("/:id", HeroBannerController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateHeroBanner, validateMiddleware, HeroBannerController.create);
 router.put("/:id", uploadField, validateHeroBannerUpdate, validateMiddleware, HeroBannerController.update);
 router.delete("/:id", HeroBannerController.delete);

@@ -12,7 +12,7 @@ const uploadField = upload.single("image");
 router.get("/", LoanTypesController.getAll);
 router.get("/:id", LoanTypesController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateLoanTypes, validateMiddleware, LoanTypesController.create);
 router.put("/:id", uploadField, validateLoanTypesUpdate, validateMiddleware, LoanTypesController.update);
 router.delete("/:id", LoanTypesController.delete);

@@ -7,12 +7,12 @@ const { validateManagementTeam, validateManagementTeamUpdate } = require("../../
 const DirectorsController = require("../../controllers/directors/directorsController");
 
 const upload = createUploadMiddleware("directors");
-const uploadField = upload.single("image")
+const uploadField = upload.single("image");
 
 router.get("/", DirectorsController.getAll);
 router.get("/:id", DirectorsController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateManagementTeam, validateMiddleware, DirectorsController.create);
 router.put("/:id", uploadField, validateManagementTeamUpdate, validateMiddleware, DirectorsController.update);
 router.delete("/:id", DirectorsController.delete);

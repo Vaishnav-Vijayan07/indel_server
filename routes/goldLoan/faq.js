@@ -8,7 +8,7 @@ const GoldLoanFaqsController = require("../../controllers/goldloan/faqController
 router.get("/", GoldLoanFaqsController.getAll);
 router.get("/:id", GoldLoanFaqsController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", validateFaq, validateMiddleware, GoldLoanFaqsController.create);
 router.put("/:id", validateFaqUpdate, validateMiddleware, GoldLoanFaqsController.update);
 router.delete("/:id", GoldLoanFaqsController.delete);

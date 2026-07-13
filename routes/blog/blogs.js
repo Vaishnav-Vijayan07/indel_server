@@ -9,13 +9,15 @@ const BlogsController = require("../../controllers/blog/blogsController");
 const upload = createUploadMiddleware("blogs");
 const uploadFields = upload.fields([
   { name: "image", maxCount: 1 },
+  { name: "author_image", maxCount: 1 },
   { name: "second_image", maxCount: 1 },
 ]);
 
 router.get("/", BlogsController.getAll);
 router.get("/:slug", BlogsController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
+
 router.post("/", uploadFields, validateBlogs, validateMiddleware, BlogsController.create);
 router.put("/:id", uploadFields, validateBlogsUpdate, validateMiddleware, BlogsController.update);
 router.delete("/:id", BlogsController.delete);

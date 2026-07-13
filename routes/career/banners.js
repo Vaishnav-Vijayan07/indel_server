@@ -15,7 +15,8 @@ const uploadField = upload.fields([
 router.get("/", CareerBannersController.getAll);
 router.get("/:id", CareerBannersController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
+
 router.post("/", uploadField, validateCareerBanners, validateMiddleware, CareerBannersController.create);
 router.put("/:id", uploadField, validateCareerBannersUpdate, validateMiddleware, CareerBannersController.update);
 router.delete("/:id", CareerBannersController.delete);

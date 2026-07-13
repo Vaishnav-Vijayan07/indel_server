@@ -12,7 +12,7 @@ const uploadField = upload.single("icon");
 router.get("/", CdLoanProductsController.getAll);
 router.get("/:id", CdLoanProductsController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateCdLoanProducts, validateMiddleware, CdLoanProductsController.create);
 router.put("/:id", uploadField, validateCdLoanProductsUpdate, validateMiddleware, CdLoanProductsController.update);
 router.delete("/:id", CdLoanProductsController.delete);

@@ -12,7 +12,7 @@ const uploadField = upload.single("file");
 router.get("/", CreditRatingsController.getAll);
 router.get("/:id", CreditRatingsController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateCreditRatings, validateMiddleware, CreditRatingsController.create);
 router.put("/:id", uploadField, validateCreditRatingsUpdate, validateMiddleware, CreditRatingsController.update);
 router.delete("/:id", CreditRatingsController.delete);

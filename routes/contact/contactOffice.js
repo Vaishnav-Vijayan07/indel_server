@@ -8,7 +8,7 @@ const { validateContactOffices, validateContactOfficesUpdate } = require("../../
 router.get("/", ContactOfficeController.getAll);
 router.get("/:id", ContactOfficeController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"])); // Protect routes for admin, hr, hr-executive, and manager roles
 router.post("/", validateContactOffices, validateMiddleware, ContactOfficeController.create);
 router.put("/:id", validateContactOfficesUpdate, validateMiddleware, ContactOfficeController.update);
 router.delete("/:id", ContactOfficeController.delete);

@@ -8,7 +8,8 @@ const GoldTypesController = require("../../controllers/serviceEnquiries/goldType
 router.get("/", GoldTypesController.getAll);
 router.get("/:id", GoldTypesController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
+
 router.post("/", validateGoldType, validateMiddleware, GoldTypesController.create);
 router.put("/:id", validateGoldTypeUpdate, validateMiddleware, GoldTypesController.update);
 router.delete("/:id", GoldTypesController.delete);

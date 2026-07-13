@@ -4,27 +4,71 @@ const Logger = require("../services/logger");
 const CacheService = require("../services/cacheService"); // optional
 const User = models.User;
 const bcrypt = require("bcrypt");
+const logger = require("../services/logger");
+const nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+  host: "smtp.office365.com", // your actual mail server
+  port: 587, // try 587 for TLS, or 465 for SSL
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER, // e.g. careers@indelmoney.co.in
+    pass: process.env.EMAIL_PASS, // your actual password
+  },
+  tls: {
+    ciphers: "SSLv3", // as per client team (but STARTTLS handles most cases)
+  },
+});
+
+async function sendEmailChangeNotification(oldEmail, newEmail, firstName) {
+  if (!oldEmail) return; // nothing to notify if there was no prior email on record
+
+  await transporter.sendMail({
+    from: `"Indel Money" <${process.env.EMAIL_USER}>`,
+    to: oldEmail,
+    subject: "Your account email address has changed",
+    html: `
+      <p>Hi ${firstName || "there"},</p>
+      <p>Your account email was changed from <b>${oldEmail}</b> to <b>${newEmail}</b>.</p>
+      <p>If you did not request this change, please contact support immediately.</p>
+    `,
+  });
+}
 
 class UsersController {
   static async create(req, res, next) {
     try {
       const { username, password, email, firstName, lastName, phone, isActive, role } = req.body;
 
-      // Manual validation
+      if (role == "admin" && req.user.role !== "admin") {
+        throw new CustomError("Forbidden: Only admins can create admin accounts", 403);
+      }
+
       if (!username || !password) {
         return res.status(400).json({ success: false, message: "Username and password are required." });
       }
       if (role && !["admin", "user", "hr", "manager", "hr_assistant"].includes(role)) {
         return res.status(400).json({ success: false, message: "Invalid role." });
       }
-      // Optional: Validate email format
       if (email && !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
         return res.status(400).json({ success: false, message: "Invalid email format." });
       }
-      // Hash password
+
+      // Manager cannot create an admin account
+      if (req.user.role === "manager" && role === "admin") {
+        throw new CustomError("Forbidden: managers cannot create admin accounts", 403);
+      }
+
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      const userData = {
+      if (role == "admin") {
+        const isAdmin = await User.findOne({ where: { role: "admin" } });
+        if (isAdmin) {
+          throw new CustomError("Admin account already exists", 400);
+        }
+      }
+
+      const user = await User.create({
         username,
         password: hashedPassword,
         email,
@@ -33,42 +77,23 @@ class UsersController {
         phone,
         isActive,
         role,
-      };
+      });
 
-      const user = await User.create(userData);
-      // Invalidate cache if needed
       await CacheService.invalidate?.("Users_all");
       Logger.info(`User created: ${user.username}`);
-      res.status(201).json({ success: true, data: user, message: "User created successfully" });
+
+      const { password: _pw, ...safeUser } = user.toJSON();
+      res.status(201).json({ success: true, data: safeUser, message: "User created successfully" });
     } catch (error) {
-      // Handle unique constraint errors gracefully
       if (error.name === "SequelizeUniqueConstraintError") {
         return res.status(400).json({ success: false, message: "Username or email already exists." });
       }
-      // Handle validation errors
       if (error.name === "SequelizeValidationError") {
         return res.status(400).json({ success: false, message: error.errors[0].message });
       }
       next(error);
     }
   }
-
-  // Get all users
-  // static async getAll(req, res, next) {
-  //   try {
-  //     // Optional: implement caching
-  //     const cacheKey = "Users_all";
-  //     const cachedData = await CacheService.get?.(cacheKey);
-  //     if (cachedData) {
-  //       return res.json({ success: true, data: JSON.parse(cachedData) });
-  //     }
-  //     const users = await User.findAll({ order: [["id", "ASC"]] });
-  //     await CacheService.set?.(cacheKey, JSON.stringify(users), 3600);
-  //     res.json({ success: true, data: users });
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // }
 
   static async getAll(req, res, next) {
     try {
@@ -77,22 +102,18 @@ class UsersController {
       if (cachedData) {
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
-      const users = await User.findAll({ order: [["id", "ASC"]] });
-
-      // Set password to null
-      const usersWithoutPassword = users.map((user) => {
-        const obj = typeof user.toJSON === "function" ? user.toJSON() : user;
-        return { ...obj, password: null };
+      const users = await User.findAll({
+        order: [["id", "ASC"]],
+        attributes: { exclude: ["password"] },
       });
 
-      await CacheService.set?.(cacheKey, JSON.stringify(usersWithoutPassword), 3600);
-      res.json({ success: true, data: usersWithoutPassword });
+      await CacheService.set?.(cacheKey, JSON.stringify(users), 3600);
+      res.json({ success: true, data: users });
     } catch (error) {
       next(error);
     }
   }
 
-  // Get user by ID
   static async getById(req, res, next) {
     try {
       const { id } = req.params;
@@ -101,7 +122,7 @@ class UsersController {
       if (cachedData) {
         return res.json({ success: true, data: JSON.parse(cachedData) });
       }
-      const user = await User.findByPk(id);
+      const user = await User.findByPk(id, { attributes: { exclude: ["password"] } });
       if (!user) throw new CustomError("User not found", 404);
       await CacheService.set?.(cacheKey, JSON.stringify(user), 3600);
       res.json({ success: true, data: user });
@@ -110,53 +131,83 @@ class UsersController {
     }
   }
 
-  // Update user by ID
-  // static async update(req, res, next) {
-  //   try {
-  //     const { id } = req.params;
-  //     const user = await User.findByPk(id);
-  //     if (!user) throw new CustomError("User not found", 404);
-  //     await user.update(req.body);
-  //     await CacheService.invalidate?.("Users_all");
-  //     await CacheService.invalidate?.(`User_${id}`);
-  //     res.json({ success: true, data: user, message: "User updated successfully" });
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // }
-
   static async update(req, res, next) {
     try {
       const { id } = req.params;
-      const user = await User.findByPk(id);
-      if (!user) throw new CustomError("User not found", 404);
+      const targetUser = await User.findByPk(id);
+      if (!targetUser) throw new CustomError("User not found", 404);
 
-      const updateData = { ...req.body };
+      const isSelf = String(req.user.id) === String(id);
+      const isAdmin = req.user.role === "admin";
+      const isManager = req.user.role === "manager";
 
-      // If password is null, undefined, or empty string, remove it from updateData
-      if (updateData.password === null || updateData.password === undefined || updateData.password === "") {
-        delete updateData.password;
-      } else if (updateData.password) {
-        // If password is provided and not empty, hash it
-        updateData.password = await bcrypt.hash(updateData.password, 10);
+      // Manager can never touch an admin's record, even their own profile
+      if (isManager && targetUser.role === "admin" && !isSelf) {
+        throw new CustomError("Forbidden", 403);
+      }
+      if (!isSelf && !isAdmin && !isManager) {
+        throw new CustomError("Forbidden", 403);
       }
 
-      await user.update(updateData);
+      // Basic allowlist — email included for now, will be revisited separately
+      const BASE_FIELDS = ["firstName", "lastName", "phone", "email"];
+      const ADMIN_ONLY_FIELDS = ["role", "isActive"];
+      const allowed = isAdmin ? [...BASE_FIELDS, ...ADMIN_ONLY_FIELDS] : BASE_FIELDS;
+
+      const updateData = {};
+      for (const key of allowed) {
+        if (req.body[key] !== undefined) updateData[key] = req.body[key];
+      }
+
+      if (req.body.password) {
+        updateData.password = await bcrypt.hash(req.body.password, 10);
+      }
+
+      // ── Email change detection ────────────────────────────────────────────
+      const oldEmail = targetUser.email;
+      const emailChanged = updateData.email && updateData.email !== oldEmail;
+
+      if (emailChanged) {
+        // Prevent taking over an email already claimed by another account
+        const existing = await User.findOne({ where: { email: updateData.email } });
+        if (existing) {
+          throw new CustomError("Email already in use", 400);
+        }
+      }
+
+      await targetUser.update(updateData);
       await CacheService.invalidate?.("Users_all");
       await CacheService.invalidate?.(`User_${id}`);
-      res.json({ success: true, data: user, message: "User updated successfully" });
+
+      // ── Notify both old and new addresses, fire-and-forget ────────────────
+      // Don't let email delivery issues break the actual update response.
+      if (emailChanged) {
+        sendEmailChangeNotification(oldEmail, updateData.email, targetUser.firstName).catch((err) =>
+          logger.error(`Failed to send email-change notification for user ${id}: ${err.message}`),
+        );
+      }
+
+      const { password, ...safeUser } = targetUser.toJSON();
+      res.json({ success: true, data: safeUser, message: "User updated successfully" });
     } catch (error) {
+      if (error.name === "SequelizeUniqueConstraintError" && error.original?.constraint === "unique_admin_role") {
+        return res.status(400).json({ success: false, message: "An admin account already exists." });
+      }
       next(error);
     }
   }
 
-  // Delete user by ID
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
-      const user = await User.findByPk(id);
-      if (!user) throw new CustomError("User not found", 404);
-      await user.destroy();
+      const targetUser = await User.findByPk(id);
+      if (!targetUser) throw new CustomError("User not found", 404);
+
+      if (req.user.role === "manager" && targetUser.role === "admin") {
+        throw new CustomError("Forbidden", 403);
+      }
+
+      await targetUser.destroy();
       await CacheService.invalidate?.("Users_all");
       await CacheService.invalidate?.(`User_${id}`);
       res.json({ success: true, message: "User deleted", data: id });

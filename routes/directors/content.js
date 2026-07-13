@@ -6,6 +6,12 @@ const { validateMngmtTeamContentItemUpdate } = require("../../utils/validator");
 const DirectorContentController = require("../../controllers/directors/contentController");
 
 router.get("/", DirectorContentController.get);
-router.put("/", authMiddleware(["admin"]), validateMngmtTeamContentItemUpdate, validateMiddleware, DirectorContentController.update);
+router.put(
+  "/",
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
+  validateMngmtTeamContentItemUpdate,
+  validateMiddleware,
+  DirectorContentController.update,
+);
 
 module.exports = router;

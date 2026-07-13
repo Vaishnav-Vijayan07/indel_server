@@ -6,6 +6,12 @@ const EventPageContentController = require("../../controllers/event/eventPageCon
 const { validateEventPageContentItemUpdate } = require("../../utils/validator");
 
 router.get("/", EventPageContentController.get);
-router.put("/", authMiddleware(["admin"]), validateEventPageContentItemUpdate, validateMiddleware, EventPageContentController.update);
+router.put(
+  "/",
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
+  validateEventPageContentItemUpdate,
+  validateMiddleware,
+  EventPageContentController.update,
+);
 
 module.exports = router;

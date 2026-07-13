@@ -4,15 +4,16 @@ const authMiddleware = require("../../middlewares/authMiddleware");
 const validateMiddleware = require("../../middlewares/validateMiddleware");
 const createUploadMiddleware = require("../../middlewares/multerMiddleware");
 const AboutStatisticsController = require("../../controllers/about/aboutStatisticsController");
-const { validateAboutStatsItem,validateAboutStatsItemUpdate } = require("../../utils/validator");
+const { validateAboutStatsItem, validateAboutStatsItemUpdate } = require("../../utils/validator");
 
 const upload = createUploadMiddleware("about-statistics");
-const uploadField = upload.single("icon")
+const uploadField = upload.single("icon");
 
 router.get("/", AboutStatisticsController.getAll);
 router.get("/:id", AboutStatisticsController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
+
 router.post("/", uploadField, validateAboutStatsItem, validateMiddleware, AboutStatisticsController.create);
 router.put("/:id", uploadField, validateAboutStatsItemUpdate, validateMiddleware, AboutStatisticsController.update);
 router.delete("/:id", AboutStatisticsController.delete);

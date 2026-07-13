@@ -48,6 +48,7 @@ const defineMsmeLoanTypes = require("./msme/loanTypes");
 const defineCdLoanContent = require("./CD/cdContent");
 const defineCdLoanProducts = require("./CD/loanProducts");
 const defineCdLoanBenefits = require("./CD/loanBenefits");
+const defineCdLoanFaq = require("./CD/cdFaq");
 const defineCareersContent = require("./career/contents");
 const defineCareerBanners = require("./career/banners");
 const defineCareerStates = require("./career/states");
@@ -117,8 +118,17 @@ const defineFloatButtons = require("./floatButtons/buttons");
 const defineAnnouncement = require("./homePage/announcement");
 const defineLapContent = require("./Lap/content");
 const defineLapProducts = require("./Lap/products");
+const defineLapFaq = require("./Lap/lapFaq");
 const defineCareerMeta = require("./career/careerMeta");
 const defineFileShare = require("./fileShare");
+const defineJobLocation = require("./career/jobLocation"); // New import
+const defineJobState = require("./career/jobState"); // New import
+const defineNcdContent = require("./ncd/content");
+const defineApplicantLocations = require("./career/applicantLocations"); // New import
+const defineApplicantStates = require("./career/applicantStates"); // New import
+const defineApplicantDistricts = require("./career/applicantDistricts");
+const definePolicyCategories = require("./investors/policyCategory");
+const defineRefreshToken = require("./refreshToken");
 
 const models = {
   User: defineUser(sequelize),
@@ -172,6 +182,7 @@ const models = {
   CdLoanContent: defineCdLoanContent(sequelize),
   CdLoanProducts: defineCdLoanProducts(sequelize),
   CdLoanBenefits: defineCdLoanBenefits(sequelize),
+  CDFaq: defineCdLoanFaq(sequelize),
   CareersContent: defineCareersContent(sequelize),
   CareerBanners: defineCareerBanners(sequelize),
   CareerStates: defineCareerStates(sequelize),
@@ -233,6 +244,7 @@ const models = {
   Partners: definePartnersData(sequelize),
   Directors: defineDirectors(sequelize),
   DirectorsContent: defineDirectorsContent(sequelize),
+  PolicyCategories: definePolicyCategories(sequelize),
   MasterPolicies: defineMasterPolicies(sequelize),
   ApplicationStatus: defineApplicationStatus(sequelize),
   GeneralApplications: defineGeneralApplications(sequelize),
@@ -241,8 +253,17 @@ const models = {
   Announcement: defineAnnouncement(sequelize),
   LapContent: defineLapContent(sequelize),
   LapProducts: defineLapProducts(sequelize),
+  LapFaq: defineLapFaq(sequelize),
   CareerMeta: defineCareerMeta(sequelize),
   FileShare: defineFileShare(sequelize),
+  JobLocation: defineJobLocation(sequelize), // New model
+  JobState: defineJobState(sequelize),
+  NcdPageContent: defineNcdContent(sequelize),
+
+  ApplicantLocations: defineApplicantLocations(sequelize), // New model
+  ApplicantStates: defineApplicantStates(sequelize), // New model
+  ApplicantDistricts: defineApplicantDistricts(sequelize),
+  RefreshToken: defineRefreshToken(sequelize),
 };
 
 Object.keys(models).forEach((modelName) => {

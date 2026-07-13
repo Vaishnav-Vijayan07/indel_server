@@ -14,7 +14,7 @@ const uploadFields = upload.fields([
 
 router.get("/", CsrController.getAll);
 router.get("/:slug", CsrController.getById);
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadFields, validateBlogs, validateMiddleware, CsrController.create);
 router.put("/:id", uploadFields, validateBlogsUpdate, validateMiddleware, CsrController.update);
 router.delete("/:id", CsrController.delete);

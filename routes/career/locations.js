@@ -7,9 +7,10 @@ const { validateCareerLocations, validateCareerLocationsUpdate } = require("../.
 
 router.get("/by_district_state/", LocationsController.getAllByStateDistrict);
 router.get("/", LocationsController.getAll);
+router.get("/by_state", LocationsController.getAllLocationByState);
 router.get("/:id", LocationsController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"])); // Protect routes for admin, hr, hr-executive, and manager roles
 router.post("/", validateCareerLocations, validateMiddleware, LocationsController.create);
 router.put("/:id", validateCareerLocationsUpdate, validateMiddleware, LocationsController.update);
 router.delete("/:id", LocationsController.delete);

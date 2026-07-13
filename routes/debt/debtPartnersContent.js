@@ -6,6 +6,12 @@ const DebtPartnersContentController = require("../../controllers/debt/debtPartne
 const { validateDeptPartnersContentUpdate, validateDeptPartnersContent } = require("../../utils/validator");
 
 router.get("/", validateDeptPartnersContent, DebtPartnersContentController.get);
-router.put("/", authMiddleware(["admin"]), validateDeptPartnersContentUpdate, validateMiddleware, DebtPartnersContentController.update);
+router.put(
+  "/",
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
+  validateDeptPartnersContentUpdate,
+  validateMiddleware,
+  DebtPartnersContentController.update,
+);
 
 module.exports = router;

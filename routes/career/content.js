@@ -10,6 +10,13 @@ const upload = createUploadMiddleware("career-contents");
 const uploadFields = upload.single("make_your_move_image");
 
 router.get("/", CareerContentsController.get);
-router.put("/", authMiddleware(["admin"]), uploadFields, validateCareerContentsUpdate, validateMiddleware, CareerContentsController.update);
+router.put(
+  "/",
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
+  uploadFields,
+  validateCareerContentsUpdate,
+  validateMiddleware,
+  CareerContentsController.update,
+);
 
 module.exports = router;

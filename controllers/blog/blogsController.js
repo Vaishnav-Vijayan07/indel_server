@@ -51,7 +51,10 @@ class BlogsController {
       const updateData = { ...req.body };
 
       // Generate slug from title if not provided
-      if (!updateData.slug && updateData.title) {
+      if (updateData.slug) {
+        updateData.slug = await BlogsController.generateUniqueSlug(updateData.slug);
+        Logger.info(`Generated slug for new news: ${updateData.slug}`);
+      } else if (!updateData.slug && updateData.title) {
         updateData.slug = await BlogsController.generateUniqueSlug(updateData.title);
         Logger.info(`Generated slug for new blog: ${updateData.slug}`);
       }
@@ -60,11 +63,16 @@ class BlogsController {
         updateData.image = `/uploads/blogs/${req.files.image[0].filename}`;
         Logger.info(`Uploaded image for Blog: ${updateData.image}`);
       }
+      if (req.files?.author_image) {
+        updateData.author_image = `/uploads/blogs/${req.files.author_image[0].filename}`;
+        Logger.info(`Uploaded author image for Blog: ${updateData.author_image}`);
+      }
       if (req.files?.second_image) {
         updateData.second_image = `/uploads/blogs/${req.files.second_image[0].filename}`;
         Logger.info(`Uploaded second image for Blog: ${updateData.second_image}`);
       }
 
+      updateData.posted_on = new Date();
       const blog = await Blogs.create(updateData);
 
       await CacheService.invalidate("blogs");
@@ -84,7 +92,7 @@ class BlogsController {
       }
 
       const blogs = await Blogs.findAll({
-        order: [["order", "ASC"]],
+        order: [["posted_on", "DESC"]],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(blogs), 3600);
@@ -124,7 +132,7 @@ class BlogsController {
   //       throw new CustomError("Blog not found", 404);
   //     }
 
-  //     
+  //
 
   //     const updateData = { ...req.body };
   //     let oldImage = blog.image;
@@ -169,20 +177,24 @@ class BlogsController {
         throw new CustomError("Blog not found", 404);
       }
 
-      
-
       let updateData = { ...req.body };
       let oldImage = blog.image;
       let oldSecondImage = blog.second_image;
+      let oldAuthorImage = blog.author_image;
 
       // Remove any `null` values from the updateData object
       updateData = Object.fromEntries(Object.entries(updateData).filter(([_, value]) => value !== null));
 
       // Generate slug if title is updated and no slug is provided
-      if (updateData.title && !updateData.slug) {
-        updateData.slug = await BlogsController.generateUniqueSlug(updateData.title, id);
-        Logger.info(`Generated slug for updated blog ID ${id}: ${updateData.slug}`);
+      // Generate slug from title if not provided
+      if (!updateData.slug) {
+        updateData.slug = await BlogsController.generateUniqueSlug(updateData.title);
+        Logger.info(`Generated slug for new news: ${updateData.slug}`);
       }
+      // else if (updateData.title && !updateData.slug) {
+      //   updateData.slug = await BlogsController.generateUniqueSlug(updateData.title, id);
+      //   Logger.info(`Generated slug for updated blog ID ${id}: ${updateData.slug}`);
+      // }
 
       // Handle image uploads
       if (req.files?.image) {
@@ -193,6 +205,14 @@ class BlogsController {
         }
       }
 
+      if (req.files?.author_image) {
+        updateData.author_image = `/uploads/blogs/${req.files.author_image[0].filename}`;
+        Logger.info(`Updated author image for Blog ID ${id}: ${updateData.author_image}`);
+        if (oldAuthorImage) {
+          await BlogsController.deleteFile(oldAuthorImage);
+        }
+      }
+
       if (req.files?.second_image) {
         updateData.second_image = `/uploads/blogs/${req.files.second_image[0].filename}`;
         Logger.info(`Updated second image for Blog ID ${id}: ${updateData.second_image}`);
@@ -200,6 +220,8 @@ class BlogsController {
           await BlogsController.deleteFile(oldSecondImage);
         }
       }
+
+      updateData.posted_on = !blog.is_active ? new Date() : blog.posted_on;
 
       await blog.update(updateData);
 
@@ -223,6 +245,7 @@ class BlogsController {
 
       const oldImage = blog.image;
       const oldSecondImage = blog.second_image;
+      const oldAuthorImage = blog.author_image;
       await blog.destroy();
 
       if (oldImage) {
@@ -230,6 +253,10 @@ class BlogsController {
       }
       if (oldSecondImage) {
         await BlogsController.deleteFile(oldSecondImage);
+      }
+
+      if (oldAuthorImage) {
+        await BlogsController.deleteFile(oldAuthorImage);
       }
 
       await CacheService.invalidate("blogs");

@@ -46,15 +46,16 @@ class FaqController {
         goldloan: { model: models.GoldLoanFaq, name: "GoldloanFaq" },
         contact: { model: models.ContactFaq, name: "ContactFaq" },
         msme: { model: models.MsmeLoanFaq, name: "MsmeLoanFaq" },
+        cdloan: { model: models.CDFaq, name: "CDFaq" },
+        lap: { model: models.LapFaq, name: "LapFaq" },
       };
 
       const selected = typeToModel[type];
       if (!selected) {
-        return next(new CustomError("Invalid FAQ type. Use 'home', 'goldloan', 'contact', or 'msme'", 400));
+        return next(new CustomError("Invalid FAQ type. Use 'home', 'goldloan', 'contact', 'msme', 'cdloan', or 'lap'", 400));
       }
 
       const { model: faqModel, name: modelName } = selected;
-      const cacheKey = `web${modelName}_${stateId || "null"}`;
 
       // 5. Check cache
       // const cachedData = await CacheService.get(cacheKey);
@@ -70,10 +71,11 @@ class FaqController {
           [Op.or]: [{ state_id: stateId || null }, { state_id: null }],
         },
         order: [["order", "ASC"]],
+        logging: true,
       });
 
       // 7. Cache the result
-      await CacheService.set(cacheKey, JSON.stringify(faqs), 3600);
+      // await CacheService.set(cacheKey, JSON.stringify(faqs), 3600);
 
       res.json({ status: "success", faqs });
     } catch (error) {

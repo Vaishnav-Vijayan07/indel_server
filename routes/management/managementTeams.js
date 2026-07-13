@@ -7,12 +7,12 @@ const ManagementTeamsController = require("../../controllers/management/manageme
 const { validateManagementTeam, validateManagementTeamUpdate } = require("../../utils/validator");
 
 const upload = createUploadMiddleware("management-teams");
-const uploadField = upload.single("image")
+const uploadField = upload.single("image");
 
 router.get("/", ManagementTeamsController.getAll);
 router.get("/:id", ManagementTeamsController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateManagementTeam, validateMiddleware, ManagementTeamsController.create);
 router.put("/:id", uploadField, validateManagementTeamUpdate, validateMiddleware, ManagementTeamsController.update);
 router.delete("/:id", ManagementTeamsController.delete);

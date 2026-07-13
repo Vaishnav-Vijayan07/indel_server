@@ -3,10 +3,7 @@ const router = express.Router();
 const authMiddleware = require("../../middlewares/authMiddleware");
 const validateMiddleware = require("../../middlewares/validateMiddleware");
 const createUploadMiddleware = require("../../middlewares/multerMiddleware");
-const {
-  validateAboutAccolades,
-  validateAboutAccoladesUpdate,
-} = require("../../utils/validator");
+const { validateAboutAccolades, validateAboutAccoladesUpdate } = require("../../utils/validator");
 const AboutAccoladesController = require("../../controllers/about/aboutAccoladesController");
 
 const upload = createUploadMiddleware("about-accolades");
@@ -18,7 +15,8 @@ const uploadField = upload.fields([
 router.get("/", AboutAccoladesController.getAll);
 router.get("/:id", AboutAccoladesController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
+
 router.post("/", uploadField, validateAboutAccolades, validateMiddleware, AboutAccoladesController.create);
 router.put("/:id", uploadField, validateAboutAccoladesUpdate, validateMiddleware, AboutAccoladesController.update);
 router.delete("/:id", AboutAccoladesController.delete);

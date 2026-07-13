@@ -12,7 +12,7 @@ const uploadField = upload.single("image");
 router.get("/", PopupServicesController.getAll);
 router.get("/:id", PopupServicesController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validatePopupServices, validateMiddleware, PopupServicesController.create);
 router.put("/:id", uploadField, validatePopupServicesUpdate, validateMiddleware, PopupServicesController.update);
 router.delete("/:id", PopupServicesController.delete);

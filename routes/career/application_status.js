@@ -9,7 +9,8 @@ router.get("/", ApplicationStatusesController.getAll);
 router.get("/:id", ApplicationStatusesController.getById);
 
 // Admin-only routes
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
+
 router.post("/", validateApplicationStatuses, validateMiddleware, ApplicationStatusesController.create);
 router.put("/:id", validateApplicationStatusesUpdate, validateMiddleware, ApplicationStatusesController.update);
 router.delete("/:id", authMiddleware(["admin"]), ApplicationStatusesController.delete);

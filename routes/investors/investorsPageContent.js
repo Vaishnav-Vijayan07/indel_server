@@ -8,19 +8,18 @@ const { validateInvestorsPageContentItemUpdate } = require("../../utils/validato
 
 const upload = createUploadMiddleware("investors");
 const uploadField = upload.fields([
-  {  name: "disclosure_file", maxCount: 1 },
-  {  name: "csr_policy_doc", maxCount: 1 },
-
+  { name: "disclosure_file", maxCount: 1 },
+  { name: "csr_policy_doc", maxCount: 1 },
 ]);
 
 router.get("/", InvestorsPageContentController.get);
 router.put(
   "/",
-  authMiddleware(["admin"]),
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
   uploadField,
   validateInvestorsPageContentItemUpdate,
   validateMiddleware,
-  InvestorsPageContentController.update
+  InvestorsPageContentController.update,
 );
 
 module.exports = router;

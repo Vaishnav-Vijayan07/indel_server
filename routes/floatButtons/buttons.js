@@ -23,7 +23,7 @@ const uploadField = upload.single("icon");
 router.get("/", FloatButtonsController.getAll);
 router.get("/:id", FloatButtonsController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateFloatButtonsUpdate, validateMiddleware, FloatButtonsController.create);
 router.put("/:id", uploadField, validateFloatButtons, validateMiddleware, FloatButtonsController.update);
 router.delete("/:id", FloatButtonsController.delete);

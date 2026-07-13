@@ -13,13 +13,14 @@ const uploadFields = upload.fields([
 ]);
 
 router.get("/", AboutPageContentController.get);
+
 router.put(
   "/",
-  authMiddleware(["admin"]),
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
   uploadFields,
   validateAboutPageContentUpdate,
   validateMiddleware,
-  AboutPageContentController.update
+  AboutPageContentController.update,
 );
 
 module.exports = router;

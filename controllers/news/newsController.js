@@ -36,13 +36,7 @@ class NewsController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(
-        __dirname,
-        "..",
-        "..",
-        "uploads",
-        filePath.replace("/uploads/", "")
-      );
+      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {
@@ -56,10 +50,11 @@ class NewsController {
     try {
       const updateData = { ...req.body };
 
-      if (!updateData.slug && updateData.title) {
-        updateData.slug = await NewsController.generateUniqueSlug(
-          updateData.title
-        );
+      if (updateData.slug) {
+        updateData.slug = await NewsController.generateUniqueSlug(updateData.slug);
+        Logger.info(`Generated slug for new news: ${updateData.slug}`);
+      } else if (!updateData.slug && updateData.title) {
+        updateData.slug = await NewsController.generateUniqueSlug(updateData.title);
         Logger.info(`Generated slug for new news: ${updateData.slug}`);
       }
 
@@ -67,24 +62,24 @@ class NewsController {
         updateData.image = `/uploads/news/${req.files.image[0].filename}`;
         Logger.info(`Uploaded image for News: ${updateData.image}`);
       }
+      if (req.files?.author_image) {
+        updateData.author_image = `/uploads/news/${req.files.author_image[0].filename}`;
+        Logger.info(`Uploaded author image for News: ${updateData.author_image}`);
+      }
       if (req.files?.second_image) {
         updateData.second_image = `/uploads/news/${req.files.second_image[0].filename}`;
-        Logger.info(
-          `Uploaded second image for News: ${updateData.second_image}`
-        );
+        Logger.info(`Uploaded second image for News: ${updateData.second_image}`);
       }
-
+      updateData.posted_on = new Date();
       const news = await News.create(updateData);
 
       const subscribedEmails = await models.NewsLetterSubs.findAll({
         attributes: ["email"],
       });
-      const emailList = subscribedEmails
-        .map((sub) => sub.email)
-        .filter(Boolean);
+      const emailList = subscribedEmails.map((sub) => sub.email).filter(Boolean);
 
       const newsUrl = `${process.env.FRONTEND_URL}/news/page/${news.id}`;
-      const batchSize = 500; 
+      const batchSize = 500;
       const batches = [];
 
       for (let i = 0; i < emailList.length; i += batchSize) {
@@ -105,19 +100,13 @@ class NewsController {
         <p style="font-size: 12px; color: #718096;">You received this email because you're subscribed to Indel Money news updates.</p>
       </div>
     `;
-      const sendTasks = batches.map((batch) =>
-        emailWorker.run({ emails: batch, text, subject, html })
-      );
+      const sendTasks = batches.map((batch) => emailWorker.run({ emails: batch, text, subject, html }));
 
       Promise.allSettled(sendTasks)
         .then(async (results) => {
           results.forEach((res, idx) => {
             if (res.status === "fulfilled") {
-              Logger.info(
-                `Batch ${idx + 1} done (${
-                  res.value.accepted?.length
-                } accepted)`
-              );
+              Logger.info(`Batch ${idx + 1} done (${res.value.accepted?.length} accepted)`);
             } else {
               Logger.error(`Batch ${idx + 1} failed: ${res.reason.message}`);
             }
@@ -127,21 +116,15 @@ class NewsController {
             await emailWorker.destroy();
             Logger.info("Piscina worker destroyed after all batches sent");
           } catch (destroyErr) {
-            Logger.error(
-              `Failed to destroy Piscina worker: ${destroyErr.message}`
-            );
+            Logger.error(`Failed to destroy Piscina worker: ${destroyErr.message}`);
           }
         })
         .catch((batchErr) => {
-          Logger.error(
-            `Error while sending email batches: ${batchErr.message}`
-          );
+          Logger.error(`Error while sending email batches: ${batchErr.message}`);
         });
 
       await CacheService.invalidate("news");
-      res
-        .status(201)
-        .json({ success: true, data: news, message: "News created" });
+      res.status(201).json({ success: true, data: news, message: "News created" });
     } catch (error) {
       Logger.error(`News create error: ${error.stack}`);
       next(error);
@@ -158,7 +141,7 @@ class NewsController {
       }
 
       const newsItems = await News.findAll({
-        order: [["order", "ASC"]],
+        order: [["posted_on", "DESC"]],
       });
 
       await CacheService.set(cacheKey, JSON.stringify(newsItems), 3600);
@@ -201,21 +184,15 @@ class NewsController {
       let updateData = { ...req.body };
       let oldImage = news.image;
       let oldSecondImage = news.second_image;
+      let oldAuthorImage = news.author_image;
 
       // Remove any `null` values from the updateData object
-      updateData = Object.fromEntries(
-        Object.entries(updateData).filter(([_, value]) => value !== null)
-      );
+      updateData = Object.fromEntries(Object.entries(updateData).filter(([_, value]) => value !== null));
 
       // Generate slug if title is updated and no slug is provided
-      if (updateData.title && !updateData.slug) {
-        updateData.slug = await NewsController.generateUniqueSlug(
-          updateData.title,
-          id
-        );
-        Logger.info(
-          `Generated slug for updated news ID ${id}: ${updateData.slug}`
-        );
+      if (!updateData.slug) {
+        updateData.slug = await NewsController.generateUniqueSlug(updateData.title);
+        Logger.info(`Generated slug for new news: ${updateData.slug}`);
       }
 
       // Handle image uploads
@@ -227,15 +204,23 @@ class NewsController {
         }
       }
 
+      if (req.files?.author_image) {
+        updateData.author_image = `/uploads/news/${req.files.author_image[0].filename}`;
+        Logger.info(`Updated author_image for News ID ${id}: ${updateData.author_image}`);
+        if (oldAuthorImage) {
+          await NewsController.deleteFile(oldAuthorImage);
+        }
+      }
+
       if (req.files?.second_image) {
         updateData.second_image = `/uploads/news/${req.files.second_image[0].filename}`;
-        Logger.info(
-          `Updated second image for News ID ${id}: ${updateData.second_image}`
-        );
+        Logger.info(`Updated second image for News ID ${id}: ${updateData.second_image}`);
         if (oldSecondImage) {
           await NewsController.deleteFile(oldSecondImage);
         }
       }
+
+      updateData.posted_on = !news.is_active ? new Date() : news.posted_on;
 
       await news.update(updateData);
 
@@ -259,6 +244,8 @@ class NewsController {
 
       const oldImage = news.image;
       const oldSecondImage = news.second_image;
+      const oldAuthorImage = news.author_image;
+
       await news.destroy();
 
       if (oldImage) {
@@ -266,6 +253,10 @@ class NewsController {
       }
       if (oldSecondImage) {
         await NewsController.deleteFile(oldSecondImage);
+      }
+
+      if (oldAuthorImage) {
+        await NewsController.deleteFile(oldAuthorImage);
       }
 
       await CacheService.invalidate("news");

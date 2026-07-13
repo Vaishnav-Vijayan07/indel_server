@@ -3,10 +3,10 @@ const router = express.Router();
 const authMiddleware = require("../../middlewares/authMiddleware");
 const CareerMetaController = require("../../controllers/career/metaController");
 
-router.get('/type/', CareerMetaController.findByType);
+router.get("/type/", CareerMetaController.findByType);
 router.get("/", CareerMetaController.getAll);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"])); // Protect routes for admin, hr, hr-executive, and manager roles
 router.post("/", CareerMetaController.create);
 router.put("/:id", CareerMetaController.update);
 router.delete("/:id", CareerMetaController.delete);

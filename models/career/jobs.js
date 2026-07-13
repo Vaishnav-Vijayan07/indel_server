@@ -21,24 +21,7 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      location_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: "locations",
-          key: "id",
-        },
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE",
-      },
-      state_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: "states",
-          key: "id",
-        },
-      },
+      // Removed location_id and state_id columns
       job_description: {
         type: DataTypes.TEXT,
         allowNull: true,
@@ -57,6 +40,11 @@ module.exports = (sequelize) => {
         allowNull: false,
         defaultValue: false,
       },
+      is_display_full_locations: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: true,
+      },
       end_date: {
         type: DataTypes.DATE,
         allowNull: true,
@@ -65,12 +53,17 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
+      is_pan_india: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        comment: "If true, this job is available across all of India and location/state restrictions don't apply",
+      },
       reapply_period_months: {
         type: DataTypes.INTEGER,
         allowNull: true,
         defaultValue: 6,
-        comment:
-          "Number of months a candidate must wait before reapplying for this job",
+        comment: "Number of months a candidate must wait before reapplying for this job",
         validate: {
           min: 1,
           max: 24,
@@ -88,13 +81,21 @@ module.exports = (sequelize) => {
       foreignKey: "role_id",
       as: "role",
     });
-    Jobs.belongsTo(models.CareerLocations, {
-      foreignKey: "location_id",
-      as: "location",
+
+    // Define many-to-many association with CareerLocations through JobLocation
+    Jobs.belongsToMany(models.CareerLocations, {
+      through: models.JobLocation,
+      foreignKey: "job_id",
+      otherKey: "location_id",
+      as: "locations", // Alias for the association
     });
-    Jobs.belongsTo(models.CareerStates, {
-      foreignKey: "state_id",
-      as: "state",
+
+    // Define many-to-many association with CareerStates through JobState
+    Jobs.belongsToMany(models.CareerStates, {
+      through: models.JobState,
+      foreignKey: "job_id",
+      otherKey: "state_id",
+      as: "states", // Alias for the association
     });
   };
 

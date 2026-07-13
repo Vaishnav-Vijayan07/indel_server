@@ -12,13 +12,7 @@ class DistrictsController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(
-        __dirname,
-        "..",
-        "..",
-        "uploads",
-        filePath.replace("/uploads/", "")
-      );
+      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {
@@ -37,22 +31,17 @@ class DistrictsController {
       }
 
       const existDistrict = await Districts.findOne({
-        where: where(
-          fn("LOWER", col("district_name")),
-          updateData.district_name.toLowerCase()
-        ),
+        where: where(fn("LOWER", col("district_name")), updateData.district_name.toLowerCase()),
       });
       if (existDistrict) {
-     throw new CustomError(`${existDistrict?.district_name} is already exists`, 400);
+        throw new CustomError(`${existDistrict?.district_name} is already exists`, 400);
       }
       const district = await Districts.create(updateData);
 
       await CacheService.invalidate("districts");
       await CacheService.invalidate("webCareerPage");
 
-      res
-        .status(201)
-        .json({ success: true, data: district, message: "District created" });
+      res.status(201).json({ success: true, data: district, message: "District created" });
     } catch (error) {
       next(error);
     }
@@ -90,52 +79,15 @@ class DistrictsController {
       const { id } = req.params;
 
       if (!id) {
-        return res
-          .status(400)
-          .json({ success: false, message: "state_id parameter is required." });
+        return res.status(400).json({ success: false, message: "state_id parameter is required." });
       }
 
       const cacheKey = `districts_state_${id}`;
       const cachedData = await CacheService.get(cacheKey);
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
-
-      const districts = await Districts.findAll({
-        where: { state_id: id }, // filter by state_id
-        order: [["district_name", "ASC"]],
-        include: [
-          {
-            model: models.CareerStates,
-            as: "state",
-            attributes: ["state_name"],
-          },
-        ],
-      });
-
-      await CacheService.set(cacheKey, JSON.stringify(districts), 3600);
-
-      res.json({ success: true, data: districts });
-    } catch (error) {
-      next(error);
-    }
-  }static async getDistrictsByStateId(req, res, next) {
-    try {
-      const { id } = req.params;
-
-      if (!id) {
-        return res
-          .status(400)
-          .json({ success: false, message: "state_id parameter is required." });
-      }
-
-      const cacheKey = `districts_state_${id}`;
-      const cachedData = await CacheService.get(cacheKey);
-
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
+      // if (cachedData) {
+      //   return res.json({ success: true, data: JSON.parse(cachedData) });
+      // }
 
       const districts = await Districts.findAll({
         where: { state_id: id }, // filter by state_id
@@ -159,7 +111,7 @@ class DistrictsController {
 
   static async getById(req, res, next) {
     try {
-      const {id} = req.params;
+      const { id } = req.params;
       const cacheKey = `district_${id}`;
       const cachedData = await CacheService.get(cacheKey);
 

@@ -12,7 +12,7 @@ const uploadField = upload.single("file");
 router.get("/", CorporateGovernanceController.getAll);
 router.get("/:id", CorporateGovernanceController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateCorporateGovernance, validateMiddleware, CorporateGovernanceController.create);
 router.put("/:id", uploadField, validateCorporateGovernanceUpdate, validateMiddleware, CorporateGovernanceController.update);
 router.delete("/:id", CorporateGovernanceController.delete);

@@ -6,6 +6,12 @@ const IndelCaresContentController = require("../../controllers/indelCare/content
 const { validateEventPageContentItemUpdate } = require("../../utils/validator");
 
 router.get("/", IndelCaresContentController.get);
-router.put("/", authMiddleware(["admin"]), validateEventPageContentItemUpdate, validateMiddleware, IndelCaresContentController.update);
+router.put(
+  "/",
+  authMiddleware(["admin", "hr", "hr-executive", "manager"]),
+  validateEventPageContentItemUpdate,
+  validateMiddleware,
+  IndelCaresContentController.update,
+);
 
 module.exports = router;

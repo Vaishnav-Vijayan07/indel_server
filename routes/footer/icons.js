@@ -12,7 +12,7 @@ const uploadField = upload.single("icon");
 router.get("/", SocialMediaIconsController.getAll);
 router.get("/:id", SocialMediaIconsController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateSocialMediaIcons, validateMiddleware, SocialMediaIconsController.create);
 router.put("/:id", uploadField, validateSocialMediaIconsUpdate, validateMiddleware, SocialMediaIconsController.update);
 router.delete("/:id", SocialMediaIconsController.delete);

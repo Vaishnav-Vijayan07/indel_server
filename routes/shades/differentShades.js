@@ -18,7 +18,7 @@ const uploadField = upload.fields([
 router.get("/", DifferentShadesController.getAll);
 router.get("/:id", DifferentShadesController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateDifferentShadesValue, validateMiddleware, DifferentShadesController.create);
 router.put("/:id", uploadField, validateDifferentShadesValueUpdate, validateMiddleware, DifferentShadesController.update);
 router.delete("/:id", DifferentShadesController.delete);

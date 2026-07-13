@@ -9,7 +9,6 @@ async function getStateFromIp(ip) {
   const cacheKey = `geo_${ip}`;
   const cached = cache.get(cacheKey);
   if (cached) {
-    
     return cached;
   }
 
@@ -17,10 +16,7 @@ async function getStateFromIp(ip) {
   const queryIp = isLocalhost ? "111.92.66.81" : ip;
 
   try {
-    const response = await axios.get(
-      `https://api.ipgeolocation.io/v2/ipgeo?apiKey=${process.env.IPGEOLOCATION_API_KEY}&ip=${queryIp}`
-    );
-    
+    const response = await axios.get(`https://api.ipgeolocation.io/v2/ipgeo?apiKey=${process.env.IPGEOLOCATION_API_KEY}&ip=${queryIp}`);
 
     const stateName = response.data.location?.state_prov || "Global";
     const state = await models.CareerStates.findOne({
@@ -40,7 +36,7 @@ async function getStateFromIp(ip) {
   } catch (error) {
     console.error("Geolocation error:", error.message);
     const result = { stateId: null, stateName: "Global", latitude: 0, longitude: 0 };
-    cache.set(cacheKey, result);
+    // cache.set(cacheKey, result);
     return result;
   }
 }

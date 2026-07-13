@@ -9,13 +9,14 @@ const { validateBlogs, validateBlogsUpdate } = require("../../utils/validator");
 const upload = createUploadMiddleware("news");
 const uploadFields = upload.fields([
   { name: "image", maxCount: 1 },
+  { name: "author_image", maxCount: 1 },
   { name: "second_image", maxCount: 1 },
 ]);
 
 router.get("/", NewsController.getAll);
 router.get("/:id", NewsController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadFields, validateBlogs, validateMiddleware, NewsController.create);
 router.put("/:id", uploadFields, validateBlogsUpdate, validateMiddleware, NewsController.update);
 router.delete("/:id", NewsController.delete);

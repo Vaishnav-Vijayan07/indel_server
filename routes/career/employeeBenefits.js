@@ -12,7 +12,7 @@ const uploadField = upload.single("icon");
 router.get("/", EmployeeBenefitsController.getAll);
 router.get("/:id", EmployeeBenefitsController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateGoldLoanFeature, validateMiddleware, EmployeeBenefitsController.create);
 router.put("/:id", uploadField, validateGoldLoanFeatureUpdate, validateMiddleware, EmployeeBenefitsController.update);
 router.delete("/:id", EmployeeBenefitsController.delete);

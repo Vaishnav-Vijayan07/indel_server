@@ -10,6 +10,13 @@ const upload = createUploadMiddleware("contact-content");
 const uploadFields = upload.single("contact_image");
 
 router.get("/", ContactContentController.get);
-router.put("/", authMiddleware(["admin"]), uploadFields,validateContactContentUpdate , validateMiddleware, ContactContentController.update);
+router.put(
+  "/",
+  authMiddleware(["admin", "hr", "hr-executive"]),
+  uploadFields,
+  validateContactContentUpdate,
+  validateMiddleware,
+  ContactContentController.update,
+);
 
 module.exports = router;

@@ -12,7 +12,7 @@ const uploadField = upload.single("icon");
 router.get("/", HomeLoanStepController.getAll);
 router.get("/:id", HomeLoanStepController.getById);
 
-router.use(authMiddleware(["admin"]));
+router.use(authMiddleware(["admin", "hr", "hr-executive", "manager"]));
 router.post("/", uploadField, validateHomeLoanStep, validateMiddleware, HomeLoanStepController.create);
 router.put("/:id", uploadField, validateHomeLoanStepUpdate, validateMiddleware, HomeLoanStepController.update);
 router.delete("/:id", HomeLoanStepController.delete);

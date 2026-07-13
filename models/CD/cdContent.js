@@ -93,6 +93,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      faq_title: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
     {
       tableName: "cd_loan_content",

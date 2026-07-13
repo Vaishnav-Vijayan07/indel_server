@@ -15,7 +15,17 @@ module.exports = (sequelize) => {
       },
       name: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
+      },
+      type: {
+        type: DataTypes.STRING,
+        field: "type",
+        allowNull: true,
+        defaultValue: "text",
+      },
+      file: {
+        type: DataTypes.STRING,
+        allowNull: true,
       },
       address: {
         type: DataTypes.TEXT,
@@ -42,7 +52,7 @@ module.exports = (sequelize) => {
     {
       tableName: "investors_contact",
       timestamps: true,
-    }
+    },
   );
 
   return InvestorsContact;

@@ -21,13 +21,27 @@ class InvestorsController {
         models.AnnualReport.findAll({
           attributes: ["id", "year", "file", "order", "is_active"],
           where: { is_active: true },
-          include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year", "is_active"], where: { is_active: true } }],
+          include: [
+            {
+              model: models.FiscalYears,
+              as: "fiscalYear",
+              attributes: ["id", "fiscal_year", "is_active"],
+              where: { is_active: true },
+            },
+          ],
           order: [["order", "ASC"]],
         }),
         models.AnnualReturns.findAll({
           attributes: ["id", "year", "file", "order", "is_active"],
           where: { is_active: true },
-          include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year", "is_active"], where: { is_active: true } }],
+          include: [
+            {
+              model: models.FiscalYears,
+              as: "fiscalYear",
+              attributes: ["id", "fiscal_year", "is_active"],
+              where: { is_active: true },
+            },
+          ],
           order: [["order", "ASC"]],
         }),
       ]);
@@ -58,7 +72,7 @@ class InvestorsController {
 
       const [content, files] = await Promise.all([
         models.InvestorsPageContent.findAll({
-          attributes: ["disclosure_title", "disclosure_file", "page_title", "corporate_governance_title"],
+          attributes: ["disclosure_title", "disclosure_file", "page_title", "corporate_governance_title", "csr_policy_doc_title"],
         }),
         models.CorporateGovernance.findAll({
           attributes: ["id", "file", "order", "title"],
@@ -127,14 +141,30 @@ class InvestorsController {
 
       const [content, actionPlans, committees, reports] = await Promise.all([
         models.InvestorsPageContent.findAll({
-          attributes: ["page_title", "csr_policy_doc", "csr_committee_title", "csr_reports_title", "csr_action_plan_title", "csr_policy_title"],
+          attributes: [
+            "page_title",
+            "csr_policy_doc",
+            "csr_committee_title",
+            "csr_reports_title",
+            "csr_action_plan_title",
+            "csr_policy_title",
+            "disclosure_title",
+            "csr_policy_doc_title",
+          ],
         }),
         models.CsrActionPlan.findAll({
           where: { is_active: true },
           attributes: ["id", "nature", "name", "designation", "order"],
           order: [["order", "ASC"]],
           attributes: ["id", "report", "order", "fiscal_year"],
-          include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year", "is_active"], where: { is_active: true } }],
+          include: [
+            {
+              model: models.FiscalYears,
+              as: "fiscalYear",
+              attributes: ["id", "fiscal_year", "is_active"],
+              where: { is_active: true },
+            },
+          ],
           order: [["order", "ASC"]],
         }),
         models.CsrCommittee.findAll({
@@ -145,7 +175,14 @@ class InvestorsController {
         models.CsrReport.findAll({
           where: { is_active: true },
           attributes: ["id", "report", "order", "fiscal_year"],
-          include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year", "is_active"], where: { is_active: true } }],
+          include: [
+            {
+              model: models.FiscalYears,
+              as: "fiscalYear",
+              attributes: ["id", "fiscal_year", "is_active"],
+              where: { is_active: true },
+            },
+          ],
           order: [["order", "ASC"]],
         }),
       ]);
@@ -176,20 +213,24 @@ class InvestorsController {
       //     return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
 
-      const [content, reports] = await Promise.all([
+      const [content, allReports] = await Promise.all([
         models.InvestorsPageContent.findAll({
-          attributes: ["ncd_title", "page_title"],
+          attributes: ["ncd_title", "page_title", "ncd_button_text", "ncd_button_link"],
         }),
         models.NcdReports.findAll({
-          attributes: ["id", "file", "order", "title", "order", "is_active"],
+          attributes: ["id", "file", "order", "title", "order", "is_active", "is_past", "show_disclaimer", "disclaimer"],
           where: { is_active: true },
           order: [["order", "ASC"]],
         }),
       ]);
 
+      const currentReports = allReports.filter((report) => !report.is_past);
+      const pastReports = allReports.filter((report) => report.is_past);
+
       const data = {
         content: content[0] || null,
-        reports,
+        currentReports,
+        pastReports,
       };
 
       await cacheService.set(cacheKey, JSON.stringify(data), 3600);
@@ -221,7 +262,7 @@ class InvestorsController {
 
       const [content, reports] = await Promise.all([
         models.InvestorsPageContent.findAll({
-          attributes: ["page_title","quarterly_results_title"],
+          attributes: ["page_title", "quarterly_results_title"],
         }),
         models.QuarterlyReports.findAll({
           where: { year, is_active: true },
@@ -238,7 +279,7 @@ class InvestorsController {
       ]);
 
       const data = {
-        content : content[0] || null,
+        content: content[0] || null,
         reports,
       };
 
@@ -258,6 +299,7 @@ class InvestorsController {
       const cachedData = await cacheService.get(cacheKey);
       if (cachedData) {
         logger.info("Serving investors contact from cache");
+        console.log("Serving investors contact from cache", { cachedData: JSON.parse(cachedData) });
         return res.json({ status: "success", data: JSON.parse(cachedData) });
       }
 
@@ -266,19 +308,24 @@ class InvestorsController {
           attributes: ["investors_contact_title", "page_title"],
         }),
         models.InvestorsContact.findAll({
-          attributes: ["id", "title", "name", "address", "email", "phone", "order", "is_active"],
+          attributes: ["id", "title", "name", "address", "email", "phone", "order", "is_active", "file", "type"],
           where: { is_active: true },
           order: [["order", "ASC"]],
         }),
       ]);
 
+      const textContacts = contact.filter((c) => !c.type || c.type === "text");
+      const pdfContacts = contact.filter((c) => c.type === "pdf");
+
       const data = {
         content: content[0] || null,
-        contact,
+        text_contacts: textContacts,
+        pdf_contacts: pdfContacts,
       };
 
       await cacheService.set(cacheKey, JSON.stringify(data), 3600);
       logger.info("Fetched investors contact from DB");
+      console.log("Fetched investors contact from DB", { data });
       res.json({ status: "success", data });
     } catch (error) {
       logger.error("Error fetching investors contact", { error: error.message, stack: error.stack });
@@ -291,6 +338,7 @@ class InvestorsController {
       // Extract pagination parameters from query
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 5;
+      const category_id = req.query.category_id;
       const offset = (page - 1) * limit;
 
       // Validate pagination parameters
@@ -302,7 +350,7 @@ class InvestorsController {
       }
 
       // Create cache key that includes pagination parameters
-      const cacheKey = `webInvestorsContact_page_${page}_limit_${limit}`;
+      const cacheKey = `policies_page_${page}_limit_${limit}${category_id ? `_cat_${category_id}` : ''}`;
 
       // Check cache first
       const cachedData = await cacheService.get(cacheKey);
@@ -310,6 +358,11 @@ class InvestorsController {
       //   logger.info(`Serving investors policies from cache - Page: ${page}, Limit: ${limit}`);
       //   return res.json({ status: "success", data: JSON.parse(cachedData) });
       // }
+
+      let whereClause = { is_active: true };
+      if (category_id) {
+        whereClause.category_id = category_id;
+      }
 
       const [content, policiesResult] = await Promise.all([
         // Content doesn't need pagination, fetch once
@@ -321,7 +374,16 @@ class InvestorsController {
           order: [["order", "ASC"]],
           limit: limit,
           offset: offset,
-          where: { is_active: true },
+          where: whereClause,
+          include: [
+            {
+              model: models.PolicyCategories,
+              as: "policyCategory",
+              attributes: [],
+              where: { is_active: true },
+              required: true
+            }
+          ]
         }),
       ]);
 
@@ -379,6 +441,43 @@ class InvestorsController {
     }
   }
 
+
+  static async policyCategories(req, res, next) {
+    const cacheKey = "webInvestorsPolicyCategories";
+
+    try {
+      const cachedData = await cacheService.get(cacheKey);
+      // if (cachedData) {
+      //     logger.info("Serving fiscal years for stock exchange from cache");
+      //     return res.json({ status: "success", data: JSON.parse(cachedData) });
+      // }
+
+      const policy_categories = await models.PolicyCategories.findAll({
+        attributes: ["id", "title", "is_active", "order"],
+        order: [["order", "ASC"]],
+        where: { is_active: true },
+        include: [
+          {
+            model: models.Policies,
+            as: "policies",
+            attributes: [],
+            where: { is_active: true },
+            required: true
+          }
+        ],
+        group: ["PolicyCategories.id", "PolicyCategories.title", "PolicyCategories.is_active", "PolicyCategories.order"]
+      });
+
+      await cacheService.set(cacheKey, JSON.stringify(policy_categories), 3600);
+      logger.info("Fetched policy categories from DB");
+
+      res.json({ status: "success", policy_categories });
+    } catch (error) {
+      logger.error("Error fetching policy categories", { error: error.message, stack: error.stack });
+      next(new CustomError("Failed to fetch policy categories", 500, error.message));
+    }
+  }
+
   static async stockExchangeData(req, res, next) {
     const { year } = req.query;
 
@@ -409,7 +508,7 @@ class InvestorsController {
         }),
         models.OtherIntimations.findAll({
           where: { is_active: true },
-          attributes: ["id", "fiscal_year", "record_date_document", "interest_payment_document", "month_date","order", "is_active"],
+          attributes: ["id", "fiscal_year", "record_date_document", "interest_payment_document", "month_date", "order", "is_active"],
           where: { fiscal_year: year, is_active: true },
           include: [
             {

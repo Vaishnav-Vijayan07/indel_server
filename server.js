@@ -6,6 +6,7 @@ const errorMiddleware = require("./middlewares/errorMiddleware");
 const Logger = require("./services/logger");
 const path = require("path");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const { createDemoAdmin } = require("./utils/demoUser");
 const { initHomePageContent } = require("./utils/initHomePageContent");
 const { initMngmntTeamContent } = require("./utils/initMangementTeamContent");
@@ -33,15 +34,44 @@ const { initFooterContent } = require("./utils/initFooterContent");
 const { initHeaderContents } = require("./utils/initHeaderContent");
 const { initPopupSettings } = require("./utils/initPopupSettings");
 const { initDirectorsContent } = require("./utils/initDirectorsContent");
+const { initNcdPageContent } = require("./utils/initNcdContent");
 require("./utils/fileExpiration");
 const session = require("express-session");
 
 dotenv.config();
 const app = express();
 
-app.set('trust proxy', true);
-app.use(cors({ origin: "*" }));
+app.set("trust proxy", 1);
+
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "http://localhost:5173,http://localhost:3001").split(",").map((o) => o.trim());
+
+function normalizeOrigin(origin) {
+  return origin.replace(/^https?:\/\/www\./, "https://");
+}
+
+const normalizedAllowedOrigins = ALLOWED_ORIGINS.map(normalizeOrigin);
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // same-origin / server-to-server
+
+      if (normalizedAllowedOrigins.includes(normalizeOrigin(origin))) {
+        return callback(null, true);
+      }
+
+      Logger.warn(`CORS rejected origin: ${origin}`); // ← see point 4
+      callback(new Error(`CORS: origin '${origin}' not allowed`));
+    },
+    credentials: true,
+  }),
+);
+
+// Parse incoming JSON bodies
 app.use(express.json());
+
+// Parse cookies — required for req.cookies.refreshToken in auth/refresh and auth/logout
+app.use(cookieParser());
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -56,7 +86,7 @@ app.use(
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
     },
-  })
+  }),
 );
 
 app.get("/set-location", (req, res) => {
@@ -81,38 +111,39 @@ app.use(errorMiddleware);
 const startServer = async () => {
   try {
     await sequelize.authenticate();
-    await sequelize.sync({ alter: true });
+    // await sequelize.sync({ alter: false });
     Logger.info("Database connected and synced");
 
-    await createDemoAdmin();
-    await initHomePageContent();
-    await initAboutPageContent();
-    await initMngmntTeamContent();
-    await initDebtPartnersContent();
-    await initContactContent();
-    await initCSRPageContent();
-    await initHistoryPageContent();
-    await initIndelValueContent();
-    await initShadesOfIndelContent();
-    await initServicesPageContent();
-    await initGoldLoanContent();
-    await initMsmeLoanContent();
-    await initLoanAgainstPropertyContent();
-    await initCdLoanContent();
-    await initCareerContents();
-    await initBlogPageContent();
-    await initGalleryPageContent();
-    await initAwardPageContent();
-    await initNewsPageContent();
-    await initEventPageContent();
-    await initInvestorsPageContent();
-    await initTestimonialPageContents();
-    await initBranchLocatorPageContents();
-    await initIndelCaresContent();
-    await initFooterContent();
-    await initHeaderContents();
-    await initPopupSettings();
-    await initDirectorsContent();
+    // await createDemoAdmin();
+    // await initHomePageContent();
+    // await initAboutPageContent();
+    // await initMngmntTeamContent();
+    // await initDebtPartnersContent();
+    // await initContactContent();
+    // await initCSRPageContent();
+    // await initHistoryPageContent();
+    // await initIndelValueContent();
+    // await initShadesOfIndelContent();
+    // await initServicesPageContent();
+    // await initGoldLoanContent();
+    // await initMsmeLoanContent();
+    // await initLoanAgainstPropertyContent();
+    // await initCdLoanContent();
+    // await initCareerContents();
+    // await initBlogPageContent();
+    // await initGalleryPageContent();
+    // await initAwardPageContent();
+    // await initNewsPageContent();
+    // await initEventPageContent();
+    // await initInvestorsPageContent();
+    // await initTestimonialPageContents();
+    // await initBranchLocatorPageContents();
+    // await initIndelCaresContent();
+    // await initFooterContent();
+    // await initHeaderContents();
+    // await initPopupSettings();
+    // await initDirectorsContent();
+    // await initNcdPageContent();
 
     app.listen(PORT, () => {
       Logger.info(`Server running on port ${PORT}`);
