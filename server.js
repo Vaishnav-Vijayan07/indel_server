@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const sequelize = require("./config/database");
 const apiRoutes = require("./routes/index");
+const translateMiddleware = require("./middlewares/translateMiddleware");
 const errorMiddleware = require("./middlewares/errorMiddleware");
 const Logger = require("./services/logger");
 const path = require("path");
@@ -43,7 +44,7 @@ const app = express();
 
 app.set("trust proxy", 1);
 
-const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "http://localhost:5173,http://localhost:3001").split(",").map((o) => o.trim());
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS).split(",").map((o) => o.trim());
 
 function normalizeOrigin(origin) {
   return origin.replace(/^https?:\/\/www\./, "https://");
@@ -67,8 +68,11 @@ app.use(
   }),
 );
 
-// Parse incoming JSON bodies
-app.use(express.json());
+// Parse incoming JSON bodies. The limit is raised well above Express's 100kb
+// default because POST /api/translate receives every translatable string on a
+// page in one body, and a content-heavy page overruns 100kb — which would 413
+// and leave the whole page untranslated.
+app.use(express.json({ limit: "1mb" }));
 
 // Parse cookies — required for req.cookies.refreshToken in auth/refresh and auth/logout
 app.use(cookieParser());
@@ -102,7 +106,7 @@ app.get("/get-location", (req, res) => {
   });
 });
 
-app.use("/api", apiRoutes);
+app.use("/api", translateMiddleware, apiRoutes);
 
 const PORT = process.env.PORT || 3000;
 
