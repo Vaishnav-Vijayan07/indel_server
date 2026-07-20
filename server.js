@@ -106,6 +106,12 @@ app.get("/get-location", (req, res) => {
   });
 });
 
+
+app.get('/remove-location', (req, res) => {
+  req.session.stateId = null;
+  req.session.stateName = null;
+  res.send('Location removed from session!');
+})
 app.use("/api", translateMiddleware, apiRoutes);
 
 const PORT = process.env.PORT || 3000;
@@ -118,7 +124,7 @@ const startServer = async () => {
     // await sequelize.sync({ alter: false });
     Logger.info("Database connected and synced");
 
-    // await createDemoAdmin();
+    await createDemoAdmin();
     // await initHomePageContent();
     // await initAboutPageContent();
     // await initMngmntTeamContent();

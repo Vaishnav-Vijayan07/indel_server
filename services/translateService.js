@@ -61,8 +61,22 @@ const SKIP_KEYS = new Set([
   "position",
 ]);
 
+// CMS field names commonly compound a structural suffix onto a prefix
+// (button_2_link, og_image, logo_url, banner_video, canonical_href) - an
+// exact-match-only SKIP_KEYS check misses every one of these and sends real
+// URLs/media paths off to be "translated" into garbage links. Suffix-matched
+// against a normalized (underscores/case stripped) key so button_2_link,
+// buttonLink, and BUTTON_2_LINK all skip alike. Kept to unambiguous
+// URL/media-path terms only - broader terms like "id"/"date" are left as
+// exact-match-only in SKIP_KEYS since they collide with real prose-bearing
+// field names (e.g. "valid", "update") as a normalized suffix.
+const SKIP_KEY_SUFFIXES = ["link", "url", "href", "path", "slug", "image", "icon", "video", "file", "thumbnail"];
+
 function shouldSkipKey(key) {
-  return SKIP_KEYS.has(key);
+  if (!key) return false;
+  if (SKIP_KEYS.has(key)) return true;
+  const normalized = key.replace(/[_-]/g, "").toLowerCase();
+  return SKIP_KEY_SUFFIXES.some((suffix) => normalized.endsWith(suffix));
 }
 
 function chunk(array, size) {

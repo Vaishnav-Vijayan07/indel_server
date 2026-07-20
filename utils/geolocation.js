@@ -7,6 +7,9 @@ const cache = new NodeCache({ stdTTL: 3600 });
 
 async function getStateFromIp(ip) {
   const cacheKey = `geo_${ip}`;
+
+  console.log("REQ IP", ip)
+
   const cached = cache.get(cacheKey);
   if (cached) {
     return cached;
@@ -28,6 +31,9 @@ async function getStateFromIp(ip) {
       where: { state_name: stateName, is_active: true },
       attributes: ["id", "state_name"],
     });
+
+
+    console.log("STATE", state)
 
     const result = {
       stateId: state?.id || null,
@@ -54,19 +60,22 @@ async function getStateFromIp(ip) {
 // for repeat visitors already cached under either key.
 async function getRawStateNameFromIp(ip) {
   const cacheKey = `geo_raw_${ip}`;
+
+
   const cached = cache.get(cacheKey);
   if (cached) {
     return cached;
   }
 
   const isLocalhost = ip === "::1" || ip === "127.0.0.1" || ip === "1.1.1.1";
-  const queryIp = isLocalhost ? "111.92.66.81" : ip;
+  const queryIp = isLocalhost ? "122.165.232.124" : ip;
 
   try {
     const response = await axios.get(`https://api.ipgeolocation.io/v2/ipgeo?apiKey=${process.env.IPGEOLOCATION_API_KEY}&ip=${queryIp}`);
     const stateName = response.data.location?.state_prov || "Global";
     cache.set(cacheKey, stateName);
     return stateName;
+
   } catch (error) {
     console.error("Geolocation error:", error.message);
     return "Global";

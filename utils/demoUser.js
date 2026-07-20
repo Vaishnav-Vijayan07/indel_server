@@ -8,7 +8,6 @@ const createDemoAdmin = async () => {
     const existingAdmin = await User.findOne({ where: { username: "admin" } });
 
     if (existingAdmin) {
-      
       return;
     }
 
