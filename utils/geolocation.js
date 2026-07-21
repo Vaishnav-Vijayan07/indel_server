@@ -21,7 +21,10 @@ async function getStateFromIp(ip) {
 
 
 
-  console.log("MYIP", queryIp)
+  
+
+
+  console.log("MYIP", isLocalhost)
 
   try {
     const response = await axios.get(`https://api.ipgeolocation.io/v2/ipgeo?apiKey=${process.env.IPGEOLOCATION_API_KEY}&ip=${queryIp}`);
