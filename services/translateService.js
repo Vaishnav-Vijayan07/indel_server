@@ -29,15 +29,30 @@ const SKIP_KEYS = new Set([
   "href",
   "image",
   "imageUrl",
+  "image_mobile",
+  "life_section_image1",
+  "life_section_image2",
+  "life_section_image3",
   "icon",
   "iconUrl",
   "logo",
   "avatar",
   "video",
   "videoUrl",
+  "video_mobile",
   "file",
   "fileUrl",
   "thumbnail",
+  // Compound CMS field names ending in "_mobile"/"_web" rather than the
+  // structural suffix itself (e.g. icon_mobile, not mobile_icon) - these
+  // slip past SKIP_KEY_SUFFIX_PATTERN since the suffix isn't at the end.
+  "andrioid_download_icon_mobile",
+  "apple_download_icon_mobile",
+  "banner_image_mobile",
+  "branch_locator_icon_mobile",
+  "branch_locator_icon_web",
+  "toll_free_icon_mobile",
+  "toll_free_icon_web",
   "code",
   "colour",
   "color",
@@ -54,6 +69,7 @@ const SKIP_KEYS = new Set([
   "endDate",
   "expiryDate",
   "rate",
+  "icon_type",
   "price",
   "amount",
   "type",
@@ -73,12 +89,26 @@ const SKIP_KEYS = new Set([
 // exact-match-only in SKIP_KEYS since they collide with real prose-bearing
 // field names (e.g. "valid", "update") as a normalized suffix.
 const SKIP_KEY_SUFFIXES = ["link", "url", "href", "path", "slug", "image", "icon", "video", "file", "thumbnail"];
+// Matches a skip suffix optionally followed by trailing digits, e.g. "image1",
+// "image2" - CMS fields like life_section_image1/2/3 append an index to the
+// structural word, which a plain .endsWith(suffix) check would miss.
+const SKIP_KEY_SUFFIX_PATTERN = new RegExp(`(${SKIP_KEY_SUFFIXES.join("|")})\\d*$`);
 
 function shouldSkipKey(key) {
   if (!key) return false;
   if (SKIP_KEYS.has(key)) return true;
   const normalized = key.replace(/[_-]/g, "").toLowerCase();
-  return SKIP_KEY_SUFFIXES.some((suffix) => normalized.endsWith(suffix));
+  return SKIP_KEY_SUFFIX_PATTERN.test(normalized);
+}
+
+// Value-shape guard, independent of the key name: skip anything that looks
+// like a URL/path/protocol reference outright, so a CMS field with an
+// unrecognized key but a media/URL value can't slip through to translation.
+const NON_TRANSLATABLE_VALUE_PATTERN = /^(https?:|\/|\.{1,2}\/|data:|mailto:|tel:|#)/i;
+
+function isTranslatableValue(value) {
+  if (NON_TRANSLATABLE_VALUE_PATTERN.test(value)) return false;
+  return true;
 }
 
 function chunk(array, size) {
@@ -144,7 +174,7 @@ async function translateContent(payload, targetLocale, sourceLocale = "en") {
 
   function walk(node, keyHint) {
     if (typeof node === "string") {
-      if (node.trim().length === 0 || shouldSkipKey(keyHint)) return node;
+      if (node.trim().length === 0 || shouldSkipKey(keyHint) || !isTranslatableValue(node)) return node;
       strings.push(node);
       const index = strings.length - 1;
       setters.push((translated) => {
