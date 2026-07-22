@@ -136,34 +136,22 @@ function chunk(array, size) {
   return chunks;
 }
 
-// Replaces HTML tags in a string with indexed placeholders so only plain text
-// is sent to the translation API. Block elements like <br/> would otherwise
-// act as segment separators and split a single string into multiple translated
-// fragments. The returned `tags` array holds the originals; call
-// restoreHtmlTags to put them back in the translated output.
-//
-// Delimiters are Unicode Private Use Area characters (U+E000, U+E001).
-// They have no linguistic meaning, cannot appear in normal CMS text, and are
-// treated as opaque bytes by machine-translation APIs so they survive
-// round-tripping unchanged.
-const HTML_TAG_RE = /<[^>]+>/g;
-const PH_OPEN = "";
-const PH_CLOSE = "";
-const PH_RESTORE_RE = /(\d+)/g;
+// <br/> variants are the only tags that cause the translateHtml endpoint to
+// split a single string into multiple segments, breaking the translation.
+// Inline tags like <span> are handled correctly by the endpoint and must be
+// left in place so Google translates around them (removing them loses styling).
+// Strategy: swap <br> out for a placeholder before translation, restore after.
+// {BR} looks like a format-string variable — translation APIs are trained to
+// leave these untouched, unlike bracket patterns which Google may rewrite.
+const BR_TAG_RE = /<br\s*\/?>/gi;
+const BR_RESTORE_RE = /\{BR\}/g;
 
-function extractHtmlTags(text) {
-  const tags = [];
-  const stripped = text.replace(HTML_TAG_RE, (tag) => {
-    const idx = tags.length;
-    tags.push(tag);
-    return PH_OPEN + idx + PH_CLOSE;
-  });
-  return { stripped, tags };
+function protectBrTags(text) {
+  return text.replace(BR_TAG_RE, "{BR}");
 }
 
-function restoreHtmlTags(text, tags) {
-  if (!tags.length) return text;
-  return text.replace(PH_RESTORE_RE, (_, i) => tags[parseInt(i, 10)] ?? "");
+function restoreBrTags(text) {
+  return text.replace(BR_RESTORE_RE, "<br/>");
 }
 
 async function callGoogleWidgetEndpoint(texts, targetLocale, sourceLocale = "en") {
@@ -191,14 +179,13 @@ async function callGoogleWidgetEndpoint(texts, targetLocale, sourceLocale = "en"
 async function translateBatch(texts, targetLocale, sourceLocale = "en") {
   if (texts.length === 0) return [];
 
-  // Strip HTML tags into placeholders before translation so that block elements
-  // like <br/> don't act as segment separators and split a single string into
-  // multiple fragments. Tags are restored after the API responds.
-  const tagMaps = texts.map(extractHtmlTags);
-  const strippedTexts = tagMaps.map((m) => m.stripped);
+  // <br/> tags act as segment separators in the translateHtml endpoint and
+  // split a single string into misaligned translated fragments. Replace them
+  // with a placeholder first; inline tags like <span> are left as-is.
+  const protectedTexts = texts.map(protectBrTags);
 
-  const batches = chunk(strippedTexts, MAX_BATCH_SIZE);
-  const translatedStripped = [];
+  const batches = chunk(protectedTexts, MAX_BATCH_SIZE);
+  const translatedProtected = [];
   for (const batch of batches) {
     const translated = await callGoogleWidgetEndpoint(batch, targetLocale, sourceLocale);
     // The endpoint is unofficial and has no contract on cardinality. A short
@@ -208,14 +195,14 @@ async function translateBatch(texts, targetLocale, sourceLocale = "en") {
       Logger.warn(
         `translate: expected ${batch.length} strings for ${targetLocale}, got ${translated.length}; serving this chunk untranslated`,
       );
-      translatedStripped.push(...batch);
+      translatedProtected.push(...batch);
       continue;
     }
-    translatedStripped.push(...translated);
+    translatedProtected.push(...translated);
   }
 
-  // Restore HTML tags into each translated string using its own tag map
-  return translatedStripped.map((text, i) => restoreHtmlTags(text, tagMaps[i].tags));
+  // Restore <br/> tags in each translated string
+  return translatedProtected.map(restoreBrTags);
 }
 
 // Walks an object/array tree, collecting translatable string leaves (skipping
