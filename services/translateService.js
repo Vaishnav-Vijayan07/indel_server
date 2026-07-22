@@ -141,21 +141,29 @@ function chunk(array, size) {
 // act as segment separators and split a single string into multiple translated
 // fragments. The returned `tags` array holds the originals; call
 // restoreHtmlTags to put them back in the translated output.
+//
+// Delimiters are Unicode Private Use Area characters (U+E000, U+E001).
+// They have no linguistic meaning, cannot appear in normal CMS text, and are
+// treated as opaque bytes by machine-translation APIs so they survive
+// round-tripping unchanged.
 const HTML_TAG_RE = /<[^>]+>/g;
+const PH_OPEN = "";
+const PH_CLOSE = "";
+const PH_RESTORE_RE = /(\d+)/g;
 
 function extractHtmlTags(text) {
   const tags = [];
   const stripped = text.replace(HTML_TAG_RE, (tag) => {
     const idx = tags.length;
     tags.push(tag);
-    return `[[[${idx}]]]`;
+    return PH_OPEN + idx + PH_CLOSE;
   });
   return { stripped, tags };
 }
 
 function restoreHtmlTags(text, tags) {
   if (!tags.length) return text;
-  return text.replace(/\[\[\[(\d+)\]\]\]/g, (_, i) => tags[parseInt(i, 10)] ?? "");
+  return text.replace(PH_RESTORE_RE, (_, i) => tags[parseInt(i, 10)] ?? "");
 }
 
 async function callGoogleWidgetEndpoint(texts, targetLocale, sourceLocale = "en") {
