@@ -151,7 +151,14 @@ function protectBrTags(text) {
 }
 
 function restoreBrTags(text) {
-  return text.replace(BR_RESTORE_RE, "<br/>");
+  const restored = text.replace(BR_RESTORE_RE, "<br/>");
+  // When {BR} acts as a soft segment boundary, Google sometimes absorbs the
+  // text after it into the main translation and emits only stray punctuation
+  // (e.g. ".") for the trailing fragment. Strip any content after the last
+  // <br/> that contains no real letters or digits — it's a translation artifact.
+  return restored.replace(/<br\/>([^<]*)$/, (match, after) =>
+    /[\p{L}\p{N}]/u.test(after) ? match : "<br/>"
+  );
 }
 
 async function callGoogleWidgetEndpoint(texts, targetLocale, sourceLocale = "en") {
