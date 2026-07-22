@@ -136,6 +136,28 @@ function chunk(array, size) {
   return chunks;
 }
 
+// Replaces HTML tags in a string with indexed placeholders so only plain text
+// is sent to the translation API. Block elements like <br/> would otherwise
+// act as segment separators and split a single string into multiple translated
+// fragments. The returned `tags` array holds the originals; call
+// restoreHtmlTags to put them back in the translated output.
+const HTML_TAG_RE = /<[^>]+>/g;
+
+function extractHtmlTags(text) {
+  const tags = [];
+  const stripped = text.replace(HTML_TAG_RE, (tag) => {
+    const idx = tags.length;
+    tags.push(tag);
+    return `[[[${idx}]]]`;
+  });
+  return { stripped, tags };
+}
+
+function restoreHtmlTags(text, tags) {
+  if (!tags.length) return text;
+  return text.replace(/\[\[\[(\d+)\]\]\]/g, (_, i) => tags[parseInt(i, 10)] ?? "");
+}
+
 async function callGoogleWidgetEndpoint(texts, targetLocale, sourceLocale = "en") {
   const response = await fetch(`${TRANSLATE_ENDPOINT}?key=${GOOGLE_WIDGET_API_KEY}`, {
     method: "POST",
@@ -161,8 +183,14 @@ async function callGoogleWidgetEndpoint(texts, targetLocale, sourceLocale = "en"
 async function translateBatch(texts, targetLocale, sourceLocale = "en") {
   if (texts.length === 0) return [];
 
-  const batches = chunk(texts, MAX_BATCH_SIZE);
-  const results = [];
+  // Strip HTML tags into placeholders before translation so that block elements
+  // like <br/> don't act as segment separators and split a single string into
+  // multiple fragments. Tags are restored after the API responds.
+  const tagMaps = texts.map(extractHtmlTags);
+  const strippedTexts = tagMaps.map((m) => m.stripped);
+
+  const batches = chunk(strippedTexts, MAX_BATCH_SIZE);
+  const translatedStripped = [];
   for (const batch of batches) {
     const translated = await callGoogleWidgetEndpoint(batch, targetLocale, sourceLocale);
     // The endpoint is unofficial and has no contract on cardinality. A short
@@ -172,12 +200,14 @@ async function translateBatch(texts, targetLocale, sourceLocale = "en") {
       Logger.warn(
         `translate: expected ${batch.length} strings for ${targetLocale}, got ${translated.length}; serving this chunk untranslated`,
       );
-      results.push(...batch);
+      translatedStripped.push(...batch);
       continue;
     }
-    results.push(...translated);
+    translatedStripped.push(...translated);
   }
-  return results;
+
+  // Restore HTML tags into each translated string using its own tag map
+  return translatedStripped.map((text, i) => restoreHtmlTags(text, tagMaps[i].tags));
 }
 
 // Walks an object/array tree, collecting translatable string leaves (skipping
