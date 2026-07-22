@@ -31,6 +31,8 @@ const SKIP_KEYS = new Set([
   "imageUrl",
   "icon",
   "iconUrl",
+  "logo",
+  "avatar",
   "video",
   "videoUrl",
   "file",
