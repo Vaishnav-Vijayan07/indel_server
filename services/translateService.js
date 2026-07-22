@@ -30,9 +30,9 @@ const SKIP_KEYS = new Set([
   "image",
   "imageUrl",
   "image_mobile",
-  "life_section_image1",
-  "life_section_image2",
-  "life_section_image3",
+  // "life_section_image1",
+  // "life_section_image2",
+  // "life_section_image3",
   "icon",
   "iconUrl",
   "logo",
@@ -73,6 +73,7 @@ const SKIP_KEYS = new Set([
   "price",
   "amount",
   "type",
+  "media_type",
   "status",
   "role",
   "order",
@@ -88,7 +89,23 @@ const SKIP_KEYS = new Set([
 // URL/media-path terms only - broader terms like "id"/"date" are left as
 // exact-match-only in SKIP_KEYS since they collide with real prose-bearing
 // field names (e.g. "valid", "update") as a normalized suffix.
-const SKIP_KEY_SUFFIXES = ["link", "url", "href", "path", "slug", "image", "icon", "video", "file", "thumbnail"];
+// "alt"/"alttext" cover CMS alt-text fields (image_alt, alt_text,
+// banner_image_alt, etc.) - descriptive/accessibility metadata, not display
+// prose, so it's skipped for the same reason as image/icon/logo above.
+const SKIP_KEY_SUFFIXES = [
+  "link",
+  "url",
+  "href",
+  "path",
+  "slug",
+  "image",
+  "icon",
+  "video",
+  "file",
+  "thumbnail",
+  "alt",
+  "alttext",
+];
 // Matches a skip suffix optionally followed by trailing digits, e.g. "image1",
 // "image2" - CMS fields like life_section_image1/2/3 append an index to the
 // structural word, which a plain .endsWith(suffix) check would miss.
