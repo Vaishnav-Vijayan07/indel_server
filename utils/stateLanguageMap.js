@@ -47,10 +47,10 @@ const STATE_TO_LOCALE = {
   "punjab": "pa",
 
   // Nepali — Sikkim's majority and an official language
-  "sikkim": "ne",
+  // "sikkim": "ne",
 
   // Manipuri / Meitei — Manipur's majority language (Imphal valley)
-  "manipur": "mni-Mtei",
+  // "manipur": "mni-Mtei",
 
   // Assamese
   "assam": "as",

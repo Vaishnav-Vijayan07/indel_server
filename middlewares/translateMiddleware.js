@@ -14,11 +14,30 @@ const Logger = require("../services/logger");
 // and Kashmiri ("ks") are deliberately excluded — not supported by Google's
 // translate-pa widget endpoint, same exclusion the client list already makes.
 const SUPPORTED_LOCALES = [
-  "hi", "ta", "te", "mr", "gu", "bn", "kn", "ml",
-  "as", "doi", "kok", "mai", "mni-Mtei", "ne", "or", "pa", "sa", "sat", "sd", "ur",
+  "hi",
+  "ta",
+  "te",
+  "mr",
+  "gu",
+  "bn",
+  "kn",
+  "ml",
+  "as",
+  // "doi",
+  "kok",
+  "mai",
+  // "mni-Mtei",
+  // "ne",
+  "or",
+  "pa",
+  // "sa",
+  "sat",
+  "sd",
+  "ur",
 ];
 
-const CACHE_TTL_WITH_FRESHNESS_TOKEN = parseInt(process.env.TRANSLATE_CACHE_TTL_SECONDS, 10) || 30; // 30 seconds
+const CACHE_TTL_WITH_FRESHNESS_TOKEN =
+  parseInt(process.env.TRANSLATE_CACHE_TTL_SECONDS, 10) || 30; // 30 seconds
 const CACHE_TTL_WITHOUT_FRESHNESS_TOKEN = 30; // 30 seconds — bounds staleness when we can't detect content edits
 
 // Best-effort content-version fingerprint so a content edit naturally busts
@@ -26,7 +45,9 @@ const CACHE_TTL_WITHOUT_FRESHNESS_TOKEN = 30; // 30 seconds — bounds staleness
 function extractFreshnessToken(body) {
   const data = body?.data ?? body;
   if (Array.isArray(data)) {
-    return data.map((item) => item?.updatedAt || item?.updated_at || "").join(",");
+    return data
+      .map((item) => item?.updatedAt || item?.updated_at || "")
+      .join(",");
   }
   if (data && typeof data === "object") {
     return data.updatedAt || data.updated_at || "";
@@ -45,7 +66,9 @@ function translateMiddleware(req, res, next) {
   res.json = (body) => {
     const freshnessToken = extractFreshnessToken(body);
     const cacheKey = `translate:${locale}:${req.originalUrl}:${freshnessToken}`;
-    const ttl = freshnessToken ? CACHE_TTL_WITH_FRESHNESS_TOKEN : CACHE_TTL_WITHOUT_FRESHNESS_TOKEN;
+    const ttl = freshnessToken
+      ? CACHE_TTL_WITH_FRESHNESS_TOKEN
+      : CACHE_TTL_WITHOUT_FRESHNESS_TOKEN;
 
     // Caching temporarily disabled — always translate live. Re-enable by
     // uncommenting the cacheService.get/.set calls below.
@@ -77,7 +100,9 @@ function translateMiddleware(req, res, next) {
 
         return originalJson(translatedBody);
       } catch (error) {
-        Logger.error(`Translation middleware error for ${req.originalUrl}: ${error.message}`);
+        Logger.error(
+          `Translation middleware error for ${req.originalUrl}: ${error.message}`,
+        );
         originalJson(body); // fail open — serve English rather than break the page
       }
     })();
