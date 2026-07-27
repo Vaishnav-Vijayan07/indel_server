@@ -32,7 +32,7 @@ const SUPPORTED_LOCALES = [
   "pa",
   // "sa",
   "sat",
-  "sd",
+  // "sd",
   "ur",
 ];
 

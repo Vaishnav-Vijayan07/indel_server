@@ -71,7 +71,7 @@ async function getRawStateNameFromIp(ip) {
   }
 
   const isLocalhost = ip === "::1" || ip === "127.0.0.1" || ip === "1.1.1.1";
-  const queryIp = isLocalhost ? "122.165.232.124" : ip;
+  const queryIp = isLocalhost ? "111.92.66.81" : ip;
 
   try {
     const response = await axios.get(`https://api.ipgeolocation.io/v2/ipgeo?apiKey=${process.env.IPGEOLOCATION_API_KEY}&ip=${queryIp}`);
