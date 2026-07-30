@@ -16,6 +16,7 @@ const uploadField = upload.single("file");
 const uploadApplicantFile = upload.single("applicant[file]");
 
 router.get("/locale-detect", LocaleController.detectLocale);
+router.get("/locale-detect-gps", LocaleController.detectLocaleFromCoordinates);
 router.get("/meta", MetaDataController.getMetaData);
 router.get("/gold-rate", GoldRateController.fetchGoldRate);
 router.get("/faq", FaqController.getFaqData);

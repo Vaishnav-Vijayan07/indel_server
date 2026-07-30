@@ -85,4 +85,7 @@ async function getRawStateNameFromIp(ip) {
   }
 }
 
-module.exports = { getStateFromIp, getRawStateNameFromIp };
+// Exported so other lookups keyed on a different signal (e.g. GPS
+// coordinates in statePolygonLookup.js's caller) can share this same
+// instance/TTL instead of standing up a second in-process cache.
+module.exports = { getStateFromIp, getRawStateNameFromIp, cache };
