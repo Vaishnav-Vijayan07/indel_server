@@ -9,13 +9,11 @@ const JobApplicationSubmissionController = require("../controllers/career/jobApp
 const MetaDataController = require("../controllers/meta/metaDataController");
 const GoldRateController = require("../controllers/general/goldRateController");
 const FaqController = require("../controllers/faqController");
-const LocaleController = require("../controllers/localeController");
 
 const upload = createUploadMiddleware("job-applications");
 const uploadField = upload.single("file");
 const uploadApplicantFile = upload.single("applicant[file]");
 
-router.get("/locale-detect", LocaleController.detectLocale);
 router.get("/meta", MetaDataController.getMetaData);
 router.get("/gold-rate", GoldRateController.fetchGoldRate);
 router.get("/faq", FaqController.getFaqData);
