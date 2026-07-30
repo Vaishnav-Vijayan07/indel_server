@@ -55,37 +55,4 @@ async function getStateFromIp(ip) {
   }
 }
 
-// Like getStateFromIp, but returns the raw state_prov from ipgeolocation.io
-// directly rather than matching it against the CareerStates table (which is
-// curated for career-page filtering, not a complete list of Indian states —
-// matching against it here would make most states fall back to "Global").
-// Shares the same cache/lookup logic, so it doesn't cost an extra API call
-// for repeat visitors already cached under either key.
-async function getRawStateNameFromIp(ip) {
-  const cacheKey = `geo_raw_${ip}`;
-
-
-  const cached = cache.get(cacheKey);
-  if (cached) {
-    return cached;
-  }
-
-  const isLocalhost = ip === "::1" || ip === "127.0.0.1" || ip === "1.1.1.1";
-  const queryIp = isLocalhost ? "111.92.66.81" : ip;
-
-  try {
-    const response = await axios.get(`https://api.ipgeolocation.io/v2/ipgeo?apiKey=${process.env.IPGEOLOCATION_API_KEY}&ip=${queryIp}`);
-    const stateName = response.data.location?.state_prov || "Global";
-    cache.set(cacheKey, stateName);
-    return stateName;
-
-  } catch (error) {
-    console.error("Geolocation error:", error.message);
-    return "Global";
-  }
-}
-
-// Exported so other lookups keyed on a different signal (e.g. GPS
-// coordinates in statePolygonLookup.js's caller) can share this same
-// instance/TTL instead of standing up a second in-process cache.
-module.exports = { getStateFromIp, getRawStateNameFromIp, cache };
+module.exports = { getStateFromIp };
