@@ -1,12 +1,11 @@
 const { PDFDocument, StandardFonts, rgb } = require("pdf-lib");
 const QRCode = require("qrcode");
 
-const CAPTION = "Please scan this QR code to view this Draft Prospectus";
+const CAPTION_LINES = ["Please scan this QR code to view", "this Draft Prospectus"];
 const MARGIN = 28;
 const QR_SIZE = 35;
 const CAPTION_FONT_SIZE = 6.5;
 const CAPTION_LINE_GAP = 8;
-const CAPTION_MAX_WIDTH = 100;
 
 function getContentPadding(page) {
   const mediaBox = page.getMediaBox();
@@ -19,24 +18,6 @@ function getContentPadding(page) {
     left: left > 0 ? left : MARGIN,
     top: top > 0 ? top : MARGIN,
   };
-}
-
-function wrapText(text, font, fontSize, maxWidth) {
-  const words = text.split(" ");
-  const lines = [];
-  let currentLine = "";
-
-  for (const word of words) {
-    const candidate = currentLine ? `${currentLine} ${word}` : word;
-    if (font.widthOfTextAtSize(candidate, fontSize) > maxWidth && currentLine) {
-      lines.push(currentLine);
-      currentLine = word;
-    } else {
-      currentLine = candidate;
-    }
-  }
-  if (currentLine) lines.push(currentLine);
-  return lines;
 }
 
 async function stampQrOnPdf(pdfBuffer, targetUrl) {
@@ -53,7 +34,7 @@ async function stampQrOnPdf(pdfBuffer, targetUrl) {
   const qrImage = await pdfDoc.embedPng(qrPngBuffer);
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-  const captionLines = wrapText(CAPTION, font, CAPTION_FONT_SIZE, CAPTION_MAX_WIDTH);
+  const captionLines = CAPTION_LINES;
   const contentWidth = Math.max(
     QR_SIZE,
     ...captionLines.map((line) => font.widthOfTextAtSize(line, CAPTION_FONT_SIZE))
