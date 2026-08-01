@@ -3,7 +3,7 @@ const QRCode = require("qrcode");
 
 const CAPTION = "Please scan this QR code to view this Draft Prospectus";
 const MARGIN = 28;
-const QR_SIZE = 55;
+const QR_SIZE = 35;
 const CAPTION_FONT_SIZE = 6.5;
 const CAPTION_LINE_GAP = 8;
 const CAPTION_MAX_WIDTH = QR_SIZE + 30;
