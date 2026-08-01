@@ -6,7 +6,20 @@ const MARGIN = 28;
 const QR_SIZE = 35;
 const CAPTION_FONT_SIZE = 6.5;
 const CAPTION_LINE_GAP = 8;
-const CAPTION_MAX_WIDTH = QR_SIZE + 30;
+const CAPTION_MAX_WIDTH = 100;
+
+function getContentPadding(page) {
+  const mediaBox = page.getMediaBox();
+  const cropBox = page.getCropBox();
+
+  const left = cropBox.x - mediaBox.x;
+  const top = mediaBox.y + mediaBox.height - (cropBox.y + cropBox.height);
+
+  return {
+    left: left > 0 ? left : MARGIN,
+    top: top > 0 ? top : MARGIN,
+  };
+}
 
 function wrapText(text, font, fontSize, maxWidth) {
   const words = text.split(" ");
@@ -41,16 +54,23 @@ async function stampQrOnPdf(pdfBuffer, targetUrl) {
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
   const captionLines = wrapText(CAPTION, font, CAPTION_FONT_SIZE, CAPTION_MAX_WIDTH);
+  const contentWidth = Math.max(
+    QR_SIZE,
+    ...captionLines.map((line) => font.widthOfTextAtSize(line, CAPTION_FONT_SIZE))
+  );
 
-  const qrX = MARGIN;
-  const qrY = pageHeight - MARGIN - QR_SIZE;
+  const { left: paddingX, top: paddingY } = getContentPadding(page);
 
   const blockPaddingX = 6;
   const blockPaddingTop = 6;
-  const blockWidth = QR_SIZE + blockPaddingX * 2;
+  const blockWidth = contentWidth + blockPaddingX * 2;
   const blockHeight = QR_SIZE + blockPaddingTop + captionLines.length * CAPTION_LINE_GAP + 6;
-  const blockX = qrX - blockPaddingX;
-  const blockY = qrY - (captionLines.length * CAPTION_LINE_GAP + 6);
+  const blockX = paddingX;
+  const blockY = pageHeight - paddingY - blockHeight;
+  const centerX = blockX + blockWidth / 2;
+
+  const qrX = centerX - QR_SIZE / 2;
+  const qrY = pageHeight - paddingY - blockPaddingTop - QR_SIZE;
 
   page.drawRectangle({
     x: blockX,
@@ -72,7 +92,7 @@ async function stampQrOnPdf(pdfBuffer, targetUrl) {
   for (const line of captionLines) {
     const lineWidth = font.widthOfTextAtSize(line, CAPTION_FONT_SIZE);
     page.drawText(line, {
-      x: qrX + QR_SIZE / 2 - lineWidth / 2,
+      x: centerX - lineWidth / 2,
       y: textY,
       size: CAPTION_FONT_SIZE,
       font,
