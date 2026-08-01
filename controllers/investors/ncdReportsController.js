@@ -2,12 +2,27 @@ const { models } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
+const { stampQrOnPdf } = require("../../services/pdfQrStampService");
 const fs = require("fs").promises;
 const path = require("path");
 
 const NcdReports = models.NcdReports;
 
 class NcdReportsController {
+    static async stampAndPersistQr(req) {
+        if (!req.file || req.file.mimetype !== "application/pdf") return;
+
+        const publicUrl = `${process.env.BASE_URL || req.protocol + "://" + req.get("host")}/uploads/ncd-reports/${req.file.filename}`;
+
+        try {
+            const original = await fs.readFile(req.file.path);
+            const stamped = await stampQrOnPdf(original, publicUrl);
+            await fs.writeFile(req.file.path, stamped);
+        } catch (error) {
+            Logger.error(`QR stamping failed for ${req.file.filename}: ${error.message}`);
+        }
+    }
+
     static async deleteFile(filePath) {
         if (!filePath) return;
         try {
@@ -25,6 +40,7 @@ class NcdReportsController {
         try {
             const updateData = { ...req.body };
             if (req.file) {
+                await NcdReportsController.stampAndPersistQr(req);
                 updateData.file = `/uploads/ncd-reports/${req.file.filename}`;
                 Logger.info(`Uploaded file for NcdReport: ${updateData.file}`);
             }
@@ -92,6 +108,7 @@ class NcdReportsController {
             let oldFile = report.file;
 
             if (req.file) {
+                await NcdReportsController.stampAndPersistQr(req);
                 updateData.file = `/uploads/ncd-reports/${req.file.filename}`;
                 Logger.info(`Updated file for NcdReport ID ${id}: ${updateData.file}`);
                 if (oldFile) {
