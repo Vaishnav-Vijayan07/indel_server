@@ -2,12 +2,28 @@ const { models } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
+const slugify = require("../../utils/slugify");
 const fs = require("fs").promises;
 const path = require("path");
 
 const NcdReports = models.NcdReports;
+const UPLOAD_DIR = path.join(__dirname, "..", "..", "uploads", "ncd-reports");
 
 class NcdReportsController {
+    static async resolveUniqueFilename(base, ext) {
+        let candidate = `${base}${ext}`;
+        let suffix = 2;
+        while (true) {
+            try {
+                await fs.access(path.join(UPLOAD_DIR, candidate));
+                candidate = `${base}-${suffix}${ext}`;
+                suffix += 1;
+            } catch {
+                return candidate;
+            }
+        }
+    }
+
     static async deleteFile(filePath) {
         if (!filePath) return;
         try {
@@ -25,7 +41,13 @@ class NcdReportsController {
         try {
             const updateData = { ...req.body };
             if (req.file) {
-                updateData.file = `/uploads/ncd-reports/${req.file.filename}`;
+                const base = slugify(req.body.title) || path.parse(req.file.filename).name;
+                const ext = path.extname(req.file.originalname);
+                const filename = await NcdReportsController.resolveUniqueFilename(base, ext);
+
+                await fs.rename(req.file.path, path.join(UPLOAD_DIR, filename));
+
+                updateData.file = `/uploads/ncd-reports/${filename}`;
                 Logger.info(`Uploaded file for NcdReport: ${updateData.file}`);
             }
 
@@ -92,11 +114,30 @@ class NcdReportsController {
             let oldFile = report.file;
 
             if (req.file) {
-                updateData.file = `/uploads/ncd-reports/${req.file.filename}`;
-                Logger.info(`Updated file for NcdReport ID ${id}: ${updateData.file}`);
+                const newExt = path.extname(req.file.originalname);
+
                 if (oldFile) {
-                    await NcdReportsController.deleteFile(oldFile);
+                    const oldFilename = path.basename(oldFile);
+                    const oldBase = path.parse(oldFilename).name;
+                    const oldExt = path.extname(oldFilename);
+
+                    if (newExt === oldExt) {
+                        await fs.rename(req.file.path, path.join(UPLOAD_DIR, oldFilename));
+                        updateData.file = oldFile;
+                    } else {
+                        const filename = `${oldBase}${newExt}`;
+                        await fs.rename(req.file.path, path.join(UPLOAD_DIR, filename));
+                        updateData.file = `/uploads/ncd-reports/${filename}`;
+                        await NcdReportsController.deleteFile(oldFile);
+                    }
+                } else {
+                    const base = slugify(updateData.title ?? report.title) || path.parse(req.file.filename).name;
+                    const filename = await NcdReportsController.resolveUniqueFilename(base, newExt);
+                    await fs.rename(req.file.path, path.join(UPLOAD_DIR, filename));
+                    updateData.file = `/uploads/ncd-reports/${filename}`;
                 }
+
+                Logger.info(`Updated file for NcdReport ID ${id}: ${updateData.file}`);
             }
 
             await report.update(updateData);
