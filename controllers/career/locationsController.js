@@ -1,7 +1,7 @@
 const { models } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
-const { fn, col, where } = require("sequelize");
+const { fn, col, where, Op } = require("sequelize");
 
 const Locations = models.CareerLocations;
 const Districts = models.Districts;
@@ -33,19 +33,75 @@ class LocationsController {
 
   static async getAll(req, res, next) {
     try {
-      const cacheKey = "locations";
-      const cachedData = await CacheService.get(cacheKey);
+      const { page, limit, search } = req.query;
 
-      // if (cachedData) {
-      //   return res.json({ success: true, data: JSON.parse(cachedData) });
-      // }
+      // If no pagination params, return full list (backward compatible for BranchLocator/MobBranchLocator)
+      if (!page && !limit) {
+        const cacheKey = "locations";
+        const cachedData = await CacheService.get(cacheKey);
 
-      const locations = await Locations.findAll({
+        // if (cachedData) {
+        //   return res.json({ success: true, data: JSON.parse(cachedData) });
+        // }
+
+        const locations = await Locations.findAll({
+          order: [["order", "ASC"]],
+        });
+
+        await CacheService.set(cacheKey, JSON.stringify(locations), 3600);
+        return res.json({ success: true, data: locations });
+      }
+
+      // Pagination flow
+      const pageNum = Math.max(1, parseInt(page, 10));
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
+      const offset = (pageNum - 1) * limitNum;
+
+      // Build where conditions for search
+      const whereConditions = {};
+      if (search && search.trim()) {
+        whereConditions.location_name = { [Op.iLike]: `%${search.trim()}%` };
+      }
+
+      // Skip caching when search is applied (arbitrary user input would create unbounded cache keys)
+      const cacheKey = search ? null : `locations_page_${pageNum}_limit_${limitNum}`;
+      if (cacheKey) {
+        const cachedData = await CacheService.get(cacheKey);
+        // if (cachedData) {
+        //   return res.json(JSON.parse(cachedData));
+        // }
+      }
+
+      const { count, rows } = await Locations.findAndCountAll({
+        where: whereConditions,
         order: [["order", "ASC"]],
+        limit: limitNum,
+        offset,
       });
 
-      await CacheService.set(cacheKey, JSON.stringify(locations), 3600);
-      res.json({ success: true, data: locations });
+      const totalPages = Math.ceil(count / limitNum);
+      const hasNextPage = pageNum < totalPages;
+      const hasPrevPage = pageNum > 1;
+
+      const response = {
+        success: true,
+        data: rows,
+        total: count,
+        pagination: {
+          page: pageNum,
+          totalPages,
+          limit: limitNum,
+          offset,
+          hasNextPage,
+          hasPrevPage,
+        },
+      };
+
+      // Only cache if no search filter is applied
+      if (cacheKey) {
+        await CacheService.set(cacheKey, JSON.stringify(response), 3600);
+      }
+      res.json(response);
     } catch (error) {
       next(error);
     }
