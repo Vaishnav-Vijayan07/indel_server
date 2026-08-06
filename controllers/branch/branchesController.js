@@ -66,7 +66,7 @@ class BranchesController {
       const offset = (pageNum - 1) * limitNum;
 
       // Build where conditions for search
-      const whereConditions = { is_active: true };
+      const whereConditions = {  };
       if (search && search.trim()) {
         whereConditions.name = { [Op.iLike]: `%${search.trim()}%` };
       }
