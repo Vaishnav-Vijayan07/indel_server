@@ -14,6 +14,7 @@ class BranchesController {
       const data = { ...req.body };
       const branch = await Branches.create(data);
       await CacheService.invalidate("Branches");
+      await CacheService.invalidate("Branches_active");
       res
         .status(201)
         .json({ success: true, data: branch, message: "Branch created" });
@@ -66,7 +67,7 @@ class BranchesController {
       const offset = (pageNum - 1) * limitNum;
 
       // Build where conditions for search
-      const whereConditions = { is_active: true };
+      const whereConditions = {  };
       if (search && search.trim()) {
         whereConditions.name = { [Op.iLike]: `%${search.trim()}%` };
       }
@@ -196,6 +197,43 @@ class BranchesController {
     }
   }
 
+  static async getActiveBranches(req, res, next) {
+    try {
+      const cacheKey = "Branches_active";
+      const cachedData = await CacheService.get(cacheKey);
+
+      if (cachedData) {
+        return res.json({ success: true, data: JSON.parse(cachedData) });
+      }
+
+      const branches = await Branches.findAll({
+        where: { is_active: true },
+        include: [
+          {
+            model: models.CareerStates,
+            as: "states",
+            attributes: ["state_name"],
+          },
+          {
+            model: models.Districts,
+            as: "districts",
+            attributes: ["district_name"],
+          },
+          {
+            model: models.CareerLocations,
+            as: "locations",
+            attributes: ["location_name"],
+          },
+        ],
+        order: [["name", "ASC"]],
+      });
+      await CacheService.set(cacheKey, JSON.stringify(branches), 3600);
+      return res.json({ success: true, data: branches });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async getById(req, res, next) {
     try {
       const { id } = req.params;
@@ -229,6 +267,7 @@ class BranchesController {
       const updateData = { ...req.body };
       await branch.update(updateData);
       await CacheService.invalidate("Branches");
+      await CacheService.invalidate("Branches_active");
       await CacheService.invalidate(`branch_${id}`);
       res.json({ success: true, data: branch, message: "Branch updated" });
     } catch (error) {
@@ -246,6 +285,7 @@ class BranchesController {
 
       await branch.destroy();
       await CacheService.invalidate("Branches");
+      await CacheService.invalidate("Branches_active");
       await CacheService.invalidate(`branch_${id}`);
       res.json({ success: true, message: "Branch deleted", data: id });
     } catch (error) {
@@ -259,6 +299,8 @@ class BranchesController {
         return res.status(400).json({ message: "No file uploaded" });
       }
       const result = await importBranchesFromXlsx(req.file.path);
+      await CacheService.invalidate("Branches");
+      await CacheService.invalidate("Branches_active");
       res.json({
         message: "Branches imported successfully",
         count: result.count,
