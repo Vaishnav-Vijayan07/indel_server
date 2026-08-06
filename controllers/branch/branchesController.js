@@ -24,15 +24,64 @@ class BranchesController {
 
   static async getAll(req, res, next) {
     try {
-      const cacheKey = "Branches";
-      const cachedData = await CacheService.get(cacheKey);
+      const { page, limit, search } = req.query;
 
-      // if (cachedData) {
-      //   return res.json({ success: true, data: JSON.parse(cachedData) });
-      // }
+      // If no pagination params, return full list (backward compatible for client-side usage)
+      if (!page && !limit) {
+        const cacheKey = "Branches";
+        const cachedData = await CacheService.get(cacheKey);
 
-      const branches = await Branches.findAll({
-        // where: { is_active: true },
+        // if (cachedData) {
+        //   return res.json({ success: true, data: JSON.parse(cachedData) });
+        // }
+
+        const branches = await Branches.findAll({
+          // where: { is_active: true },
+          include: [
+            {
+              model: models.CareerStates,
+              as: "states",
+              attributes: ["state_name"],
+            },
+            {
+              model: models.Districts,
+              as: "districts",
+              attributes: ["district_name"],
+            },
+            {
+              model: models.CareerLocations,
+              as: "locations",
+              attributes: ["location_name"],
+            },
+          ],
+          order: [["name", "ASC"]],
+        });
+        await CacheService.set(cacheKey, JSON.stringify(branches), 3600);
+        return res.json({ success: true, data: branches });
+      }
+
+      // Pagination flow
+      const pageNum = Math.max(1, parseInt(page, 10));
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
+      const offset = (pageNum - 1) * limitNum;
+
+      // Build where conditions for search
+      const whereConditions = { is_active: true };
+      if (search && search.trim()) {
+        whereConditions.name = { [Op.iLike]: `%${search.trim()}%` };
+      }
+
+      // Skip caching when search is applied (arbitrary user input would create unbounded cache keys)
+      const cacheKey = search ? null : `Branches_page_${pageNum}_limit_${limitNum}`;
+      if (cacheKey) {
+        const cachedData = await CacheService.get(cacheKey);
+        // if (cachedData) {
+        //   return res.json(JSON.parse(cachedData));
+        // }
+      }
+
+      const { count, rows } = await Branches.findAndCountAll({
+        where: whereConditions,
         include: [
           {
             model: models.CareerStates,
@@ -51,9 +100,33 @@ class BranchesController {
           },
         ],
         order: [["name", "ASC"]],
+        limit: limitNum,
+        offset,
       });
-      await CacheService.set(cacheKey, JSON.stringify(branches), 3600);
-      res.json({ success: true, data: branches });
+
+      const totalPages = Math.ceil(count / limitNum);
+      const hasNextPage = pageNum < totalPages;
+      const hasPrevPage = pageNum > 1;
+
+      const response = {
+        success: true,
+        data: rows,
+        total: count,
+        pagination: {
+          page: pageNum,
+          totalPages,
+          limit: limitNum,
+          offset,
+          hasNextPage,
+          hasPrevPage,
+        },
+      };
+
+      // Only cache if no search filter is applied
+      if (cacheKey) {
+        await CacheService.set(cacheKey, JSON.stringify(response), 3600);
+      }
+      res.json(response);
     } catch (error) {
       next(error);
     }
