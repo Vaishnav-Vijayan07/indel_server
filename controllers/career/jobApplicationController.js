@@ -581,17 +581,15 @@ class JobApplicationSubmissionController {
         },
       ];
 
-      // Use separate count query to avoid Sequelize issues with complex joins
-      const total = await models.JobApplications.count({
-        where: whereConditions,
-      });
-
-      const applications = await models.JobApplications.findAll({
+      // Use findAndCountAll with distinct: true to ensure count and data query use identical where/include logic
+      // This fixes the pagination bug where filtered count was being computed without the association filters
+      const { rows: applications, count: total } = await models.JobApplications.findAndCountAll({
         where: whereConditions,
         include: includeArray,
         order: [["application_date", "DESC"]],
         limit: parsedLimit,
         offset: parsedOffset,
+        distinct: true, // Required to count correctly when there are many-to-many or hasMany joins, otherwise join rows get double-counted
         raw: false, // Ensure we get full objects
       });
 

@@ -8,6 +8,7 @@ const upload = createUploadMiddleware("branch_import");
 const uploadField = upload.single("file");
 
 router.get("/filtered_branches", BranchesController.getAllBranchesFilter);
+router.get("/export", BranchesController.exportAllBranches);
 router.get("/", BranchesController.getAll);
 router.get("/:id", BranchesController.getById);
 
