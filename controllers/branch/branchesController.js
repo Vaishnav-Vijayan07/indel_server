@@ -32,7 +32,7 @@ class BranchesController {
       // }
 
       const branches = await Branches.findAll({
-        where: { is_active: true },
+        // where: { is_active: true },
         include: [
           {
             model: models.CareerStates,
