@@ -2,6 +2,7 @@ const { models } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
+const { Op } = require("sequelize");
 const { MSMELoan } = require("../webController");
 
 const MsmeLoanFaqs = models.MsmeLoanFaq;
@@ -23,32 +24,80 @@ class MsmeLoanFaqsController {
   }
 
   static async getAll(req, res, next) {
-    const { stateId } = req.query;
-    
+    const { page, limit, search, stateId } = req.query;
 
     try {
-      const cacheKey = "msmeLoanFaqs";
-      const cachedData = await CacheService.get(cacheKey);
+      // Legacy path - no pagination params
+      if (!page && !limit) {
+        const cacheKey = "msmeLoanFaqs";
+        const cachedData = await CacheService.get(cacheKey);
 
-      // if (cachedData) {
-      //   return res.json({ success: true, data: JSON.parse(cachedData) });
-      // }
+        // if (cachedData) {
+        //   return res.json({ success: true, data: JSON.parse(cachedData) });
+        // }
 
-      const whereClause = { 
+        const whereClause = {
+          is_active: true,
+          ...(stateId && { state_id: Number(stateId) }),
+        };
+
+        const faqs = await MsmeLoanFaqs.findAll({
+          where: whereClause,
+          include: [{ model: States, attributes: ["state_name"], as: "state" }],
+          order: [["order", "ASC"]],
+        });
+
+        await CacheService.set(cacheKey, JSON.stringify(faqs), 3600);
+        return res.json({ success: true, data: faqs });
+      }
+
+      // Pagination path
+      const pageNum = Math.max(1, parseInt(page, 10));
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
+      const offset = (pageNum - 1) * limitNum;
+
+      // Merge is_active + stateId + search in whereConditions
+      const whereConditions = {
         is_active: true,
-        ...(stateId && { state_id: Number(stateId) })
+        ...(stateId && { state_id: Number(stateId) }),
       };
 
-      const faqs = await MsmeLoanFaqs.findAll({
-        where: whereClause,
+      // Add search on top
+      if (search && search.trim()) {
+        whereConditions.question = { [Op.iLike]: `%${search.trim()}%` };
+      }
+
+      const cacheKey = search ? null : `msmeLoanFaqs_page_${pageNum}_limit_${limitNum}`;
+      if (cacheKey) {
+        const cachedData = await CacheService.get(cacheKey);
+        if (cachedData) return res.json(JSON.parse(cachedData));
+      }
+
+      const { count, rows } = await MsmeLoanFaqs.findAndCountAll({
+        where: whereConditions,
         include: [{ model: States, attributes: ["state_name"], as: "state" }],
         order: [["order", "ASC"]],
+        limit: limitNum,
+        offset,
       });
 
-      
+      const totalPages = Math.ceil(count / limitNum);
+      const response = {
+        success: true,
+        data: rows,
+        total: count,
+        pagination: {
+          page: pageNum,
+          totalPages,
+          limit: limitNum,
+          offset,
+          hasNextPage: pageNum < totalPages,
+          hasPrevPage: pageNum > 1,
+        },
+      };
 
-      await CacheService.set(cacheKey, JSON.stringify(faqs), 3600);
-      res.json({ success: true, data: faqs });
+      if (cacheKey) await CacheService.set(cacheKey, JSON.stringify(response), 3600);
+      res.json(response);
     } catch (error) {
       next(error);
     }

@@ -43,21 +43,76 @@ class GoldLoanFeaturesController {
 
   static async getAll(req, res, next) {
     try {
-      const cacheKey = "goldLoanFeatures";
-      const cachedData = await CacheService.get(cacheKey);
+      const { page, limit, search } = req.query;
 
-      if (cachedData) {
-        Logger.info("Returning cached data for goldLoanFeatures");
-        return res.json({ success: true, data: JSON.parse(cachedData) });
+      // If no pagination params, return full list (backward compatible for client-side usage)
+      if (!page && !limit) {
+        const cacheKey = "goldLoanFeatures";
+        const cachedData = await CacheService.get(cacheKey);
+
+        if (cachedData) {
+          Logger.info("Returning cached data for goldLoanFeatures");
+          return res.json({ success: true, data: JSON.parse(cachedData) });
+        }
+
+        const features = await GoldLoanFeatures.findAll({ order: [["order", "ASC"]] });
+        await CacheService.set(cacheKey, JSON.stringify(features), 3600);
+        Logger.info("Fetched goldLoanFeatures from database and cached the result");
+        return res.json({ success: true, data: features });
       }
 
-      const features = await GoldLoanFeatures.findAll({
+      // Pagination flow
+      const pageNum = Math.max(1, parseInt(page, 10));
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
+      const offset = (pageNum - 1) * limitNum;
+
+      // Build where conditions for search
+      const whereConditions = {};
+      if (search && search.trim()) {
+        whereConditions.title = { [Op.iLike]: `%${search.trim()}%` };
+      }
+
+      // Skip caching when search is applied
+      const cacheKey = search ? null : `goldLoanFeatures_page_${pageNum}_limit_${limitNum}`;
+      if (cacheKey) {
+        const cachedData = await CacheService.get(cacheKey);
+        if (cachedData) {
+          return res.json(JSON.parse(cachedData));
+        }
+      }
+
+      const { count, rows } = await GoldLoanFeatures.findAndCountAll({
+        where: whereConditions,
         order: [["order", "ASC"]],
+        limit: limitNum,
+        offset,
       });
 
-      await CacheService.set(cacheKey, JSON.stringify(features), 3600);
-      Logger.info("Fetched goldLoanFeatures from database and cached the result");
-      res.json({ success: true, data: features });
+      const totalPages = Math.ceil(count / limitNum);
+      const hasNextPage = pageNum < totalPages;
+      const hasPrevPage = pageNum > 1;
+
+      const response = {
+        success: true,
+        data: rows,
+        total: count,
+        pagination: {
+          page: pageNum,
+          total: count,
+          totalPages,
+          limit: limitNum,
+          offset,
+          hasNextPage,
+          hasPrevPage,
+        },
+      };
+
+      // Only cache if no search filter is applied
+      if (cacheKey) {
+        await CacheService.set(cacheKey, JSON.stringify(response), 3600);
+      }
+
+      res.json(response);
     } catch (error) {
       next(error);
     }

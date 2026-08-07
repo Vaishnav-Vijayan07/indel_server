@@ -25,34 +25,87 @@ class GoldLoanFaqsController {
   }
 
   static async getAll(req, res, next) {
-    const { stateId } = req.query;
+    const { page, limit, search, stateId } = req.query;
     try {
-      const cacheKey = "goldLoanFaqs";
-      const cachedData = await CacheService.get(cacheKey);
+      // Legacy path - no pagination params
+      if (!page && !limit) {
+        const cacheKey = "goldLoanFaqs";
+        const cachedData = await CacheService.get(cacheKey);
 
-      // if (cachedData) {
-      //   logger.info("Retrieved gold loan data from cache");
-      //   return res.json({ success: true, data: JSON.parse(cachedData) });
-      // }
+        // if (cachedData) {
+        //   logger.info("Retrieved gold loan data from cache");
+        //   return res.json({ success: true, data: JSON.parse(cachedData) });
+        // }
 
-      let whereClause = { is_active: true };
-      if (stateId) {
-        whereClause = {
-          ...whereClause,
-          state_id: Number(stateId),
-        };
+        let whereClause = { is_active: true };
+        if (stateId) {
+          whereClause = {
+            ...whereClause,
+            state_id: Number(stateId),
+          };
+        }
+
+        const faqs = await GoldLoanFaqs.findAll({
+          where: whereClause,
+          include: [{ model: States, attributes: ["state_name"], as: "state" }],
+          order: [["order", "ASC"]],
+        });
+
+        await CacheService.set(cacheKey, JSON.stringify(faqs), 3600);
+
+        logger.info("Retrieved gold loan data");
+        return res.json({ success: true, data: faqs });
       }
 
-      const faqs = await GoldLoanFaqs.findAll({
-        where: whereClause,
+      // Pagination path
+      const pageNum = Math.max(1, parseInt(page, 10));
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
+      const offset = (pageNum - 1) * limitNum;
+
+      // Merge is_active + stateId + search in whereConditions
+      const whereConditions = {
+        is_active: true,
+        ...(stateId && { state_id: Number(stateId) }),
+      };
+
+      // Add search on top
+      if (search && search.trim()) {
+        whereConditions.question = { [Op.iLike]: `%${search.trim()}%` };
+      }
+
+      const cacheKey = search ? null : `goldLoanFaqs_page_${pageNum}_limit_${limitNum}`;
+      if (cacheKey) {
+        const cachedData = await CacheService.get(cacheKey);
+        if (cachedData) return res.json(JSON.parse(cachedData));
+      }
+
+      const { count, rows } = await GoldLoanFaqs.findAndCountAll({
+        where: whereConditions,
         include: [{ model: States, attributes: ["state_name"], as: "state" }],
         order: [["order", "ASC"]],
+        limit: limitNum,
+        offset,
       });
 
-      await CacheService.set(cacheKey, JSON.stringify(faqs), 3600);
+      const totalPages = Math.ceil(count / limitNum);
+      const response = {
+        success: true,
+        data: rows,
+        total: count,
+        pagination: {
+          page: pageNum,
+          totalPages,
+          limit: limitNum,
+          offset,
+          hasNextPage: pageNum < totalPages,
+          hasPrevPage: pageNum > 1,
+        },
+      };
+
+      if (cacheKey) await CacheService.set(cacheKey, JSON.stringify(response), 3600);
 
       logger.info("Retrieved gold loan data");
-      res.json({ success: true, data: faqs });
+      res.json(response);
     } catch (error) {
       next(error);
     }
