@@ -712,6 +712,7 @@ class JobsController {
         total: totalItems,
         pagination: {
           page: pageNum,
+          total: totalItems,
           totalPages,
           limit: limitNum,
           offset,

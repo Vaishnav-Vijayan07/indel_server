@@ -115,6 +115,7 @@ class BranchesController {
         total: count,
         pagination: {
           page: pageNum,
+          total: count,
           totalPages,
           limit: limitNum,
           offset,
