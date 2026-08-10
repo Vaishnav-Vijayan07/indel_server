@@ -21,6 +21,19 @@ class CacheService {
   async invalidate(key) {
     await this.client.del(key);
   }
+
+  // Deletes all keys matching a glob-style pattern (e.g. "banners_*").
+  // Uses SCAN instead of KEYS to avoid blocking Redis on large keyspaces.
+  async invalidatePattern(pattern) {
+    let cursor = "0";
+    do {
+      const [nextCursor, keys] = await this.client.scan(cursor, "MATCH", pattern, "COUNT", 100);
+      cursor = nextCursor;
+      if (keys.length) {
+        await this.client.del(...keys);
+      }
+    } while (cursor !== "0");
+  }
 }
 
 module.exports = new CacheService();

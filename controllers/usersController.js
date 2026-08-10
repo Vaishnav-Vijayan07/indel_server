@@ -1,4 +1,5 @@
 const { models } = require("../models/index");
+const { Op } = require("sequelize");
 const CustomError = require("../utils/customError");
 const Logger = require("../services/logger");
 const CacheService = require("../services/cacheService"); // optional
@@ -97,18 +98,65 @@ class UsersController {
 
   static async getAll(req, res, next) {
     try {
-      const cacheKey = "Users_all";
-      const cachedData = await CacheService.get?.(cacheKey);
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
+      const { page, limit, search } = req.query;
+
+      // Legacy path - no pagination params (backward compatible)
+      if (!page && !limit) {
+        const cacheKey = "Users_all";
+        const cachedData = await CacheService.get?.(cacheKey);
+        if (cachedData) {
+          return res.json({ success: true, data: JSON.parse(cachedData) });
+        }
+        const users = await User.findAll({
+          order: [["id", "ASC"]],
+          attributes: { exclude: ["password"] },
+        });
+
+        await CacheService.set?.(cacheKey, JSON.stringify(users), 3600);
+        return res.json({ success: true, data: users });
       }
-      const users = await User.findAll({
+
+      // Pagination path
+      const pageNum = Math.max(1, parseInt(page, 10));
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
+      const offset = (pageNum - 1) * limitNum;
+
+      const whereConditions = {};
+      if (search && search.trim()) {
+        whereConditions.username = { [Op.iLike]: `%${search.trim()}%` };
+      }
+
+      const cacheKey = search ? null : `Users_all_page_${pageNum}_limit_${limitNum}`;
+
+      const { count, rows } = await User.findAndCountAll({
+        where: whereConditions,
         order: [["id", "ASC"]],
         attributes: { exclude: ["password"] },
+        limit: limitNum,
+        offset,
       });
 
-      await CacheService.set?.(cacheKey, JSON.stringify(users), 3600);
-      res.json({ success: true, data: users });
+      const totalPages = Math.ceil(count / limitNum);
+      const response = {
+        success: true,
+        data: rows,
+        total: count,
+        pagination: {
+          page: pageNum,
+          total: count,
+          totalPages,
+          limit: limitNum,
+          offset,
+          hasNextPage: pageNum < totalPages,
+          hasPrevPage: pageNum > 1,
+        },
+      };
+
+      if (cacheKey) {
+        await CacheService.set?.(cacheKey, JSON.stringify(response), 3600);
+      }
+
+      res.json(response);
     } catch (error) {
       next(error);
     }

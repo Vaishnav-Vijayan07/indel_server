@@ -1,4 +1,5 @@
 const { models } = require("../../models/index");
+const { Op } = require("sequelize");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
@@ -40,19 +41,65 @@ class NcdReportsController {
 
     static async getAll(req, res, next) {
         try {
-            const cacheKey = "ncdReports";
-            const cachedData = await CacheService.get(cacheKey);
+            const { page, limit, search } = req.query;
 
-            if (cachedData) {
-                return res.json({ success: true, data: JSON.parse(cachedData) });
+            // If no pagination params, return full list (backward compatible for client-side usage)
+            if (!page && !limit) {
+                const cacheKey = "ncdReports";
+                const cachedData = await CacheService.get(cacheKey);
+
+                if (cachedData) {
+                    return res.json({ success: true, data: JSON.parse(cachedData) });
+                }
+
+                const reports = await NcdReports.findAll({
+                    order: [["order", "ASC"]],
+                });
+
+                await CacheService.set(cacheKey, JSON.stringify(reports), 3600);
+                return res.json({ success: true, data: reports });
             }
 
-            const reports = await NcdReports.findAll({
+            // Pagination flow
+            const pageNum = Math.max(1, parseInt(page, 10));
+            const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
+            const offset = (pageNum - 1) * limitNum;
+
+            const whereConditions = {};
+            if (search && search.trim()) {
+                whereConditions.title = { [Op.iLike]: `%${search.trim()}%` };
+            }
+
+            const cacheKey = search ? null : `ncdReports_page_${pageNum}_limit_${limitNum}`;
+
+            const { count, rows } = await NcdReports.findAndCountAll({
+                where: whereConditions,
                 order: [["order", "ASC"]],
+                limit: limitNum,
+                offset,
             });
 
-            await CacheService.set(cacheKey, JSON.stringify(reports), 3600);
-            res.json({ success: true, data: reports });
+            const totalPages = Math.ceil(count / limitNum);
+            const response = {
+                success: true,
+                data: rows,
+                total: count,
+                pagination: {
+                    page: pageNum,
+                    total: count,
+                    totalPages,
+                    limit: limitNum,
+                    offset,
+                    hasNextPage: pageNum < totalPages,
+                    hasPrevPage: pageNum > 1,
+                },
+            };
+
+            if (cacheKey) {
+                await CacheService.set(cacheKey, JSON.stringify(response), 3600);
+            }
+
+            res.json(response);
         } catch (error) {
             next(error);
         }

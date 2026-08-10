@@ -5,7 +5,7 @@ const Logger = require("../../services/logger");
 const fs = require("fs").promises;
 const path = require("path");
 const slugify = require("../../utils/slugify"); // Import the slugify utility
-const { Sequelize, where } = require("sequelize");
+const { Sequelize, where, Op } = require("sequelize");
 
 const Csr = models.Csr;
 
@@ -76,19 +76,76 @@ class CsrController {
 
   static async getAll(req, res, next) {
     try {
-      const cacheKey = "csr";
-      const cachedData = await CacheService.get(cacheKey);
+      const { page, limit, search } = req.query;
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
+      // If no pagination params, return full list (backward compatible for client-side usage)
+      if (!page && !limit) {
+        const cacheKey = "csr";
+        const cachedData = await CacheService.get(cacheKey);
+
+        if (cachedData) {
+          return res.json({ success: true, data: JSON.parse(cachedData) });
+        }
+
+        const csr = await Csr.findAll({
+          order: [["order", "ASC"]],
+        });
+
+        await CacheService.set(cacheKey, JSON.stringify(csr), 3600);
+        return res.json({ success: true, data: csr });
       }
 
-      const csr = await Csr.findAll({
+      // Pagination flow
+      const pageNum = Math.max(1, parseInt(page, 10));
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
+      const offset = (pageNum - 1) * limitNum;
+
+      // Build where conditions for search
+      const whereConditions = {};
+      if (search && search.trim()) {
+        whereConditions.title = { [Op.iLike]: `%${search.trim()}%` };
+      }
+
+      // Skip caching when search is applied
+      const cacheKey = search ? null : `csr_page_${pageNum}_limit_${limitNum}`;
+      if (cacheKey) {
+        const cachedData = await CacheService.get(cacheKey);
+        if (cachedData) {
+          return res.json(JSON.parse(cachedData));
+        }
+      }
+
+      const { count, rows } = await Csr.findAndCountAll({
+        where: whereConditions,
         order: [["order", "ASC"]],
+        limit: limitNum,
+        offset,
       });
 
-      await CacheService.set(cacheKey, JSON.stringify(csr), 3600);
-      res.json({ success: true, data: csr });
+      const totalPages = Math.ceil(count / limitNum);
+      const hasNextPage = pageNum < totalPages;
+      const hasPrevPage = pageNum > 1;
+
+      const response = {
+        success: true,
+        data: rows,
+        total: count,
+        pagination: {
+          page: pageNum,
+          total: count,
+          totalPages,
+          limit: limitNum,
+          offset,
+          hasNextPage,
+          hasPrevPage,
+        },
+      };
+
+      // Only cache if no search filter is applied
+      if (cacheKey) {
+        await CacheService.set(cacheKey, JSON.stringify(response), 3600);
+      }
+      res.json(response);
     } catch (error) {
       next(error);
     }

@@ -1,4 +1,5 @@
 const { models } = require("../../models/index");
+const { Op } = require("sequelize");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
@@ -53,19 +54,69 @@ class OtherIntimationsController {
 
   static async getAll(req, res, next) {
     try {
-      const cacheKey = "OtherIntimations";
-      const cachedData = await CacheService.get(cacheKey);
+      const { page, limit, search } = req.query;
+      const include = [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }];
 
-      // if (cachedData) {
-      //   return res.json({ success: true, data: JSON.parse(cachedData) });
-      // }
+      // If no pagination params, return full list (backward compatible for client-side usage)
+      if (!page && !limit) {
+        const cacheKey = "OtherIntimations";
+        const cachedData = await CacheService.get(cacheKey);
 
-      const otherIntimations = await OtherIntimations.findAll({
-        include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
+        // if (cachedData) {
+        //   return res.json({ success: true, data: JSON.parse(cachedData) });
+        // }
+
+        const otherIntimations = await OtherIntimations.findAll({
+          include,
+          order: [["order", "ASC"]],
+        });
+        await CacheService.set(cacheKey, JSON.stringify(otherIntimations), 3600);
+        return res.json({ success: true, data: otherIntimations });
+      }
+
+      // Pagination flow
+      const pageNum = Math.max(1, parseInt(page, 10));
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
+      const offset = (pageNum - 1) * limitNum;
+
+      // Search on the joined fiscal year label (no text column exists on OtherIntimations itself)
+      const whereConditions = {};
+      if (search && search.trim()) {
+        whereConditions["$fiscalYear.fiscal_year$"] = { [Op.iLike]: `%${search.trim()}%` };
+      }
+
+      const cacheKey = search ? null : `OtherIntimations_page_${pageNum}_limit_${limitNum}`;
+
+      const { count, rows } = await OtherIntimations.findAndCountAll({
+        where: whereConditions,
+        include,
         order: [["order", "ASC"]],
+        limit: limitNum,
+        offset,
+        distinct: true,
       });
-      await CacheService.set(cacheKey, JSON.stringify(otherIntimations), 3600);
-      res.json({ success: true, data: otherIntimations });
+
+      const totalPages = Math.ceil(count / limitNum);
+      const response = {
+        success: true,
+        data: rows,
+        total: count,
+        pagination: {
+          page: pageNum,
+          total: count,
+          totalPages,
+          limit: limitNum,
+          offset,
+          hasNextPage: pageNum < totalPages,
+          hasPrevPage: pageNum > 1,
+        },
+      };
+
+      if (cacheKey) {
+        await CacheService.set(cacheKey, JSON.stringify(response), 3600);
+      }
+
+      res.json(response);
     } catch (error) {
       next(error);
     }

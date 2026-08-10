@@ -1,4 +1,5 @@
 const { models } = require("../../models/index");
+const { Op } = require("sequelize");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
@@ -44,19 +45,67 @@ class CsrActionPlanController {
 
   static async getAll(req, res, next) {
     try {
-      const cacheKey = "CsrActionPlan";
-      const cachedData = await CacheService.get(cacheKey);
+      const { page, limit, search } = req.query;
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
+      // Legacy path (no pagination params) — backward compatible
+      if (!page && !limit) {
+        const cacheKey = "CsrActionPlan";
+        const cachedData = await CacheService.get(cacheKey);
+
+        if (cachedData) {
+          return res.json({ success: true, data: JSON.parse(cachedData) });
+        }
+
+        const csrActionPlans = await CsrActionPlan.findAll({
+          include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
+          order: [[{ model: models.FiscalYears, as: "fiscalYear" }, "fiscal_year", "DESC"]],
+        });
+        await CacheService.set(cacheKey, JSON.stringify(csrActionPlans), 3600);
+        return res.json({ success: true, data: csrActionPlans });
       }
 
-      const csrActionPlans = await CsrActionPlan.findAll({
+      // Pagination path
+      const pageNum = Math.max(1, parseInt(page, 10));
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
+      const offset = (pageNum - 1) * limitNum;
+
+      // No title column on this model; search falls back to the report file path.
+      const whereConditions = {};
+      if (search && search.trim()) {
+        whereConditions.report = { [Op.iLike]: `%${search.trim()}%` };
+      }
+
+      const cacheKey = search ? null : `CsrActionPlan_page_${pageNum}_limit_${limitNum}`;
+
+      const { count, rows } = await CsrActionPlan.findAndCountAll({
+        where: whereConditions,
         include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
         order: [[{ model: models.FiscalYears, as: "fiscalYear" }, "fiscal_year", "DESC"]],
+        limit: limitNum,
+        offset,
       });
-      await CacheService.set(cacheKey, JSON.stringify(csrActionPlans), 3600);
-      res.json({ success: true, data: csrActionPlans });
+
+      const totalPages = Math.ceil(count / limitNum);
+      const response = {
+        success: true,
+        data: rows,
+        total: count,
+        pagination: {
+          page: pageNum,
+          total: count,
+          totalPages,
+          limit: limitNum,
+          offset,
+          hasNextPage: pageNum < totalPages,
+          hasPrevPage: pageNum > 1,
+        },
+      };
+
+      if (cacheKey) {
+        await CacheService.set(cacheKey, JSON.stringify(response), 3600);
+      }
+
+      res.json(response);
     } catch (error) {
       next(error);
     }

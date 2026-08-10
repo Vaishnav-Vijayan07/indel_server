@@ -1,7 +1,10 @@
+const { Sequelize, Op } = require("sequelize");
 const { models } = require("../../models/index");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
+const fs = require("fs").promises;
+const path = require("path");
 
 const EventTypes = models.EventTypes;
 
@@ -45,16 +48,73 @@ class EventTypesController {
 
   static async getAll(req, res, next) {
     try {
-      const cacheKey = "EventTypes";
-      const cachedData = await CacheService.get(cacheKey);
+      const { page, limit, search } = req.query;
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
+      // If no pagination params, return full list (backward compatible for client-side usage)
+      if (!page && !limit) {
+        const cacheKey = "EventTypes";
+        const cachedData = await CacheService.get(cacheKey);
+
+        if (cachedData) {
+          return res.json({ success: true, data: JSON.parse(cachedData) });
+        }
+
+        const eventTypes = await EventTypes.findAll({ order: [["order", "ASC"]] });
+        await CacheService.set(cacheKey, JSON.stringify(eventTypes), 3600);
+        return res.json({ success: true, data: eventTypes });
       }
 
-      const eventTypes = await EventTypes.findAll({ order: [["order", "ASC"]] });
-      await CacheService.set(cacheKey, JSON.stringify(eventTypes), 3600);
-      res.json({ success: true, data: eventTypes });
+      // Pagination flow
+      const pageNum = Math.max(1, parseInt(page, 10));
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
+      const offset = (pageNum - 1) * limitNum;
+
+      // Build where conditions for search
+      const whereConditions = {};
+      if (search && search.trim()) {
+        whereConditions.title = { [Op.iLike]: `%${search.trim()}%` };
+      }
+
+      // Skip caching when search is applied
+      const cacheKey = search ? null : `eventTypes_page_${pageNum}_limit_${limitNum}`;
+      if (cacheKey) {
+        const cachedData = await CacheService.get(cacheKey);
+        if (cachedData) {
+          return res.json(JSON.parse(cachedData));
+        }
+      }
+
+      const { count, rows } = await EventTypes.findAndCountAll({
+        where: whereConditions,
+        order: [["order", "ASC"]],
+        limit: limitNum,
+        offset,
+      });
+
+      const totalPages = Math.ceil(count / limitNum);
+      const hasNextPage = pageNum < totalPages;
+      const hasPrevPage = pageNum > 1;
+
+      const response = {
+        success: true,
+        data: rows,
+        total: count,
+        pagination: {
+          page: pageNum,
+          total: count,
+          totalPages,
+          limit: limitNum,
+          offset,
+          hasNextPage,
+          hasPrevPage,
+        },
+      };
+
+      // Only cache if no search filter is applied
+      if (cacheKey) {
+        await CacheService.set(cacheKey, JSON.stringify(response), 3600);
+      }
+      res.json(response);
     } catch (error) {
       next(error);
     }

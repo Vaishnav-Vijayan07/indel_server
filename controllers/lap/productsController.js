@@ -75,9 +75,9 @@ class LapProductsController {
       const cacheKey = search ? null : `lapProducts_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
-        if (cachedData) {
-          return res.json(JSON.parse(cachedData));
-        }
+        // if (cachedData) {
+          // return res.json(JSON.parse(cachedData));
+        // }
       }
 
       const { count, rows } = await LapProducts.findAndCountAll({

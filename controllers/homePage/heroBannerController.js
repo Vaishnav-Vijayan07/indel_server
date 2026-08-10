@@ -55,8 +55,8 @@ class HeroBannerController {
         order,
       });
 
-      await CacheService.invalidate("heroBanners");
-      await CacheService.invalidate(`banners_${state_id || "null"}`);
+      await CacheService.invalidatePattern("banners_*");
+      await CacheService.invalidatePattern("heroBanners_page_*");
       await CacheService.invalidate("webHomeData");
 
       res.status(201).json({ success: true, data: heroBanner, message: "Hero Banner created successfully" });
@@ -65,48 +65,72 @@ class HeroBannerController {
     }
   }
 
-  // static async getAll(req, res, next) {
-  //   try {
-  //     const cacheKey = "heroBanners";
-  //     const cachedData = await CacheService.get(cacheKey);
-
-  //     // if (cachedData) {
-  //     //   return res.json({ success: true, data: JSON.parse(cachedData) });
-  //     // }
-
-  //     const heroBanners = await HeroBanner.findAll({
-  //       order: [["order", "ASC"]],
-  //     });
-  //     await CacheService.set(cacheKey, JSON.stringify(heroBanners), 3600);
-  //     res.json({ success: true, data: heroBanners });
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // }
-
   static async getAll(req, res, next) {
     try {
-      const { stateId } = req.query;
-      const cacheKey = `banners_${stateId || "null"}`;
-      const cachedData = await CacheService.get(cacheKey);
+      const { page, limit, search, stateId } = req.query;
 
-      // if (cachedData) {
-      //   return res.json({ success: true, data: JSON.parse(cachedData) });
-      // }
+      // Legacy path: unchanged response shape/behavior for backward compatibility
+      if (!page && !limit) {
+        const cacheKey = `banners_${stateId || "null"}`;
+        const cachedData = await CacheService.get(cacheKey);
 
-      const banners = await HeroBanner.findAll({
-        // where: whereClause,
-        // include: [{ model: States, attributes: ["state_name"], as: "state" }],
-        // order: [
-        //   [sequelize.literal(`state_id ${stateId ? "= " + Number(stateId) : "IS NULL"}`), "DESC"],
-        //   ["order", "ASC"],
-        //   ["createdAt", "DESC"],
-        // ],
-        // limit: Number(limit),
+        if (cachedData) {
+          return res.json({ success: true, data: JSON.parse(cachedData) });
+        }
+
+        const banners = await HeroBanner.findAll({
+          order: [["order", "ASC"]],
+        });
+        await CacheService.set(cacheKey, JSON.stringify(banners), 3600);
+        return res.json({ success: true, data: banners });
+      }
+
+      // Pagination path
+      const pageNum = Math.max(1, parseInt(page, 10));
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
+      const offset = (pageNum - 1) * limitNum;
+
+      const whereConditions = {};
+      if (search && search.trim()) {
+        whereConditions.title = { [Op.iLike]: `%${search.trim()}%` };
+      }
+
+      const cacheKey = search ? null : `heroBanners_page_${pageNum}_limit_${limitNum}`;
+      if (cacheKey) {
+        const cachedData = await CacheService.get(cacheKey);
+        if (cachedData) {
+          return res.json(JSON.parse(cachedData));
+        }
+      }
+
+      const { count, rows } = await HeroBanner.findAndCountAll({
+        where: whereConditions,
+        order: [["order", "ASC"]],
+        limit: limitNum,
+        offset,
       });
 
-      await CacheService.set(cacheKey, JSON.stringify(banners), 3600);
-      res.json({ success: true, data: banners });
+      const totalPages = Math.ceil(count / limitNum);
+      const response = {
+        success: true,
+        data: rows,
+        total: count,
+        pagination: {
+          page: pageNum,
+          total: count,
+          totalPages,
+          limit: limitNum,
+          offset,
+          hasNextPage: pageNum < totalPages,
+          hasPrevPage: pageNum > 1,
+        },
+      };
+
+      if (cacheKey) {
+        await CacheService.set(cacheKey, JSON.stringify(response), 3600);
+      }
+
+      res.json(response);
     } catch (error) {
       next(error);
     }
@@ -188,7 +212,8 @@ class HeroBannerController {
         order,
       });
 
-      await CacheService.invalidate("heroBanners");
+      await CacheService.invalidatePattern("banners_*");
+      await CacheService.invalidatePattern("heroBanners_page_*");
       await CacheService.invalidate("webHomeData");
 
       res.json({
@@ -208,7 +233,8 @@ class HeroBannerController {
         throw new CustomError("HeroBanner not found", 404);
       }
       await heroBanner.destroy();
-      await CacheService.invalidate("heroBanners");
+      await CacheService.invalidatePattern("banners_*");
+      await CacheService.invalidatePattern("heroBanners_page_*");
       await CacheService.invalidate("webHomeData");
 
       res.json({ success: true, message: "Hero banner deleted", data: req.params.id });

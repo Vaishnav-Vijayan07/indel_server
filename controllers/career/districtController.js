@@ -49,26 +49,75 @@ class DistrictsController {
 
   static async getAll(req, res, next) {
     try {
-      const cacheKey = "districts";
-      const cachedData = await CacheService.get(cacheKey);
+      const { page, limit, search } = req.query;
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
+      const includeState = [
+        {
+          model: models.CareerStates,
+          as: "state",
+          attributes: ["state_name"],
+        },
+      ];
+
+      // Legacy path - no pagination params (backward compatible for client-side usage)
+      if (!page && !limit) {
+        const cacheKey = "districts";
+        const cachedData = await CacheService.get(cacheKey);
+
+        if (cachedData) {
+          return res.json({ success: true, data: JSON.parse(cachedData) });
+        }
+
+        const districts = await Districts.findAll({
+          order: [["order", "ASC"]],
+          include: includeState, // Assuming association
+        });
+
+        await CacheService.set(cacheKey, JSON.stringify(districts), 3600);
+        return res.json({ success: true, data: districts });
       }
 
-      const districts = await Districts.findAll({
+      // Pagination path
+      const pageNum = Math.max(1, parseInt(page, 10));
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
+      const offset = (pageNum - 1) * limitNum;
+
+      const whereConditions = {};
+      if (search && search.trim()) {
+        whereConditions.district_name = { [Op.iLike]: `%${search.trim()}%` };
+      }
+
+      const cacheKey = search ? null : `districts_page_${pageNum}_limit_${limitNum}`;
+
+      const { count, rows } = await Districts.findAndCountAll({
+        where: whereConditions,
         order: [["order", "ASC"]],
-        include: [
-          {
-            model: models.CareerStates,
-            as: "state",
-            attributes: ["state_name"],
-          },
-        ], // Assuming association
+        include: includeState,
+        limit: limitNum,
+        offset,
       });
 
-      await CacheService.set(cacheKey, JSON.stringify(districts), 3600);
-      res.json({ success: true, data: districts });
+      const totalPages = Math.ceil(count / limitNum);
+      const response = {
+        success: true,
+        data: rows,
+        total: count,
+        pagination: {
+          page: pageNum,
+          total: count,
+          totalPages,
+          limit: limitNum,
+          offset,
+          hasNextPage: pageNum < totalPages,
+          hasPrevPage: pageNum > 1,
+        },
+      };
+
+      if (cacheKey) {
+        await CacheService.set(cacheKey, JSON.stringify(response), 3600);
+      }
+
+      res.json(response);
     } catch (error) {
       next(error);
     }

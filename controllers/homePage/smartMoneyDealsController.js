@@ -1,4 +1,5 @@
 const { models } = require("../../models/index");
+const { Op } = require("sequelize");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
@@ -41,19 +42,71 @@ class SmartMoneyDealsController {
 
   static async getAll(req, res, next) {
     try {
-      const cacheKey = "smartMoneyDeals";
-      const cachedData = await CacheService.get(cacheKey);
+      const { page, limit, search } = req.query;
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
+      // Legacy path: unchanged response shape/behavior for backward compatibility
+      if (!page && !limit) {
+        const cacheKey = "smartMoneyDeals";
+        const cachedData = await CacheService.get(cacheKey);
+
+        if (cachedData) {
+          return res.json({ success: true, data: JSON.parse(cachedData) });
+        }
+
+        const deals = await SmartMoneyDeals.findAll({
+          order: [["order", "ASC"]],
+        });
+
+        await CacheService.set(cacheKey, JSON.stringify(deals), 3600);
+        return res.json({ success: true, data: deals });
       }
 
-      const deals = await SmartMoneyDeals.findAll({
+      // Pagination path
+      const pageNum = Math.max(1, parseInt(page, 10));
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
+      const offset = (pageNum - 1) * limitNum;
+
+      const whereConditions = {};
+      if (search && search.trim()) {
+        whereConditions.title = { [Op.iLike]: `%${search.trim()}%` };
+      }
+
+      const cacheKey = search ? null : `smartMoneyDeals_page_${pageNum}_limit_${limitNum}`;
+      if (cacheKey) {
+        const cachedData = await CacheService.get(cacheKey);
+        if (cachedData) {
+          return res.json(JSON.parse(cachedData));
+        }
+      }
+
+      const { count, rows } = await SmartMoneyDeals.findAndCountAll({
+        where: whereConditions,
         order: [["order", "ASC"]],
+        limit: limitNum,
+        offset,
       });
 
-      await CacheService.set(cacheKey, JSON.stringify(deals), 3600);
-      res.json({ success: true, data: deals });
+      const totalPages = Math.ceil(count / limitNum);
+      const response = {
+        success: true,
+        data: rows,
+        total: count,
+        pagination: {
+          page: pageNum,
+          total: count,
+          totalPages,
+          limit: limitNum,
+          offset,
+          hasNextPage: pageNum < totalPages,
+          hasPrevPage: pageNum > 1,
+        },
+      };
+
+      if (cacheKey) {
+        await CacheService.set(cacheKey, JSON.stringify(response), 3600);
+      }
+
+      res.json(response);
     } catch (error) {
       next(error);
     }

@@ -9,7 +9,12 @@ const States = models.CareerStates;
 class HomeFaqController {
   static async create(req, res, next) {
     try {
-      const faq = await HomeFaq.create(req.body);
+      // Normalize state_id: empty string or falsy → null, truthy → number
+      const body = {
+        ...req.body,
+        state_id: req.body.state_id && req.body.state_id !== "" ? Number(req.body.state_id) : null,
+      };
+      const faq = await HomeFaq.create(body);
 
       await CacheService.invalidate("homeFaqs");
       await CacheService.invalidate("webHomeData");
@@ -22,37 +27,94 @@ class HomeFaqController {
   }
 
   static async getAll(req, res, next) {
-    const { stateId } = req.query;
+    const { page, limit, search, stateId } = req.query;
 
     try {
-      const cacheKey = "homeFaqs";
-      // const cachedData = await CacheService.get(cacheKey);
+      // Legacy path: unchanged response shape/behavior for backward compatibility
+      if (!page && !limit) {
+        const cacheKey = `homeFaqs_${stateId || "null"}`;
+        const cachedData = await CacheService.get(cacheKey);
 
-      // if (cachedData) {
-      //   return res.json({ success: true, data: JSON.parse(cachedData) });
-      // }
+        if (cachedData) {
+          return res.json({ success: true, data: JSON.parse(cachedData) });
+        }
 
-      let whereClause = { is_active: true };
-      if (stateId) {
-        whereClause = {
-          ...whereClause,
-          state_id: Number(stateId),
-        };
+        let whereClause = { is_active: true };
+        if (stateId) {
+          whereClause = {
+            ...whereClause,
+            state_id: Number(stateId),
+          };
+        }
+
+        const faqs = await HomeFaq.findAll({
+          where: whereClause,
+          include: [{ model: States, attributes: ["state_name"], as: "state" }],
+          order: [
+            [sequelize.literal(`state_id ${stateId ? "= " + Number(stateId) : "IS NULL"}`), "DESC"],
+            ["order", "ASC"],
+            ["createdAt", "DESC"],
+          ],
+        });
+
+        await CacheService.set(cacheKey, JSON.stringify(faqs), 3600);
+        return res.json({ success: true, data: faqs });
       }
 
-      const faqs = await HomeFaq.findAll({
-        order: [["order", "ASC"]],
-        where: whereClause,
+      // Pagination path
+      const pageNum = Math.max(1, parseInt(page, 10));
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
+      const offset = (pageNum - 1) * limitNum;
+
+      let whereConditions = { is_active: true };
+      if (stateId) {
+        whereConditions.state_id = Number(stateId);
+      }
+      if (search && search.trim()) {
+        whereConditions.question = { [Op.iLike]: `%${search.trim()}%` };
+      }
+
+      const cacheKey = search ? null : `homeFaqs_${stateId || "null"}_page_${pageNum}_limit_${limitNum}`;
+      if (cacheKey) {
+        // const cachedData = await CacheService.get(cacheKey);
+        // if (cachedData) {
+        //   return res.json(JSON.parse(cachedData));
+        // }
+      }
+
+      const { count, rows } = await HomeFaq.findAndCountAll({
+        where: whereConditions,
         include: [{ model: States, attributes: ["state_name"], as: "state" }],
         order: [
           [sequelize.literal(`state_id ${stateId ? "= " + Number(stateId) : "IS NULL"}`), "DESC"],
           ["order", "ASC"],
           ["createdAt", "DESC"],
         ],
+        limit: limitNum,
+        offset,
       });
 
-      await CacheService.set(cacheKey, JSON.stringify(faqs), 3600);
-      res.json({ success: true, data: faqs });
+      const totalPages = Math.ceil(count / limitNum);
+      const response = {
+        success: true,
+        data: rows,
+        total: count,
+        pagination: {
+          page: pageNum,
+          total: count,
+          totalPages,
+          limit: limitNum,
+          offset,
+          hasNextPage: pageNum < totalPages,
+          hasPrevPage: pageNum > 1,
+        },
+      };
+
+      if (cacheKey) {
+        await CacheService.set(cacheKey, JSON.stringify(response), 3600);
+      }
+
+      res.json(response);
     } catch (error) {
       next(error);
     }
@@ -88,7 +150,12 @@ class HomeFaqController {
         throw new CustomError("Home FAQ not found", 404);
       }
 
-      await faq.update(req.body);
+      // Normalize state_id: empty string or falsy → null, truthy → number
+      const body = {
+        ...req.body,
+        state_id: req.body.state_id && req.body.state_id !== "" ? Number(req.body.state_id) : null,
+      };
+      await faq.update(body);
 
       await CacheService.invalidate("homeFaqs");
       await CacheService.invalidate(`homeFaq_${id}`);

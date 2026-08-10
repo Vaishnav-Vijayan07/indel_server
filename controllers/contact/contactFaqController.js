@@ -1,4 +1,5 @@
 const { models } = require("../../models/index");
+const { Op } = require("sequelize");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 
@@ -18,28 +19,75 @@ class ContactFaqController {
   }
 
   static async getAll(req, res, next) {
-    const { stateId } = req.query;
+    const { stateId, page, limit, search } = req.query;
     try {
-      const cacheKey = "ContactFaqs";
-      const cachedData = await CacheService.get(cacheKey);
+      // Legacy path - no pagination params
+      if (!page && !limit) {
+        const cacheKey = "ContactFaqs";
+        const cachedData = await CacheService.get(cacheKey);
 
-      // if (cachedData) {
-      //   return res.json({ success: true, data: JSON.parse(cachedData) });
-      // }
+        // if (cachedData) {
+        //   return res.json({ success: true, data: JSON.parse(cachedData) });
+        // }
 
-      const whereClause = {
-        // is_active: true,
+        const whereClause = {
+          // is_active: true,
+          ...(stateId && { state_id: Number(stateId) }),
+        };
+
+        const faqs = await ContactFaq.findAll({
+          where: whereClause,
+          include: [{ model: States, attributes: ["state_name"], as: "state" }],
+          order: [["order", "ASC"]],
+        });
+
+        await CacheService.set(cacheKey, JSON.stringify(faqs), 3600);
+        return res.json({ success: true, data: faqs });
+      }
+
+      // Pagination path
+      const pageNum = Math.max(1, parseInt(page, 10));
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
+      const offset = (pageNum - 1) * limitNum;
+
+      const whereConditions = {
         ...(stateId && { state_id: Number(stateId) }),
       };
+      if (search && search.trim()) {
+        whereConditions.question = { [Op.iLike]: `%${search.trim()}%` };
+      }
 
-      const faqs = await ContactFaq.findAll({
-        where: whereClause,
+      const cacheKey = search ? null : `ContactFaqs_page_${pageNum}_limit_${limitNum}_state_${stateId || "all"}`;
+
+      const { count, rows } = await ContactFaq.findAndCountAll({
+        where: whereConditions,
         include: [{ model: States, attributes: ["state_name"], as: "state" }],
         order: [["order", "ASC"]],
+        limit: limitNum,
+        offset,
       });
 
-      await CacheService.set(cacheKey, JSON.stringify(faqs), 3600);
-      res.json({ success: true, data: faqs });
+      const totalPages = Math.ceil(count / limitNum);
+      const response = {
+        success: true,
+        data: rows,
+        total: count,
+        pagination: {
+          page: pageNum,
+          total: count,
+          totalPages,
+          limit: limitNum,
+          offset,
+          hasNextPage: pageNum < totalPages,
+          hasPrevPage: pageNum > 1,
+        },
+      };
+
+      if (cacheKey) {
+        await CacheService.set(cacheKey, JSON.stringify(response), 3600);
+      }
+
+      res.json(response);
     } catch (error) {
       next(error);
     }

@@ -1,4 +1,5 @@
 const { models } = require("../../models/index");
+const { Op } = require("sequelize");
 const CacheService = require("../../services/cacheService");
 const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
@@ -53,19 +54,71 @@ class BoardMeetingsController {
 
   static async getAll(req, res, next) {
     try {
-      const cacheKey = "BoardMeetings";
-      const cachedData = await CacheService.get(cacheKey);
+      const { page, limit, search } = req.query;
 
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
+      // Legacy path (no pagination params) — backward compatible
+      if (!page && !limit) {
+        const cacheKey = "BoardMeetings";
+        const cachedData = await CacheService.get(cacheKey);
+
+        if (cachedData) {
+          return res.json({ success: true, data: JSON.parse(cachedData) });
+        }
+
+        const boardMeetings = await BoardMeetings.findAll({
+          include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
+          order: [["meeting_date", "DESC"]],
+        });
+        await CacheService.set(cacheKey, JSON.stringify(boardMeetings), 3600);
+        return res.json({ success: true, data: boardMeetings });
       }
 
-      const boardMeetings = await BoardMeetings.findAll({
+      // Pagination path
+      const pageNum = Math.max(1, parseInt(page, 10));
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
+      const offset = (pageNum - 1) * limitNum;
+
+      // No title column on this model; search matches either uploaded document filename.
+      const whereConditions = {};
+      if (search && search.trim()) {
+        const term = `%${search.trim()}%`;
+        whereConditions[Op.or] = [
+          { intimation_document: { [Op.iLike]: term } },
+          { outcome_document: { [Op.iLike]: term } },
+        ];
+      }
+
+      const cacheKey = search ? null : `BoardMeetings_page_${pageNum}_limit_${limitNum}`;
+
+      const { count, rows } = await BoardMeetings.findAndCountAll({
+        where: whereConditions,
         include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year"] }],
         order: [["meeting_date", "DESC"]],
+        limit: limitNum,
+        offset,
       });
-      await CacheService.set(cacheKey, JSON.stringify(boardMeetings), 3600);
-      res.json({ success: true, data: boardMeetings });
+
+      const totalPages = Math.ceil(count / limitNum);
+      const response = {
+        success: true,
+        data: rows,
+        total: count,
+        pagination: {
+          page: pageNum,
+          total: count,
+          totalPages,
+          limit: limitNum,
+          offset,
+          hasNextPage: pageNum < totalPages,
+          hasPrevPage: pageNum > 1,
+        },
+      };
+
+      if (cacheKey) {
+        await CacheService.set(cacheKey, JSON.stringify(response), 3600);
+      }
+
+      res.json(response);
     } catch (error) {
       next(error);
     }
