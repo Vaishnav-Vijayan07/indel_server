@@ -18,6 +18,7 @@ class FileShareController {
       const files = await FIleShare.create(data);
 
       await CacheService.invalidate("fileShare");
+      await CacheService.invalidatePattern("fileShare_page_*");
       res.status(201).json({ success: true, data: files, message: "File created" });
     } catch (error) {
       next(error);
@@ -133,6 +134,7 @@ class FileShareController {
 
       await file.update(updateData);
       await CacheService.invalidate("fileShare");
+      await CacheService.invalidatePattern("fileShare_page_*");
       res.json({ success: true, data: file, message: "File updated successfully" });
     } catch (error) {
       next(error);
@@ -167,6 +169,7 @@ class FileShareController {
 
       await file.destroy();
       await CacheService.invalidate("fileShare");
+      await CacheService.invalidatePattern("fileShare_page_*");
       res.json({ success: true, message: "File deleted successfully" });
     } catch (error) {
       next(error);

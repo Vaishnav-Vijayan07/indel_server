@@ -765,7 +765,15 @@ class JobsController {
 
       await job.destroy();
 
-      await Promise.all([CacheService.invalidate("jobs"), CacheService.invalidate("webCareerPage"), CacheService.invalidate(`job_${id}`)]);
+      await Promise.all([
+        CacheService.invalidate("jobs"),
+        CacheService.invalidate("webCareerPage"),
+        CacheService.invalidate(`job_${id}`),
+        CacheService.invalidatePattern("jobs_filtered_*"),
+        CacheService.invalidatePattern("jobs_page_*"),
+        CacheService.invalidatePattern("jobDropdowns*"),
+        CacheService.invalidatePattern("jobLocationsByState_*"),
+      ]);
       res.json({ success: true, message: "Job deleted", data: id });
     } catch (error) {
       next(error);
@@ -791,7 +799,14 @@ class JobsController {
         }
       });
 
-      await Promise.all([CacheService.invalidate("jobs"), CacheService.invalidate("webCareerPage")]);
+      await Promise.all([
+        CacheService.invalidate("jobs"),
+        CacheService.invalidate("webCareerPage"),
+        CacheService.invalidatePattern("jobs_filtered_*"),
+        CacheService.invalidatePattern("jobs_page_*"),
+        CacheService.invalidatePattern("jobDropdowns*"),
+        CacheService.invalidatePattern("jobLocationsByState_*"),
+      ]);
 
       res.json({ success: true, message: "Job updated successfully" });
     } catch (error) {

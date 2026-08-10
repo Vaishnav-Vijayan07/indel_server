@@ -47,7 +47,7 @@ class PopupServicesController {
       // If no pagination params, return full list (backward compatible for client-side usage)
       if (!page && !limit) {
         const cacheKey = "popupServices";
-        // const cachedData = await CacheService.get(cacheKey);
+        const cachedData = await CacheService.get(cacheKey);
 
         if (cachedData) {
           return res.json({ success: true, data: JSON.parse(cachedData) });

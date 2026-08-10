@@ -12,7 +12,13 @@ class CdLoanProductsController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
+      const absolutePath = path.join(
+        __dirname,
+        "..",
+        "..",
+        "uploads",
+        filePath.replace("/uploads/", ""),
+      );
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {
@@ -34,7 +40,12 @@ class CdLoanProductsController {
 
       await CacheService.invalidate("cdLoanProducts");
       await CacheService.invalidate("webCDLoan");
-      res.status(201).json({ success: true, data: product, message: "CD Loan Product created" });
+      await CacheService.invalidatePattern("cdLoanProducts_page_*");
+      res.status(201).json({
+        success: true,
+        data: product,
+        message: "CD Loan Product created",
+      });
     } catch (error) {
       next(error);
     }
@@ -73,10 +84,15 @@ class CdLoanProductsController {
       }
 
       // Skip caching when search is applied
-      const cacheKey = search ? null : `cdLoanProducts_page_${pageNum}_limit_${limitNum}`;
+      const cacheKey = search
+        ? null
+        : `cdLoanProducts_page_${pageNum}_limit_${limitNum}`;
+
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
-        if (cachedData) {            return res.json(JSON.parse(cachedData));          }
+        if (cachedData) {
+          return res.json(JSON.parse(cachedData));
+        }
       }
 
       const { count, rows } = await CdLoanProducts.findAndCountAll({
@@ -151,7 +167,9 @@ class CdLoanProductsController {
 
       if (req.file) {
         updateData.icon = `/uploads/cd-loan-products/${req.file.filename}`;
-        Logger.info(`Updated icon for CdLoanProduct ID ${id}: ${updateData.icon}`);
+        Logger.info(
+          `Updated icon for CdLoanProduct ID ${id}: ${updateData.icon}`,
+        );
         if (oldIcon) {
           await CdLoanProductsController.deleteFile(oldIcon);
         }
@@ -161,8 +179,13 @@ class CdLoanProductsController {
 
       await CacheService.invalidate("cdLoanProducts");
       await CacheService.invalidate("webCDLoan");
+      await CacheService.invalidatePattern("cdLoanProducts_page_*");
       await CacheService.invalidate(`cdLoanProduct_${id}`);
-      res.json({ success: true, data: product, message: "CD Loan Product updated" });
+      res.json({
+        success: true,
+        data: product,
+        message: "CD Loan Product updated",
+      });
     } catch (error) {
       next(error);
     }
@@ -185,6 +208,7 @@ class CdLoanProductsController {
 
       await CacheService.invalidate("cdLoanProducts");
       await CacheService.invalidate("webCDLoan");
+      await CacheService.invalidatePattern("cdLoanProducts_page_*");
       await CacheService.invalidate(`cdLoanProduct_${id}`);
       res.json({ success: true, message: "CD Loan Product deleted", data: id });
     } catch (error) {

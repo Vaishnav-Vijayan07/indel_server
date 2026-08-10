@@ -12,6 +12,7 @@ class ContactFaqController {
       const faq = await ContactFaq.create(req.body);
 
       await CacheService.invalidate("ContactFaqs");
+      await CacheService.invalidatePattern("ContactFaqs_page_*");
       res.status(201).json({ success: true, data: faq });
     } catch (error) {
       next(error);
@@ -126,6 +127,7 @@ class ContactFaqController {
       await faq.update(req.body);
 
       await CacheService.invalidate("ContactFaqs");
+      await CacheService.invalidatePattern("ContactFaqs_page_*");
       await CacheService.invalidate(`ContactFaq_${id}`);
       res.json({ success: true, data: faq, message: "Contact FAQ updated" });
     } catch (error) {
@@ -144,6 +146,7 @@ class ContactFaqController {
       await faq.destroy();
 
       await CacheService.invalidate("ContactFaqs");
+      await CacheService.invalidatePattern("ContactFaqs_page_*");
       await CacheService.invalidate(`ContactFaq_${id}`);
       res.json({ success: true, message: "Contact FAQ deleted" });
     } catch (error) {

@@ -33,6 +33,7 @@ class LapProductsController {
       const lapProduct = await LapProducts.create(updateData);
 
       await CacheService.invalidate("lapProducts");
+      await CacheService.invalidatePattern("lapProducts_page_*");
       res.status(201).json({ success: true, data: lapProduct, message: "LAP Product created" });
     } catch (error) {
       next(error);
@@ -137,6 +138,7 @@ class LapProductsController {
       await lapProduct.update(updateData);
 
       await CacheService.invalidate("lapProducts");
+      await CacheService.invalidatePattern("lapProducts_page_*");
       await CacheService.invalidate(`lapProduct_${id}`);
       res.json({ success: true, data: lapProduct, message: "LAP Product updated" });
     } catch (error) {
@@ -160,6 +162,7 @@ class LapProductsController {
       }
 
       await CacheService.invalidate("lapProducts");
+      await CacheService.invalidatePattern("lapProducts_page_*");
       await CacheService.invalidate(`lapProduct_${id}`);
       res.json({ success: true, message: "LAP Product deleted", data: id });
     } catch (error) {

@@ -32,6 +32,7 @@ class DeptPartnersController {
 
       const link = await DeptPartners.create(data);
       await CacheService.invalidate("DeptPartners");
+      await CacheService.invalidatePattern("DeptPartners_page_*");
       res.status(201).json({ success: true, data: link, message: "Dept Partners data created" });
     } catch (error) {
       next(error);
@@ -155,6 +156,7 @@ class DeptPartnersController {
 
       await team.update(updateData);
       await CacheService.invalidate("DeptPartners");
+      await CacheService.invalidatePattern("DeptPartners_page_*");
       await CacheService.invalidate(`deptPartners_${id}`);
       res.json({ success: true, data: team,message: "Dept Partners data updated" });
     } catch (error) {
@@ -178,6 +180,7 @@ class DeptPartnersController {
       }
 
       await CacheService.invalidate("DeptPartners");
+      await CacheService.invalidatePattern("DeptPartners_page_*");
       await CacheService.invalidate(`deptPartners_${id}`);
       res.json({ success: true, message: "Dept Partners data deleted", data: id });
     } catch (error) {

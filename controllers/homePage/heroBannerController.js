@@ -290,7 +290,7 @@ class HeroBannerController {
       await CacheService.invalidatePattern("banners_*");
       await CacheService.invalidatePattern("heroBanners_page_*");
       await CacheService.invalidate("webHomeData");
-      // await cacheService.invalidatePattern("webHomeData_*");
+      await CacheService.invalidatePattern("webHomeData_*");
 
       res.json({
         success: true,

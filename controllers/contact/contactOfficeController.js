@@ -11,6 +11,7 @@ class ContactOfficeController {
       const faq = await ContactOffice.create(req.body);
 
       await CacheService.invalidate("ContactOffices");
+      await CacheService.invalidatePattern("ContactOffices_page_*");
       res.status(201).json({ success: true, data: faq, message: "Office contact created" });
     } catch (error) {
       next(error);
@@ -116,6 +117,7 @@ class ContactOfficeController {
       await faq.update(req.body);
 
       await CacheService.invalidate("ContactOffices");
+      await CacheService.invalidatePattern("ContactOffices_page_*");
       await CacheService.invalidate(`ContactOffice_${id}`);
       res.json({ success: true, data: faq,message: "Office contact updated" });
     } catch (error) {
@@ -134,6 +136,7 @@ class ContactOfficeController {
       await faq.destroy();
 
       await CacheService.invalidate("ContactOffices");
+      await CacheService.invalidatePattern("ContactOffices_page_*");
       await CacheService.invalidate(`ContactOffice_${id}`);
       res.json({ success: true, message: "Office contact deleted" });
     } catch (error) {

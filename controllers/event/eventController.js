@@ -33,6 +33,7 @@ class EventController {
 
       const event = await Event.create(data);
       await CacheService.invalidate("Event");
+      await CacheService.invalidatePattern("Event_page_*");
       res.status(201).json({ success: true, data: event, message: "Event created" });
     } catch (error) {
       if (req.file) {
@@ -159,6 +160,7 @@ class EventController {
 
       await event.update(updateData);
       await CacheService.invalidate("Event");
+      await CacheService.invalidatePattern("Event_page_*");
       await CacheService.invalidate(`event_${id}`);
       res.json({ success: true, data: event, message: "Event updated" });
     } catch (error) {
@@ -185,6 +187,7 @@ class EventController {
       }
 
       await CacheService.invalidate("Event");
+      await CacheService.invalidatePattern("Event_page_*");
       await CacheService.invalidate(`event_${id}`);
       res.json({ success: true, message: "Event deleted", data: id });
     } catch (error) {

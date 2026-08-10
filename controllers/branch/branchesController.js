@@ -33,9 +33,9 @@ class BranchesController {
         const cacheKey = "Branches";
         const cachedData = await CacheService.get(cacheKey);
 
-        // if (cachedData) {
-        //   return res.json({ success: true, data: JSON.parse(cachedData) });
-        // }
+        if (cachedData) {
+          return res.json({ success: true, data: JSON.parse(cachedData) });
+        }
 
         const branches = await Branches.findAll({
           // where: { is_active: true },
@@ -77,9 +77,9 @@ class BranchesController {
       const cacheKey = search ? null : `Branches_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
-        // if (cachedData) {
-        //   return res.json(JSON.parse(cachedData));
-        // }
+        if (cachedData) {
+          return res.json(JSON.parse(cachedData));
+        }
       }
 
       const { count, rows } = await Branches.findAndCountAll({
