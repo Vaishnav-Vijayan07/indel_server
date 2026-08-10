@@ -33,6 +33,7 @@ class MsmeLoanSupportedIndustriesController {
       const industry = await MsmeLoanSupportedIndustries.create(updateData);
 
       await CacheService.invalidate("msmeLoanSupportedIndustries");
+      await CacheService.invalidatePattern("msmeLoanSupportedIndustries_page_*");
       res.status(201).json({ success: true, data: industry, message: "MSME Loan Supported Industry created" });
     } catch (error) {
       next(error);
@@ -75,9 +76,7 @@ class MsmeLoanSupportedIndustriesController {
       const cacheKey = search ? null : `msmeLoanSupportedIndustries_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
-        // if (cachedData) {
-          // return res.json(JSON.parse(cachedData));
-        // }
+        if (cachedData) {            return res.json(JSON.parse(cachedData));          }
       }
 
       const { count, rows } = await MsmeLoanSupportedIndustries.findAndCountAll({
@@ -162,6 +161,7 @@ class MsmeLoanSupportedIndustriesController {
 
       await CacheService.invalidate("msmeLoanSupportedIndustries");
       await CacheService.invalidate(`msmeLoanSupportedIndustry_${id}`);
+      await CacheService.invalidatePattern("msmeLoanSupportedIndustries_page_*");
       res.json({ success: true, data: industry, message: "MSME Loan Supported Industry updated" });
     } catch (error) {
       next(error);
@@ -185,6 +185,7 @@ class MsmeLoanSupportedIndustriesController {
 
       await CacheService.invalidate("msmeLoanSupportedIndustries");
       await CacheService.invalidate(`msmeLoanSupportedIndustry_${id}`);
+      await CacheService.invalidatePattern("msmeLoanSupportedIndustries_page_*");
       res.json({ success: true, message: "MSME Loan Supported Industry deleted", data: id });
     } catch (error) {
       next(error);

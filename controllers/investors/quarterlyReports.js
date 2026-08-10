@@ -33,6 +33,8 @@ class QuarterlyReportsController {
             const report = await QuarterlyReports.create(updateData);
 
             await CacheService.invalidate("quarterlyReports");
+            await CacheService.invalidatePattern("quarterlyReports_page_*");
+            await CacheService.invalidatePattern("quarterlyReports:*");
             res.status(201).json({ success: true, data: report, message: "Quarterly Report created" });
         } catch (error) {
             next(error);
@@ -161,6 +163,8 @@ class QuarterlyReportsController {
 
             await CacheService.invalidate("quarterlyReports");
             await CacheService.invalidate(`quarterlyReport_${id}`);
+            await CacheService.invalidatePattern("quarterlyReports_page_*");
+            await CacheService.invalidatePattern("quarterlyReports:*");
             res.json({ success: true, data: report, message: "Quarterly Report updated" });
         } catch (error) {
             next(error);
@@ -184,6 +188,8 @@ class QuarterlyReportsController {
 
             await CacheService.invalidate("quarterlyReports");
             await CacheService.invalidate(`quarterlyReport_${id}`);
+            await CacheService.invalidatePattern("quarterlyReports_page_*");
+            await CacheService.invalidatePattern("quarterlyReports:*");
             res.json({ success: true, message: "Quarterly Report deleted", data: id });
         } catch (error) {
             next(error);

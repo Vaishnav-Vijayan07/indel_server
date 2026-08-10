@@ -37,6 +37,7 @@ class AboutBannerController {
       const banner = await AboutBanner.create(data);
 
       await CacheService.invalidate("aboutBanners");
+      await CacheService.invalidatePattern("aboutBanners_page_*");
       res.status(201).json({ success: true, data: banner, message: "About Banner created successfully" });
     } catch (error) {
       next(error);
@@ -76,9 +77,7 @@ class AboutBannerController {
       const cacheKey = search ? null : `aboutBanners_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
-        // if (cachedData) {
-          // return res.json(JSON.parse(cachedData));
-        // }
+        if (cachedData) {            return res.json(JSON.parse(cachedData));          }
       }
 
       const { count, rows } = await AboutBanner.findAndCountAll({
@@ -170,6 +169,7 @@ class AboutBannerController {
 
       await CacheService.invalidate("aboutBanners");
       await CacheService.invalidate(`aboutBanner_${id}`);
+      await CacheService.invalidatePattern("aboutBanners_page_*");
       res.json({ success: true, data: banner, message: "About Banner updated successfully" });
     } catch (error) {
       next(error);
@@ -193,6 +193,7 @@ class AboutBannerController {
 
       await CacheService.invalidate("aboutBanners");
       await CacheService.invalidate(`aboutBanner_${id}`);
+      await CacheService.invalidatePattern("aboutBanners_page_*");
       res.json({ success: true, message: "About Banner deleted successfully", data: id });
     } catch (error) {
       next(error);

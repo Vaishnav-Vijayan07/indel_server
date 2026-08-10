@@ -24,6 +24,7 @@ class GeneralApplicationsController {
 
       // Invalidate cache
       await CacheService.invalidate("general_applications");
+      await CacheService.invalidatePattern("general_applications_all_*");
       res.status(201).json({ success: true, data: application, message: "General application created" });
     } catch (error) {
       next(error);
@@ -53,7 +54,7 @@ class GeneralApplicationsController {
       });
 
       await CacheService.set(cacheKey, JSON.stringify(applications), 3600);
-      res.json({ success: general_applications, data: applications });
+      res.json({ success: true, data: applications });
     } catch (error) {
       next(error);
     }
@@ -114,7 +115,7 @@ class GeneralApplicationsController {
       await application.update(updateData);
 
       // Invalidate caches
-      await Promise.all([CacheService.invalidate("general_applications"), CacheService.invalidate(`general_application_${id}`)]);
+      await Promise.all([CacheService.invalidate("general_applications"), CacheService.invalidate(`general_application_${id}`), CacheService.invalidatePattern("general_applications_all_*")]);
       res.json({ success: true, data: application, message: "General application updated" });
     } catch (error) {
       next(error);
@@ -132,7 +133,7 @@ class GeneralApplicationsController {
       await application.destroy();
 
       // Invalidate caches
-      await Promise.all([CacheService.invalidate("general_applications"), CacheService.invalidate(`general_application_${id}`)]);
+      await Promise.all([CacheService.invalidate("general_applications"), CacheService.invalidate(`general_application_${id}`), CacheService.invalidatePattern("general_applications_all_*")]);
       res.json({ success: true, message: "General application deleted", data: id });
     } catch (error) {
       next(error);

@@ -34,6 +34,7 @@ class CreditRatingsController {
 
             await CacheService.invalidate("creditRatings");
             await CacheService.invalidate("webCreditRatings");
+            await CacheService.invalidatePattern("creditRatings_page_*");
             res.status(201).json({ success: true, data: rating, message: "Credit Rating created" });
         } catch (error) {
             next(error);
@@ -152,6 +153,7 @@ class CreditRatingsController {
             await CacheService.invalidate("creditRatings");
             await CacheService.invalidate("webCreditRatings");
             await CacheService.invalidate(`creditRating_${id}`);
+            await CacheService.invalidatePattern("creditRatings_page_*");
             res.json({ success: true, data: rating, message: "Credit Rating updated" });
         } catch (error) {
             next(error);
@@ -176,6 +178,7 @@ class CreditRatingsController {
             await CacheService.invalidate("creditRatings");
             await CacheService.invalidate("webCreditRatings");
             await CacheService.invalidate(`creditRating_${id}`);
+            await CacheService.invalidatePattern("creditRatings_page_*");
             res.json({ success: true, message: "Credit Rating deleted", data: id });
         } catch (error) {
             next(error);

@@ -33,6 +33,7 @@ class PartnersController {
       const partners = await Partners.create(updateData);
 
       await CacheService.invalidate("Partners");
+      await CacheService.invalidatePattern("Partners_page_*");
       res.status(201).json({ success: true, data: partners, message: "Partners created" });
     } catch (error) {
       next(error);
@@ -77,7 +78,7 @@ class PartnersController {
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
         if (cachedData) {
-          return res.json(JSON.parse(cachedData));
+          // return res.json(JSON.parse(cachedData));
         }
       }
 
@@ -164,6 +165,7 @@ class PartnersController {
 
       await CacheService.invalidate("Partners");
       await CacheService.invalidate(`partners_${id}`);
+      await CacheService.invalidatePattern("Partners_page_*");
       res.json({ success: true, data: partners, message: "Partners updated" });
     } catch (error) {
       next(error);
@@ -187,6 +189,7 @@ class PartnersController {
 
       await CacheService.invalidate("Partners");
       await CacheService.invalidate(`partners_${id}`);
+      await CacheService.invalidatePattern("Partners_page_*");
       res.json({ success: true, message: "Partners deleted", data: id });
     } catch (error) {
       next(error);

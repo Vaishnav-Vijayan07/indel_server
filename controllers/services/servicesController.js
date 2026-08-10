@@ -34,6 +34,7 @@ class ServicesController {
 
       await CacheService.invalidate("Services");
       await CacheService.invalidate("webOurServices");
+      await CacheService.invalidatePattern("Services_page_*");
       res.status(201).json({ success: true, data: service, message: "Service created successfully" });
     } catch (error) {
       next(error);
@@ -163,6 +164,7 @@ class ServicesController {
       await CacheService.invalidate("Services");
       await CacheService.invalidate("webOurServices");
       await CacheService.invalidate(`Service_${id}`);
+      await CacheService.invalidatePattern("Services_page_*");
 
       res.json({ success: true, data: service, message: "Service updated successfully" });
     } catch (error) {
@@ -188,6 +190,7 @@ class ServicesController {
       await CacheService.invalidate("Services");
       await CacheService.invalidate("webOurServices");
       await CacheService.invalidate(`Service_${id}`);
+      await CacheService.invalidatePattern("Services_page_*");
       res.json({ success: true, message: "Service deleted", data: id });
     } catch (error) {
       next(error);

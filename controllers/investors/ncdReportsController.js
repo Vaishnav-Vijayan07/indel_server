@@ -33,6 +33,8 @@ class NcdReportsController {
             const report = await NcdReports.create(updateData);
 
             await CacheService.invalidate("ncdReports");
+            await CacheService.invalidate("webNcdReports");
+            await CacheService.invalidatePattern("ncdReports_page_*");
             res.status(201).json({ success: true, data: report, message: "NCD Report created" });
         } catch (error) {
             next(error);
@@ -150,6 +152,8 @@ class NcdReportsController {
 
             await CacheService.invalidate("ncdReports");
             await CacheService.invalidate(`ncdReport_${id}`);
+            await CacheService.invalidate("webNcdReports");
+            await CacheService.invalidatePattern("ncdReports_page_*");
             res.json({ success: true, data: report, message: "NCD Report updated" });
         } catch (error) {
             next(error);
@@ -173,6 +177,8 @@ class NcdReportsController {
 
             await CacheService.invalidate("ncdReports");
             await CacheService.invalidate(`ncdReport_${id}`);
+            await CacheService.invalidate("webNcdReports");
+            await CacheService.invalidatePattern("ncdReports_page_*");
             res.json({ success: true, message: "NCD Report deleted", data: id });
         } catch (error) {
             next(error);

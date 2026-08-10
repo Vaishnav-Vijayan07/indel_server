@@ -33,6 +33,7 @@ class AboutStatisticsController {
 
       const link = await AboutStatistics.create(data);
       await CacheService.invalidate("aboutStatistics");
+      await CacheService.invalidatePattern("aboutStatistics_page_*");
       res.status(201).json({ success: true, data: link, message: "About Statistics data created" });
     } catch (error) {
       next(error);
@@ -72,9 +73,7 @@ class AboutStatisticsController {
       const cacheKey = search ? null : `aboutStatistics_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
-        // if (cachedData) {
-          // return res.json(JSON.parse(cachedData));
-        // }
+        if (cachedData) {            return res.json(JSON.parse(cachedData));          }
       }
 
       const { count, rows } = await AboutStatistics.findAndCountAll({
@@ -158,6 +157,7 @@ class AboutStatisticsController {
       await link.update(updateData);
       await CacheService.invalidate("aboutStatistics");
       await CacheService.invalidate(`aboutStatistics_${id}`);
+      await CacheService.invalidatePattern("aboutStatistics_page_*");
       res.json({ success: true, data: link, message: "About Statistics data updated" });
     } catch (error) {
       next(error);
@@ -181,6 +181,7 @@ class AboutStatisticsController {
 
       await CacheService.invalidate("aboutStatistics");
       await CacheService.invalidate(`aboutStatistics_${id}`);
+      await CacheService.invalidatePattern("aboutStatistics_page_*");
       res.json({ success: true, message: "About Statistics data deleted", data: id });
     } catch (error) {
       next(error);

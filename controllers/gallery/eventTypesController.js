@@ -40,6 +40,7 @@ class EventTypesController {
       const eventType = await EventTypes.create(data);
       await CacheService.invalidate("EventTypes");
       await CacheService.invalidate("webEventGallery");
+      await CacheService.invalidatePattern("eventTypes_page_*");
       res.status(201).json({ success: true, data: eventType, message: "Event Type created" });
     } catch (error) {
       next(error);
@@ -164,6 +165,7 @@ class EventTypesController {
       await CacheService.invalidate("EventTypes");
       await CacheService.invalidate("webEventGallery");
       await CacheService.invalidate(`eventType_${id}`);
+      await CacheService.invalidatePattern("eventTypes_page_*");
       res.json({ success: true, data: eventType, message: "Event Type updated" });
     } catch (error) {
       next(error);
@@ -182,6 +184,7 @@ class EventTypesController {
       await CacheService.invalidate("EventTypes");
       await CacheService.invalidate("webEventGallery");
       await CacheService.invalidate(`eventType_${id}`);
+      await CacheService.invalidatePattern("eventTypes_page_*");
       res.json({ success: true, message: "Event Type deleted", data: id });
     } catch (error) {
       next(error);

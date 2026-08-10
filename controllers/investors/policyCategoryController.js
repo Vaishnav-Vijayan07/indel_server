@@ -11,6 +11,9 @@ class PolicyCategoryController {
     try {
       const category = await PolicyCategories.create(req.body);
       await CacheService.invalidate("PolicyCategories");
+      await CacheService.invalidate("ActivePolicyCategories");
+      await CacheService.invalidate("webInvestorsPolicyCategories");
+      await CacheService.invalidatePattern("PolicyCategories_page_*");
       res.status(201).json({ success: true, data: category, message: "Policy category created" });
     } catch (error) {
       next(error);
@@ -141,6 +144,9 @@ class PolicyCategoryController {
       await category.update(req.body);
       await CacheService.invalidate("PolicyCategories");
       await CacheService.invalidate(`policyCategory_${id}`);
+      await CacheService.invalidate("ActivePolicyCategories");
+      await CacheService.invalidate("webInvestorsPolicyCategories");
+      await CacheService.invalidatePattern("PolicyCategories_page_*");
       Logger.info(`Policy category ${id} updated`);
       res.json({ success: true, data: category, message: "Policy category updated" });
     } catch (error) {
@@ -169,6 +175,9 @@ class PolicyCategoryController {
       await category.destroy();
       await CacheService.invalidate("PolicyCategories");
       await CacheService.invalidate(`policyCategory_${id}`);
+      await CacheService.invalidate("ActivePolicyCategories");
+      await CacheService.invalidate("webInvestorsPolicyCategories");
+      await CacheService.invalidatePattern("PolicyCategories_page_*");
       Logger.info(`Policy category ${id} deleted`);
       res.json({ success: true, message: "Policy category deleted", data: id });
     } catch (error) {

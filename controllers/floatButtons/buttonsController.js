@@ -5,6 +5,7 @@ const Logger = require("../../services/logger");
 const fs = require("fs").promises;
 const path = require("path");
 const { Op } = require("sequelize");
+const cacheService = require("../../services/cacheService");
 
 const FloatButtons = models.FloatButtons;
 
@@ -34,6 +35,8 @@ class FloatButtonsController {
 
       await CacheService.invalidate("floatButtons");
       await CacheService.invalidate("webFloatButton");
+      await cacheService.invalidatePattern("floatButtons_page_*");
+
       res.status(201).json({ success: true, data: floatButton, message: "Float Button created" });
     } catch (error) {
       next(error);
@@ -163,6 +166,8 @@ class FloatButtonsController {
       await CacheService.invalidate("floatButtons");
       await CacheService.invalidate(`floatButton_${id}`);
       await CacheService.invalidate("webFloatButton");
+      await cacheService.invalidatePattern("floatButtons_page_*");
+
       res.json({ success: true, data: floatButton, message: "Float Button updated" });
     } catch (error) {
       next(error);
@@ -186,6 +191,7 @@ class FloatButtonsController {
 
       await CacheService.invalidate("floatButtons");
       await CacheService.invalidate(`floatButton_${id}`);
+      await cacheService.invalidatePattern("floatButtons_page_*");
       await CacheService.invalidate("webFloatButton");
       res.json({ success: true, message: "Float Button deleted", data: id });
     } catch (error) {

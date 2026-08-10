@@ -44,6 +44,7 @@ class StatesController {
 
       await CacheService.invalidate("states");
       await CacheService.invalidate("webCareerPage");
+      await CacheService.invalidatePattern("states_page_*");
 
       res.status(201).json({ success: true, data: state, message: "State created" });
     } catch (error) {
@@ -174,6 +175,7 @@ class StatesController {
       await CacheService.invalidate("states");
       await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`state_${id}`);
+      await CacheService.invalidatePattern("states_page_*");
       res.json({ success: true, data: state, message: "State updated" });
     } catch (error) {
       next(error);
@@ -198,6 +200,7 @@ class StatesController {
       await CacheService.invalidate("states");
       await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`state_${id}`);
+      await CacheService.invalidatePattern("states_page_*");
       res.json({ success: true, message: "State deleted", data: id });
     } catch (error) {
       next(error);

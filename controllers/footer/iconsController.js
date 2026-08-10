@@ -33,6 +33,7 @@ class SocialMediaIconsController {
       const socialMediaIcon = await SocialMediaIcons.create(updateData);
 
       await CacheService.invalidate("socialMediaIcons");
+      await CacheService.invalidatePattern("socialMediaIcons_page_*");
       res.status(201).json({ success: true, data: socialMediaIcon, message: "Social Media Icon created" });
     } catch (error) {
       next(error);
@@ -161,6 +162,7 @@ class SocialMediaIconsController {
 
       await CacheService.invalidate("socialMediaIcons");
       await CacheService.invalidate(`socialMediaIcon_${id}`);
+      await CacheService.invalidatePattern("socialMediaIcons_page_*");
       res.json({ success: true, data: socialMediaIcon, message: "Social Media Icon updated" });
     } catch (error) {
       next(error);
@@ -184,6 +186,7 @@ class SocialMediaIconsController {
 
       await CacheService.invalidate("socialMediaIcons");
       await CacheService.invalidate(`socialMediaIcon_${id}`);
+      await CacheService.invalidatePattern("socialMediaIcons_page_*");
       res.json({ success: true, message: "Social Media Icon deleted", data: id });
     } catch (error) {
       next(error);

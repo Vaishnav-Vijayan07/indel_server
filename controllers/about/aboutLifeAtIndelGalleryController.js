@@ -33,6 +33,7 @@ class AboutLifeAtIndelGalleryController {
       const galleryItem = await AboutLifeAtIndelGallery.create(data);
 
       await CacheService.invalidate("aboutLifeAtIndelGallery");
+      await CacheService.invalidatePattern("aboutLifeAtIndelGallery_page_*");
       res.status(201).json({ success: true, data: galleryItem, message: "Gallery item created" });
     } catch (error) {
       next(error);
@@ -72,9 +73,7 @@ class AboutLifeAtIndelGalleryController {
       const cacheKey = search ? null : `aboutLifeAtIndelGallery_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
-        // if (cachedData) {
-          // return res.json(JSON.parse(cachedData));
-        // }
+        if (cachedData) {            return res.json(JSON.parse(cachedData));          }
       }
 
       const { count, rows } = await AboutLifeAtIndelGallery.findAndCountAll({
@@ -159,6 +158,7 @@ class AboutLifeAtIndelGalleryController {
 
       await CacheService.invalidate("aboutLifeAtIndelGallery");
       await CacheService.invalidate(`aboutLifeAtIndelGallery_${id}`);
+      await CacheService.invalidatePattern("aboutLifeAtIndelGallery_page_*");
       res.json({ success: true, data: item, message: "Gallery item updated" });
     } catch (error) {
       next(error);
@@ -182,6 +182,7 @@ class AboutLifeAtIndelGalleryController {
 
       await CacheService.invalidate("aboutLifeAtIndelGallery");
       await CacheService.invalidate(`aboutLifeAtIndelGallery_${id}`);
+      await CacheService.invalidatePattern("aboutLifeAtIndelGallery_page_*");
       res.json({ success: true, message: "Gallery item deleted", data: id });
     } catch (error) {
       next(error);

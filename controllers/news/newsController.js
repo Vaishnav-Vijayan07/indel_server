@@ -124,6 +124,7 @@ class NewsController {
         });
 
       await CacheService.invalidate("news");
+      await CacheService.invalidatePattern("news_*");
       res.status(201).json({ success: true, data: news, message: "News created" });
     } catch (error) {
       Logger.error(`News create error: ${error.stack}`);
@@ -283,7 +284,7 @@ class NewsController {
       await news.update(updateData);
 
       await CacheService.invalidate("news");
-      await CacheService.invalidate(`news_${id}`);
+      await CacheService.invalidatePattern("news_*");
       await CacheService.invalidate(`metaData:newsItem:${id}`);
 
       res.json({ success: true, data: news, message: "News updated" });
@@ -318,7 +319,7 @@ class NewsController {
       }
 
       await CacheService.invalidate("news");
-      await CacheService.invalidate(`news_${id}`);
+      await CacheService.invalidatePattern("news_*");
       res.json({ success: true, message: "News deleted", data: id });
     } catch (error) {
       next(error);

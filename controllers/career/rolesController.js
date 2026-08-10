@@ -27,6 +27,7 @@ class RolesController {
 
       await CacheService.invalidate("roles");
        await CacheService.invalidate("webCareerPage");
+      await CacheService.invalidatePattern("roles_page_*");
       res.status(201).json({ success: true, data: role, message: "Role created" });
     } catch (error) {
       next(error);
@@ -147,6 +148,7 @@ class RolesController {
       await CacheService.invalidate("roles");
        await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`role_${id}`);
+      await CacheService.invalidatePattern("roles_page_*");
       res.json({ success: true, data: role, message: "Role updated" });
     } catch (error) {
       next(error);
@@ -166,6 +168,7 @@ class RolesController {
       await CacheService.invalidate("roles");
        await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`role_${id}`);
+      await CacheService.invalidatePattern("roles_page_*");
       res.json({ success: true, message: "Role deleted", data: id });
     } catch (error) {
       next(error);

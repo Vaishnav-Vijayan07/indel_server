@@ -34,6 +34,7 @@ class CareerGalleryController {
 
       await CacheService.invalidate("careerGallery");
        await CacheService.invalidate("webCareerPage");
+      await CacheService.invalidatePattern("careerGallery_page_*");
       res.status(201).json({ success: true, data: gallery, message: "Career Gallery item created" });
     } catch (error) {
       next(error);
@@ -163,6 +164,7 @@ class CareerGalleryController {
       await CacheService.invalidate("careerGallery");
        await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`careerGallery_${id}`);
+      await CacheService.invalidatePattern("careerGallery_page_*");
       res.json({ success: true, data: gallery, message: "Career Gallery item updated" });
     } catch (error) {
       next(error);
@@ -187,6 +189,7 @@ class CareerGalleryController {
       await CacheService.invalidate("careerGallery");
        await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`careerGallery_${id}`);
+      await CacheService.invalidatePattern("careerGallery_page_*");
       res.json({ success: true, message: "Career Gallery item deleted", data: id });
     } catch (error) {
       next(error);

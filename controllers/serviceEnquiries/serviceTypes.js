@@ -12,6 +12,7 @@ class ServiceTypesController {
       const data = { ...req.body };
       const serviceType = await ServiceTypes.create(data);
       await CacheService.invalidate("ServiceTypes");
+      await CacheService.invalidatePattern("ServiceTypes_page_*");
 
       Logger.info("New Service Type created");
       res.status(201).json({ success: true, data: serviceType, message: "Service Type created" });
@@ -131,6 +132,7 @@ class ServiceTypesController {
       await serviceType.update(req.body);
       await CacheService.invalidate("ServiceTypes");
       await CacheService.invalidate(`ServiceType_${id}`);
+      await CacheService.invalidatePattern("ServiceTypes_page_*");
 
       Logger.info(`Service Type ID ${id} updated`);
       res.json({ success: true, data: serviceType, message: "Service Type updated" });
@@ -151,6 +153,7 @@ class ServiceTypesController {
       await serviceType.destroy();
       await CacheService.invalidate("ServiceTypes");
       await CacheService.invalidate(`ServiceType_${id}`);
+      await CacheService.invalidatePattern("ServiceTypes_page_*");
 
       Logger.info(`Service Type ID ${id} deleted`);
       res.json({ success: true, message: "Service Type deleted", data: id });

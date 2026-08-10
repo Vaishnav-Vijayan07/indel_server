@@ -81,6 +81,7 @@ class UsersController {
       });
 
       await CacheService.invalidate?.("Users_all");
+      await CacheService.invalidatePattern?.("Users_all_page_*");
       Logger.info(`User created: ${user.username}`);
 
       const { password: _pw, ...safeUser } = user.toJSON();
@@ -226,6 +227,7 @@ class UsersController {
       await targetUser.update(updateData);
       await CacheService.invalidate?.("Users_all");
       await CacheService.invalidate?.(`User_${id}`);
+      await CacheService.invalidatePattern?.("Users_all_page_*");
 
       // ── Notify both old and new addresses, fire-and-forget ────────────────
       // Don't let email delivery issues break the actual update response.
@@ -258,6 +260,7 @@ class UsersController {
       await targetUser.destroy();
       await CacheService.invalidate?.("Users_all");
       await CacheService.invalidate?.(`User_${id}`);
+      await CacheService.invalidatePattern?.("Users_all_page_*");
       res.json({ success: true, message: "User deleted", data: id });
     } catch (error) {
       next(error);

@@ -5,6 +5,7 @@ const CustomError = require("../../utils/customError");
 const Logger = require("../../services/logger");
 const fs = require("fs").promises;
 const path = require("path");
+const cacheService = require("../../services/cacheService");
 
 const HomeLoanStep = models.HomeLoanStep;
 
@@ -12,7 +13,13 @@ class HomeLoanStepController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(__dirname, "..","..", "uploads", filePath.replace("/uploads/", ""));
+      const absolutePath = path.join(
+        __dirname,
+        "..",
+        "..",
+        "uploads",
+        filePath.replace("/uploads/", ""),
+      );
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {
@@ -34,6 +41,7 @@ class HomeLoanStepController {
 
       await CacheService.invalidate("homeLoanSteps");
       await CacheService.invalidate("webHomeData");
+      await cacheService.invalidatePattern("homeLoanSteps_page_*")
 
       res.status(201).json({ success: true, data: step });
       await CacheService.invalidate("webHomeData");
@@ -60,7 +68,11 @@ class HomeLoanStepController {
         });
 
         await CacheService.set(cacheKey, JSON.stringify(steps), 3600);
-        return res.json({ success: true, data: steps, message: "Home Loan Steps fetched" });
+        return res.json({
+          success: true,
+          data: steps,
+          message: "Home Loan Steps fetched",
+        });
       }
 
       // Pagination path
@@ -73,7 +85,9 @@ class HomeLoanStepController {
         whereConditions.title = { [Op.iLike]: `%${search.trim()}%` };
       }
 
-      const cacheKey = search ? null : `homeLoanSteps_page_${pageNum}_limit_${limitNum}`;
+      const cacheKey = search
+        ? null
+        : `homeLoanSteps_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
         if (cachedData) {
@@ -149,7 +163,9 @@ class HomeLoanStepController {
 
       if (req.file) {
         updateData.icon_url = `/uploads/home-loan-steps/${req.file.filename}`;
-        Logger.info(`Updated icon for HomeLoanStep ID ${id}: ${updateData.icon_url}`);
+        Logger.info(
+          `Updated icon for HomeLoanStep ID ${id}: ${updateData.icon_url}`,
+        );
         if (oldIconUrl) {
           await HomeLoanStepController.deleteFile(oldIconUrl);
         }
@@ -159,9 +175,15 @@ class HomeLoanStepController {
 
       await CacheService.invalidate("homeLoanSteps");
       await CacheService.invalidate(`homeLoanStep_${id}`);
+      await cacheService.invalidatePattern("homeLoanSteps_page_*");
+
       await CacheService.invalidate("webHomeData");
 
-      res.json({ success: true, data: step, message: "Home Loan Step updated" });
+      res.json({
+        success: true,
+        data: step,
+        message: "Home Loan Step updated",
+      });
     } catch (error) {
       next(error);
     }
@@ -184,7 +206,8 @@ class HomeLoanStepController {
 
       await CacheService.invalidate("homeLoanSteps");
       await CacheService.invalidate(`homeLoanStep_${id}`);
-      res.json({ success: true, message: "Home Loan Step deleted",data:id });
+      await cacheService.invalidatePattern("homeLoanSteps_page_*");
+      res.json({ success: true, message: "Home Loan Step deleted", data: id });
       await CacheService.invalidate("webHomeData");
     } catch (error) {
       next(error);

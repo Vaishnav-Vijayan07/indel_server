@@ -32,6 +32,7 @@ class AboutQuickLinksController {
 
       const link = await AboutQuickLinks.create(data);
       await CacheService.invalidate("aboutQuickLinks");
+      await CacheService.invalidatePattern("aboutQuickLinks_page_*");
       res.status(201).json({ success: true, data: link, message: "About Quick Link created" });
     } catch (error) {
       next(error);
@@ -71,9 +72,7 @@ class AboutQuickLinksController {
       const cacheKey = search ? null : `aboutQuickLinks_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
-        // if (cachedData) {
-          // return res.json(JSON.parse(cachedData));
-        // }
+        if (cachedData) {            return res.json(JSON.parse(cachedData));          }
       }
 
       const { count, rows } = await AboutQuickLinks.findAndCountAll({
@@ -157,6 +156,7 @@ class AboutQuickLinksController {
       await link.update(updateData);
       await CacheService.invalidate("aboutQuickLinks");
       await CacheService.invalidate(`aboutQuickLink_${id}`);
+      await CacheService.invalidatePattern("aboutQuickLinks_page_*");
       res.json({ success: true, data: link,message: "About Quick Link updated" });
     } catch (error) {
       next(error);
@@ -180,6 +180,7 @@ class AboutQuickLinksController {
 
       await CacheService.invalidate("aboutQuickLinks");
       await CacheService.invalidate(`aboutQuickLink_${id}`);
+      await CacheService.invalidatePattern("aboutQuickLinks_page_*");
       res.json({ success: true, message: "About Quick Link deleted", data: id });
     } catch (error) {
       next(error);

@@ -34,6 +34,7 @@ class OmbudsmanFilesController {
 
       await CacheService.invalidate("ombudsmanFiles");
       await CacheService.invalidate("webOmbudsmanFiles");
+      await CacheService.invalidatePattern("ombudsmanFiles_page_*");
       res.status(201).json({ success: true, data: ombudsmanFile, message: "Ombudsman File created" });
     } catch (error) {
       next(error);
@@ -163,6 +164,7 @@ class OmbudsmanFilesController {
       await CacheService.invalidate("ombudsmanFiles");
       await CacheService.invalidate("webOmbudsmanFiles");
       await CacheService.invalidate(`ombudsmanFile_${id}`);
+      await CacheService.invalidatePattern("ombudsmanFiles_page_*");
       res.json({ success: true, data: ombudsmanFile, message: "Ombudsman File updated" });
     } catch (error) {
       next(error);
@@ -187,6 +189,7 @@ class OmbudsmanFilesController {
       await CacheService.invalidate("ombudsmanFiles");
       await CacheService.invalidate("webOmbudsmanFiles");
       await CacheService.invalidate(`ombudsmanFile_${id}`);
+      await CacheService.invalidatePattern("ombudsmanFiles_page_*");
       res.json({ success: true, message: "Ombudsman File deleted", data: id });
     } catch (error) {
       next(error);

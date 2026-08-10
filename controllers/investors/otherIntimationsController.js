@@ -38,6 +38,8 @@ class OtherIntimationsController {
 
       const otherIntimation = await OtherIntimations.create(data);
       await CacheService.invalidate("OtherIntimations");
+      await CacheService.invalidatePattern("OtherIntimations_page_*");
+      await CacheService.invalidatePattern("stockExchangeData:*");
       res.status(201).json({ success: true, data: otherIntimation, message: "Other Intimation created" });
     } catch (error) {
       if (req.files) {
@@ -178,6 +180,8 @@ class OtherIntimationsController {
       await otherIntimation.update(updateData);
       await CacheService.invalidate("OtherIntimations");
       await CacheService.invalidate(`otherIntimation_${id}`);
+      await CacheService.invalidatePattern("OtherIntimations_page_*");
+      await CacheService.invalidatePattern("stockExchangeData:*");
       res.json({ success: true, data: otherIntimation, message: "Other Intimation updated" });
     } catch (error) {
       if (req.files) {
@@ -213,6 +217,8 @@ class OtherIntimationsController {
 
       await CacheService.invalidate("OtherIntimations");
       await CacheService.invalidate(`otherIntimation_${id}`);
+      await CacheService.invalidatePattern("OtherIntimations_page_*");
+      await CacheService.invalidatePattern("stockExchangeData:*");
       res.json({ success: true, message: "Other Intimation deleted", data: id });
     } catch (error) {
       next(error);

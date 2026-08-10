@@ -34,6 +34,7 @@ class GoldLoanBannerFeaturesController {
 
       await CacheService.invalidate("goldLoanBannerFeatures");
       await CacheService.invalidate("webGoldLoan");
+      await CacheService.invalidatePattern("goldLoanBannerFeatures_page_*");
       res.status(201).json({ success: true, data: feature, message: "Gold Loan Banner Feature created" });
     } catch (error) {
       next(error);
@@ -73,9 +74,9 @@ class GoldLoanBannerFeaturesController {
       const cacheKey = search ? null : `goldLoanBannerFeatures_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
-        // if (cachedData) {
-          // return res.json(JSON.parse(cachedData));
-        // }
+        if (cachedData) {
+          return res.json(JSON.parse(cachedData));
+        }
       }
 
       const { count, rows } = await GoldLoanBannerFeatures.findAndCountAll({
@@ -161,6 +162,7 @@ class GoldLoanBannerFeaturesController {
       await CacheService.invalidate("goldLoanBannerFeatures");
       await CacheService.invalidate(`goldLoanBannerFeature_${id}`);
       await CacheService.invalidate("webGoldLoan");
+      await CacheService.invalidatePattern("goldLoanBannerFeatures_page_*");
 
       res.json({ success: true, data: feature, message: "Gold Loan Banner Feature updated" });
     } catch (error) {
@@ -186,6 +188,7 @@ class GoldLoanBannerFeaturesController {
       await CacheService.invalidate("goldLoanBannerFeatures");
       await CacheService.invalidate(`goldLoanBannerFeature_${id}`);
       await CacheService.invalidate("webGoldLoan");
+      await CacheService.invalidatePattern("goldLoanBannerFeatures_page_*");
 
       res.json({ success: true, message: "Gold Loan Banner Feature deleted", data: id });
     } catch (error) {

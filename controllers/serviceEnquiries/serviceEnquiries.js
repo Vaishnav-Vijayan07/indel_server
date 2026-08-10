@@ -65,6 +65,7 @@ class ServiceEnquiriesController {
       // Proceed with creating the service enquiry
       const enquiry = await ServiceEnquiries.create(data); // Use data without recaptcha
       await CacheService.invalidate("ServiceEnquiries");
+      await CacheService.invalidatePattern("ServiceEnquiries_page_*");
 
 
 
@@ -208,6 +209,7 @@ class ServiceEnquiriesController {
       await enquiry.update(req.body);
       await CacheService.invalidate("ServiceEnquiries");
       await CacheService.invalidate(`ServiceEnquiry_${id}`);
+      await CacheService.invalidatePattern("ServiceEnquiries_page_*");
 
       Logger.info(`Service Enquiry ID ${id} updated`);
       res.json({ success: true, data: enquiry, message: "Service Enquiry updated" });
@@ -228,6 +230,7 @@ class ServiceEnquiriesController {
       await enquiry.destroy();
       await CacheService.invalidate("ServiceEnquiries");
       await CacheService.invalidate(`ServiceEnquiry_${id}`);
+      await CacheService.invalidatePattern("ServiceEnquiries_page_*");
 
       Logger.info(`Service Enquiry ID ${id} deleted`);
       res.json({ success: true, message: "Service Enquiry deleted", data: id });

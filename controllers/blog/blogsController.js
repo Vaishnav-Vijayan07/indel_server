@@ -76,6 +76,7 @@ class BlogsController {
       const blog = await Blogs.create(updateData);
 
       await CacheService.invalidate("blogs");
+      await CacheService.invalidatePattern("blogs_page_*");
       res.status(201).json({ success: true, data: blog, message: "Blog created" });
     } catch (error) {
       next(error);
@@ -118,9 +119,9 @@ class BlogsController {
       const cacheKey = search ? null : `blogs_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
-        // if (cachedData) {
-        //   return res.json(JSON.parse(cachedData));
-        // }
+        if (cachedData) {
+          return res.json(JSON.parse(cachedData));
+        }
       }
 
       const { count, rows } = await Blogs.findAndCountAll({
@@ -284,7 +285,8 @@ class BlogsController {
       await blog.update(updateData);
 
       await CacheService.invalidate("blogs");
-      await CacheService.invalidate(`blog_${id}`);
+      await CacheService.invalidatePattern("blog_*");
+      await CacheService.invalidatePattern("blogs_page_*");
       await CacheService.invalidate(`metaData:blogItem:${id}`);
 
       res.json({ success: true, data: blog, message: "Blog updated" });
@@ -318,7 +320,8 @@ class BlogsController {
       }
 
       await CacheService.invalidate("blogs");
-      await CacheService.invalidate(`blog_${id}`);
+      await CacheService.invalidatePattern("blog_*");
+      await CacheService.invalidatePattern("blogs_page_*");
       res.json({ success: true, message: "Blog deleted", data: id });
     } catch (error) {
       next(error);

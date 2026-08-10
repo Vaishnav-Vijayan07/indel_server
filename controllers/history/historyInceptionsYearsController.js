@@ -43,8 +43,9 @@ class HistoryInceptionYearsController {
       const step = await HistoryInceptionsYears.create(updateData);
 
       await CacheService.invalidate("HistoryInceptionsYears");
-      res.status(201).json({ success: true, data: step, message: "Year created" });
+      await CacheService.invalidatePattern("HistoryInceptionsYears_page_*");
       await CacheService.invalidate("webHistoryData");
+      res.status(201).json({ success: true, data: step, message: "Year created" });
     } catch (error) {
       next(error);
     }
@@ -180,6 +181,7 @@ class HistoryInceptionYearsController {
       await CacheService.invalidate("HistoryInceptionsYears");
       await CacheService.invalidate(`HistoryIncYear_${id}`);
       await CacheService.invalidate("webHistoryData");
+      await CacheService.invalidatePattern("HistoryInceptionsYears_page_*");
 
       res.json({ success: true, data: step, message: "Year updated" });
     } catch (error) {
@@ -204,8 +206,9 @@ class HistoryInceptionYearsController {
 
       await CacheService.invalidate("HistoryInceptionsYears");
       await CacheService.invalidate(`HistoryIncYear_${id}`);
-      res.json({ success: true, message: "Year deleted", data: id });
       await CacheService.invalidate("webHistoryData");
+      await CacheService.invalidatePattern("HistoryInceptionsYears_page_*");
+      res.json({ success: true, message: "Year deleted", data: id });
     } catch (error) {
       next(error);
     }

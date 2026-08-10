@@ -34,6 +34,7 @@ class GoldLoanFeaturesController {
 
       await CacheService.invalidate("goldLoanFeatures");
       await CacheService.invalidate("webGoldLoan");
+      await CacheService.invalidatePattern("goldLoanFeatures_page_*");
 
       res.status(201).json({ success: true, data: feature, message: "Gold Loan Feature created" });
     } catch (error) {
@@ -76,9 +77,7 @@ class GoldLoanFeaturesController {
       const cacheKey = search ? null : `goldLoanFeatures_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
-        // if (cachedData) {
-          // return res.json(JSON.parse(cachedData));
-        // }
+        if (cachedData) {            return res.json(JSON.parse(cachedData));          }
       }
 
       const { count, rows } = await GoldLoanFeatures.findAndCountAll({
@@ -176,6 +175,7 @@ class GoldLoanFeaturesController {
       await CacheService.invalidate("goldLoanFeatures");
       await CacheService.invalidate(`goldLoanFeature_${id}`);
       await CacheService.invalidate("webGoldLoan");
+      await CacheService.invalidatePattern("goldLoanFeatures_page_*");
 
       res.json({ success: true, data: feature, message: "Gold Loan Feature updated" });
     } catch (error) {
@@ -201,6 +201,7 @@ class GoldLoanFeaturesController {
       await CacheService.invalidate("goldLoanFeatures");
       await CacheService.invalidate(`goldLoanFeature_${id}`);
       await CacheService.invalidate("webGoldLoan");
+      await CacheService.invalidatePattern("goldLoanFeatures_page_*");
 
       res.json({ success: true, message: "Gold Loan Feature deleted", data: id });
     } catch (error) {
@@ -235,6 +236,7 @@ class GoldLoanFeaturesController {
       await CacheService.invalidate("goldLoanFeatures");
       await CacheService.invalidate(`goldLoanFeature_${id}`);
       await CacheService.invalidate("webGoldLoan");
+      await CacheService.invalidatePattern("goldLoanFeatures_page_*");
 
       res.json({ success: true, data: item, message: "Item active status updated" });
     } catch (error) {

@@ -59,6 +59,9 @@ class PoliciesController {
 
       await policy.update(updateData);
 
+      const { type } = policy;
+      await cacheService.invalidate(`webPolicy${type}`);
+
       res.json({ success: true, data: policy, message: "Policy updated" });
     } catch (error) {
       next(error);
@@ -75,7 +78,10 @@ class PoliciesController {
         res.json({ success: false, message: "Policy not updated" });
       }
 
+      const { type } = policy;
       await policy.destroy();
+
+      await cacheService.invalidate(`webPolicy${type}`);
 
       res.json({ success: true, message: "Policy deleted", data: id });
     } catch (error) {

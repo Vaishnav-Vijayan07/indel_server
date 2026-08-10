@@ -40,6 +40,7 @@ class DistrictsController {
 
       await CacheService.invalidate("districts");
       await CacheService.invalidate("webCareerPage");
+      await CacheService.invalidatePattern("districts_page_*");
 
       res.status(201).json({ success: true, data: district, message: "District created" });
     } catch (error) {
@@ -206,6 +207,8 @@ class DistrictsController {
       await CacheService.invalidate("districts");
       await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`district_${id}`);
+      await CacheService.invalidatePattern("districts_page_*");
+      await CacheService.invalidatePattern("districts_state_*");
       res.json({ success: true, data: district, message: "District updated" });
     } catch (error) {
       next(error);
@@ -230,6 +233,8 @@ class DistrictsController {
       await CacheService.invalidate("districts");
       await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`district_${id}`);
+      await CacheService.invalidatePattern("districts_page_*");
+      await CacheService.invalidatePattern("districts_state_*");
       res.json({ success: true, message: "District deleted", data: id });
     } catch (error) {
       next(error);

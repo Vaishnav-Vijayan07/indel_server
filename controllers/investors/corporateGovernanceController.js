@@ -34,6 +34,7 @@ class CorporateGovernanceController {
 
             await CacheService.invalidate("corporateGovernance");
             await CacheService.invalidate("webCorporateGovernence");
+            await CacheService.invalidatePattern("corporateGovernance_page_*");
             res.status(201).json({ success: true, data: governance, message: "Corporate Governance item created" });
         } catch (error) {
             next(error);
@@ -152,6 +153,7 @@ class CorporateGovernanceController {
             await CacheService.invalidate("corporateGovernance");
             await CacheService.invalidate("webCorporateGovernence");
             await CacheService.invalidate(`corporateGovernance_${id}`);
+            await CacheService.invalidatePattern("corporateGovernance_page_*");
             res.json({ success: true, data: governance, message: "Corporate Governance item updated" });
         } catch (error) {
             next(error);
@@ -176,6 +178,7 @@ class CorporateGovernanceController {
             await CacheService.invalidate("corporateGovernance");
             await CacheService.invalidate("webCorporateGovernence");
             await CacheService.invalidate(`corporateGovernance_${id}`);
+            await CacheService.invalidatePattern("corporateGovernance_page_*");
             res.json({ success: true, message: "Corporate Governance item deleted", data: id });
         } catch (error) {
             next(error);

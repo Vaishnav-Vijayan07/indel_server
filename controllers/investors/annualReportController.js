@@ -34,6 +34,7 @@ class AnnualReportController {
       const annualReport = await AnnualReport.create(data);
       await CacheService.invalidate("AnnualReport");
       await CacheService.invalidate("webCsrReports");
+      await CacheService.invalidatePattern("AnnualReport_page_*");
       res.status(201).json({ success: true, data: annualReport, message: "Annual Report created" });
     } catch (error) {
       if (req.file) {
@@ -60,7 +61,7 @@ class AnnualReportController {
           include: [{ model: models.FiscalYears, as: "fiscalYear", attributes: ["id", "fiscal_year", "is_active"] }],
           order: [["order", "ASC"]],
         });
-        // await CacheService.set(cacheKey, JSON.stringify(annualReports), 3600);
+        await CacheService.set(cacheKey, JSON.stringify(annualReports), 3600);
         return res.json({ success: true, data: annualReports });
       }
 
@@ -158,6 +159,7 @@ class AnnualReportController {
       await CacheService.invalidate("AnnualReport");
       await CacheService.invalidate("webCsrReports");
       await CacheService.invalidate(`annualReport_${id}`);
+      await CacheService.invalidatePattern("AnnualReport_page_*");
       res.json({ success: true, data: annualReport, message: "Annual Report updated" });
     } catch (error) {
       if (req.file) {
@@ -185,6 +187,7 @@ class AnnualReportController {
       await CacheService.invalidate("AnnualReport");
       await CacheService.invalidate("webCsrReports");
       await CacheService.invalidate(`annualReport_${id}`);
+      await CacheService.invalidatePattern("AnnualReport_page_*");
       res.json({ success: true, message: "Annual Report deleted", data: id });
     } catch (error) {
       next(error);

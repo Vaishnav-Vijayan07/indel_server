@@ -15,6 +15,7 @@ class GoldLoanSchemeController {
 
       await CacheService.invalidate("goldLoanSchemes");
       await CacheService.invalidate("webGoldLoan");
+      await CacheService.invalidatePattern("goldLoanSchemes_page_*");
 
       res.status(201).json({ success: true, data: scheme, message: "Gold Loan Scheme created" });
     } catch (error) {
@@ -55,9 +56,9 @@ class GoldLoanSchemeController {
       const cacheKey = search ? null : `goldLoanSchemes_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
-        // if (cachedData) {
-          // return res.json(JSON.parse(cachedData));
-        // }
+         if (cachedData) {
+           return res.json(JSON.parse(cachedData));
+         }
       }
 
       const { count, rows } = await GoldLoanScheme.findAndCountAll({
@@ -134,6 +135,7 @@ class GoldLoanSchemeController {
       await CacheService.invalidate("goldLoanSchemes");
       await CacheService.invalidate(`goldLoanScheme_${id}`);
       await CacheService.invalidate("webGoldLoan");
+      await CacheService.invalidatePattern("goldLoanSchemes_page_*");
 
       res.json({ success: true, data: scheme, message: "Gold Loan Scheme updated" });
     } catch (error) {
@@ -154,6 +156,7 @@ class GoldLoanSchemeController {
       await CacheService.invalidate("goldLoanSchemes");
       await CacheService.invalidate(`goldLoanScheme_${id}`);
       await CacheService.invalidate("webGoldLoan");
+      await CacheService.invalidatePattern("goldLoanSchemes_page_*");
       res.json({ success: true, message: "Gold Loan Scheme deleted", data: id });
     } catch (error) {
       next(error);

@@ -34,6 +34,7 @@ class SmartMoneyDealsController {
 
       await CacheService.invalidate("smartMoneyDeals");
       await CacheService.invalidate("webHomeData");
+      await CacheService.invalidatePattern("smartMoneyDeals_page_*");
       res.status(201).json({ success: true, data: deal,message: "Smart Money Deal created" });
     } catch (error) {
       next(error);
@@ -157,6 +158,7 @@ class SmartMoneyDealsController {
 
       await CacheService.invalidate("smartMoneyDeals");
       await CacheService.invalidate("webHomeData");
+      await CacheService.invalidatePattern("smartMoneyDeals_page_*");
       await CacheService.invalidate(`smartMoneyDeal_${id}`);
       res.json({ success: true, data: deal, message: "Smart Money Deal updated" });
     } catch (error) {
@@ -182,6 +184,8 @@ class SmartMoneyDealsController {
       await CacheService.invalidate("smartMoneyDeals");
       await CacheService.invalidate("webHomeData");
       await CacheService.invalidate(`smartMoneyDeal_${id}`);
+      await CacheService.invalidatePattern("smartMoneyDeals_page_*");
+
       res.json({ success: true, message: "Smart Money Deal deleted", data: id });
     } catch (error) {
       next(error);

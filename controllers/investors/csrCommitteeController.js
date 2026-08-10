@@ -13,6 +13,7 @@ class CsrCommitteeController {
       const csrCommittee = await CsrCommittee.create(data);
       await CacheService.invalidate("CsrCommittee");
       await CacheService.invalidate("webCsrDetails");
+      await CacheService.invalidatePattern("CsrCommittee_page_*");
       res.status(201).json({ success: true, data: csrCommittee, message: "CSR Committee created" });
     } catch (error) {
       next(error);
@@ -117,6 +118,7 @@ class CsrCommitteeController {
       await CacheService.invalidate("CsrCommittee");
       await CacheService.invalidate("webCsrDetails");
       await CacheService.invalidate(`csrCommittee_${id}`);
+      await CacheService.invalidatePattern("CsrCommittee_page_*");
       res.json({ success: true, data: csrCommittee, message: "CSR Committee updated" });
     } catch (error) {
       next(error);
@@ -135,6 +137,7 @@ class CsrCommitteeController {
       await CacheService.invalidate("CsrCommittee");
       await CacheService.invalidate("webCsrDetails");
       await CacheService.invalidate(`csrCommittee_${id}`);
+      await CacheService.invalidatePattern("CsrCommittee_page_*");
       res.json({ success: true, message: "CSR Committee deleted", data: id });
     } catch (error) {
       next(error);

@@ -32,6 +32,7 @@ class ManagementTeamsController {
 
       const link = await ManagementTeams.create(data);
       await CacheService.invalidate("ManagementTeams");
+      await CacheService.invalidatePattern("ManagementTeams_page_*");
       res.status(201).json({ success: true, data: link, message: "Management Teams data created" });
     } catch (error) {
       next(error);
@@ -156,6 +157,7 @@ class ManagementTeamsController {
       await team.update(updateData);
       await CacheService.invalidate("ManagementTeams");
       await CacheService.invalidate(`mangementTeam_${id}`);
+      await CacheService.invalidatePattern("ManagementTeams_page_*");
       res.json({ success: true, data: team,message: "Management Teams data updated" });
     } catch (error) {
       next(error);
@@ -179,6 +181,7 @@ class ManagementTeamsController {
 
       await CacheService.invalidate("ManagementTeams");
       await CacheService.invalidate(`mangementTeam_${id}`);
+      await CacheService.invalidatePattern("ManagementTeams_page_*");
       res.json({ success: true, message: "Management Teams data deleted", data: id });
     } catch (error) {
       next(error);

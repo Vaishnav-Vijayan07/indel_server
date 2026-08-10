@@ -33,6 +33,7 @@ class MsmeTargetedAudienceController {
       const audience = await MsmeTargetedAudience.create(updateData);
 
       await CacheService.invalidate("msmeTargetedAudience");
+      await CacheService.invalidatePattern("msmeTargetedAudience_page_*");
       res.status(201).json({ success: true, data: audience, message: "MSME Targeted Audience created" });
     } catch (error) {
       next(error);
@@ -75,9 +76,7 @@ class MsmeTargetedAudienceController {
       const cacheKey = search ? null : `msmeTargetedAudience_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
-        // if (cachedData) {
-          // return res.json(JSON.parse(cachedData));
-        // }
+        if (cachedData) {            return res.json(JSON.parse(cachedData));          }
       }
 
       const { count, rows } = await MsmeTargetedAudience.findAndCountAll({
@@ -162,6 +161,7 @@ class MsmeTargetedAudienceController {
 
       await CacheService.invalidate("msmeTargetedAudience");
       await CacheService.invalidate(`msmeTargetedAudience_${id}`);
+      await CacheService.invalidatePattern("msmeTargetedAudience_page_*");
       res.json({ success: true, data: audience, message: "MSME Targeted Audience updated" });
     } catch (error) {
       next(error);
@@ -185,6 +185,7 @@ class MsmeTargetedAudienceController {
 
       await CacheService.invalidate("msmeTargetedAudience");
       await CacheService.invalidate(`msmeTargetedAudience_${id}`);
+      await CacheService.invalidatePattern("msmeTargetedAudience_page_*");
       res.json({ success: true, message: "MSME Targeted Audience deleted", data: id });
     } catch (error) {
       next(error);

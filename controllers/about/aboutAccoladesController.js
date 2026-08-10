@@ -40,6 +40,7 @@ class AboutAccoladesController {
 
       const link = await AboutAccolades.create(data);
       await CacheService.invalidate("aboutAccolade");
+      await CacheService.invalidatePattern("aboutAccolade_page_*");
       res.status(201).json({ success: true, data: link, message: "Item created" });
     } catch (error) {
       next(error);
@@ -79,9 +80,7 @@ class AboutAccoladesController {
       const cacheKey = search ? null : `aboutAccolade_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
-        // if (cachedData) {
-          // return res.json(JSON.parse(cachedData));
-        // }
+        if (cachedData) {            return res.json(JSON.parse(cachedData));          }
       }
 
       const { count, rows } = await AboutAccolades.findAndCountAll({
@@ -176,6 +175,7 @@ class AboutAccoladesController {
       await link.update(updateData);
       await CacheService.invalidate("aboutAccolade");
       await CacheService.invalidate(`aboutAccolade_${id}`);
+      await CacheService.invalidatePattern("aboutAccolade_page_*");
       res.json({ success: true, data: link, message: "Item updated" });
     } catch (error) {
       next(error);
@@ -204,6 +204,7 @@ class AboutAccoladesController {
 
       await CacheService.invalidate("aboutAccolade");
       await CacheService.invalidate(`aboutAccolade_${id}`);
+      await CacheService.invalidatePattern("aboutAccolade_page_*");
       res.json({ success: true, message: "Item deleted", data: id });
     } catch (error) {
       next(error);

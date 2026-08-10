@@ -34,6 +34,7 @@ class AboutServiceGalleryController {
       const galleryItem = await AboutServiceGallery.create(data);
 
       await CacheService.invalidate("aboutServiceGallery");
+      await CacheService.invalidatePattern("aboutServiceGallery_page_*");
       res.status(201).json({ success: true, data: galleryItem, message: "Gallery item created" });
     } catch (error) {
       next(error);
@@ -73,9 +74,9 @@ class AboutServiceGalleryController {
       const cacheKey = search ? null : `aboutServiceGallery_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
-        // if (cachedData) {
-          // return res.json(JSON.parse(cachedData));
-        // }
+        if (cachedData) {
+          return res.json(JSON.parse(cachedData));
+        }
       }
 
       const { count, rows } = await AboutServiceGallery.findAndCountAll({
@@ -160,6 +161,7 @@ class AboutServiceGalleryController {
 
       await CacheService.invalidate("aboutServiceGallery");
       await CacheService.invalidate(`aboutServiceGallery_${id}`);
+      await CacheService.invalidatePattern("aboutServiceGallery_page_*");
       res.json({ success: true, data: item, message: "Gallery item updated" });
     } catch (error) {
       next(error);
@@ -183,6 +185,7 @@ class AboutServiceGalleryController {
 
       await CacheService.invalidate("aboutServiceGallery");
       await CacheService.invalidate(`aboutServiceGallery_${id}`);
+      await CacheService.invalidatePattern("aboutServiceGallery_page_*");
       res.json({ success: true, message: "Gallery item deleted", data: id });
     } catch (error) {
       next(error);

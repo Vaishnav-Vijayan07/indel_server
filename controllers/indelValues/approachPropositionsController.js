@@ -34,7 +34,8 @@ class ApproachPropositionsController {
 
       await CacheService.invalidate("approachProp");
       await CacheService.invalidate("webIndelValueData");
-      
+      await CacheService.invalidatePattern("approachProp_page_*");
+
       res.status(201).json({ success: true, data: step, message: "Data created successfully" });
     } catch (error) {
       next(error);
@@ -164,6 +165,7 @@ class ApproachPropositionsController {
       await CacheService.invalidate("approachProp");
       await CacheService.invalidate(`approachProp_${id}`);
       await CacheService.invalidate("webIndelValueData");
+      await CacheService.invalidatePattern("approachProp_page_*");
 
 
       res.json({ success: true, data: step, message: "Data updated successfully" });
@@ -190,6 +192,7 @@ class ApproachPropositionsController {
       await CacheService.invalidate("approachProp");
       await CacheService.invalidate(`approachProp_${id}`);
       await CacheService.invalidate("webIndelValueData");
+      await CacheService.invalidatePattern("approachProp_page_*");
       res.json({ success: true, message: "Data deleted successfully", data: id });
     } catch (error) {
       next(error);

@@ -12,7 +12,10 @@ class AnnouncementController {
     try {
       const { text, is_active } = req.body;
       // Normalize state_id: empty string or falsy → null, truthy → number
-      const state_id = req.body.state_id && req.body.state_id !== "" ? Number(req.body.state_id) : null;
+      const state_id =
+        req.body.state_id && req.body.state_id !== ""
+          ? Number(req.body.state_id)
+          : null;
 
       // Validate region if provided
       if (state_id) {
@@ -38,7 +41,9 @@ class AnnouncementController {
       });
 
       // Invalidate relevant caches
-      //   await this.invalidateCaches(state_id);
+      await AnnouncementController.invalidateCaches(state_id);
+      // await CacheService.invalidatePattern(`announcements_*`);
+
       res.status(201).json({
         success: true,
         data: announcement,
@@ -97,7 +102,9 @@ class AnnouncementController {
         whereConditions.text = { [Op.iLike]: `%${search.trim()}%` };
       }
 
-      const cacheKey = search ? null : `announcements_${state_id || "global"}_page_${pageNum}_limit_${limitNum}`;
+      const cacheKey = search
+        ? null
+        : `announcements_${state_id || "global"}_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
         if (cachedData) {
@@ -155,7 +162,12 @@ class AnnouncementController {
 
       const { text, is_active } = req.body;
       // Normalize state_id: empty string or falsy → null, truthy → number
-      const state_id = req.body.state_id !== undefined ? (req.body.state_id && req.body.state_id !== "" ? Number(req.body.state_id) : null) : announcement.state_id;
+      const state_id =
+        req.body.state_id !== undefined
+          ? req.body.state_id && req.body.state_id !== ""
+            ? Number(req.body.state_id)
+            : null
+          : announcement.state_id;
       const originalStateId = announcement.state_id;
 
       // Validate new region if changed
@@ -181,6 +193,8 @@ class AnnouncementController {
         is_active: is_active ?? announcement.is_active,
       });
 
+      // await CacheService.invalidatePattern(`announcements_*`);
+      await AnnouncementController.invalidateCaches(originalStateId);
       res.json({
         success: true,
         data: announcement,
@@ -203,7 +217,7 @@ class AnnouncementController {
       await announcement.destroy();
 
       // Invalidate caches
-      await this.invalidateCaches(stateId);
+      await AnnouncementController.invalidateCaches(stateId);
       res.json({
         success: true,
         message: "Announcement deleted",
@@ -218,6 +232,7 @@ class AnnouncementController {
   static async invalidateCaches(stateId) {
     await CacheService.invalidate(`announcements_${stateId || "global"}`);
     await CacheService.invalidate("all_announcements");
+    await CacheService.invalidatePattern(`announcements_*`);
 
     // Also invalidate home page cache if announcements appear there
     await CacheService.invalidate("webHomeData");

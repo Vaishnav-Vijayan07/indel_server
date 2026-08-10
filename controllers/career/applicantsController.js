@@ -19,7 +19,7 @@ class ApplicantsController {
 
       const applicant = await models.Applicants.create(updateData);
 
-      await CacheService.invalidate("applicants");
+      await CacheService.invalidatePattern("applicants_*");
       res
         .status(201)
         .json({ success: true, data: applicant, message: "Applicant created" });
@@ -286,7 +286,7 @@ class ApplicantsController {
       await applicant.update(updateData);
 
       await Promise.all([
-        CacheService.invalidate("applicants"),
+        CacheService.invalidatePattern("applicants_*"),
         CacheService.invalidate(`applicant_${id}`),
       ]);
       res.json({
@@ -310,7 +310,7 @@ class ApplicantsController {
       await applicant.destroy();
 
       await Promise.all([
-        CacheService.invalidate("applicants"),
+        CacheService.invalidatePattern("applicants_*"),
         CacheService.invalidate(`applicant_${id}`),
       ]);
       res.json({ success: true, message: "Applicant deleted", data: id });

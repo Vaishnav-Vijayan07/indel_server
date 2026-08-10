@@ -12,7 +12,13 @@ class DirectorsController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
+      const absolutePath = path.join(
+        __dirname,
+        "..",
+        "..",
+        "uploads",
+        filePath.replace("/uploads/", ""),
+      );
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {
@@ -32,7 +38,11 @@ class DirectorsController {
 
       const link = await Directors.create(data);
       await CacheService.invalidate("Directors");
-      res.status(201).json({ success: true, data: link, message: "Directors data created" });
+      await CacheService.invalidatePattern(`Directors_page_*`); // Invalidate all paginated cache
+
+      res
+        .status(201)
+        .json({ success: true, data: link, message: "Directors data created" });
     } catch (error) {
       next(error);
     }
@@ -68,7 +78,9 @@ class DirectorsController {
       }
 
       // Skip caching when search is applied
-      const cacheKey = search ? null : `Directors_page_${pageNum}_limit_${limitNum}`;
+      const cacheKey = search
+        ? null
+        : `Directors_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
         if (cachedData) {
@@ -147,7 +159,9 @@ class DirectorsController {
 
       if (req.file) {
         updateData.image = `/uploads/directors/${req.file.filename}`;
-        Logger.info(`Updated image for Directors ID ${id}: ${updateData.image}`);
+        Logger.info(
+          `Updated image for Directors ID ${id}: ${updateData.image}`,
+        );
         if (oldImage) {
           await DirectorsController.deleteFile(oldImage);
         }
@@ -156,7 +170,12 @@ class DirectorsController {
       await team.update(updateData);
       await CacheService.invalidate("Directors");
       await CacheService.invalidate(`directors_${id}`);
-      res.json({ success: true, data: team, message: "Directors data updated" });
+      await CacheService.invalidatePattern(`Directors_page_*`); // Invalidate all paginated cache
+      res.json({
+        success: true,
+        data: team,
+        message: "Directors data updated",
+      });
     } catch (error) {
       next(error);
     }
@@ -179,6 +198,7 @@ class DirectorsController {
 
       await CacheService.invalidate("Directors");
       await CacheService.invalidate(`directors_${id}`);
+      await CacheService.invalidatePattern(`Directors_page_*`); // Invalidate all paginated cache
       res.json({ success: true, message: "Directors data deleted", data: id });
     } catch (error) {
       next(error);

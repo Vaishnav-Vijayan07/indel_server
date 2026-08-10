@@ -34,6 +34,7 @@ class EmployeeBenefitsController {
 
       await CacheService.invalidate("employeeBenefits");
        await CacheService.invalidate("webCareerPage");
+      await CacheService.invalidatePattern("employeeBenefits_page_*");
       res.status(201).json({ success: true, data: benefit, message: "Employee Benefit created" });
     } catch (error) {
       next(error);
@@ -163,6 +164,7 @@ class EmployeeBenefitsController {
       await CacheService.invalidate("employeeBenefits");
        await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`employeeBenefit_${id}`);
+      await CacheService.invalidatePattern("employeeBenefits_page_*");
       res.json({ success: true, data: benefit, message: "Employee Benefit updated" });
     } catch (error) {
       next(error);
@@ -187,6 +189,7 @@ class EmployeeBenefitsController {
       await CacheService.invalidate("employeeBenefits");
        await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`employeeBenefit_${id}`);
+      await CacheService.invalidatePattern("employeeBenefits_page_*");
       res.json({ success: true, message: "Employee Benefit deleted", data: id });
     } catch (error) {
       next(error);

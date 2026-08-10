@@ -13,6 +13,7 @@ class PartnersTypesController {
       const partnerType = await PartnersTypes.create(updateData);
 
       await CacheService.invalidate("partnersTypes");
+      await CacheService.invalidatePattern("partnersTypes_page_*");
       res.status(201).json({ success: true, data: partnerType, message: "Partner Type created" });
     } catch (error) {
       next(error);
@@ -135,6 +136,7 @@ class PartnersTypesController {
 
       await CacheService.invalidate("partnersTypes");
       await CacheService.invalidate(`partnerType_${id}`);
+      await CacheService.invalidatePattern("partnersTypes_page_*");
       res.json({ success: true, data: partnerType, message: "Partner Type updated" });
     } catch (error) {
       next(error);
@@ -163,6 +165,7 @@ class PartnersTypesController {
 
       await CacheService.invalidate("partnersTypes");
       await CacheService.invalidate(`partnerType_${id}`);
+      await CacheService.invalidatePattern("partnersTypes_page_*");
       res.json({ success: true, message: "Partner Type deleted", data: id });
     } catch (error) {
       next(error);

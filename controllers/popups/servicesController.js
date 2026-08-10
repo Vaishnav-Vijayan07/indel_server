@@ -33,6 +33,7 @@ class PopupServicesController {
       const popupService = await PopupServices.create(updateData);
 
       await CacheService.invalidate("popupServices");
+      await CacheService.invalidatePattern("popupServices_page_*");
       res.status(201).json({ success: true, data: popupService, message: "Popup Service created" });
     } catch (error) {
       next(error);
@@ -48,9 +49,9 @@ class PopupServicesController {
         const cacheKey = "popupServices";
         // const cachedData = await CacheService.get(cacheKey);
 
-        // if (cachedData) {
-        //   return res.json({ success: true, data: JSON.parse(cachedData) });
-        // }
+        if (cachedData) {
+          return res.json({ success: true, data: JSON.parse(cachedData) });
+        }
 
         const popupServices = await PopupServices.findAll({
           order: [["order", "ASC"]],
@@ -73,12 +74,12 @@ class PopupServicesController {
 
       // Skip caching when search is applied
       const cacheKey = search ? null : `popupServices_page_${pageNum}_limit_${limitNum}`;
-      // if (cacheKey) {
-      //   const cachedData = await CacheService.get(cacheKey);
-      //   if (cachedData) {
-      //     return res.json(JSON.parse(cachedData));
-      //   }
-      // }
+      if (cacheKey) {
+        const cachedData = await CacheService.get(cacheKey);
+        if (cachedData) {
+          return res.json(JSON.parse(cachedData));
+        }
+      }
 
       const { count, rows } = await PopupServices.findAndCountAll({
         where: whereConditions,
@@ -161,6 +162,7 @@ class PopupServicesController {
 
       await CacheService.invalidate("popupServices");
       await CacheService.invalidate(`popupService_${id}`);
+      await CacheService.invalidatePattern("popupServices_page_*");
       res.json({ success: true, data: popupService, message: "Popup Service updated" });
     } catch (error) {
       next(error);
@@ -184,6 +186,7 @@ class PopupServicesController {
 
       await CacheService.invalidate("popupServices");
       await CacheService.invalidate(`popupService_${id}`);
+      await CacheService.invalidatePattern("popupServices_page_*");
       res.json({ success: true, message: "Popup Service deleted", data: id });
     } catch (error) {
       next(error);

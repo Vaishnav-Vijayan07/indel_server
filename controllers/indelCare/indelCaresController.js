@@ -63,6 +63,7 @@ class IndelCaresController {
 
       await CacheService.invalidate("indelCares");
       await CacheService.invalidate("webIndelCares");
+      await CacheService.invalidatePattern("indelCares_page_*");
       res.status(201).json({ success: true, data: indelCare, message: "Indel Cares item created" });
     } catch (error) {
       next(error);
@@ -197,6 +198,7 @@ class IndelCaresController {
       await CacheService.invalidate("indelCares");
       await CacheService.invalidate("webIndelCares");
       await CacheService.invalidate(`indelCare_${id}`);
+      await CacheService.invalidatePattern("indelCares_page_*");
       res.json({ success: true, data: indelCare, message: "Indel Cares item updated" });
     } catch (error) {
       next(error);
@@ -221,6 +223,7 @@ class IndelCaresController {
       await CacheService.invalidate("indelCares");
       await CacheService.invalidate("webIndelCares");
       await CacheService.invalidate(`indelCare_${id}`);
+      await CacheService.invalidatePattern("indelCares_page_*");
       res.json({ success: true, message: "Indel Cares item deleted", data: id });
     } catch (error) {
       next(error);

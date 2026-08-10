@@ -12,6 +12,7 @@ class ApplicationStatusesController {
 
       // Invalidate cache
       await CacheService.invalidate("application_statuses");
+      await CacheService.invalidatePattern("application_statuses_page_*");
       res.status(201).json({ success: true, data: applicationStatus, message: "Application status created" });
     } catch (error) {
       next(error);
@@ -136,7 +137,7 @@ class ApplicationStatusesController {
       await status.update(updateData);
 
       // Invalidate caches
-      await Promise.all([CacheService.invalidate("application_statuses"), CacheService.invalidate(`application_status_${id}`)]);
+      await Promise.all([CacheService.invalidate("application_statuses"), CacheService.invalidate(`application_status_${id}`), CacheService.invalidatePattern("application_statuses_page_*")]);
       res.json({ success: true, data: status, message: "Application status updated" });
     } catch (error) {
       next(error);
@@ -154,7 +155,7 @@ class ApplicationStatusesController {
       await status.destroy();
 
       // Invalidate caches
-      await Promise.all([CacheService.invalidate("application_statuses"), CacheService.invalidate(`application_status_${id}`)]);
+      await Promise.all([CacheService.invalidate("application_statuses"), CacheService.invalidate(`application_status_${id}`), CacheService.invalidatePattern("application_statuses_page_*")]);
       res.json({ success: true, message: "Application status deleted", data: id });
     } catch (error) {
       next(error);

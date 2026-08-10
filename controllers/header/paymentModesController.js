@@ -14,6 +14,7 @@ class PaymentModesController {
 
       await CacheService.invalidate("paymentModes");
       await CacheService.invalidate("webHeaderContent");
+      await CacheService.invalidatePattern("paymentModes_page_*");
       res.status(201).json({ success: true, data: paymentMode, message: "Payment Mode created" });
     } catch (error) {
       next(error);
@@ -134,6 +135,7 @@ class PaymentModesController {
       await CacheService.invalidate("paymentModes");
       await CacheService.invalidate("webHeaderContent");
       await CacheService.invalidate(`paymentMode_${id}`);
+      await CacheService.invalidatePattern("paymentModes_page_*");
       res.json({ success: true, data: paymentMode, message: "Payment Mode updated" });
     } catch (error) {
       next(error);
@@ -153,6 +155,7 @@ class PaymentModesController {
       await CacheService.invalidate("paymentModes");
       await CacheService.invalidate("webHeaderContent");
       await CacheService.invalidate(`paymentMode_${id}`);
+      await CacheService.invalidatePattern("paymentModes_page_*");
       res.json({ success: true, message: "Payment Mode deleted", data: id });
     } catch (error) {
       next(error);

@@ -68,6 +68,7 @@ class CsrController {
       const csr = await Csr.create(updateData);
 
       await CacheService.invalidate("csr");
+      await CacheService.invalidatePattern("csr_page_*");
       res.status(201).json({ success: true, data: csr, message: "csr created" });
     } catch (error) {
       next(error);
@@ -260,6 +261,7 @@ class CsrController {
 
       await CacheService.invalidate("csr");
       await CacheService.invalidate(`csr_${id}`);
+      await CacheService.invalidatePattern("csr_page_*");
 
       res.json({ success: true, data: csr, message: "csr updated" });
     } catch (error) {
@@ -288,6 +290,7 @@ class CsrController {
 
       await CacheService.invalidate("csr");
       await CacheService.invalidate(`csr_${id}`);
+      await CacheService.invalidatePattern("csr_page_*");
       res.json({ success: true, message: "csr deleted", data: id });
     } catch (error) {
       next(error);

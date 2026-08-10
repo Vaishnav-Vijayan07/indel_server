@@ -12,6 +12,7 @@ class GoldCaratTypesController {
       const data = { ...req.body };
       const goldCaratType = await GoldCaratTypes.create(data);
       await CacheService.invalidate("GoldCaratTypes");
+      await CacheService.invalidatePattern("GoldCaratTypes_page_*");
 
       Logger.info("New Gold Carat Type created");
       res.status(201).json({ success: true, data: goldCaratType, message: "Gold Carat Type created" });
@@ -131,6 +132,7 @@ class GoldCaratTypesController {
       await goldCaratType.update(req.body);
       await CacheService.invalidate("GoldCaratTypes");
       await CacheService.invalidate(`GoldCaratType_${id}`);
+      await CacheService.invalidatePattern("GoldCaratTypes_page_*");
 
       Logger.info(`Gold Carat Type ID ${id} updated`);
       res.json({ success: true, data: goldCaratType, message: "Gold Carat Type updated" });
@@ -151,6 +153,7 @@ class GoldCaratTypesController {
       await goldCaratType.destroy();
       await CacheService.invalidate("GoldCaratTypes");
       await CacheService.invalidate(`GoldCaratType_${id}`);
+      await CacheService.invalidatePattern("GoldCaratTypes_page_*");
 
       Logger.info(`Gold Carat Type ID ${id} deleted`);
       res.json({ success: true, message: "Gold Carat Type deleted", data: id });

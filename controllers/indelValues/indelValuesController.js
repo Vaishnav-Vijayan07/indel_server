@@ -34,6 +34,7 @@ class IndelValuesController {
 
       await CacheService.invalidate("indelValues");
       await CacheService.invalidate("webIndelValueData");
+      await CacheService.invalidatePattern("indelValues_page_*");
 
       res.status(201).json({ success: true, data: step, message: "Indel value created successfully" });
     } catch (error) {
@@ -164,6 +165,7 @@ class IndelValuesController {
       await CacheService.invalidate("indelValues");
       await CacheService.invalidate(`indelValue_${id}`);
       await CacheService.invalidate("webIndelValueData");
+      await CacheService.invalidatePattern("indelValues_page_*");
 
       res.json({ success: true, data: step, message: "Indel value updated successfully" });
     } catch (error) {
@@ -189,6 +191,7 @@ class IndelValuesController {
       await CacheService.invalidate("indelValues");
       await CacheService.invalidate(`indelValue_${id}`);
       await CacheService.invalidate("webIndelValueData");
+      await CacheService.invalidatePattern("indelValues_page_*");
 
       res.json({ success: true, message: "Indel value deleted", data: id });
     } catch (error) {

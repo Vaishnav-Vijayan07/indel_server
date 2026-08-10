@@ -11,6 +11,9 @@ class FiscalYearsController {
       const data = { ...req.body };
       const fiscalYear = await FiscalYears.create(data);
       await CacheService.invalidate("FiscalYears");
+      await CacheService.invalidate("FiscalYears_active");
+      await CacheService.invalidate("webInvestorsYears");
+      await CacheService.invalidatePattern("FiscalYears_page_*");
       res.status(201).json({ success: true, data: fiscalYear, message: "Fiscal Year created" });
     } catch (error) {
       next(error);
@@ -83,7 +86,7 @@ class FiscalYearsController {
   }
   static async getActiveAll(req, res, next) {
     try {
-      const cacheKey = "FiscalYears";
+      const cacheKey = "FiscalYears_active";
       const cachedData = await CacheService.get(cacheKey);
 
       if (cachedData) {
@@ -135,7 +138,10 @@ class FiscalYearsController {
       const updateData = { ...req.body };
       await fiscalYear.update(updateData);
       await CacheService.invalidate("FiscalYears");
+      await CacheService.invalidate("FiscalYears_active");
       await CacheService.invalidate(`fiscalYear_${id}`);
+      await CacheService.invalidate("webInvestorsYears");
+      await CacheService.invalidatePattern("FiscalYears_page_*");
       res.json({ success: true, data: fiscalYear, message: "Fiscal Year updated" });
     } catch (error) {
       next(error);
@@ -154,7 +160,10 @@ class FiscalYearsController {
 
       await fiscalYear.destroy();
       await CacheService.invalidate("FiscalYears");
+      await CacheService.invalidate("FiscalYears_active");
       await CacheService.invalidate(`fiscalYear_${id}`);
+      await CacheService.invalidate("webInvestorsYears");
+      await CacheService.invalidatePattern("FiscalYears_page_*");
       res.json({ success: true, message: "Fiscal Year deleted", data: id });
     } catch (error) {
       next(error);

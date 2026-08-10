@@ -34,6 +34,7 @@ class AwardsController {
       const award = await Awards.create(data);
       await CacheService.invalidate("Awards");
       await CacheService.invalidate("webAwards");
+      await CacheService.invalidatePattern("Awards_page_*");
       res.status(201).json({ success: true, data: award, message: "Award created" });
     } catch (error) {
       if (req.file) {
@@ -76,9 +77,7 @@ class AwardsController {
       const cacheKey = search ? null : `Awards_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
-        // if (cachedData) {
-          // return res.json(JSON.parse(cachedData));
-        // }
+        if (cachedData) {            return res.json(JSON.parse(cachedData));          }
       }
 
       const { count, rows } = await Awards.findAndCountAll({
@@ -163,6 +162,7 @@ class AwardsController {
       await CacheService.invalidate("Awards");
       await CacheService.invalidate("webAwards");
       await CacheService.invalidate(`award_${id}`);
+      await CacheService.invalidatePattern("Awards_page_*");
       res.json({ success: true, data: award, message: "Award updated" });
     } catch (error) {
       if (req.file) {
@@ -190,6 +190,7 @@ class AwardsController {
       await CacheService.invalidate("Awards");
       await CacheService.invalidate("webAwards");
       await CacheService.invalidate(`award_${id}`);
+      await CacheService.invalidatePattern("Awards_page_*");
       res.json({ success: true, message: "Award deleted", data: id });
     } catch (error) {
       next(error);

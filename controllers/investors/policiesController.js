@@ -33,6 +33,8 @@ class PoliciesController {
 
       const policy = await Policies.create(data);
       await CacheService.invalidate("Policies");
+      await CacheService.invalidatePattern("Policies_page_*");
+      await CacheService.invalidatePattern("policies_page_*");
       res.status(201).json({ success: true, data: policy, message: "Policy created" });
     } catch (error) {
       if (req.file) {
@@ -152,6 +154,8 @@ class PoliciesController {
       await policy.update(updateData);
       await CacheService.invalidate("Policies");
       await CacheService.invalidate(`policy_${id}`);
+      await CacheService.invalidatePattern("Policies_page_*");
+      await CacheService.invalidatePattern("policies_page_*");
       res.json({ success: true, data: policy, message: "Policy updated" });
     } catch (error) {
       if (req.file) {
@@ -178,6 +182,8 @@ class PoliciesController {
 
       await CacheService.invalidate("Policies");
       await CacheService.invalidate(`policy_${id}`);
+      await CacheService.invalidatePattern("Policies_page_*");
+      await CacheService.invalidatePattern("policies_page_*");
       res.json({ success: true, message: "Policy deleted", data: id });
     } catch (error) {
       next(error);

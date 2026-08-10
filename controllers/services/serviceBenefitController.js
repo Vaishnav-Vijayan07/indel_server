@@ -39,8 +39,10 @@ class ServiceBenefitsController {
       }
 
       const benefit = await ServiceBenefit.create(updateData);
-      await CacheService.invalidate(`ServiceBenefits_${benefit.service_id}`);
       await CacheService.invalidate("ServiceBenefits_all");
+      await CacheService.invalidatePattern("ServiceBenefit_*");
+      await CacheService.invalidatePattern("serviceBenefits_page_*");
+      await CacheService.invalidatePattern("ServiceBenefits_bySlug_*");
 
       res.status(201).json({ success: true, data: benefit, message: "Service benefit created successfully" });
     } catch (error) {
@@ -184,6 +186,9 @@ class ServiceBenefitsController {
       await benefit.update(updateData);
 
       await CacheService.invalidate("ServiceBenefits_all");
+      await CacheService.invalidatePattern("ServiceBenefit_*");
+      await CacheService.invalidatePattern("serviceBenefits_page_*");
+      await CacheService.invalidatePattern("ServiceBenefits_bySlug_*");
 
       res.json({ success: true, data: benefit, message: "Service benefit updated successfully" });
     } catch (error) {
@@ -207,6 +212,9 @@ class ServiceBenefitsController {
       }
 
       await CacheService.invalidate("ServiceBenefits_all");
+      await CacheService.invalidatePattern("ServiceBenefit_*");
+      await CacheService.invalidatePattern("serviceBenefits_page_*");
+      await CacheService.invalidatePattern("ServiceBenefits_bySlug_*");
 
       res.json({ success: true, message: "Service benefit deleted", data: id });
     } catch (error) {
@@ -217,6 +225,12 @@ class ServiceBenefitsController {
   static async getByServiceSlug(req, res, next) {
     try {
       const { slug } = req.params;
+      const cacheKey = `ServiceBenefits_bySlug_${slug}`;
+      const cachedData = await CacheService.get(cacheKey);
+
+      if (cachedData) {
+        return res.json({ success: true, data: JSON.parse(cachedData) });
+      }
 
       const service = await models.Services.findOne({
         where: { slug, is_active: true },
@@ -244,6 +258,8 @@ class ServiceBenefitsController {
         },
         benefits,
       };
+
+      await CacheService.set(cacheKey, JSON.stringify(responseData), 3600);
 
       Logger.info(`Fetched and cached service benefits for slug: ${slug}`);
 
@@ -274,9 +290,10 @@ class ServiceBenefitsController {
       }
 
       const benefit = await ServiceBenefit.create(updateData);
-      await CacheService.invalidate(`ServiceBenefits_${service.id}`);
-      await CacheService.invalidate(`ServiceBenefits_Slug_${slug}`);
       await CacheService.invalidate("ServiceBenefits_all");
+      await CacheService.invalidatePattern("ServiceBenefit_*");
+      await CacheService.invalidatePattern("serviceBenefits_page_*");
+      await CacheService.invalidatePattern("ServiceBenefits_bySlug_*");
 
       Logger.info(`Created service benefit for service slug: ${slug}`);
 

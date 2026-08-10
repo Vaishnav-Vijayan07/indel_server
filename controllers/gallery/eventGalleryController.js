@@ -45,6 +45,7 @@ class EventGalleryController {
       const eventGallery = await EventGallery.create(data);
       await CacheService.invalidate("EventGallery");
       await CacheService.invalidate("webEventGallery");
+      await CacheService.invalidatePattern("eventgallery_page_*");
       res.status(201).json({
         success: true,
         data: eventGallery,
@@ -205,6 +206,7 @@ class EventGalleryController {
       await CacheService.invalidate("EventGallery");
       await CacheService.invalidate("webEventGallery");
       await CacheService.invalidate(`eventGallery_${id}`);
+      await CacheService.invalidatePattern("eventgallery_page_*");
       res.json({
         success: true,
         data: eventGallery,
@@ -238,6 +240,7 @@ class EventGalleryController {
       await CacheService.invalidate("EventGallery");
       await CacheService.invalidate("webEventGallery");
       await CacheService.invalidate(`eventGallery_${id}`);
+      await CacheService.invalidatePattern("eventgallery_page_*");
       res.json({
         success: true,
         message: "Event Gallery item deleted",

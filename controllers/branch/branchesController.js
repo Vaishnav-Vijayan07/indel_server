@@ -15,6 +15,7 @@ class BranchesController {
       const branch = await Branches.create(data);
       await CacheService.invalidate("Branches");
       await CacheService.invalidate("Branches_active");
+      await CacheService.invalidatePattern("Branches_page_*");
       res
         .status(201)
         .json({ success: true, data: branch, message: "Branch created" });
@@ -270,6 +271,7 @@ class BranchesController {
       await CacheService.invalidate("Branches");
       await CacheService.invalidate("Branches_active");
       await CacheService.invalidate(`branch_${id}`);
+      await CacheService.invalidatePattern("Branches_page_*");
       res.json({ success: true, data: branch, message: "Branch updated" });
     } catch (error) {
       next(error);
@@ -288,6 +290,7 @@ class BranchesController {
       await CacheService.invalidate("Branches");
       await CacheService.invalidate("Branches_active");
       await CacheService.invalidate(`branch_${id}`);
+      await CacheService.invalidatePattern("Branches_page_*");
       res.json({ success: true, message: "Branch deleted", data: id });
     } catch (error) {
       next(error);
@@ -302,6 +305,7 @@ class BranchesController {
       const result = await importBranchesFromXlsx(req.file.path);
       await CacheService.invalidate("Branches");
       await CacheService.invalidate("Branches_active");
+      await CacheService.invalidatePattern("Branches_page_*");
       res.json({
         message: "Branches imported successfully",
         count: result.count,

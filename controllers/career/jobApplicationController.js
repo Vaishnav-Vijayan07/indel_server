@@ -377,7 +377,7 @@ class JobApplicationSubmissionController {
 
       careerMail(applicantRecord.email, applicantRecord.name);
       // Invalidate caches
-      await Promise.all([CacheService.invalidate("applicants"), CacheService.invalidate("job_applications")]);
+      await Promise.all([CacheService.invalidatePattern("applicants_*"), CacheService.invalidatePattern("job_applications_all_*")]);
 
       // Fetch applicant with preferred locations and states for response
       const applicantWithLocations = await models.Applicants.findByPk(applicantRecord.id, {
@@ -927,7 +927,11 @@ class JobApplicationSubmissionController {
       careerMail(applicant.email, applicant.name);
 
       // Invalidate caches
-      await Promise.all([CacheService.invalidate("applicants"), CacheService.invalidate("general_applications")]);
+      await Promise.all([
+        CacheService.invalidatePattern("applicants_*"),
+        CacheService.invalidate("general_applications"),
+        CacheService.invalidatePattern("general_applications_all_*"),
+      ]);
 
       res.status(201).json({
         success: true,
@@ -1185,7 +1189,7 @@ class JobApplicationSubmissionController {
       await application.update({ status_id });
 
       // Invalidate cache if needed
-      await CacheService.invalidate("job_applications");
+      await CacheService.invalidatePattern("job_applications_all_*");
 
       // Optionally, include updated application with status details
       const updatedApplication = await models.JobApplications.findByPk(id, {
@@ -1235,6 +1239,7 @@ class JobApplicationSubmissionController {
 
       // Invalidate cache if needed
       await CacheService.invalidate("general_applications");
+      await CacheService.invalidatePattern("general_applications_all_*");
 
       // Optionally, include updated application with status details
       const updatedApplication = await models.GeneralApplications.findByPk(id, {

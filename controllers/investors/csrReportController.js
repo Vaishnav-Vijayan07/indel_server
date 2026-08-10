@@ -34,6 +34,7 @@ class CsrReportController {
       const csrReport = await CsrReport.create(data);
       await CacheService.invalidate("CsrReport");
       await CacheService.invalidate("webCsrDetails");
+      await CacheService.invalidatePattern("CsrReport_page_*");
       res.status(201).json({ success: true, data: csrReport, message: "CSR Report created" });
     } catch (error) {
       if (req.file) {
@@ -156,6 +157,7 @@ class CsrReportController {
       await CacheService.invalidate("CsrReport");
       await CacheService.invalidate("webCsrDetails");
       await CacheService.invalidate(`csrReport_${id}`);
+      await CacheService.invalidatePattern("CsrReport_page_*");
       res.json({ success: true, data: csrReport, message: "CSR Report updated" });
     } catch (error) {
       if (req.file) {
@@ -183,6 +185,7 @@ class CsrReportController {
       await CacheService.invalidate("CsrReport");
       await CacheService.invalidate("webCsrDetails");
       await CacheService.invalidate(`csrReport_${id}`);
+      await CacheService.invalidatePattern("CsrReport_page_*");
       res.json({ success: true, message: "CSR Report deleted", data: id });
     } catch (error) {
       next(error);

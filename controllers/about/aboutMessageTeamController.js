@@ -32,6 +32,7 @@ class AboutMessageTeamController {
 
       const link = await AboutMessageFromTeam.create(data);
       await CacheService.invalidate("aboutMessageTeam");
+      await CacheService.invalidatePattern("aboutMessageTeam_page_*");
       res.status(201).json({ success: true, data: link, message: "Item created" });
     } catch (error) {
       next(error);
@@ -71,9 +72,7 @@ class AboutMessageTeamController {
       const cacheKey = search ? null : `aboutMessageTeam_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
-        // if (cachedData) {
-          // return res.json(JSON.parse(cachedData));
-        // }
+        if (cachedData) {            return res.json(JSON.parse(cachedData));          }
       }
 
       const { count, rows } = await AboutMessageFromTeam.findAndCountAll({
@@ -157,6 +156,7 @@ class AboutMessageTeamController {
       await link.update(updateData);
       await CacheService.invalidate("aboutMessageTeam");
       await CacheService.invalidate(`aboutMessageTeam_${id}`);
+      await CacheService.invalidatePattern("aboutMessageTeam_page_*");
       res.json({ success: true, data: link,message: "Item updated" });
     } catch (error) {
       next(error);
@@ -180,6 +180,7 @@ class AboutMessageTeamController {
 
       await CacheService.invalidate("aboutMessageTeam");
       await CacheService.invalidate(`aboutMessageTeam_${id}`);
+      await CacheService.invalidatePattern("aboutMessageTeam_page_*");
       res.json({ success: true, message: "Item deleted", data: id });
     } catch (error) {
       next(error);

@@ -33,6 +33,7 @@ class MsmeOfferingsController {
       const offering = await MsmeOfferings.create(updateData);
 
       await CacheService.invalidate("msmeOfferings");
+      await CacheService.invalidatePattern("msmeOfferings_page_*");
       res.status(201).json({ success: true, data: offering, message: "MSME Offering created" });
     } catch (error) {
       next(error);
@@ -72,9 +73,7 @@ class MsmeOfferingsController {
       const cacheKey = search ? null : `msmeOfferings_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
-        // if (cachedData) {
-          // return res.json(JSON.parse(cachedData));
-        // }
+        if (cachedData) {            return res.json(JSON.parse(cachedData));          }
       }
 
       const { count, rows } = await MsmeOfferings.findAndCountAll({
@@ -159,6 +158,7 @@ class MsmeOfferingsController {
 
       await CacheService.invalidate("msmeOfferings");
       await CacheService.invalidate(`msmeOffering_${id}`);
+      await CacheService.invalidatePattern("msmeOfferings_page_*");
       res.json({ success: true, data: offering, message: "MSME Offering updated" });
     } catch (error) {
       next(error);
@@ -182,6 +182,7 @@ class MsmeOfferingsController {
 
       await CacheService.invalidate("msmeOfferings");
       await CacheService.invalidate(`msmeOffering_${id}`);
+      await CacheService.invalidatePattern("msmeOfferings_page_*");
       res.json({ success: true, message: "MSME Offering deleted", data: id });
     } catch (error) {
       next(error);

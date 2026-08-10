@@ -85,7 +85,13 @@ class JobsController {
         await sendMailToHRs(hrEmails, job_title);
       }
 
-      await Promise.all([CacheService.invalidate("jobs"), CacheService.invalidate("webCareerPage")]);
+      await Promise.all([
+        CacheService.invalidatePattern("jobs_filtered_*"),
+        CacheService.invalidatePattern("jobs_page_*"),
+        CacheService.invalidatePattern("jobDropdowns*"),
+        CacheService.invalidatePattern("jobLocationsByState_*"),
+        CacheService.invalidate("webCareerPage"),
+      ]);
 
       res.status(201).json({ success: true, data: job, message: "Job created" });
     } catch (error) {
@@ -114,6 +120,12 @@ class JobsController {
       const pageNumber = parseInt(page) || 1;
       const pageSize = parseInt(limit) || 10;
       const offset = (pageNumber - 1) * pageSize;
+
+      const cacheKey = `jobs_filtered_${state_id || "all"}_${location_id || "all"}_${role_id || "all"}_${pageNumber}_${pageSize}`;
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        return res.json(JSON.parse(cachedData));
+      }
 
       // Build where conditions for the Job model
       const jobWhereConditions = {
@@ -325,7 +337,7 @@ class JobsController {
         };
       });
 
-      res.json({
+      const filteredResponse = {
         success: true,
         data: formattedJobs,
         pagination: {
@@ -336,7 +348,10 @@ class JobsController {
           hasNextPage: pageNumber < Math.ceil(totalCount / pageSize),
           hasPrevPage: pageNumber > 1,
         },
-      });
+      };
+
+      await CacheService.set(cacheKey, JSON.stringify(filteredResponse), 3600);
+      res.json(filteredResponse);
     } catch (error) {
       next(error);
     }
@@ -568,7 +583,14 @@ class JobsController {
       }
 
       // Invalidate caches after update
-      await Promise.all([CacheService.invalidate("jobs"), CacheService.invalidate("webCareerPage"), CacheService.invalidate(`job_${id}`)]);
+      await Promise.all([
+        CacheService.invalidatePattern("jobs_filtered_*"),
+        CacheService.invalidatePattern("jobs_page_*"),
+        CacheService.invalidatePattern("jobDropdowns*"),
+        CacheService.invalidatePattern("jobLocationsByState_*"),
+        CacheService.invalidate("webCareerPage"),
+        CacheService.invalidate(`job_${id}`),
+      ]);
       res.json({ success: true, data: job, message: "Job updated" });
     } catch (error) {
       next(error);
@@ -578,6 +600,12 @@ class JobsController {
   // Keep existing methods (getDropdowns, getAll, delete, updateOrder) unchanged
   static async getDropdowns(req, res, next) {
     try {
+      const cacheKey = "jobDropdowns";
+      const cachedData = await CacheService.get(cacheKey);
+      if (cachedData) {
+        return res.json(JSON.parse(cachedData));
+      }
+
       console.log("Fetching job dropdowns...");
       const [roles, locations, states, statuses] = await Promise.all([
         models.CareerRoles.findAll({
@@ -614,10 +642,12 @@ class JobsController {
         }),
       ]);
 
-      res.json({
+      const dropdownsResponse = {
         success: true,
         data: { roles, locations, states, statuses },
-      });
+      };
+      await CacheService.set(cacheKey, JSON.stringify(dropdownsResponse), 3600);
+      res.json(dropdownsResponse);
     } catch (error) {
       next(error);
     }

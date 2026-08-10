@@ -35,6 +35,7 @@ class InvestorsContactController {
       const investorsContact = await InvestorsContact.create({ ...data, file });
       await CacheService.invalidate("InvestorsContact");
       await CacheService.invalidate("webInvestorsContact");
+      await CacheService.invalidatePattern("InvestorsContact_page_*");
       res.status(201).json({ success: true, data: investorsContact, message: "Investors Contact created" });
     } catch (error) {
       next(error);
@@ -170,6 +171,7 @@ class InvestorsContactController {
       await CacheService.invalidate("InvestorsContact");
       await CacheService.invalidate("webInvestorsContact");
       await CacheService.invalidate(`investorsContact_${id}`);
+      await CacheService.invalidatePattern("InvestorsContact_page_*");
       res.json({ success: true, data: investorsContact, message: "Investors Contact updated" });
     } catch (error) {
       next(error);
@@ -193,6 +195,7 @@ class InvestorsContactController {
       await CacheService.invalidate("InvestorsContact");
       await CacheService.invalidate("webInvestorsContact");
       await CacheService.invalidate(`investorsContact_${id}`);
+      await CacheService.invalidatePattern("InvestorsContact_page_*");
       res.json({ success: true, message: "Investors Contact deleted", data: id });
     } catch (error) {
       next(error);

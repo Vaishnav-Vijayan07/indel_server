@@ -33,6 +33,7 @@ class ValuesBannerMobileController {
       const banner = await MobileBanner.create(data);
 
       await CacheService.invalidate("mobileBanners");
+      await CacheService.invalidatePattern("mobileBanners_page_*");
       res.status(201).json({ success: true, data: banner, message: "Mobile Banner created successfully" });
     } catch (error) {
       next(error);
@@ -159,6 +160,7 @@ class ValuesBannerMobileController {
 
       await CacheService.invalidate("mobileBanners");
       await CacheService.invalidate(`mobileBanner_${id}`);
+      await CacheService.invalidatePattern("mobileBanners_page_*");
       res.json({ success: true, data: banner, message: "Mobile Banner updated successfully" });
     } catch (error) {
       next(error);
@@ -182,6 +184,7 @@ class ValuesBannerMobileController {
 
       await CacheService.invalidate("mobileBanners");
       await CacheService.invalidate(`mobileBanner_${id}`);
+      await CacheService.invalidatePattern("mobileBanners_page_*");
       res.json({ success: true, message: "Mobile Banner deleted successfully", data: id });
     } catch (error) {
       next(error);

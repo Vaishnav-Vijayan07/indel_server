@@ -34,6 +34,7 @@ class AnnualReturnsController {
       const annualReturns = await AnnualReturns.create(data);
       await CacheService.invalidate("AnnualReturns");
       await CacheService.invalidate("webCsrReports");
+      await CacheService.invalidatePattern("AnnualReturns_page_*");
       res.status(201).json({ success: true, data: annualReturns, message: "Annual Returns created" });
     } catch (error) {
       if (req.file) {
@@ -158,6 +159,7 @@ class AnnualReturnsController {
       await CacheService.invalidate("AnnualReturns");
       await CacheService.invalidate("webCsrReports");
       await CacheService.invalidate(`annualReturns_${id}`);
+      await CacheService.invalidatePattern("AnnualReturns_page_*");
       res.json({ success: true, data: annualReturns, message: "Annual Returns updated" });
     } catch (error) {
       if (req.file) {
@@ -185,6 +187,7 @@ class AnnualReturnsController {
       await CacheService.invalidate("AnnualReturns");
       await CacheService.invalidate("webCsrReports");
       await CacheService.invalidate(`annualReturns_${id}`);
+      await CacheService.invalidatePattern("AnnualReturns_page_*");
       res.json({ success: true, message: "Annual Returns deleted", data: id });
     } catch (error) {
       next(error);

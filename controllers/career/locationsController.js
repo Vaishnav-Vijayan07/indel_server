@@ -25,6 +25,8 @@ class LocationsController {
 
       await CacheService.invalidate("locations");
       await CacheService.invalidate("webCareerPage");
+      await CacheService.invalidatePattern("locations_page_*");
+      await CacheService.invalidatePattern("locations_district_*");
       res.status(201).json({ success: true, data: location, message: "Location created" });
     } catch (error) {
       next(error);
@@ -179,7 +181,7 @@ class LocationsController {
     try {
       const { district_id } = req.query;
 
-      const cacheKey = "locations";
+      const cacheKey = `locations_district_${district_id || "all"}`;
       const cachedData = await CacheService.get(cacheKey);
 
       // if (cachedData) {
@@ -238,6 +240,8 @@ class LocationsController {
       await CacheService.invalidate("locations");
       await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`location_${id}`);
+      await CacheService.invalidatePattern("locations_page_*");
+      await CacheService.invalidatePattern("locations_district_*");
       res.json({ success: true, data: location, message: "Location updated" });
     } catch (error) {
       next(error);
@@ -257,6 +261,8 @@ class LocationsController {
       await CacheService.invalidate("locations");
       await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`location_${id}`);
+      await CacheService.invalidatePattern("locations_page_*");
+      await CacheService.invalidatePattern("locations_district_*");
       res.json({ success: true, message: "Location deleted", data: id });
     } catch (error) {
       next(error);

@@ -42,6 +42,7 @@ class TestimonialsController {
 
       const testimonial = await Testimonials.create(data);
       await CacheService.invalidate("Testimonials");
+      await CacheService.invalidatePattern("Testimonials_page_*");
       res.status(201).json({ success: true, data: testimonial, message: "Testimonial created" });
     } catch (error) {
       if (req.files) {
@@ -184,6 +185,7 @@ class TestimonialsController {
       await testimonial.update(updateData);
       await CacheService.invalidate("Testimonials");
       await CacheService.invalidate(`testimonial_${id}`);
+      await CacheService.invalidatePattern("Testimonials_page_*");
       res.json({ success: true, data: testimonial, message: "Testimonial updated" });
     } catch (error) {
       if (req.files) {
@@ -214,6 +216,7 @@ class TestimonialsController {
 
       await CacheService.invalidate("Testimonials");
       await CacheService.invalidate(`testimonial_${id}`);
+      await CacheService.invalidatePattern("Testimonials_page_*");
       res.json({ success: true, message: "Testimonial deleted", data: id });
     } catch (error) {
       next(error);

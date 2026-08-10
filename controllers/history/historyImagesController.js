@@ -33,8 +33,9 @@ class HistoryImagesController {
       const step = await HistoryImages.create(updateData);
 
       await CacheService.invalidate("HistoryImages");
-      res.status(201).json({ success: true, data: step,message:"History image created" });
+      await CacheService.invalidatePattern("HistoryImages_page_*");
       await CacheService.invalidate("webHistoryData");
+      res.status(201).json({ success: true, data: step,message:"History image created" });
     } catch (error) {
       next(error);
     }
@@ -163,6 +164,7 @@ class HistoryImagesController {
       await CacheService.invalidate("HistoryImages");
       await CacheService.invalidate(`HistoryImages_${id}`);
       await CacheService.invalidate("webHistoryData");
+      await CacheService.invalidatePattern("HistoryImages_page_*");
 
       res.json({ success: true, data: step,message:"History image updated" });
     } catch (error) {
@@ -187,8 +189,9 @@ class HistoryImagesController {
 
       await CacheService.invalidate("HistoryImages");
       await CacheService.invalidate(`HistoryImages_${id}`);
-      res.json({ success: true, message: "History image deleted", data: id });
       await CacheService.invalidate("webHistoryData");
+      await CacheService.invalidatePattern("HistoryImages_page_*");
+      res.json({ success: true, message: "History image deleted", data: id });
     } catch (error) {
       next(error);
     }

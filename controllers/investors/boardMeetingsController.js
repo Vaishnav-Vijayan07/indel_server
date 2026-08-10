@@ -38,6 +38,7 @@ class BoardMeetingsController {
 
       const boardMeeting = await BoardMeetings.create(data);
       await CacheService.invalidate("BoardMeetings");
+      await CacheService.invalidatePattern("BoardMeetings_page_*");
       res.status(201).json({ success: true, data: boardMeeting, message: "Board Meeting created" });
     } catch (error) {
       if (req.files) {
@@ -180,6 +181,7 @@ class BoardMeetingsController {
       await boardMeeting.update(updateData);
       await CacheService.invalidate("BoardMeetings");
       await CacheService.invalidate(`boardMeeting_${id}`);
+      await CacheService.invalidatePattern("BoardMeetings_page_*");
       res.json({ success: true, data: boardMeeting, message: "Board Meeting updated" });
     } catch (error) {
       if (req.files) {
@@ -213,10 +215,9 @@ class BoardMeetingsController {
         await BoardMeetingsController.deleteFile(oldOutcome);
       }
 
-      await boardMeeting.destroy();
-
       await CacheService.invalidate("BoardMeetings");
       await CacheService.invalidate(`boardMeeting_${id}`);
+      await CacheService.invalidatePattern("BoardMeetings_page_*");
       res.json({ success: true, message: "Board Meeting deleted", data: id });
     } catch (error) {
       next(error);

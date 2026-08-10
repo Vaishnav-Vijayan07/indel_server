@@ -39,6 +39,7 @@ class CareerBannersController {
 
       await CacheService.invalidate("careerBanners");
       await CacheService.invalidate("webCareerPage");
+      await CacheService.invalidatePattern("careerBanners_page_*");
       res.status(201).json({ success: true, data: banner, message: "Career Banner created" });
     } catch (error) {
       next(error);
@@ -177,6 +178,7 @@ class CareerBannersController {
       await CacheService.invalidate("careerBanners");
       await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`careerBanner_${id}`);
+      await CacheService.invalidatePattern("careerBanners_page_*");
       res.json({ success: true, data: banner, message: "Career Banner updated" });
     } catch (error) {
       next(error);
@@ -201,6 +203,7 @@ class CareerBannersController {
       await CacheService.invalidate("careerBanners");
       await CacheService.invalidate("webCareerPage");
       await CacheService.invalidate(`careerBanner_${id}`);
+      await CacheService.invalidatePattern("careerBanners_page_*");
       res.json({ success: true, message: "Career Banner deleted", data: id });
     } catch (error) {
       next(error);

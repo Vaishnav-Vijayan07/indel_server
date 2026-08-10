@@ -5,6 +5,7 @@ const CustomError = require("../../utils/customError");
 const fs = require("fs").promises;
 const path = require("path");
 const Logger = require("../../services/logger");
+const cacheService = require("../../services/cacheService");
 
 const HeroBanner = models.HeroBanner;
 const States = models.CareerStates;
@@ -13,7 +14,13 @@ class HeroBannerController {
   static async deleteFile(filePath) {
     if (!filePath) return;
     try {
-      const absolutePath = path.join(__dirname, "..", "..", "uploads", filePath.replace("/uploads/", ""));
+      const absolutePath = path.join(
+        __dirname,
+        "..",
+        "..",
+        "uploads",
+        filePath.replace("/uploads/", ""),
+      );
       await fs.unlink(absolutePath);
       Logger.info(`Deleted file: ${filePath}`);
     } catch (error) {
@@ -25,11 +32,30 @@ class HeroBannerController {
 
   static async create(req, res, next) {
     try {
-      const { title, button_text, button_link, image_alt_text, is_active, order, state_id, banner_type, media_type, video_link } = req.body;
-      const image = req.files?.image ? `/uploads/banner/${req.files.image[0].filename}` : null;
-      const mobileImage = req.files?.image_mobile ? `/uploads/banner/${req.files.image_mobile[0].filename}` : null;
-      const video = req.files?.video ? `/uploads/banner/${req.files.video[0].filename}` : null;
-      const video_mobile = req.files?.video_mobile ? `/uploads/banner/${req.files.video_mobile[0].filename}` : null;
+      const {
+        title,
+        button_text,
+        button_link,
+        image_alt_text,
+        is_active,
+        order,
+        state_id,
+        banner_type,
+        media_type,
+        video_link,
+      } = req.body;
+      const image = req.files?.image
+        ? `/uploads/banner/${req.files.image[0].filename}`
+        : null;
+      const mobileImage = req.files?.image_mobile
+        ? `/uploads/banner/${req.files.image_mobile[0].filename}`
+        : null;
+      const video = req.files?.video
+        ? `/uploads/banner/${req.files.video[0].filename}`
+        : null;
+      const video_mobile = req.files?.video_mobile
+        ? `/uploads/banner/${req.files.video_mobile[0].filename}`
+        : null;
 
       if (state_id) {
         const state = await States.findByPk(state_id);
@@ -58,8 +84,13 @@ class HeroBannerController {
       await CacheService.invalidatePattern("banners_*");
       await CacheService.invalidatePattern("heroBanners_page_*");
       await CacheService.invalidate("webHomeData");
+      await cacheService.invalidatePattern("webHomeData_*");
 
-      res.status(201).json({ success: true, data: heroBanner, message: "Hero Banner created successfully" });
+      res.status(201).json({
+        success: true,
+        data: heroBanner,
+        message: "Hero Banner created successfully",
+      });
     } catch (error) {
       next(error);
     }
@@ -95,7 +126,9 @@ class HeroBannerController {
         whereConditions.title = { [Op.iLike]: `%${search.trim()}%` };
       }
 
-      const cacheKey = search ? null : `heroBanners_page_${pageNum}_limit_${limitNum}`;
+      const cacheKey = search
+        ? null
+        : `heroBanners_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
         if (cachedData) {
@@ -155,7 +188,19 @@ class HeroBannerController {
         throw new CustomError("HeroBanner not found", 404);
       }
 
-      const { title, button_text, button_link, location, image_alt_text, is_active, order, state_id, banner_type, media_type, video_link } = req.body;
+      const {
+        title,
+        button_text,
+        button_link,
+        location,
+        image_alt_text,
+        is_active,
+        order,
+        state_id,
+        banner_type,
+        media_type,
+        video_link,
+      } = req.body;
 
       // Validate state if provided
       if (state_id) {
@@ -174,9 +219,13 @@ class HeroBannerController {
       // MEDIA TYPE HANDLING
       if (media_type === "video") {
         // Set videos
-        video = req.files?.video ? `/uploads/banner/${req.files.video[0].filename}` : heroBanner.video;
+        video = req.files?.video
+          ? `/uploads/banner/${req.files.video[0].filename}`
+          : heroBanner.video;
 
-        video_mobile = req.files?.video_mobile ? `/uploads/banner/${req.files.video_mobile[0].filename}` : heroBanner.video_mobile;
+        video_mobile = req.files?.video_mobile
+          ? `/uploads/banner/${req.files.video_mobile[0].filename}`
+          : heroBanner.video_mobile;
 
         // Force images to NULL
         image = null;
@@ -185,9 +234,13 @@ class HeroBannerController {
 
       if (media_type === "image") {
         // Set images
-        image = req.files?.image ? `/uploads/banner/${req.files.image[0].filename}` : heroBanner.image;
+        image = req.files?.image
+          ? `/uploads/banner/${req.files.image[0].filename}`
+          : heroBanner.image;
 
-        image_mobile = req.files?.image_mobile ? `/uploads/banner/${req.files.image_mobile[0].filename}` : heroBanner.image_mobile;
+        image_mobile = req.files?.image_mobile
+          ? `/uploads/banner/${req.files.image_mobile[0].filename}`
+          : heroBanner.image_mobile;
 
         // Force videos to NULL
         video = null;
@@ -215,6 +268,7 @@ class HeroBannerController {
       await CacheService.invalidatePattern("banners_*");
       await CacheService.invalidatePattern("heroBanners_page_*");
       await CacheService.invalidate("webHomeData");
+      await cacheService.invalidatePattern("webHomeData_*");
 
       res.json({
         success: true,
@@ -236,8 +290,13 @@ class HeroBannerController {
       await CacheService.invalidatePattern("banners_*");
       await CacheService.invalidatePattern("heroBanners_page_*");
       await CacheService.invalidate("webHomeData");
+      // await cacheService.invalidatePattern("webHomeData_*");
 
-      res.json({ success: true, message: "Hero banner deleted", data: req.params.id });
+      res.json({
+        success: true,
+        message: "Hero banner deleted",
+        data: req.params.id,
+      });
     } catch (error) {
       next(error);
     }

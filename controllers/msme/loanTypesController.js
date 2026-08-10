@@ -33,6 +33,7 @@ class LoanTypesController {
       const loanType = await LoanTypes.create(updateData);
 
       await CacheService.invalidate("loanTypes");
+      await CacheService.invalidatePattern("loanTypes_page_*");
       res.status(201).json({ success: true, data: loanType, message: "Loan Type created" });
     } catch (error) {
       next(error);
@@ -76,9 +77,7 @@ class LoanTypesController {
       const cacheKey = search ? null : `loanTypes_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
-        // if (cachedData) {
-          // return res.json(JSON.parse(cachedData));
-        // }
+        if (cachedData) {            return res.json(JSON.parse(cachedData));          }
       }
 
       const { count, rows } = await LoanTypes.findAndCountAll({
@@ -163,6 +162,7 @@ class LoanTypesController {
 
       await CacheService.invalidate("loanTypes");
       await CacheService.invalidate(`loanType_${id}`);
+      await CacheService.invalidatePattern("loanTypes_page_*");
       res.json({ success: true, data: loanType, message: "Loan Type updated" });
     } catch (error) {
       next(error);
@@ -186,6 +186,7 @@ class LoanTypesController {
 
       await CacheService.invalidate("loanTypes");
       await CacheService.invalidate(`loanType_${id}`);
+      await CacheService.invalidatePattern("loanTypes_page_*");
       res.json({ success: true, message: "Loan Type deleted", data: id });
     } catch (error) {
       next(error);
