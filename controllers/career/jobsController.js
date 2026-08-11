@@ -655,7 +655,7 @@ class JobsController {
 
   static async getAll(req, res, next) {
     try {
-      const { state_id, location_id, role_id, page = 1, limit = 10, type = null } = req.query;
+      const { state_id, location_id, role_id, page = 1, limit = 10, type = null, search } = req.query;
 
       const pageNum = Math.max(1, parseInt(page, 10));
       const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
@@ -665,6 +665,10 @@ class JobsController {
 
       if (type) {
         jobWhereConditions.is_approved = false;
+      }
+
+      if (search && search.trim()) {
+        jobWhereConditions.job_title = { [Op.iLike]: `%${search.trim()}%` };
       }
 
       const includeOptions = [
@@ -704,9 +708,16 @@ class JobsController {
         },
       );
 
-      // Use separate count query to avoid issues with joins
+      // Count must apply the same location/state include filters as the list
+      // query below (via `required`/`where` on the join), otherwise the count
+      // (and therefore totalPages/hasNextPage) is wrong whenever a location_id
+      // or state_id filter is active — `distinct` + `col` avoid inflating the
+      // count from the many-to-many join.
       const totalItems = await Jobs.count({
         where: jobWhereConditions,
+        include: includeOptions,
+        distinct: true,
+        col: "id",
       });
 
       const jobs = await Jobs.findAll({

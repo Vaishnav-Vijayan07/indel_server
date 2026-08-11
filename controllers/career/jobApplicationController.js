@@ -955,16 +955,21 @@ class JobApplicationSubmissionController {
         to_date,
         limit = "10",
         offset = "0",
+        search,
       } = req.query;
 
       const parsedLimit = Math.max(1, parseInt(limit, 10) || 10); // Ensure limit >= 1
       const parsedOffset = Math.max(0, parseInt(offset, 10) || 0); // Ensure offset >= 0
+      const trimmedSearch = search && search.trim();
 
-      // Build cache key based on query parameters
-      const cacheKey = `general_applications_all_${role_id || "all"}_${location_id || "all"}_${status_id || "all"}_${
-        applicant_location_id || "all"
-      }_${applicant_state_id || "all"}_${parsedLimit}_${parsedOffset}`;
-      const cachedData = await CacheService.get(cacheKey);
+      // Build cache key based on query parameters; skip caching entirely when
+      // search is active (arbitrary user input would create unbounded cache keys)
+      const cacheKey = trimmedSearch
+        ? null
+        : `general_applications_all_${role_id || "all"}_${location_id || "all"}_${status_id || "all"}_${
+            applicant_location_id || "all"
+          }_${applicant_state_id || "all"}_${parsedLimit}_${parsedOffset}`;
+      const cachedData = cacheKey ? await CacheService.get(cacheKey) : null;
 
       // if (cachedData) {
       //   return res.json({
@@ -1045,6 +1050,12 @@ class JobApplicationSubmissionController {
         };
       }
 
+      // Search by applicant name/email (GeneralApplications has no text column of
+      // its own, so this searches the joined Applicants record).
+      if (trimmedSearch) {
+        applicantWhere[Op.or] = [{ name: { [Op.iLike]: `%${trimmedSearch}%` } }, { email: { [Op.iLike]: `%${trimmedSearch}%` } }];
+      }
+
       const { rows: applications, count: total } = await models.GeneralApplications.findAndCountAll({
         where: whereConditions,
         include: [
@@ -1053,7 +1064,10 @@ class JobApplicationSubmissionController {
             as: "applicant",
             attributes: ["id", "name", "email", "phone", "file"],
             where: applicantWhere,
-            required: !!(location_id || applicant_location_id || applicant_state_id), // Make Applicants join required if any applicant filtering is provided
+            // Applicants join must be required whenever any applicant-level
+            // condition (location/state/search) is filtering — a LEFT JOIN's
+            // `where` only shapes the ON clause, it won't exclude non-matching rows.
+            required: !!(location_id || applicant_location_id || applicant_state_id || trimmedSearch),
             include: [
               {
                 model: models.CareerLocations,
@@ -1153,8 +1167,10 @@ class JobApplicationSubmissionController {
         },
       };
 
-      // Store in cache for 1 hour
-      await CacheService.set(cacheKey, JSON.stringify(response), 3600); // Cache for 1 hour
+      // Store in cache for 1 hour (skipped when search is active — see cacheKey above)
+      if (cacheKey) {
+        await CacheService.set(cacheKey, JSON.stringify(response), 3600);
+      }
 
       res.status(200).json(response);
     } catch (error) {

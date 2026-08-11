@@ -225,12 +225,7 @@ class ServiceBenefitsController {
   static async getByServiceSlug(req, res, next) {
     try {
       const { slug } = req.params;
-      const cacheKey = `ServiceBenefits_bySlug_${slug}`;
-      const cachedData = await CacheService.get(cacheKey);
-
-      if (cachedData) {
-        return res.json({ success: true, data: JSON.parse(cachedData) });
-      }
+      const { page, limit, search } = req.query;
 
       const service = await models.Services.findOne({
         where: { slug, is_active: true },
@@ -241,29 +236,99 @@ class ServiceBenefitsController {
         throw new CustomError("Service not found", 404);
       }
 
-      const benefits = await ServiceBenefit.findAll({
-        where: {
-          service_id: service.id,
-          // is_active: true,
-        },
+      // If no pagination params, return full list (backward compatible)
+      if (!page && !limit) {
+        const cacheKey = `ServiceBenefits_bySlug_${slug}`;
+        const cachedData = await CacheService.get(cacheKey);
+
+        if (cachedData) {
+          return res.json({ success: true, data: JSON.parse(cachedData) });
+        }
+
+        const benefits = await ServiceBenefit.findAll({
+          where: {
+            service_id: service.id,
+            // is_active: true,
+          },
+          attributes: ["id", "icon", "image_alt", "title", "order", "is_active"],
+          order: [["order", "ASC"]],
+        });
+
+        const responseData = {
+          service: {
+            id: service.id,
+            title: service.title,
+            slug: service.slug,
+          },
+          benefits,
+        };
+
+        await CacheService.set(cacheKey, JSON.stringify(responseData), 3600);
+
+        Logger.info(`Fetched and cached service benefits for slug: ${slug}`);
+
+        return res.json({ success: true, data: responseData });
+      }
+
+      // Pagination flow
+      const pageNum = Math.max(1, parseInt(page, 10));
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
+      const offset = (pageNum - 1) * limitNum;
+
+      const whereConditions = { service_id: service.id };
+      if (search && search.trim()) {
+        whereConditions.title = { [Op.iLike]: `%${search.trim()}%` };
+      }
+
+      // Skip caching when search is applied
+      const cacheKey = search ? null : `ServiceBenefits_bySlug_${slug}_page_${pageNum}_limit_${limitNum}`;
+      if (cacheKey) {
+        const cachedData = await CacheService.get(cacheKey);
+        if (cachedData) {
+          return res.json(JSON.parse(cachedData));
+        }
+      }
+
+      const { count, rows } = await ServiceBenefit.findAndCountAll({
+        where: whereConditions,
         attributes: ["id", "icon", "image_alt", "title", "order", "is_active"],
         order: [["order", "ASC"]],
+        limit: limitNum,
+        offset,
+        distinct: true,
       });
 
-      const responseData = {
+      const totalPages = Math.ceil(count / limitNum);
+      const hasNextPage = pageNum < totalPages;
+      const hasPrevPage = pageNum > 1;
+
+      const response = {
+        success: true,
         service: {
           id: service.id,
           title: service.title,
           slug: service.slug,
         },
-        benefits,
+        data: rows,
+        total: count,
+        pagination: {
+          page: pageNum,
+          total: count,
+          totalPages,
+          limit: limitNum,
+          offset,
+          hasNextPage,
+          hasPrevPage,
+        },
       };
 
-      await CacheService.set(cacheKey, JSON.stringify(responseData), 3600);
+      if (cacheKey) {
+        await CacheService.set(cacheKey, JSON.stringify(response), 3600);
+      }
 
-      Logger.info(`Fetched and cached service benefits for slug: ${slug}`);
+      Logger.info(`Fetched service benefits for slug: ${slug}, page ${pageNum}`);
 
-      res.json({ success: true, data: responseData });
+      res.json(response);
     } catch (error) {
       next(error);
     }
