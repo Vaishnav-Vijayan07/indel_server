@@ -73,7 +73,7 @@ class AnnualReturnsController {
       // No good title/name column on this model; search falls back to the file path.
       const whereConditions = {};
       if (search && search.trim()) {
-        whereConditions.file = { [Op.iLike]: `%${search.trim()}%` };
+        whereConditions["$fiscalYear.fiscal_year$"] = { [Op.iLike]: `%${search.trim()}%` };
       }
 
       const cacheKey = search ? null : `AnnualReturns_page_${pageNum}_limit_${limitNum}`;

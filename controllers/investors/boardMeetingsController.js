@@ -79,14 +79,10 @@ class BoardMeetingsController {
       const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
       const offset = (pageNum - 1) * limitNum;
 
-      // No title column on this model; search matches either uploaded document filename.
+      // No title column on this model; search on the joined fiscal year label instead.
       const whereConditions = {};
       if (search && search.trim()) {
-        const term = `%${search.trim()}%`;
-        whereConditions[Op.or] = [
-          { intimation_document: { [Op.iLike]: term } },
-          { outcome_document: { [Op.iLike]: term } },
-        ];
+        whereConditions["$fiscalYear.fiscal_year$"] = { [Op.iLike]: `%${search.trim()}%` };
       }
 
       const cacheKey = search ? null : `BoardMeetings_page_${pageNum}_limit_${limitNum}`;
@@ -97,6 +93,7 @@ class BoardMeetingsController {
         order: [["meeting_date", "DESC"]],
         limit: limitNum,
         offset,
+        distinct: true,
       });
 
       const totalPages = Math.ceil(count / limitNum);

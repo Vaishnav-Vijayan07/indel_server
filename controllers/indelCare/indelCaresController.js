@@ -84,7 +84,7 @@ class IndelCaresController {
         }
 
         const indelCares = await IndelCares.findAll({
-          order: [["order", "ASC"], ["created_at", "DESC"]],
+          order: [["order", "ASC"], ["createdAt", "DESC"]],
         });
 
         await CacheService.set(cacheKey, JSON.stringify(indelCares), 3600);
@@ -113,7 +113,7 @@ class IndelCaresController {
 
       const { count, rows } = await IndelCares.findAndCountAll({
         where: whereConditions,
-        order: [["order", "ASC"], ["created_at", "DESC"]],
+        order: [["order", "ASC"], ["createdAt", "DESC"]],
         limit: limitNum,
         offset,
       });

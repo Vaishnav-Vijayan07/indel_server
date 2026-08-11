@@ -70,10 +70,10 @@ class AnnualReportController {
       const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
       const offset = (pageNum - 1) * limitNum;
 
-      // No good title/name column on this model; search falls back to the file path.
+      // No good title/name column on this model; search on the joined fiscal year label instead.
       const whereConditions = {};
       if (search && search.trim()) {
-        whereConditions.file = { [Op.iLike]: `%${search.trim()}%` };
+        whereConditions["$fiscalYear.fiscal_year$"] = { [Op.iLike]: `%${search.trim()}%` };
       }
 
       const cacheKey = search ? null : `AnnualReport_page_${pageNum}_limit_${limitNum}`;
@@ -84,6 +84,7 @@ class AnnualReportController {
         order: [["order", "ASC"]],
         limit: limitNum,
         offset,
+        distinct: true,
       });
 
       const totalPages = Math.ceil(count / limitNum);

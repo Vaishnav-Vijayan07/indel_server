@@ -73,7 +73,7 @@ class CsrActionPlanController {
       // No title column on this model; search falls back to the report file path.
       const whereConditions = {};
       if (search && search.trim()) {
-        whereConditions.report = { [Op.iLike]: `%${search.trim()}%` };
+        whereConditions["$fiscalYear.fiscal_year$"] = { [Op.iLike]: `%${search.trim()}%` };
       }
 
       const cacheKey = search ? null : `CsrActionPlan_page_${pageNum}_limit_${limitNum}`;
