@@ -33,10 +33,10 @@ class GoldLoanFaqsController {
         const cacheKey = "goldLoanFaqs";
         const cachedData = await CacheService.get(cacheKey);
 
-        // if (cachedData) {
-        //   logger.info("Retrieved gold loan data from cache");
-        //   return res.json({ success: true, data: JSON.parse(cachedData) });
-        // }
+        if (cachedData) {
+          logger.info("Retrieved gold loan data from cache");
+          return res.json({ success: true, data: JSON.parse(cachedData) });
+        }
 
         let whereClause = { is_active: true };
         if (stateId) {
@@ -77,7 +77,7 @@ class GoldLoanFaqsController {
       const cacheKey = search ? null : `goldLoanFaqs_page_${pageNum}_limit_${limitNum}`;
       if (cacheKey) {
         const cachedData = await CacheService.get(cacheKey);
-        // if (cachedData) return res.json(JSON.parse(cachedData));
+        if (cachedData) return res.json(JSON.parse(cachedData));
       }
 
       const { count, rows } = await GoldLoanFaqs.findAndCountAll({
@@ -95,6 +95,7 @@ class GoldLoanFaqsController {
         total: count,
         pagination: {
           page: pageNum,
+          total: count,
           totalPages,
           limit: limitNum,
           offset,
