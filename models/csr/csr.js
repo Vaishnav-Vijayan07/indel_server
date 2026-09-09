@@ -10,7 +10,7 @@ module.exports = (sequelize) => {
         autoIncrement: true,
       },
       meta_title: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       slug: {
@@ -23,7 +23,7 @@ module.exports = (sequelize) => {
         comment: "URL-friendly identifier for the csr post",
       },
       meta_description: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       other_meta_tags: {
@@ -31,11 +31,11 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
       meta_keywords: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       title: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false,
       },
       image: {
